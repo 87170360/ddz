@@ -1,0 +1,263 @@
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 Mar22 ?        00:00:29 /sbin/init
+root         2     0  0 Mar22 ?        00:00:00 [kthreadd]
+root         3     2  0 Mar22 ?        00:00:28 [migration/0]
+root         4     2  0 Mar22 ?        00:05:26 [ksoftirqd/0]
+root         5     2  0 Mar22 ?        00:00:00 [migration/0]
+root         6     2  0 Mar22 ?        00:00:05 [watchdog/0]
+root         7     2  0 Mar22 ?        00:00:25 [migration/1]
+root         8     2  0 Mar22 ?        00:00:00 [migration/1]
+root         9     2  0 Mar22 ?        00:01:03 [ksoftirqd/1]
+root        10     2  0 Mar22 ?        00:00:04 [watchdog/1]
+root        11     2  0 Mar22 ?        00:00:22 [migration/2]
+root        12     2  0 Mar22 ?        00:00:00 [migration/2]
+root        13     2  0 Mar22 ?        00:02:16 [ksoftirqd/2]
+root        14     2  0 Mar22 ?        00:00:04 [watchdog/2]
+root        15     2  0 Mar22 ?        00:00:14 [migration/3]
+root        16     2  0 Mar22 ?        00:00:00 [migration/3]
+root        17     2  0 Mar22 ?        00:01:46 [ksoftirqd/3]
+root        18     2  0 Mar22 ?        00:00:04 [watchdog/3]
+root        19     2  0 Mar22 ?        00:03:58 [events/0]
+root        20     2  0 Mar22 ?        00:03:50 [events/1]
+root        21     2  0 Mar22 ?        00:02:36 [events/2]
+root        22     2  0 Mar22 ?        00:02:56 [events/3]
+root        23     2  0 Mar22 ?        00:00:00 [cgroup]
+root        24     2  0 Mar22 ?        00:00:00 [khelper]
+root        25     2  0 Mar22 ?        00:00:00 [netns]
+root        26     2  0 Mar22 ?        00:00:00 [async/mgr]
+root        27     2  0 Mar22 ?        00:00:00 [pm]
+root        28     2  0 Mar22 ?        00:00:14 [sync_supers]
+root        29     2  0 Mar22 ?        00:00:18 [bdi-default]
+root        30     2  0 Mar22 ?        00:00:00 [kintegrityd/0]
+root        31     2  0 Mar22 ?        00:00:00 [kintegrityd/1]
+root        32     2  0 Mar22 ?        00:00:00 [kintegrityd/2]
+root        33     2  0 Mar22 ?        00:00:00 [kintegrityd/3]
+root        34     2  0 Mar22 ?        00:00:06 [kblockd/0]
+root        35     2  0 Mar22 ?        00:00:55 [kblockd/1]
+root        36     2  0 Mar22 ?        00:00:18 [kblockd/2]
+root        37     2  0 Mar22 ?        00:00:00 [kblockd/3]
+root        38     2  0 Mar22 ?        00:00:00 [kacpid]
+root        39     2  0 Mar22 ?        00:00:00 [kacpi_notify]
+root        40     2  0 Mar22 ?        00:00:00 [kacpi_hotplug]
+root        41     2  0 Mar22 ?        00:00:00 [ata_aux]
+root        42     2  0 Mar22 ?        00:00:00 [ata_sff/0]
+root        43     2  0 Mar22 ?        00:00:00 [ata_sff/1]
+root        44     2  0 Mar22 ?        00:00:00 [ata_sff/2]
+root        45     2  0 Mar22 ?        00:00:00 [ata_sff/3]
+root        46     2  0 Mar22 ?        00:00:00 [ksuspend_usbd]
+root        47     2  0 Mar22 ?        00:00:00 [khubd]
+root        48     2  0 Mar22 ?        00:00:00 [kseriod]
+root        49     2  0 Mar22 ?        00:00:00 [md/0]
+root        50     2  0 Mar22 ?        00:00:00 [md/1]
+root        51     2  0 Mar22 ?        00:00:00 [md/2]
+root        52     2  0 Mar22 ?        00:00:00 [md/3]
+root        53     2  0 Mar22 ?        00:00:00 [md_misc/0]
+root        54     2  0 Mar22 ?        00:00:00 [md_misc/1]
+root        55     2  0 Mar22 ?        00:00:00 [md_misc/2]
+root        56     2  0 Mar22 ?        00:00:00 [md_misc/3]
+root        57     2  0 Mar22 ?        00:00:00 [linkwatch]
+root        58     2  0 Mar22 ?        00:00:02 [khungtaskd]
+root        59     2  0 Mar22 ?        00:00:03 [kswapd0]
+root        60     2  0 Mar22 ?        00:00:00 [ksmd]
+root        61     2  0 Mar22 ?        00:00:13 [khugepaged]
+root        62     2  0 Mar22 ?        00:00:00 [aio/0]
+root        63     2  0 Mar22 ?        00:00:00 [aio/1]
+root        64     2  0 Mar22 ?        00:00:00 [aio/2]
+root        65     2  0 Mar22 ?        00:00:00 [aio/3]
+root        66     2  0 Mar22 ?        00:00:00 [crypto/0]
+root        67     2  0 Mar22 ?        00:00:00 [crypto/1]
+root        68     2  0 Mar22 ?        00:00:00 [crypto/2]
+root        69     2  0 Mar22 ?        00:00:00 [crypto/3]
+root        74     2  0 Mar22 ?        00:00:00 [kthrotld/0]
+root        75     2  0 Mar22 ?        00:00:00 [kthrotld/1]
+root        76     2  0 Mar22 ?        00:00:00 [kthrotld/2]
+root        77     2  0 Mar22 ?        00:00:00 [kthrotld/3]
+root        79     2  0 Mar22 ?        00:00:00 [kpsmoused]
+root        80     2  0 Mar22 ?        00:00:00 [usbhid_resumer]
+root       111     2  0 Mar22 ?        00:00:00 [kstriped]
+root       139     2  0 Mar22 ?        00:00:11 [i915]
+root       140     2  0 Mar22 ?        00:00:00 [kslowd000]
+root       141     2  0 Mar22 ?        00:00:00 [kslowd001]
+root       321     2  0 Mar22 ?        00:00:00 [scsi_eh_0]
+root       322     2  0 Mar22 ?        00:00:00 [scsi_eh_1]
+root       323     2  0 Mar22 ?        00:00:00 [scsi_eh_2]
+root       324     2  0 Mar22 ?        00:00:00 [scsi_eh_3]
+root       325     2  0 Mar22 ?        00:00:00 [scsi_eh_4]
+root       326     2  0 Mar22 ?        00:00:00 [scsi_eh_5]
+root       386     2  0 Mar22 ?        00:00:23 [kdmflush]
+root       388     2  0 Mar22 ?        00:00:00 [kdmflush]
+root       405     2  0 Mar22 ?        00:06:35 [jbd2/dm-0-8]
+root       406     2  0 Mar22 ?        00:00:00 [ext4-dio-unwrit]
+root       504     1  0 Mar22 ?        00:00:00 /sbin/udevd -d
+root       544     2  0 Mar22 ?        00:00:00 [hd-audio0]
+root       547     2  0 Mar22 ?        00:00:00 [hd-audio1]
+root      1015 19936  0 08:23 ?        00:00:15 smbd -D
+root      1369     2  0 Mar22 ?        00:00:00 [kdmflush]
+root      1415     2  0 Mar22 ?        00:00:00 [jbd2/sda1-8]
+root      1416     2  0 Mar22 ?        00:00:00 [ext4-dio-unwrit]
+root      1417     2  0 Mar22 ?        00:00:00 [jbd2/dm-2-8]
+root      1418     2  0 Mar22 ?        00:00:00 [ext4-dio-unwrit]
+root      1465     2  0 Mar22 ?        00:00:37 [kauditd]
+root      1529     1  0 Mar24 ?        00:40:14 ../bin/redis-server *:6379    
+root      1534     1  0 Mar24 ?        00:43:01 /usr/local/redis/bin/redis-server *:6000                          
+root      1538     1  0 Mar24 ?        00:42:53 /usr/local/redis/bin/redis-server *:6001                          
+root      1542     1  0 Mar24 ?        00:42:44 /usr/local/redis/bin/redis-server *:6002                          
+root      1546     1  0 Mar24 ?        00:42:59 /usr/local/redis/bin/redis-server *:6003                          
+root      1550     1  0 Mar24 ?        00:43:10 /usr/local/redis/bin/redis-server *:6004                          
+root      1554     1  0 Mar24 ?        00:42:47 /usr/local/redis/bin/redis-server *:6005                          
+root      1558     1  0 Mar24 ?        00:41:50 /usr/local/redis/bin/redis-server *:6006                          
+root      1562     1  0 Mar24 ?        00:41:29 /usr/local/redis/bin/redis-server *:6007                          
+root      1566     1  0 Mar24 ?        00:41:28 /usr/local/redis/bin/redis-server *:6008                          
+root      1570     1  0 Mar24 ?        00:41:50 /usr/local/redis/bin/redis-server *:6009                          
+root      1574     1 28 Mar24 ?        13-23:22:56 /usr/local/redis/bin/redis-server *:6100                             
+root      1578     1  0 Mar24 ?        00:48:48 /usr/local/redis/bin/redis-server *:6200                             
+root      1614     2  0 Mar22 ?        00:01:55 [flush-253:0]
+root      1666     1  0 Mar22 ?        00:00:00 /usr/local/sunlogin/bin/oray_rundaemon -e source /usr/local/sunlogin/etc/watch.sh -d
+root      1673     1  0 Mar22 ?        00:02:10 auditd
+root      1698     1  0 Mar22 ?        00:01:42 /sbin/rsyslogd -i /var/run/syslogd.pid -c 5
+root      1704     1  0 Mar24 ?        00:06:34 php-fpm: master process (/usr/local/php/etc/php-fpm.conf)                                   
+root      1712     1  0 Mar24 ?        00:00:00 nginx: master process ./nginx
+www       1713  1712  0 Mar24 ?        00:03:26 nginx: worker process
+www       1714  1712  0 Mar24 ?        00:03:16 nginx: worker process
+www       1715  1712  0 Mar24 ?        00:03:30 nginx: worker process
+www       1716  1712  0 Mar24 ?        00:03:25 nginx: worker process
+www       1717  1712  0 Mar24 ?        00:02:53 nginx: worker process
+www       1718  1712  0 Mar24 ?        00:03:27 nginx: worker process
+www       1719  1712  0 Mar24 ?        00:03:13 nginx: worker process
+www       1720  1712  0 Mar24 ?        00:03:33 nginx: worker process
+root      1721     2  0 Mar22 ?        00:46:10 [kondemand/0]
+root      1722     2  0 Mar22 ?        00:34:47 [kondemand/1]
+root      1723     2  0 Mar22 ?        00:31:31 [kondemand/2]
+root      1724     2  0 Mar22 ?        00:27:04 [kondemand/3]
+www       1725  1712  0 Mar24 ?        00:03:18 nginx: worker process
+www       1726  1712  0 Mar24 ?        00:03:19 nginx: worker process
+www       1727  1712  0 Mar24 ?        00:03:21 nginx: worker process
+www       1728  1712  0 Mar24 ?        00:03:29 nginx: worker process
+www       1729  1712  0 Mar24 ?        00:03:04 nginx: worker process
+www       1730  1712  0 Mar24 ?        00:03:18 nginx: worker process
+www       1731  1712  0 Mar24 ?        00:03:30 nginx: worker process
+www       1732  1712  0 Mar24 ?        00:03:16 nginx: worker process
+root      1745     1  0 Mar22 ?        00:06:11 irqbalance --pid=/var/run/irqbalance.pid
+rpc       1759     1  0 Mar22 ?        00:00:04 rpcbind
+dbus      1879     1  0 Mar22 ?        00:00:10 dbus-daemon --system
+root      1897     1  0 Mar22 ?        00:00:15 NetworkManager --pid-file=/var/run/NetworkManager/NetworkManager.pid
+root      1911     1  0 Mar22 ?        00:00:00 /usr/sbin/modem-manager
+rpcuser   1917     1  0 Mar22 ?        00:00:00 rpc.statd
+root      1951     1  0 Mar22 ?        00:00:00 /usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -B -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
+root      1973     1  0 Mar22 ?        00:00:10 cupsd -C /etc/cups/cupsd.conf
+root      1989     1  0 Mar22 ?        00:00:00 /usr/sbin/acpid
+68        1998     1  0 Mar22 ?        00:00:27 hald
+root      1999  1998  0 Mar22 ?        00:00:00 hald-runner
+root      2043  1999  0 Mar22 ?        00:00:00 /usr/libexec/hald-addon-generic-backlight
+root      2045  1999  0 Mar22 ?        00:00:00 hald-addon-input: Listening on /dev/input/event7 /dev/input/event0 /dev/input/event3 /dev/input/event1 /dev/input/event13
+68        2048  1999  0 Mar22 ?        00:00:00 hald-addon-acpi: listening on acpid socket /var/run/acpid.socket
+root      2068     1  0 Mar22 ?        00:00:43 automount --pid-file /var/run/autofs.pid
+root      2093     1  0 Mar22 ?        00:00:47 /usr/sbin/sshd
+root      2181     1  0 Mar22 ?        00:00:58 /usr/libexec/postfix/master
+postfix   2188  2181  0 Mar22 ?        00:01:02 qmgr -l -t fifo -u
+root      2205     1  0 Mar22 ?        00:00:00 /usr/sbin/abrtd
+root      2213     1  0 Mar22 ?        00:01:11 crond
+root      2224     1  0 Mar22 ?        00:00:01 /usr/sbin/atd
+root      2236     1  0 Mar22 ?        00:00:03 /usr/sbin/certmonger -S -p /var/run/certmonger.pid
+root      2244     1  0 Mar22 ?        00:02:10 /usr/bin/phddns -c /etc/phlinux.conf -d
+root      2246     1  0 Mar22 ?        00:00:00 /usr/sbin/gdm-binary -nodaemon
+root      2251     1  0 Mar22 tty2     00:00:00 /sbin/mingetty /dev/tty2
+root      2253     1  0 Mar22 tty3     00:00:00 /sbin/mingetty /dev/tty3
+root      2255     1  0 Mar22 tty4     00:00:00 /sbin/mingetty /dev/tty4
+root      2257     1  0 Mar22 tty5     00:00:00 /sbin/mingetty /dev/tty5
+root      2259     1  0 Mar22 tty6     00:00:00 /sbin/mingetty /dev/tty6
+root      2265   504  0 Mar22 ?        00:00:00 /sbin/udevd -d
+root      2298     1  0 Mar22 ?        00:00:04 /usr/sbin/console-kit-daemon --no-daemon
+root      2374     1  0 Mar22 ?        00:00:01 /usr/libexec/devkit-power-daemon
+root      2411     1  0 Mar22 ?        00:00:01 /usr/libexec/polkit-1/polkitd
+rtkit     2426     1  0 Mar22 ?        00:00:54 /usr/libexec/rtkit-daemon
+root      4763  2093  0 09:08 ?        00:00:00 sshd: root@pts/1 
+root      4768  4763  0 09:08 pts/1    00:00:00 -bash
+root      6204     1 61 May05 ?        4-05:15:48 /usr/java/jdk1.7.0_67/bin/java -Djava.util.logging.config.file=/usr/local/apache-tomcat-7.0.68/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djava.endorsed.dirs=/usr/local/apache-tomcat-7.0.68/endorsed -classpath /usr/local/apache-tomcat-7.0.68/bin/bootstrap.jar:/usr/local/apache-tomcat-7.0.68/bin/tomcat-juli.jar -Dcatalina.base=/usr/local/apache-tomcat-7.0.68 -Dcatalina.home=/usr/local/apache-tomcat-7.0.68 -Djava.io.tmpdir=/usr/local/apache-tomcat-7.0.68/temp org.apache.catalina.startup.Bootstrap start
+root      6639  2246  0 Apr25 ?        00:00:00 /usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Display1
+root      6641  6639  0 Apr25 tty8     00:00:43 /usr/bin/Xorg :0 -br -verbose -audit 4 -auth /var/run/gdm/auth-for-gdm-6u2JGW/database -nolisten tcp
+gdm       6662     1  0 Apr25 ?        00:00:00 /usr/bin/dbus-launch --exit-with-session
+gdm       6663     1  0 Apr25 ?        00:00:00 /bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+gdm       6665  6639  0 Apr25 ?        00:00:00 /usr/bin/gnome-session --autostart=/usr/share/gdm/autostart/LoginWindow/
+gdm       6668     1  0 Apr25 ?        00:00:07 /usr/libexec/gconfd-2
+gdm       6672  6665  0 Apr25 ?        00:00:05 /usr/libexec/at-spi-registryd
+gdm       6673     1  0 Apr25 ?        00:00:35 /usr/libexec/gnome-settings-daemon --gconf-prefix=/apps/gdm/simple-greeter/settings-manager-plugins
+gdm       6675     1  0 Apr25 ?        00:00:00 /usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=12
+gdm       6682     1  0 Apr25 ?        00:00:00 /usr/libexec/gvfsd
+gdm       6683  6665  0 Apr25 ?        00:00:07 metacity
+gdm       6684  6665  0 Apr25 ?        00:00:00 /usr/libexec/polkit-gnome-authentication-agent-1
+gdm       6686  6665  0 Apr25 ?        00:00:19 gnome-power-manager
+gdm       6687  6665  0 Apr25 ?        00:00:38 /usr/libexec/gdm-simple-greeter
+postfix   6691  2181  0 09:30 ?        00:00:00 local -t unix
+root      6694  6639  0 Apr25 ?        00:00:00 pam: gdm-password
+postfix   7720  2181  0 09:43 ?        00:00:00 cleanup -z -t unix -u
+postfix   8711  2181  0 09:55 ?        00:00:00 cleanup -z -t unix -u
+postfix   9138  2181  0 10:00 ?        00:00:00 pickup -l -t fifo -u
+postfix   9140  2181  0 10:00 ?        00:00:00 local -t unix
+www       9896  1704  0 Apr26 ?        00:00:04 php-fpm: pool www                                                                           
+root     10613  2093  0 10:17 ?        00:00:00 sshd: root@pts/2 
+root     10617 10613  0 10:17 pts/2    00:00:00 -bash
+root     10738     1  0 Mar23 ?        00:00:00 /bin/sh /usr/bin/mysqld_safe --datadir=/var/lib/mysql --socket=/var/lib/mysql/mysql.sock --pid-file=/var/run/mysqld/mysqld.pid --basedir=/usr --user=mysql
+postfix  10835  2181  0 10:20 ?        00:00:00 bounce -z -t unix -u
+mysql    10840 10738  0 Mar23 ?        00:20:50 /usr/libexec/mysqld --basedir=/usr --datadir=/var/lib/mysql --user=mysql --log-error=/var/log/mysqld.log --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/lib/mysql/mysql.sock
+postfix  11351  2181  0 10:28 ?        00:00:00 trivial-rewrite -n rewrite -t unix -u
+root     12521  4768  0 10:44 pts/1    00:00:00 ./allkill -f test/allkill.conf
+root     12533 23594  0 10:44 ?        00:00:00 sleep 25
+root     12544 23683  0 10:44 ?        00:00:00 sleep 30
+root     12549     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 10
+root     12550     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 11
+root     12551     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 12
+root     12552     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 13
+root     12553     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 14
+root     12554     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 15
+root     12555     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 16
+root     12556     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 17
+root     12557     1  0 10:44 pts/2    00:00:00 ./bet_client 127.0.0.1 6800 18
+root     12563 23579  0 10:44 ?        00:00:00 sleep 30
+root     12565 10617  0 10:44 pts/2    00:00:00 -bash
+root     12566 12565  1 10:44 pts/2    00:00:00 ps -Af
+root     15716     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low0.conf
+root     15717     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low1.conf
+root     15718     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low2.conf
+root     15719     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low3.conf
+root     15720     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low4.conf
+root     15721     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low5.conf
+root     15722     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low6.conf
+root     15723     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low7.conf
+root     15724     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low8.conf
+root     15725     1  0 May05 ?        00:00:00 ./bin/normal_bull -f ./conf/normal_bull_low9.conf
+root     19240  1666  0 Apr12 ?        00:00:00 sh -c source /usr/local/sunlogin/etc/watch.sh
+root     19247 19240  0 Apr12 ?        01:11:47 /usr/local/sunlogin/bin/sunloginclient_linux -s
+root     19936     1  0 Apr10 ?        00:00:01 smbd -D
+root     19938 19936  0 Apr10 ?        00:00:06 smbd -D
+root     19957     1  0 Apr10 ?        00:02:33 nmbd -D
+root     22815   504  0 Apr13 ?        00:00:00 /sbin/udevd -d
+root     22903     1  0 Apr13 ?        00:01:35 /usr/libexec/udisks-daemon
+root     22904 22903  0 Apr13 ?        00:00:00 udisks-daemon: not polling any devices
+root     23047     1  0 Apr13 ?        00:00:00 /usr/sbin/restorecond -u
+root     23060     1  0 Apr13 ?        00:00:00 /usr/libexec/e-calendar-factory
+root     23579     1  0 Apr26 ?        00:31:11 /bin/bash ./run_beauty_robot.sh
+root     23594     1  0 Apr26 ?        00:22:06 /bin/bash ./run_bet_robot.sh
+root     23683     1  0 Apr26 ?        00:03:35 /bin/bash ./run_lottery_robot.sh
+root     23769  2246  0 Apr13 ?        00:00:00 /usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Display2
+root     23774 23769  0 Apr13 tty7     00:01:05 /usr/bin/Xorg :1 -br -verbose -audit 4 -auth /var/run/gdm/auth-for-gdm-sGEQ72/database -nolisten tcp
+gdm      23795     1  0 Apr13 ?        00:00:00 /usr/bin/dbus-launch --exit-with-session
+gdm      23796     1  0 Apr13 ?        00:00:00 /bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+gdm      23798 23769  0 Apr13 ?        00:00:00 /usr/bin/gnome-session --autostart=/usr/share/gdm/autostart/LoginWindow/
+gdm      23801     1  0 Apr13 ?        00:00:10 /usr/libexec/gconfd-2
+gdm      23805 23798  0 Apr13 ?        00:00:10 /usr/libexec/at-spi-registryd
+gdm      23806     1  0 Apr13 ?        00:01:05 /usr/libexec/gnome-settings-daemon --gconf-prefix=/apps/gdm/simple-greeter/settings-manager-plugins
+gdm      23808     1  0 Apr13 ?        00:00:00 /usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=12
+gdm      23815     1  0 Apr13 ?        00:00:00 /usr/libexec/gvfsd
+gdm      23816 23798  0 Apr13 ?        00:00:13 metacity
+gdm      23817 23798  0 Apr13 ?        00:00:00 /usr/libexec/polkit-gnome-authentication-agent-1
+gdm      23819 23798  0 Apr13 ?        00:00:35 gnome-power-manager
+gdm      23820 23798  0 Apr13 ?        00:01:07 /usr/libexec/gdm-simple-greeter
+gdm      23828     1  0 Apr13 ?        00:00:00 /usr/bin/pulseaudio --start --log-target=syslog
+root     23835 23769  0 Apr13 ?        00:00:00 pam: gdm-password
+www      29880  1704  0 Apr20 ?        00:00:15 php-fpm: pool www                                                                           
+www      29882  1704  0 Apr20 ?        00:00:15 php-fpm: pool www                                                                           
+www      29885  1704  0 Apr20 ?        00:00:15 php-fpm: pool www                                                                           
+www      29888  1704  0 Apr20 ?        00:00:15 php-fpm: pool www                                                                           
+www      29890  1704  0 Apr20 ?        00:00:15 php-fpm: pool www                                                                           
+www      29892  1704  0 Apr20 ?        00:00:15 php-fpm: pool www                                                                           

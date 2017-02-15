@@ -1,0 +1,221 @@
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 Jul29 ?        00:00:00 /sbin/init
+root         2     0  0 Jul29 ?        00:00:00 [kthreadd]
+root         3     2  0 Jul29 ?        00:00:00 [migration/0]
+root         4     2  0 Jul29 ?        00:00:00 [ksoftirqd/0]
+root         5     2  0 Jul29 ?        00:00:00 [stopper/0]
+root         6     2  0 Jul29 ?        00:00:00 [watchdog/0]
+root         7     2  0 Jul29 ?        00:00:00 [migration/1]
+root         8     2  0 Jul29 ?        00:00:00 [stopper/1]
+root         9     2  0 Jul29 ?        00:00:00 [ksoftirqd/1]
+root        10     2  0 Jul29 ?        00:00:00 [watchdog/1]
+root        11     2  0 Jul29 ?        00:00:00 [migration/2]
+root        12     2  0 Jul29 ?        00:00:00 [stopper/2]
+root        13     2  0 Jul29 ?        00:00:00 [ksoftirqd/2]
+root        14     2  0 Jul29 ?        00:00:00 [watchdog/2]
+root        15     2  0 Jul29 ?        00:00:00 [migration/3]
+root        16     2  0 Jul29 ?        00:00:00 [stopper/3]
+root        17     2  0 Jul29 ?        00:00:00 [ksoftirqd/3]
+root        18     2  0 Jul29 ?        00:00:00 [watchdog/3]
+root        19     2  0 Jul29 ?        00:00:04 [events/0]
+root        20     2  0 Jul29 ?        00:00:06 [events/1]
+root        21     2  0 Jul29 ?        00:00:06 [events/2]
+root        22     2  0 Jul29 ?        00:00:06 [events/3]
+root        23     2  0 Jul29 ?        00:00:00 [cgroup]
+root        24     2  0 Jul29 ?        00:00:00 [khelper]
+root        25     2  0 Jul29 ?        00:00:00 [netns]
+root        26     2  0 Jul29 ?        00:00:00 [async/mgr]
+root        27     2  0 Jul29 ?        00:00:00 [pm]
+root        28     2  0 Jul29 ?        00:00:00 [sync_supers]
+root        29     2  0 Jul29 ?        00:00:00 [bdi-default]
+root        30     2  0 Jul29 ?        00:00:00 [kintegrityd/0]
+root        31     2  0 Jul29 ?        00:00:00 [kintegrityd/1]
+root        32     2  0 Jul29 ?        00:00:00 [kintegrityd/2]
+root        33     2  0 Jul29 ?        00:00:00 [kintegrityd/3]
+root        34     2  0 Jul29 ?        00:00:05 [kblockd/0]
+root        35     2  0 Jul29 ?        00:00:00 [kblockd/1]
+root        36     2  0 Jul29 ?        00:00:00 [kblockd/2]
+root        37     2  0 Jul29 ?        00:00:00 [kblockd/3]
+root        38     2  0 Jul29 ?        00:00:00 [kacpid]
+root        39     2  0 Jul29 ?        00:00:00 [kacpi_notify]
+root        40     2  0 Jul29 ?        00:00:00 [kacpi_hotplug]
+root        41     2  0 Jul29 ?        00:00:00 [ata_aux]
+root        42     2  0 Jul29 ?        00:00:00 [ata_sff/0]
+root        43     2  0 Jul29 ?        00:00:00 [ata_sff/1]
+root        44     2  0 Jul29 ?        00:00:00 [ata_sff/2]
+root        45     2  0 Jul29 ?        00:00:00 [ata_sff/3]
+root        46     2  0 Jul29 ?        00:00:00 [ksuspend_usbd]
+root        47     2  0 Jul29 ?        00:00:00 [khubd]
+root        48     2  0 Jul29 ?        00:00:00 [kseriod]
+root        49     2  0 Jul29 ?        00:00:00 [md/0]
+root        50     2  0 Jul29 ?        00:00:00 [md/1]
+root        51     2  0 Jul29 ?        00:00:00 [md/2]
+root        52     2  0 Jul29 ?        00:00:00 [md/3]
+root        53     2  0 Jul29 ?        00:00:00 [md_misc/0]
+root        54     2  0 Jul29 ?        00:00:00 [md_misc/1]
+root        55     2  0 Jul29 ?        00:00:00 [md_misc/2]
+root        56     2  0 Jul29 ?        00:00:00 [md_misc/3]
+root        57     2  0 Jul29 ?        00:00:00 [linkwatch]
+root        59     2  0 Jul29 ?        00:00:00 [khungtaskd]
+root        60     2 99 Jul29 ?        7-03:57:36 [kswapd0]
+root        61     2  0 Jul29 ?        00:00:00 [ksmd]
+root        62     2  0 Jul29 ?        00:00:00 [khugepaged]
+root        63     2  0 Jul29 ?        00:00:00 [aio/0]
+root        64     2  0 Jul29 ?        00:00:00 [aio/1]
+root        65     2  0 Jul29 ?        00:00:00 [aio/2]
+root        66     2  0 Jul29 ?        00:00:00 [aio/3]
+root        67     2  0 Jul29 ?        00:00:00 [crypto/0]
+root        68     2  0 Jul29 ?        00:00:00 [crypto/1]
+root        69     2  0 Jul29 ?        00:00:00 [crypto/2]
+root        70     2  0 Jul29 ?        00:00:00 [crypto/3]
+root        78     2  0 Jul29 ?        00:00:00 [kthrotld/0]
+root        79     2  0 Jul29 ?        00:00:00 [kthrotld/1]
+root        80     2  0 Jul29 ?        00:00:00 [kthrotld/2]
+root        81     2  0 Jul29 ?        00:00:00 [kthrotld/3]
+root        83     2  0 Jul29 ?        00:00:00 [kpsmoused]
+root        84     2  0 Jul29 ?        00:00:00 [usbhid_resumer]
+root        85     2  0 Jul29 ?        00:00:00 [deferwq]
+root       116     2  0 Jul29 ?        00:00:00 [kdmremove]
+root       117     2  0 Jul29 ?        00:00:00 [kstriped]
+root       145     2  0 Jul29 ?        00:00:00 [i915]
+root       146     2  0 Jul29 ?        00:00:00 [i915-dp]
+root       147     2  0 Jul29 ?        00:00:00 [dp-mst]
+root       329     2  0 Jul29 ?        00:00:00 [scsi_eh_0]
+root       330     2  0 Jul29 ?        00:00:00 [scsi_eh_1]
+root       331     2  0 Jul29 ?        00:00:00 [scsi_eh_2]
+root       332     2  0 Jul29 ?        00:00:00 [scsi_eh_3]
+root       333     2  0 Jul29 ?        00:00:00 [scsi_eh_4]
+root       334     2  0 Jul29 ?        00:00:00 [scsi_eh_5]
+root       382     2  0 Jul29 ?        00:00:21 [jbd2/sda6-8]
+root       383     2  0 Jul29 ?        00:00:00 [ext4-dio-unwrit]
+root       479     1  0 Jul29 ?        00:00:00 /sbin/udevd -d
+root       507     2  0 Jul29 ?        00:00:00 [flush-8:0]
+root       526     2  0 Jul29 ?        00:00:00 [hd-audio0]
+root       565  1874  0 09:23 ?        00:00:00 sshd: nosiclin [priv]
+nosiclin   567   565  0 09:23 ?        00:00:04 sshd: nosiclin@pts/0
+nosiclin   568   567  0 09:23 pts/0    00:00:00 -bash
+nosiclin   692   568  0 09:31 pts/0    00:03:57 vim Login.php
+root      1315     2  0 Jul29 ?        00:00:00 [kauditd]
+root      1475     1  0 Jul29 ?        00:00:00 auditd
+root      1505     1  0 Jul29 ?        00:00:12 /sbin/rsyslogd -i /var/run/syslogd.pid -c 5
+root      1528     2  0 Jul29 ?        00:01:34 [kondemand/0]
+root      1529     2  0 Jul29 ?        00:01:15 [kondemand/1]
+root      1530     2  0 Jul29 ?        00:01:09 [kondemand/2]
+root      1531     2  0 Jul29 ?        00:01:09 [kondemand/3]
+root      1553     1  0 Jul29 ?        00:00:11 irqbalance --pid=/var/run/irqbalance.pid
+rpc       1569     1  0 Jul29 ?        00:00:00 rpcbind
+dbus      1672     1  0 Jul29 ?        00:00:00 dbus-daemon --system
+root      1683     1  0 Jul29 ?        00:00:00 NetworkManager --pid-file=/var/run/NetworkManager/NetworkManager.pid
+root      1688     1  0 Jul29 ?        00:00:00 /usr/sbin/modem-manager
+root      1701     1  0 Jul29 ?        00:00:00 cupsd -C /etc/cups/cupsd.conf
+root      1739     1  0 Jul29 ?        00:00:00 /usr/sbin/acpid
+68        1749     1  0 Jul29 ?        00:00:01 hald
+root      1750  1749  0 Jul29 ?        00:00:00 hald-runner
+root      1753     1  0 Jul29 ?        00:00:00 /usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -B -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
+root      1793  1750  0 Jul29 ?        00:00:00 /usr/libexec/hald-addon-generic-backlight
+root      1795  1750  0 Jul29 ?        00:00:00 hald-addon-input: Listening on /dev/input/event4 /dev/input/event0 /dev/input/event3 /dev/input/event1
+68        1802  1750  0 Jul29 ?        00:00:00 hald-addon-acpi: listening on acpid socket /var/run/acpid.socket
+root      1822     1  0 Jul29 ?        00:00:04 automount --pid-file /var/run/autofs.pid
+root      1874     1  0 Jul29 ?        00:00:00 /usr/sbin/sshd
+root      2390     1  0 Jul29 ?        00:00:05 /usr/libexec/postfix/master
+postfix   2398  2390  0 Jul29 ?        00:00:09 qmgr -l -t fifo -u
+root      2436     1  0 Jul29 ?        00:00:00 /usr/sbin/abrtd
+root      2446     1  0 Jul29 ?        00:00:00 crond
+root      2459     1  0 Jul29 ?        00:00:00 /usr/sbin/atd
+root      2477     1  0 Jul29 ?        00:00:00 /usr/sbin/certmonger -S -p /var/run/certmonger.pid
+root      2498     1  0 Jul29 tty1     00:00:00 /sbin/mingetty /dev/tty1
+root      2500     1  0 Jul29 tty2     00:00:00 /sbin/mingetty /dev/tty2
+root      2502     1  0 Jul29 tty3     00:00:00 /sbin/mingetty /dev/tty3
+root      2504     1  0 Jul29 tty4     00:00:00 /sbin/mingetty /dev/tty4
+root      2506     1  0 Jul29 tty5     00:00:00 /sbin/mingetty /dev/tty5
+root      2508     1  0 Jul29 tty6     00:00:00 /sbin/mingetty /dev/tty6
+root      2514   479  0 Jul29 ?        00:00:00 /sbin/udevd -d
+root      2516   479  0 Jul29 ?        00:00:00 /sbin/udevd -d
+root      3060  1874  0 17:27 ?        00:00:00 sshd: nosiclin [priv]
+nosiclin  3062  3060  0 17:27 ?        00:00:00 sshd: nosiclin@pts/1
+nosiclin  3063  3062  0 17:27 pts/1    00:00:00 -bash
+nosiclin  3258  3063  2 17:59 pts/1    00:00:55 valgrind --leak-check=full --show-reachable=yes ./beauty -f test/beauty.conf
+root      3259  1874  0 17:59 ?        00:00:00 sshd: nosiclin [priv]
+nosiclin  3262  3259  0 17:59 ?        00:00:00 sshd: nosiclin@pts/3
+nosiclin  3263  3262  0 17:59 pts/3    00:00:00 -bash
+root      3305     1  0 Jul29 ?        00:00:00 /bin/sh /usr/local/mysql/bin/mysqld_safe --datadir=/usr/local/mysql/var --pid-file=/usr/local/mysql/var/nosiclin.pid
+mysql     3690  3305  0 Jul29 ?        00:00:54 /usr/local/mysql/bin/mysqld --basedir=/usr/local/mysql --datadir=/usr/local/mysql/var --plugin-dir=/usr/local/mysql/lib/plugin --user=mysql --log-error=/usr/local/mysql/var/nosiclin.err --pid-file=/usr/local/mysql/var/nosiclin.pid --socket=/tmp/mysql.sock --port=3306
+root      3710  1874  0 18:00 ?        00:00:00 sshd: nosiclin [priv]
+nosiclin  3734  3710  0 18:00 ?        00:00:00 sshd: nosiclin@pts/4
+nosiclin  3735  3734  0 18:00 pts/4    00:00:00 -bash
+nosiclin  3982  3735  0 18:01 pts/4    00:00:00 tail -f test/beauty.log
+root      4218     1  0 Jul29 ?        00:00:00 nginx: master process ./nginx
+www       4219  4218  0 Jul29 ?        00:00:07 nginx: worker process
+www       4220  4218  0 Jul29 ?        00:00:07 nginx: worker process
+www       4221  4218  0 Jul29 ?        00:00:06 nginx: worker process
+www       4222  4218  0 Jul29 ?        00:00:07 nginx: worker process
+www       4223  4218  0 Jul29 ?        00:00:06 nginx: worker process
+www       4224  4218  0 Jul29 ?        00:00:06 nginx: worker process
+www       4225  4218  0 Jul29 ?        00:00:06 nginx: worker process
+www       4226  4218  0 Jul29 ?        00:00:07 nginx: worker process
+www       4227  4218  0 Jul29 ?        00:00:07 nginx: worker process
+www       4228  4218  0 Jul29 ?        00:00:05 nginx: worker process
+www       4229  4218  0 Jul29 ?        00:00:06 nginx: worker process
+www       4230  4218  0 Jul29 ?        00:00:06 nginx: worker process
+www       4231  4218  0 Jul29 ?        00:00:08 nginx: worker process
+www       4233  4218  0 Jul29 ?        00:00:07 nginx: worker process
+www       4234  4218  0 Jul29 ?        00:00:07 nginx: worker process
+www       4235  4218  0 Jul29 ?        00:00:04 nginx: worker process
+root      4274     1  0 Jul29 ?        00:00:10 php-fpm: master process (/usr/local/php/etc/php-fpm.conf)
+www       4275  4274  0 Jul29 ?        00:00:17 php-fpm: pool www
+www       4276  4274  0 Jul29 ?        00:00:17 php-fpm: pool www
+www       4281  4274  0 Jul29 ?        00:00:19 php-fpm: pool www
+root      6140     1  0 Jul29 ?        00:01:13 /usr/local/redis/bin/redis-server *:6000                           
+root      6144     1  0 Jul29 ?        00:01:12 /usr/local/redis/bin/redis-server *:6001                           
+root      6148     1  0 Jul29 ?        00:01:13 /usr/local/redis/bin/redis-server *:6002                           
+root      6152     1  0 Jul29 ?        00:01:13 /usr/local/redis/bin/redis-server *:6003                           
+root      6156     1  0 Jul29 ?        00:01:12 /usr/local/redis/bin/redis-server *:6004                           
+root      6160     1  0 Jul29 ?        00:01:13 /usr/local/redis/bin/redis-server *:6005                           
+root      6164     1  0 Jul29 ?        00:01:13 /usr/local/redis/bin/redis-server *:6006                           
+root      6168     1  0 Jul29 ?        00:01:15 /usr/local/redis/bin/redis-server *:6007                           
+root      6172     1  0 Jul29 ?        00:01:13 /usr/local/redis/bin/redis-server *:6008                           
+root      6176     1  0 Jul29 ?        00:01:20 /usr/local/redis/bin/redis-server *:6009                           
+root      6180     1  0 Jul29 ?        00:01:22 /usr/local/redis/bin/redis-server *:6100                              
+root      6184     1  0 Jul29 ?        00:01:19 /usr/local/redis/bin/redis-server *:6200                              
+www       9001  4274  0 Jul30 ?        00:00:16 php-fpm: pool www
+nosiclin 24201     1  0 Aug03 ?        00:01:20 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low0.conf
+nosiclin 24202     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low1.conf
+nosiclin 24203     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low2.conf
+nosiclin 24204     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low3.conf
+nosiclin 24205     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low4.conf
+nosiclin 24206     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low5.conf
+nosiclin 24207     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low6.conf
+nosiclin 24208     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low7.conf
+nosiclin 24209     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low8.conf
+nosiclin 24210     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_low9.conf
+nosiclin 24211     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_middle0.conf
+nosiclin 24212     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_middle1.conf
+nosiclin 24213     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_middle2.conf
+nosiclin 24214     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_middle3.conf
+nosiclin 24215     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_middle4.conf
+nosiclin 24216     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_high0.conf
+nosiclin 24217     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_high1.conf
+nosiclin 24218     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_rich0.conf
+nosiclin 24219     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/normal_zjhsvr_rich1.conf
+nosiclin 24220     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/prop_zjhsvr_low0.conf
+nosiclin 24221     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/prop_zjhsvr_low1.conf
+nosiclin 24222     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/prop_zjhsvr_middle0.conf
+nosiclin 24223     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/prop_zjhsvr_middle1.conf
+nosiclin 24224     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/prop_zjhsvr_high0.conf
+nosiclin 24225     1  0 Aug03 ?        00:00:00 ./bin/zjhsvr -f ./conf/prop_zjhsvr_high1.conf
+nosiclin 24226     1  0 Aug03 ?        00:00:02 ./bin/lottery -f ./conf/lottery.conf
+nosiclin 24227     1  0 Aug03 ?        00:00:00 ./bin/speaker -f ./conf/speaker.conf
+nosiclin 24228     1  0 Aug03 ?        00:00:07 ./bin/allkill -f ./conf/allkill.conf
+postfix  24699  2390  0 18:34 ?        00:00:00 pickup -l -t fifo -u
+nosiclin 27259     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 10
+nosiclin 27260     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 11
+nosiclin 27261     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 12
+nosiclin 27262     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 13
+nosiclin 27263     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 14
+nosiclin 27264     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 15
+nosiclin 27265     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 16
+nosiclin 27266     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 17
+nosiclin 27267     1  0 18:38 pts/3    00:00:00 ./bet_client 127.0.0.1 11000 18
+nosiclin 27297  3263  0 18:38 pts/3    00:00:00 /bin/bash ./loop_test.sh
+nosiclin 27298 27297  0 18:38 pts/3    00:00:00 /bin/bash ./run_onetime.sh
+nosiclin 27299 27298  0 18:38 pts/3    00:00:00 ps -Af
