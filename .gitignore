@@ -22,6 +22,8 @@ libbull/libbull
 normal_bull/normal_bull
 normal_robot/normal_robot
 secret_venue/secret_venue
+libzjh/libzjh
+zjhsvr/zjhsvr
 
 # Prerequisites
 *.d
