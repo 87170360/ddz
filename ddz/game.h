@@ -23,8 +23,6 @@ class Table;
 class Game
 {
 public:
-	std::map<int, Table*>       seven_tables;
-	std::map<int, Table*>       six_tables;
 	std::map<int, Table*>       five_tables;
 	std::map<int, Table*>       four_tables;
 	std::map<int, Table*>       three_tables;
