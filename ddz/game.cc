@@ -39,38 +39,6 @@ void dump_game_info(char *tag)
 	std::map<int, Client*>::iterator client_it;
 	std::map<int, Player*>::iterator player_it;
 
-	i += sprintf(buf + i, "[seven_tables][%lu]\n", ddz.game->seven_tables.size());
-	for (table_it = ddz.game->seven_tables.begin(); table_it != ddz.game->seven_tables.end(); table_it++)
-	{
-		Table *table = table_it->second;
-		i += sprintf(buf + i, "Tid[%d]state[%d] ", table_it->first, table->state);
-		for (player_it = table->players.begin(); player_it != table->players.end(); player_it++)
-		{
-			Player *player = player_it->second;
-			if (player->client)
-				i += sprintf(buf + i, "uid[%d]fd[%d] ", player->uid, player->client->fd);
-			else
-				i += sprintf(buf + i, "uid[%d] ", player->uid);
-		}
-		i += sprintf(buf + i, "\n");
-	}
-
-	i += sprintf(buf + i, "[six_tables][%lu]\n", ddz.game->six_tables.size());
-	for (table_it = ddz.game->six_tables.begin(); table_it != ddz.game->six_tables.end(); table_it++)
-	{
-		Table *table = table_it->second;
-		i += sprintf(buf + i, "Tid[%d]state[%d] ", table_it->first, table->state);
-		for (player_it = table->players.begin(); player_it != table->players.end(); player_it++)
-		{
-			Player *player = player_it->second;
-			if (player->client)
-				i += sprintf(buf + i, "uid[%d]fd[%d] ", player->uid, player->client->fd);
-			else
-				i += sprintf(buf + i, "uid[%d] ", player->uid);
-		}
-		i += sprintf(buf + i, "\n");
-	}
-
 	i += sprintf(buf + i, "[five_tables][%lu]\n", ddz.game->five_tables.size());
 	for (table_it = ddz.game->five_tables.begin(); table_it != ddz.game->five_tables.end(); table_it++)
 	{
@@ -470,38 +438,6 @@ int Game::handler_login_table(Client *client)
 
 	int ret = 0;
 
-
-	if(client->uid>10000)
-	{
-		ret = login_table(client, four_tables, five_tables);
-		if (ret == 0)
-			return 0;
-		else if (ret == -2)
-			return -2;
-
-		ret = login_table(client, three_tables, four_tables);
-		if (ret == 0)
-			return 0;
-		else if (ret == -2)
-			return -2;
-
-	}
-	else 
-	{
-	    /*
-		if(rand()%20==0)
-		{
-			ret = login_table(client, three_tables, four_tables);
-			if (ret == 0)
-				return 0;
-			else if (ret == -2)
-				return -2;
-		}
-		*/
-	}
-
-
-
 	ret = login_table(client, two_tables, three_tables);
 	if (ret == 0)
 		return 0;
@@ -531,7 +467,6 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
 	{
 		Player *player = client->player;
 		map<int, Table*>::iterator it;
-
 
 		std::vector<Table*> ok_tables;
 
@@ -591,20 +526,6 @@ int Game::handle_logout_table(int tid)
 		return -1;
 	}
 	Table *table = (*it).second;
-
-	it = five_tables.find(tid);
-	if (it != five_tables.end()) {
-		five_tables.erase(it);
-		four_tables[tid] = table;
-		return 0;
-	}
-
-	it = four_tables.find(tid);
-	if (it != four_tables.end()) {
-		four_tables.erase(it);
-		three_tables[tid] = table;
-		return 0;
-	}
 
 	it = three_tables.find(tid);
 	if (it != three_tables.end()) {

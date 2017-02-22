@@ -15,6 +15,7 @@ DESTDIR_TARGET = ddz
 OBJECTS = ddz.o daemonize.o log.o client.o game.o jpacket.o table.o player.o redis_client.o eventlog.o
 
 all: $(DESTDIR_TARGET)
+	ctags -R
 
 $(DESTDIR_TARGET): $(OBJECTS)
 	$(LD) $(LFLAGS) -o $(DESTDIR_TARGET) $(OBJECTS) $(LIBS)
