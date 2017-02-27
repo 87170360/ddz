@@ -312,34 +312,7 @@ int Game::dispatch(Client *client)
 		return -1;
 	}
 
-	if (cmd == SYS_ECHO) {
-		Jpacket packet;
-		packet.val = client->packet.val;
-		packet.end();
-		return client->send(packet.tostring());
-	}
-
-	if (cmd == SYS_ONLINE) {
-		client->cmd_type = 1;
-		Jpacket packet;
-		packet.val["cmd"] = SYS_ONLINE;
-		packet.val["online"] = (int) (online_players.size() + offline_players.size());
-		packet.end();
-		return client->send(packet.tostring());
-	}
-
-	// cfc add if
-	if (cmd == CLIENT_ROBOT_REQ) {
-		robot_client = client;
-		client->is_robot_svr = true;
-		Jpacket isrobot;
-		isrobot.val["cmd"] = SERVER_ROBOT_SER_UC;
-		isrobot.val["str"] = "yes, you're robot.";
-		isrobot.end();
-		return robot_client->send(isrobot.tostring());
-	}
-
-	if (cmd == CLIENT_LOGIN_REQ) {
+	if (cmd == CLIENT_LOGIN) {
 		if (client->player == NULL) {
 			int ret = add_player(client);
 
@@ -367,20 +340,12 @@ int Game::dispatch(Client *client)
 		return -1;
 	}
 
-	Player *player = client->player;
-	/* dispatch */
+	//Player *player = client->player;
+	// dispatch 
 	switch (cmd) {
-		case CLIENT_BET_REQ:
-			all_tables[player->tid]->handler_bet(player);
-			break;
+        /*
 		case CLIENT_CHAT_REQ:
 			all_tables[player->tid]->handler_chat(player);
-			break;
-		case CLIENT_FACE_REQ:
-			all_tables[player->tid]->handler_face(player);
-			break;
-		case CLIENT_INFO_REQ:
-			all_tables[player->tid]->handler_info(player);
 			break;
 		case CLIENT_LOGOUT_REQ:
 			del_player(player);
@@ -388,18 +353,10 @@ int Game::dispatch(Client *client)
 		case CLIENT_CHANGE_REQ:
 			change_table(player);
 			break;
-		case CLIENT_TABLE_INFO_REQ:
-			all_tables[player->tid]->handler_table_info(player);
-			break;
-		case CLIENT_EMOTION_REQ:
-			all_tables[player->tid]->handler_interaction_emotion(player);
-			break;
-		case CLIENT_PROP_REQ:
-			all_tables[player->tid]->handler_prop(player);
-			break;
 		default:
 			xt_log.error("invalid command[%d]\n", cmd);
 			return -1;
+        */
 	}
 
 	// xt_log.debug("dispatch succ\n");
@@ -463,58 +420,6 @@ int Game::handler_login_table(Client *client)
 
 int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Table*> &b)
 {
-	if (a.size() > 0) 
-	{
-		Player *player = client->player;
-		map<int, Table*>::iterator it;
-
-		std::vector<Table*> ok_tables;
-
-		for (it = a.begin(); it != a.end(); it++) 
-		{
-			Table *table = (*it).second;
-
-			if (table->state == END_GAME) 
-			{
-				continue;
-			}
-
-			if (player->tid == table->tid) 
-			{
-				continue;
-			}
-
-			if (table->players.find(player->uid) != table->players.end()) 
-			{
-				xt_log.error("login table uid[%d] is in tid[%d]\n", player->uid, table->tid);
-				return -2;
-			}
-
-			ok_tables.push_back(table);
-
-			if(ok_tables.size()>20)
-			{
-				break;
-			}
-		}
-
-
-		if(ok_tables.size()==0)
-		{
-			return -1;
-		}
-
-		Table* t=ok_tables[rand()%ok_tables.size()];
-
-		a.erase(t->tid);
-		b[t->tid] = t;
-
-		client->set_positon(POSITION_TABLE);
-		t->handler_login(client->player);
-
-		return 0;
-	}
-
 	return -1;
 }
 
@@ -593,12 +498,14 @@ int Game::add_player(Client *client)
 	client->zid = val["zid"].asInt();
 
 	if (check_skey(client) < 0) {
+        /*
 		Jpacket packet;
 		packet.val["cmd"] = SERVER_LOGIN_ERR_UC;
 		packet.val["code"] = 505;
 		packet.val["msg"] = "skey error";
 		packet.end();
 		client->send(packet.tostring());
+        */
 		return -1;
 	}
 
@@ -613,8 +520,6 @@ int Game::add_player(Client *client)
 		Client *oldClient = player->client;
 		player->set_client(client);
 		client->set_positon(POSITION_TABLE);
-		all_tables[player->tid]->handler_login_succ_uc(player);
-		all_tables[player->tid]->handler_table_info(player);
 		fd_client.erase(oldClient->fd);
 		delete oldClient;
 		player->stop_offline_timer();
@@ -639,8 +544,6 @@ int Game::add_player(Client *client)
 
 		player->set_client(client);
 		client->set_positon(POSITION_TABLE);
-		all_tables[player->tid]->handler_login_succ_uc(player);
-		all_tables[player->tid]->handler_table_info(player);
 		player->stop_offline_timer();
 		dump_game_info("rebind by offline");
 		return 1;
@@ -675,12 +578,10 @@ int Game::del_player(Player *player)
 {
 	int ret = 0;
 	if (all_tables.find(player->tid) != all_tables.end()) {
-		ret = all_tables[player->tid]->handler_logout(player);
 		if (ret < 0) {
 			xt_log.error("del player table handler logout\n");
 			return -1;
 		}
-		ret = all_tables[player->tid]->del_player(player);
 		if (ret < 0) {
 			xt_log.error("del player table del player\n");
 			return -1;
@@ -730,12 +631,10 @@ int Game::change_table(Player *player)
 	int ret = 0;
 	if (all_tables.find(player->tid) != all_tables.end()) {
 		player->logout_type = 2;   // logout type 2 is change table cfc add 20131220
-		ret = all_tables[player->tid]->handler_logout(player);
 		if (ret < 0) {
 			xt_log.error("change table handler logout error.\n");
 			return -1;
 		}
-		ret = all_tables[player->tid]->del_player(player);
 		if (ret < 0) {
 			xt_log.error("change table del player error.\n");
 			return -1;

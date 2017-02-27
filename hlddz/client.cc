@@ -302,6 +302,7 @@ int Client::update_timer()
 
 void Client::join_table_failed(Client *client)
 {
+    /*
 	Jpacket packet;
 	packet.val["cmd"] = SERVER_LOGIN_ERR_UC;
 	packet.val["code"] = 2;
@@ -310,6 +311,7 @@ void Client::join_table_failed(Client *client)
 	client->send(packet.tostring());
 
 	Client::pre_destroy(client);
+    */
 }
 
 void Client::set_positon(int pos)

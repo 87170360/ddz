@@ -83,11 +83,7 @@ int Player::init()
 
 	if(uid<XT_ROBOT_UID_MAX)
 	{
-		//set_money(rand()%10000+20000);
-        int min = ddz.conf["tables"]["min_money"].asInt();
-        int max = std::max(ddz.conf["tables"]["max_money"].asInt(), 10 * min);
-        int tmp = Table::getRandBetween(min, max);
-		set_money(tmp);
+		set_money(rand()%10000+20000);
 	}
 	else 
 	{

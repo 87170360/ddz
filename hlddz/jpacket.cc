@@ -69,6 +69,7 @@ int Jpacket::sefe_check()
 
 	switch (cmd)
 	{
+        /*
 		case CLIENT_LOGIN_REQ:
 			{
 				if (val["uid"].isNumeric()
@@ -80,6 +81,7 @@ int Jpacket::sefe_check()
 					return -1;
 				}
 			}
+        */
 	}
 
 	return cmd;
