@@ -18,7 +18,7 @@
 #include <ev.h>
 
 #include "daemonize.h"
-#include "ddz.h"
+#include "hlddz.h"
 #include "game.h"
 #include "log.h"
 

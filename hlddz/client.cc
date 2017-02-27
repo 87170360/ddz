@@ -1,4 +1,4 @@
-#include "ddz.h"
+#include "hlddz.h"
 #include "game.h"
 #include "client.h"
 #include "proto.h"

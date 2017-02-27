@@ -15,7 +15,7 @@ speaker/tags
 zjhsvr/zjhsvr
 zjhsvr/tags
 libzjh/tags
-ddz/tags
+hlddz/tags
 
 grab_bull/grab_bull
 grab_robot/grab_robot
@@ -25,7 +25,7 @@ normal_robot/normal_robot
 secret_venue/secret_venue
 libzjh/libzjh
 zjhsvr/zjhsvr
-ddz/ddz
+hlddz/hlddz
 
 # Prerequisites
 *.d

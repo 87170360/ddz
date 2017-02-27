@@ -148,7 +148,7 @@ void Client::read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 		recv_buf[ret] = '\0';
 		self->body.append(recv_buf, ret);
 
-		if (/*self->body.length()*/ret == self->_header_p->length) {
+		if (/*self->body.length()*/(unsigned int)ret == self->_header_p->length) {
 			self->_state = PARSE_HEADER;
 			if (self->packet.parse(self->body, ret) < 0) {
 				xt_log.error("parse err!!\n");

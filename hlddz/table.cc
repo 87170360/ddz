@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <assert.h>
 
-#include "ddz.h"
+#include "hlddz.h"
 #include "game.h"
 #include "log.h"
 #include "table.h"

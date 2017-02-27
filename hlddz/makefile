@@ -11,8 +11,8 @@ LFLAGS = #-static
 LIBS = /usr/local/lib/libjsoncpp.a /usr/local/lib/libhiredis.a -L. -L../libzjh -L/usr/local/lib -lzjh -lstdc++ -lev 
 #LIBS = -L. -L../libzjh -L/usr/local/lib -lzjh -lstdc++ -lev -ljsoncpp -lhiredis
 
-DESTDIR_TARGET = ddz
-OBJECTS = ddz.o daemonize.o log.o client.o game.o jpacket.o table.o player.o redis_client.o eventlog.o
+DESTDIR_TARGET = hlddz
+OBJECTS = hlddz.o daemonize.o log.o client.o game.o jpacket.o table.o player.o redis_client.o eventlog.o
 
 all: $(DESTDIR_TARGET)
 	ctags -R

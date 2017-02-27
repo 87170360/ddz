@@ -9,7 +9,7 @@
 #include <time.h>
 #include <errno.h>
 
-#include "ddz.h"
+#include "hlddz.h"
 #include "log.h"
 #include "proto.h"
 #include "table.h"
