@@ -630,7 +630,7 @@ int Game::change_table(Player *player)
     xt_log.info("change table uid[%d] money[%d] tid[%d].\n", player->uid, player->money, player->tid);
     int ret = 0;
     if (all_tables.find(player->tid) != all_tables.end()) {
-        player->logout_type = 2;   // logout type 2 is change table cfc add 20131220
+        player->logout_type = 2;   
         if (ret < 0) {
             xt_log.error("change table handler logout error.\n");
             return -1;
