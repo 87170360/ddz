@@ -29,7 +29,7 @@ public:
 
     void end();
     int parse(std::string&);
-    int sefe_check();
+    int safe_check();
 
 private:
     struct Header           header;

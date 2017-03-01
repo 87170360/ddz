@@ -28,7 +28,7 @@ static void dump_conf();
 static int set_rlimit(int n);
 static int init_redis();
 
-DDZ ddz;
+HLDDZ hlddz;
 Log xt_log;
 
 int main(int argc, char **argv)
@@ -50,23 +50,23 @@ int main(int argc, char **argv)
     
 	dump_conf();
 	
-    if (ddz.is_daemonize == 1)
+    if (hlddz.is_daemonize == 1)
         daemonize();
     signal(SIGPIPE, SIG_IGN);
     
-    ret = single_instance_running(ddz.conf.get("pid_file", "conf/zjhsvr.pid").asString().c_str());
+    ret = single_instance_running(hlddz.conf.get("pid_file", "conf/zjhsvr.pid").asString().c_str());
     if (ret < 0) {
         xt_log.fatal("File: %s Func: %s Line: %d => single_instance_running.\n",
                             __FILE__, __FUNCTION__, __LINE__);
         exit(1);
     }
 
-    xt_log.start(ddz.conf["log"].get("log_file", "log/zjhsvr.log").asString(),
-				ddz.conf["log"].get("level", 4).asInt(),
-				ddz.conf["log"].get("console", 0).asInt(),
-				ddz.conf["log"].get("rotate", 1).asInt(),
-				ddz.conf["log"].get("max_size", 1073741824).asInt(),
-				ddz.conf["log"].get("max_file", 50).asInt());
+    xt_log.start(hlddz.conf["log"].get("log_file", "log/zjhsvr.log").asString(),
+				hlddz.conf["log"].get("level", 4).asInt(),
+				hlddz.conf["log"].get("console", 0).asInt(),
+				hlddz.conf["log"].get("rotate", 1).asInt(),
+				hlddz.conf["log"].get("max_size", 1073741824).asInt(),
+				hlddz.conf["log"].get("max_file", 50).asInt());
 
 	set_rlimit(10240);
 
@@ -78,10 +78,10 @@ int main(int argc, char **argv)
     }
 	
     struct ev_loop *loop = ev_default_loop(0);
-    ddz.loop = loop;
+    hlddz.loop = loop;
 	
-    ddz.game = new (std::nothrow) Game();
-    ddz.game->start();
+    hlddz.game = new (std::nothrow) Game();
+    hlddz.game->start();
 	
     ev_loop(loop, 0);
     
@@ -94,15 +94,15 @@ static int parse_arg(int argc, char **argv)
     int oc; /* option chacb. */
     char ic; /* invalid chacb. */
     
-    ddz.is_daemonize = 0;
+    hlddz.is_daemonize = 0;
     while((oc = getopt(argc, argv, "Df:")) != -1) {
         switch(oc) {
             case 'D':
-                ddz.is_daemonize = 1;
+                hlddz.is_daemonize = 1;
                 break;
             case 'f':
                 flag = 1;
-                ddz.conf_file = string(optarg);
+                hlddz.conf_file = string(optarg);
                 break;
             case '?':
                 ic = (char)optopt;
@@ -122,14 +122,14 @@ static int parse_arg(int argc, char **argv)
 
 static int init_conf()
 {
-    std::ifstream in(ddz.conf_file.c_str(), std::ifstream::binary); 
+    std::ifstream in(hlddz.conf_file.c_str(), std::ifstream::binary); 
     if (!in) {
 		std::cout << "init file no found." << endl;
 		return -1;
 	}
 	
 	Json::Reader reader;
-	bool ret = reader.parse(in, ddz.conf);
+	bool ret = reader.parse(in, hlddz.conf);
 	if (!ret) {
 		in.close();
 		std::cout << "init file parser." << endl;
@@ -143,58 +143,58 @@ static int init_conf()
 static void dump_conf()
 {
 	std::cout << "pid_file: "
-        << ddz.conf.get("pid_file", "conf/zjhsvr.pid").asString() << endl;
+        << hlddz.conf.get("pid_file", "conf/zjhsvr.pid").asString() << endl;
 	
 	std::cout << "log:log_file: "
-        << ddz.conf["log"].get("log_file", "log/zjhsvr.log").asString()
+        << hlddz.conf["log"].get("log_file", "log/zjhsvr.log").asString()
         << endl;
 	std::cout << "log:level: "
-        << ddz.conf["log"].get("level", 4).asInt() << endl;
+        << hlddz.conf["log"].get("level", 4).asInt() << endl;
 	std::cout << "log:console: "
-        << ddz.conf["log"].get("console", 0).asInt() << endl;
+        << hlddz.conf["log"].get("console", 0).asInt() << endl;
 	std::cout << "log:rotate: "
-        << ddz.conf["log"].get("rotate", 1).asInt() << endl;
+        << hlddz.conf["log"].get("rotate", 1).asInt() << endl;
 	std::cout << "log:max_size: "
-        << ddz.conf["log"].get("max_size", 1073741824).asInt() << endl;
+        << hlddz.conf["log"].get("max_size", 1073741824).asInt() << endl;
 	std::cout << "log:max_file: "
-        << ddz.conf["log"].get("max_file", 50).asInt() << endl;
+        << hlddz.conf["log"].get("max_file", 50).asInt() << endl;
 
 	std::cout << "game:host: "
-        << ddz.conf["game"]["host"].asString() << endl;
+        << hlddz.conf["game"]["host"].asString() << endl;
 	std::cout << "game:port: "
-        << ddz.conf["game"]["port"].asInt() << endl;
+        << hlddz.conf["game"]["port"].asInt() << endl;
 	
-	ddz.main_size = ddz.conf["main-db"].size();
-	for (int i = 0; i < ddz.main_size; i++)
+	hlddz.main_size = hlddz.conf["main-db"].size();
+	for (int i = 0; i < hlddz.main_size; i++)
 	{
 		std::cout << "[" << i << "]main-db:host: "
-	        << ddz.conf["main-db"][i]["host"].asString() << endl;
+	        << hlddz.conf["main-db"][i]["host"].asString() << endl;
 		std::cout << "[" << i << "]main-db:port: "
-	        << ddz.conf["main-db"][i]["port"].asInt() << endl;
+	        << hlddz.conf["main-db"][i]["port"].asInt() << endl;
 		std::cout << "[" << i << "]main-db:pass: "
-	        << ddz.conf["main-db"][i]["pass"].asString() << endl;	
+	        << hlddz.conf["main-db"][i]["pass"].asString() << endl;	
 	}
 			
 	std::cout << "tables:begin: "
-        << ddz.conf["tables"]["begin"].asInt() << endl;
+        << hlddz.conf["tables"]["begin"].asInt() << endl;
 	std::cout << "tables:end: "
-        << ddz.conf["tables"]["end"].asInt() << endl;
+        << hlddz.conf["tables"]["end"].asInt() << endl;
 	std::cout << "tables:min_money: "
-        << ddz.conf["tables"]["min_money"].asInt() << endl;
+        << hlddz.conf["tables"]["min_money"].asInt() << endl;
 	std::cout << "tables:max_money: "
-        << ddz.conf["tables"]["max_money"].asInt() << endl;
+        << hlddz.conf["tables"]["max_money"].asInt() << endl;
 	std::cout << "tables:base_money: "
-        << ddz.conf["tables"]["base_money"].asInt() << endl;
+        << hlddz.conf["tables"]["base_money"].asInt() << endl;
 	std::cout << "tables:min_round: "
-        << ddz.conf["tables"]["min_round"].asInt() << endl;
+        << hlddz.conf["tables"]["min_round"].asInt() << endl;
 	std::cout << "tables:max_round: "
-        << ddz.conf["tables"]["max_round"].asInt() << endl;
+        << hlddz.conf["tables"]["max_round"].asInt() << endl;
 	std::cout << "tables:vid: "
-        << ddz.conf["tables"]["vid"].asInt() << endl;
+        << hlddz.conf["tables"]["vid"].asInt() << endl;
 	std::cout << "tables:zid: "
-        << ddz.conf["tables"]["zid"].asInt() << endl;
+        << hlddz.conf["tables"]["zid"].asInt() << endl;
 	std::cout << "tables:type: "
-        << ddz.conf["tables"]["type"].asInt() << endl;
+        << hlddz.conf["tables"]["type"].asInt() << endl;
 }
 
 static int set_rlimit(int n)
@@ -215,12 +215,12 @@ static int init_redis()
 {
 	int ret;
 	
-    ddz.main_size = ddz.conf["main-db"].size();
-    for (int i = 0; i < ddz.main_size; i++)
+    hlddz.main_size = hlddz.conf["main-db"].size();
+    for (int i = 0; i < hlddz.main_size; i++)
     {
-        ddz.main_rc[i] = new RedisClient();
-        ret = ddz.main_rc[i]->init(ddz.conf["main-db"][i]["host"].asString()
-                    , ddz.conf["main-db"][i]["port"].asInt(), 1000, ddz.conf["main-db"][i]["pass"].asString());
+        hlddz.main_rc[i] = new RedisClient();
+        ret = hlddz.main_rc[i]->init(hlddz.conf["main-db"][i]["host"].asString()
+                    , hlddz.conf["main-db"][i]["port"].asInt(), 1000, hlddz.conf["main-db"][i]["pass"].asString());
         if (ret < 0)
         {
             xt_log.error("main db redis error\n");
@@ -228,19 +228,18 @@ static int init_redis()
         }
     }
 
-    // cfc add eventlog redis 20140102
-    ddz.eventlog_rc = new RedisClient();
-    ret = ddz.eventlog_rc->init(ddz.conf["eventlog-db"]["host"].asString(),
-    		ddz.conf["eventlog-db"]["port"].asInt(), 1000, ddz.conf["eventlog-db"]["pass"].asString());
+    hlddz.eventlog_rc = new RedisClient();
+    ret = hlddz.eventlog_rc->init(hlddz.conf["eventlog-db"]["host"].asString(),
+    		hlddz.conf["eventlog-db"]["port"].asInt(), 1000, hlddz.conf["eventlog-db"]["pass"].asString());
     if (ret < 0) {
     	xt_log.error("eventlog db redis error.\n");
     	return -1;
     }
 
-	ddz.cache_rc =new RedisClient();
+	hlddz.cache_rc =new RedisClient();
 
-    ret = ddz.cache_rc->init(ddz.conf["cache-db"]["host"].asString(),
-    		ddz.conf["cache-db"]["port"].asInt(), 1000, ddz.conf["cache-db"]["pass"].asString());
+    ret = hlddz.cache_rc->init(hlddz.conf["cache-db"]["host"].asString(),
+    		hlddz.conf["cache-db"]["port"].asInt(), 1000, hlddz.conf["cache-db"]["pass"].asString());
 
 	if(ret<0)
 	{

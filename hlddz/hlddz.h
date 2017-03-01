@@ -13,7 +13,7 @@
 
 class Game;
 
-class DDZ
+class HLDDZ
 {
     public:
         std::string         conf_file;

@@ -20,7 +20,7 @@
 #include "proto.h"
 #include "XtCard.h"
 
-extern DDZ ddz;
+extern HLDDZ hlddz;
 extern Log xt_log;
 
 Table::Table()

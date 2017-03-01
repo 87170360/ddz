@@ -25,4 +25,10 @@ enum server_command
     SERVER_END                  = 2010,         //牌局结束
 };
 
+enum error_code
+{
+    CODE_SUCCESS                = 0,            //成功 
+    CODE_SKEY                   = 1,            //skey错误
+};  
+
 #endif

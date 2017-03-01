@@ -4,7 +4,7 @@
 #include "proto.h"
 #include "log.h"
 
-extern DDZ ddz;
+extern HLDDZ hlddz;
 extern Log xt_log;
 
 char policy_cross_domain[] = "<cross-domain-policy>\
@@ -28,14 +28,14 @@ _ev_nodata_tstamp(60 * 20)
 	
 	_ev_read.data = this;
 	ev_io_init(&_ev_read, Client::read_cb, fd, EV_READ);
-	ev_io_start(ddz.loop, &_ev_read);
+	ev_io_start(hlddz.loop, &_ev_read);
 
     ev_io_init(&_ev_write, Client::write_cb, fd, EV_WRITE);
 
     _ev_nodata_timer.data = this;
     ev_timer_init(&_ev_nodata_timer, Client::nodata_timer_cb,
         _ev_nodata_tstamp, _ev_nodata_tstamp);
-    ev_timer_start(ddz.loop, &_ev_nodata_timer);
+    ev_timer_start(hlddz.loop, &_ev_nodata_timer);
 #if 0
     int set = 1;
     setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
@@ -45,9 +45,9 @@ _ev_nodata_tstamp(60 * 20)
 
 Client::~Client()
 {
-	ev_io_stop(ddz.loop, &_ev_read);
-	ev_io_stop(ddz.loop, &_ev_write);
-	ev_timer_stop(ddz.loop, &_ev_nodata_timer);
+	ev_io_stop(hlddz.loop, &_ev_read);
+	ev_io_stop(hlddz.loop, &_ev_write);
+	ev_timer_stop(hlddz.loop, &_ev_nodata_timer);
 	while (!_write_q.empty()) {
 		delete (_write_q.front());
 		_write_q.pop_front();
@@ -59,7 +59,7 @@ Client::~Client()
 void Client::destroy(Client *client)
 {
     xt_log.info("client destroy fd[%d] uid[%d] destroy\n", client->fd, client->uid);
-    ddz.game->del_client(client);
+    hlddz.game->del_client(client);
 }
 
 void Client::pre_destroy(Client *client)
@@ -150,7 +150,7 @@ void Client::read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 			}
 
 			time_t begin = time(NULL);
-			int ret = ddz.game->dispatch(self);
+			int ret = hlddz.game->dispatch(self);
 			time_t end = time(NULL);
 			int total = end - begin;
 			if (total >= 1) {
@@ -238,7 +238,7 @@ void Client::nodata_timer_cb(struct ev_loop *loop, struct ev_timer *w, int reven
     xt_log.info("nodata_timer_cb client fd[%d] uid[%d] timeout\n", self->fd, self->uid);
 //    Client::pre_destroy(self);   // cfc remark and add under if by 20140124
     if (self->player) {
-    	ddz.game->del_player(self->player);
+    	hlddz.game->del_player(self->player);
     } else {
     	Client::pre_destroy(self);
     }
@@ -249,7 +249,7 @@ int Client::send(const char *buf, unsigned int len)
 	if (fd > 0) {
 		if (_write_q.empty()) {
 			_ev_write.data = this;
-			ev_io_start(ddz.loop, &_ev_write);
+			ev_io_start(hlddz.loop, &_ev_write);
 			//xt_log.debug("start write event\n");
 		}
 		_write_q.push_back(new Buffer(buf, len));
@@ -293,9 +293,9 @@ unsigned int Client::safe_writen(const char *buf, unsigned int len)
 
 int Client::update_timer()
 {
-    //ev_timer_stop(ddz.loop, &_ev_nodata_timer);
-    //ev_timer_start(ddz.loop, &_ev_nodata_timer);
-    ev_timer_again(ddz.loop, &_ev_nodata_timer);
+    //ev_timer_stop(hlddz.loop, &_ev_nodata_timer);
+    //ev_timer_start(hlddz.loop, &_ev_nodata_timer);
+    ev_timer_again(hlddz.loop, &_ev_nodata_timer);
     //xt_log.debug("client[%d] update timer\n", fd);
     return 0;
 }

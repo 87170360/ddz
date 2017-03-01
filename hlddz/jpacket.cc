@@ -61,7 +61,7 @@ int Jpacket::parse(std::string& data)
 	return 0;
 }
 
-int Jpacket::sefe_check()
+int Jpacket::safe_check()
 {
 	if (!val["cmd"].isNumeric()) return -2;
 
@@ -69,19 +69,15 @@ int Jpacket::sefe_check()
 
 	switch (cmd)
 	{
-        /*
-		case CLIENT_LOGIN_REQ:
+		case CLIENT_LOGIN:
 			{
-				if (val["uid"].isNumeric()
-						&& val["skey"].isString())
-					break;
-				else
+				if (!val["uid"].isNumeric() || !val["skey"].isString())
 				{
 					//xt_log.error("command[login] error\n");
 					return -1;
 				}
 			}
-        */
+            break;
 	}
 
 	return cmd;
