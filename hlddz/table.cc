@@ -31,12 +31,9 @@ Table::~Table()
 {
 }
 
-int Table::init(int my_tid, int my_vid, int my_zid, int my_type, int my_min_money,
-				int my_max_money, int my_base_money, int my_min_round, int my_max_round, float my_fee,
-				int my_lose_exp, int my_win_exp)
+int Table::init(int tableid)
 {
 	// xt_log.debug("begin to init table [%d]\n", table_id);
-	tid = my_tid;
     return 0;
 }
 

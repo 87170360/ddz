@@ -159,24 +159,10 @@ int Game::start()
 
 int Game::init_table()
 {
-    int vid = hlddz.conf["tables"]["vid"].asInt();
-    int zid = hlddz.conf["tables"]["zid"].asInt();
-    int type = hlddz.conf["tables"]["table_type"].asInt();
-    int min_money = hlddz.conf["tables"]["min_money"].asInt();
-    int max_money = hlddz.conf["tables"]["max_money"].asInt();
-    int base_money = hlddz.conf["tables"]["base_money"].asInt();
-    int min_round = hlddz.conf["tables"]["min_round"].asInt();
-    int max_round = hlddz.conf["tables"]["max_round"].asInt();
-    float fee = atof(hlddz.conf["tables"]["fee"].asString().c_str());
-    int lose_exp = hlddz.conf["tables"]["lose_exp"].asInt();
-    int win_exp = hlddz.conf["tables"]["win_exp"].asInt();
-    xt_log.info("tables vid[%d] zid[%d] table_type[%d] min_money[%d] max_money[%d] base_money[%d] min_round[%d] max_round[%d] lose_exp[%d] win_exp[%d] \n",
-            vid, zid, type, min_money, max_money, base_money, min_round, max_round, lose_exp, win_exp);
     for (int i = hlddz.conf["tables"]["begin"].asInt(); i < hlddz.conf["tables"]["end"].asInt(); i++)
     {
         Table *table = new Table();
-        if (table->init(i, vid, zid, type, min_money, max_money, base_money,
-                    min_round, max_round, fee, lose_exp, win_exp) < 0) {
+        if (table->init(i) < 0) {
             xt_log.error("init table tid[%d] init err.\n", i);
             exit(1);
         }
