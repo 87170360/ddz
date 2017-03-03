@@ -34,6 +34,7 @@ Table::~Table()
 int Table::init(int tableid)
 {
 	// xt_log.debug("begin to init table [%d]\n", table_id);
+    tid = tableid;
     return 0;
 }
 
@@ -99,4 +100,9 @@ void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, st
 		
 		cards.push_back(card);
 	}
+}
+
+int Table::handler_login(Player *player)
+{
+    return 0;
 }

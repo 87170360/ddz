@@ -32,6 +32,7 @@ class Table
 public:
     int							tid;
     int             			vid;
+    int                         state;
 	std::map<int, Player*>		players;
 
 public:
@@ -44,6 +45,8 @@ public:
 	void vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key);
 	void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
 	void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
+
+    int handler_login(Player* player);
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
-enum client_command
+enum CLIENT_COMMAND
 {
     CLIENT_LOGIN                = 1001,         //登录   
     CLIENT_START                = 1002,         //开始 
@@ -10,7 +10,7 @@ enum client_command
     CLIENT_OUT                  = 1005,         //出牌
 };
 
-enum server_command
+enum SERVER_COMMAND
 {
     SERVER_RESPOND              = 2000,         //客户端请求回复
     SERVER_PLAYER_INFO          = 2001,         //玩家信息
@@ -25,10 +25,20 @@ enum server_command
     SERVER_END                  = 2010,         //牌局结束
 };
 
-enum error_code
+enum ERROR_CODE
 {
     CODE_SUCCESS                = 0,            //成功 
     CODE_SKEY                   = 1,            //skey错误
 };  
+
+// readay -> game -> end -> preready
+enum STATE
+{
+    STATE_WAIT                  = 0,            //等待
+    STATE_READAY                = 1,            //准备
+    STATE_GAME                  = 2,            //游戏
+    STATE_END                   = 3,            //结算
+    STATE_PREREADAY             = 4,            //等待准备
+};
 
 #endif

@@ -156,7 +156,6 @@ int Game::start()
 
 /* init table from config
  * todo read config from db or other */
-
 int Game::init_table()
 {
     for (int i = hlddz.conf["tables"]["begin"].asInt(); i < hlddz.conf["tables"]["end"].asInt(); i++)
@@ -375,12 +374,10 @@ int Game::safe_check(Client *client, int cmd)
 int Game::handler_login_table(Client *client)
 {
     Player *player = client->player;
-
     if (client->position == POSITION_TABLE) {
         xt_log.error("handler_login_table uid[%d] have been in table\n", player->uid);
         return -1;
     }
-
     int ret = 0;
 
     ret = login_table(client, two_tables, three_tables);
@@ -388,7 +385,6 @@ int Game::handler_login_table(Client *client)
         return 0;
     else if (ret == -2)
         return -2;
-
 
     ret = login_table(client, one_tables, two_tables);
     if (ret == 0)
@@ -408,7 +404,35 @@ int Game::handler_login_table(Client *client)
 
 int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Table*> &b)
 {
-    return -1;
+    if(a.empty())
+    {
+        return -1;
+    }
+
+    Player* player = client->player;
+    Table* target = NULL;
+    for(map<int, Table*>::iterator it = a.begin(); it != a.end(); it++)
+    {
+        Table *table = (*it).second; 
+        if(table->state == STATE_GAME || player->tid == table->tid || table->players.find(player->uid) != table->players.end())
+        {
+            continue;
+        }
+        if(table->players.find(player->uid) != table->players.end())
+        {
+            xt_log.error("login table uid[%d] is in tid[%d]\n", player->uid, table->tid); 
+            return -2;
+        }
+        target = table;
+        break;
+    }
+
+    a.erase(target->tid);
+    b[target->tid] = target;
+
+    client->set_positon(POSITION_TABLE);
+    target->handler_login(client->player);
+    return 0;
 }
 
 int Game::handle_logout_table(int tid)
