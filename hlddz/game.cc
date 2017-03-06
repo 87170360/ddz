@@ -303,21 +303,21 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
     for(map<int, Table*>::iterator it = a.begin(); it != a.end(); it++)
     {
         Table *table = (*it).second; 
-        if(table->state == STATE_GAME || player->tid == table->tid || table->players.find(player->uid) != table->players.end())
+        if(table->m_state == STATE_GAME || player->tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
         {
             continue;
         }
-        if(table->players.find(player->uid) != table->players.end())
+        if(table->m_players.find(player->uid) != table->m_players.end())
         {
-            xt_log.error("login table uid[%d] is in tid[%d]\n", player->uid, table->tid); 
+            xt_log.error("login table uid[%d] is in tid[%d]\n", player->uid, table->m_tid); 
             return -2;
         }
         target = table;
         break;
     }
 
-    a.erase(target->tid);
-    b[target->tid] = target;
+    a.erase(target->m_tid);
+    b[target->m_tid] = target;
 
     client->set_positon(POSITION_TABLE);
     target->handler_login(client->player);

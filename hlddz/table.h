@@ -30,10 +30,10 @@ class Client;
 class Table
 {
 public:
-    int							tid;
-    int             			vid;
-    int                         state;
-	std::map<int, Player*>		players;
+    int							m_tid;
+    int             			m_vid;
+    int                         m_state;
+	std::map<int, Player*>		m_players;
 
 public:
     Table();

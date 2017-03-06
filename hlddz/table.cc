@@ -34,7 +34,7 @@ Table::~Table()
 int Table::init(int tableid)
 {
 	// xt_log.debug("begin to init table [%d]\n", table_id);
-    tid = tableid;
+    m_tid = tableid;
     return 0;
 }
 
@@ -42,7 +42,7 @@ int Table::broadcast(Player *p, const std::string &packet)
 {
     Player *player;
     std::map<int, Player*>::iterator it;
-    for (it = players.begin(); it != players.end(); it++)
+    for (it = m_players.begin(); it != m_players.end(); it++)
     {
         player = it->second;
         if (player == p || player->client == NULL)
