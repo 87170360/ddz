@@ -24,17 +24,13 @@
 #include "XtHoleCards.h"
 #include "jpacket.h"
 
+const int SEATNUM = 3;
+
 class Player;
 class Client;
 
 class Table
 {
-public:
-    int							m_tid;
-    int             			m_vid;
-    int                         m_state;
-	std::map<int, Player*>		m_players;
-
 public:
     Table();
     virtual ~Table();
@@ -47,6 +43,19 @@ public:
 	void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
 
     int handler_login(Player* player);
+
+    bool sitdown(Player* player);
+
+    //msg
+    void loginUC(Player* player);
+    void loginBC(Player* player);
+
+public:
+    int							m_tid;
+    int             			m_vid;
+    int                         m_state;
+	std::map<int, Player*>		m_players;
+    int                         m_seats[SEATNUM];
 };
 
 #endif

@@ -13,7 +13,7 @@ enum CLIENT_COMMAND
 enum SERVER_COMMAND
 {
     SERVER_RESPOND              = 2000,         //客户端请求回复
-    SERVER_PLAYER_INFO          = 2001,         //玩家信息
+    SERVER_LOGIN                = 2001,         //玩家登录
     SERVER_CARD_1               = 2002,         //第一次发牌17张
     SERVER_START_CALL           = 2003,         //开始叫分
     SERVER_CALL_INFO            = 2004,         //叫分情况

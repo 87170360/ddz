@@ -35,6 +35,12 @@ int Table::init(int tableid)
 {
 	// xt_log.debug("begin to init table [%d]\n", table_id);
     m_tid = tableid;
+
+    for(int i = 0; i < SEATNUM; ++i)
+    {
+        m_seats[i] = 0; 
+    }
+
     return 0;
 }
 
@@ -104,5 +110,66 @@ void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, st
 
 int Table::handler_login(Player *player)
 {
+    if(m_players.find(player->uid) != m_players.end())
+    {
+        xt_log.error("%s:%d, player was existed! uid:%d", __FILE__, __LINE__, player->uid); 
+        return 0;
+    }
+    if(!sitdown(player))
+    {
+        return 0;
+    }
+
+    //登录回复
+    loginUC(player);
+
+    //广播玩家信息
+    loginBC(player);
+
+    //人满开始, 定时器
+
     return 0;
+}
+    
+bool Table::sitdown(Player* player)
+{
+    int seatid = -1;
+    for(int i = 0; i < SEATNUM; ++i)
+    {
+        if(m_seats[i] == 0) 
+        {
+            seatid = i; 
+            break;
+        }
+    }
+    if(seatid < 0)
+    {
+        xt_log.error("%s:%d, no empty seat.", __FILE__, __LINE__); 
+        return false; 
+    }
+
+    player->seatid = seatid;
+    m_seats[seatid] = player->uid;
+    m_players[player->uid] = player;
+    return true;
+}
+    
+void Table::loginUC(Player* player)
+{
+    Jpacket packet;
+    packet.val["cmd"]   = SERVER_RESPOND;
+    packet.val["code"]  = CODE_SUCCESS;
+    packet.val["msgid"] = CLIENT_LOGIN;
+    packet.val["tid"]   = m_tid;
+    packet.end();
+    unicast(player, packet.tostring());
+}
+
+void Table::loginBC(Player* player)
+{
+    Jpacket packet;
+    packet.val["cmd"]   = SERVER_LOGIN;
+    packet.val["uid"]   = player->uid;
+    packet.end();
+    broadcast(player, packet.tostring());
 }
