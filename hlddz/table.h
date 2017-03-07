@@ -45,6 +45,8 @@ public:
     int handler_login(Player* player);
 
     bool sitdown(Player* player);
+    //发牌
+    void sendCard(void);
 
     //msg
     void loginUC(Player* player);

@@ -173,3 +173,8 @@ void Table::loginBC(Player* player)
     packet.end();
     broadcast(player, packet.tostring());
 }
+    
+void Table::sendCard(void)
+{
+
+}
