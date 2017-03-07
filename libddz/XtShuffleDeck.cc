@@ -3,6 +3,7 @@
 #include "XtShuffleDeck.h"
 
 static int card_arr[] = {
+	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
 	0x01, 0x11, 0x21, 0x31,		//A 14 
 	0x02, 0x12, 0x22, 0x32,		//2 15
 	0x03, 0x13, 0x23, 0x33,		//3 3
@@ -18,8 +19,6 @@ static int card_arr[] = {
 	0x0D, 0x1D, 0x2D, 0x3D,		//K 13
 };
 
-
-
 XtShuffleDeck::XtShuffleDeck()
 {
 }
@@ -27,8 +26,6 @@ XtShuffleDeck::XtShuffleDeck()
 XtShuffleDeck::~XtShuffleDeck()
 {
 }
-
-
 
 void XtShuffleDeck::fill()
 {
@@ -74,9 +71,7 @@ void XtShuffleDeck::shuffle(int seed)
 {
 	srand(time(NULL) + seed);
 	random_shuffle(m_cards.begin(), m_cards.end());
-
 }
-
 
 int XtShuffleDeck::getHoleCards(XtHoleCards* holecards)
 {
@@ -99,8 +94,6 @@ int XtShuffleDeck::changeHoleCards(int pos, XtHoleCards* holecards)
 		return -1;
 	}
 
-
-
 	XtCard card;
 	holecards->m_cards.erase(holecards->m_cards.begin() + pos);
 
@@ -113,6 +106,10 @@ int XtShuffleDeck::changeHoleCards(int pos, XtHoleCards* holecards)
 	return 0;
 }
 
-
-
-
+void XtShuffleDeck::showCards(void) const
+{
+    for(vector<XtCard>::const_iterator it = m_cards.begin(); it != m_cards.end(); ++it)
+    {
+       printf("%s\n", it->getCardDescription().c_str());
+    }
+}

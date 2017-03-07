@@ -12,25 +12,6 @@
 
 using namespace std;
 
-/**
- * suit  0  方块  1 梅花   2  红桃    3黑桃
- * 	
- 0x01, 0x11, 0x21, 0x31,		//A 14
- 0x02, 0x12, 0x22, 0x32,		//2 2
- 0x03, 0x13, 0x23, 0x33,		//3 3
- 0x04, 0x14, 0x24, 0x34,		//4 4
- 0x05, 0x15, 0x25, 0x35,		//5 5
- 0x06, 0x16, 0x26, 0x36,		//6 6
- 0x07, 0x17, 0x27, 0x37,		//7 7
- 0x08, 0x18, 0x28, 0x38,		//8 8
- 0x09, 0x19, 0x29, 0x39,		//9 9
- 0x0A, 0x1A, 0x2A, 0x3A,		//10 10
- 0x0B, 0x1B, 0x2B, 0x3B,		//J 11
- 0x0C, 0x1C, 0x2C, 0x3C,		//Q 12
- 0x0D, 0x1D, 0x2D, 0x3D,		//K 13
- * @author luochuanting
- */
-
 class XtCard
 {
 	public:
@@ -71,7 +52,7 @@ class XtCard
 
 		void setValue(int val);
 
-		std::string getCardDescription();
+		std::string getCardDescription() const;
 
 		bool operator <  (const XtCard &c) const{ return (m_face < c.m_face); };
 		bool operator >  (const XtCard &c) const { return (m_face > c.m_face); };
@@ -108,12 +89,7 @@ class XtCard
 		int m_suit;
 		int m_value;
 
-
-
-
 	public:
-
-
 		static bool lesserCallback(const XtCard &a, const XtCard &b)
 		{
 			if (XtCard::compare(a, b) == -1)

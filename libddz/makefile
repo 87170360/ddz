@@ -10,7 +10,7 @@ LIBS = -L. -lstdc++
 
 STATIC_LIB = libddz.a
 
-OBJECTS_LIB = XtCard.o XtDeck.o  XtTypeDeck.o XtHoleCards.o XtShuffleDeck.o
+OBJECTS_LIB = XtCard.o  XtTypeDeck.o XtHoleCards.o XtShuffleDeck.o
 
 lib: $(STATIC_LIB)
 

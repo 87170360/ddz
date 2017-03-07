@@ -1,36 +1,31 @@
 #ifndef _XT_SHULLE_DECK_H_
 #define _XT_SHULLE_DECK_H_
 
-#include "XtDeck.h"
-
 #include "XtCard.h"
+#include "XtHoleCards.h"
 
-
-
-class XtShuffleDeck:public XtDeck 
+class XtShuffleDeck
 {
 	public:
 		XtShuffleDeck();
-		virtual ~XtShuffleDeck();
+		~XtShuffleDeck();
 
 	public:
-		virtual void shuffle(int seed);
-		virtual void fill();
-		virtual void empty();
-		virtual int count() const;
-		virtual int getHoleCards(XtHoleCards* hole_card);
-		virtual int changeHoleCards(int pos,XtHoleCards* hole_card);
+		void shuffle(int seed);
+		void fill();
+		void empty();
+		int count() const;
+		int getHoleCards(XtHoleCards* hole_card);
+		int changeHoleCards(int pos,XtHoleCards* hole_card);
 
-	protected:
 		bool push(const XtCard& card);
 		bool pop(XtCard* card);
+
+        void showCards(void) const;
 
 	private:
 		vector<XtCard> m_cards;
 };
 
-
 #endif /*_XT_SHULLE_DECK_H_*/
-
-
 

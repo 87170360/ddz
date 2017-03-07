@@ -1,11 +1,28 @@
 #include "XtCard.h"
 
-static char m_face_symbols[] = {
-	'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
+/*
+	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
+	0x01, 0x11, 0x21, 0x31,		//A 14 
+	0x02, 0x12, 0x22, 0x32,		//2 15
+	0x03, 0x13, 0x23, 0x33,		//3 3
+	0x04, 0x14, 0x24, 0x34,		//4 4
+	0x05, 0x15, 0x25, 0x35,		//5 5
+	0x06, 0x16, 0x26, 0x36,		//6 6
+	0x07, 0x17, 0x27, 0x37,		//7 7
+	0x08, 0x18, 0x28, 0x38,		//8 8
+	0x09, 0x19, 0x29, 0x39,		//9 9
+	0x0A, 0x1A, 0x2A, 0x3A,		//10 10
+	0x0B, 0x1B, 0x2B, 0x3B,		//J 11
+	0x0C, 0x1C, 0x2C, 0x3C,		//Q 12
+	0x0D, 0x1D, 0x2D, 0x3D,		//K 13
+ */
+
+static string m_face_symbols[] = {
+	"3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "2", "JOKER"
 };
 
-static char m_suit_symbols[] = {
-	'd', 'c', 'h', 's'
+static string m_suit_symbols[] = {
+	"d", "c", "h", "s"
 };
 
 XtCard::XtCard()
@@ -20,7 +37,11 @@ XtCard::XtCard(int val)
 	m_face = m_value & 0xF;
 	m_suit = m_value >> 4;
 
-	if (m_face < 2)
+    if(m_face == 0)
+    {
+        m_face = 16; 
+    }
+	else if(m_face <= 2)
 	{
 		m_face += 13;
 	}
@@ -33,7 +54,11 @@ void XtCard::setValue(int val)
 	m_face = m_value & 0xF;
 	m_suit = m_value >> 4;
 
-	if (m_face < 2)
+    if(m_face == 0)
+    {
+        m_face = 16; 
+    }
+	else if(m_face <= 2)
 	{
 		m_face += 13;
 	}
@@ -41,7 +66,7 @@ void XtCard::setValue(int val)
 	// printf("Face[%d] Suit[%d]\n", m_face, m_suit);	
 }
 
-string XtCard::getCardDescription()
+string XtCard::getCardDescription() const
 {
 	string card;
 
@@ -51,13 +76,11 @@ string XtCard::getCardDescription()
 	   card.append(buf);
 	   */
 
-	card.append(1, m_face_symbols[m_face - 2]);
-	card.append(1, m_suit_symbols[m_suit]);
+	card.append(m_face_symbols[m_face - 3]);
+	card.append(m_suit_symbols[m_suit]);
 
 	return card;
 }
-
-
 
 void XtCard::dumpCards(std::vector<XtCard> &v, string str )
 {
@@ -79,12 +102,3 @@ void XtCard::dumpCards(std::map<int, XtCard> &m, string str)
 
 	fprintf(stdout, "]]\n");
 }
-
-
-
-
-
-
-
-
-

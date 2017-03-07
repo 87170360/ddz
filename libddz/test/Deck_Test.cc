@@ -1,7 +1,5 @@
 #include "XtTypeDeck.h"
 
-
-
 int main()
 {
 
