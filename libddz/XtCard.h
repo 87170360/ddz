@@ -15,36 +15,6 @@ using namespace std;
 class XtCard
 {
 	public:
-		typedef enum {
-			Two = 2,
-			Three,
-			Four,
-			Five,
-			Six,
-			Seven,
-			Eight,
-			Nine,
-			Ten,
-			Jack,
-			Queen,
-			King,
-			Ace,
-
-			FirstFace = Two,
-			LastFace = Ace
-		} Face;
-
-		typedef enum {
-			Diamonds = 0,
-			Clubs,
-			Hearts,
-			Spades,
-
-			FirstSuit = Diamonds,
-			LastSuit = Spades
-		} Suit;
-
-	public:
 		XtCard();
 		XtCard(int val);
 

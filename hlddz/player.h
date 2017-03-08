@@ -23,10 +23,25 @@ class Client;
 class Player
 {		
 public:
+	Player();
+	virtual ~Player();
+
+	void set_client(Client *c);
+	int init();
+	void reset(void);
+	int update_info();
+	int set_money(int value);
+	int incr_money(int type, int value);
+	void start_offline_timer();
+	void stop_offline_timer();
+	static void offline_timeout(struct ev_loop *loop, ev_timer *w, int revents);
+
+public:
 	int 				index;
 	// table info
-	int					tid;
-	int					seatid;
+	int					m_tid;
+	int					m_seatid;
+    XtHoleCards         m_holecard;
 
 	// player information
 	int                 uid;
@@ -58,20 +73,6 @@ public:
 private:
     ev_timer			_offline_timer;
     ev_tstamp			_offline_timeout;
-
-public:
-	Player();
-	virtual ~Player();
-
-	void set_client(Client *c);
-	int init();
-	void reset();
-	int update_info();
-	int set_money(int value);
-	int incr_money(int type, int value);
-	void start_offline_timer();
-	void stop_offline_timer();
-	static void offline_timeout(struct ev_loop *loop, ev_timer *w, int revents);
 
 };
 

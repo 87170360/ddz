@@ -19,12 +19,13 @@
 #include <map>
 #include <set>
 
-#include "XtDeck.h"
-#include "XtTypeDeck.h"
+#include "XtShuffleDeck.h"
 #include "XtHoleCards.h"
 #include "jpacket.h"
 
-const int SEATNUM = 3;
+const int SEAT_NUM          = 3;
+const int BOTTON_CARD_NUM   = 3;
+const int HAND_CARD_NUM     = 17;
 
 class Player;
 class Client;
@@ -34,7 +35,8 @@ class Table
 public:
     Table();
     virtual ~Table();
-	int init(int tableid);
+	int init(int tid);
+
     int broadcast(Player *player, const std::string &packet);
     int unicast(Player *player, const std::string &packet);
 	int random(int start, int end);
@@ -45,19 +47,26 @@ public:
     int handler_login(Player* player);
 
     bool sitdown(Player* player);
-    //发牌
-    void sendCard(void);
+    //分牌
+    void allocateCard(void);
 
     //msg
     void loginUC(Player* player);
     void loginBC(Player* player);
+
+private:
+    void reset(void);
 
 public:
     int							m_tid;
     int             			m_vid;
     int                         m_state;
 	std::map<int, Player*>		m_players;
-    int                         m_seats[SEATNUM];
+    int                         m_seats[SEAT_NUM];
+
+private:
+    XtShuffleDeck               m_deck;
+    XtCard                      m_bottomCard[BOTTON_CARD_NUM];
 };
 
 #endif

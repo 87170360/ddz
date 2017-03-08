@@ -45,7 +45,6 @@ void Player::set_client(Client *c)
 
 int Player::init()
 {
-	// todo get from redis db.
 	// player information
 	reset();
 	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", uid);
@@ -70,10 +69,8 @@ int Player::init()
 	total_board = hlddz.main_rc[index]->get_value_as_int("total_board");
 	total_win = hlddz.main_rc[index]->get_value_as_int("total_win");
 	pcount = hlddz.main_rc[index]->get_value_as_int("play_count");
-//	vtime = hlddz.main_rc[index]->get_value_as_int("vtime");
 	vlevel = hlddz.main_rc[index]->get_value_as_int("vlevel");
 	ps = hlddz.main_rc[index]->get_value_as_string("ps");
-	// cfc add 20140321
 
 	if(uid<XT_ROBOT_UID_MAX)
 	{
@@ -99,17 +96,18 @@ int Player::init()
 		}
 	}
 
-	tid = -1;
+	m_tid = -1;
 	idle_count= 0;
 
 	return 0;
 }
 
-void Player::reset()
+void Player::reset(void)
 {
 	logout_type = 0;
 	time_cnt = 0;
 	stop_offline_timer();
+    m_holecard.clear();
 }
 
 int Player::update_info()

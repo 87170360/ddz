@@ -23,6 +23,7 @@ class XtShuffleDeck
 
         void showCards(void) const;
 
+
 	private:
 		vector<XtCard> m_cards;
 };

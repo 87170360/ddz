@@ -31,17 +31,24 @@ Table::~Table()
 {
 }
 
-int Table::init(int tableid)
+int Table::init(int tid)
 {
 	// xt_log.debug("begin to init table [%d]\n", table_id);
-    m_tid = tableid;
+    m_tid = tid;
 
-    for(int i = 0; i < SEATNUM; ++i)
+    reset();
+
+    return 0;
+}
+    
+void Table::reset(void)
+{
+    for(int i = 0; i < SEAT_NUM; ++i)
     {
         m_seats[i] = 0; 
     }
-
-    return 0;
+    m_deck.fill();
+    m_deck.shuffle(m_tid);
 }
 
 int Table::broadcast(Player *p, const std::string &packet)
@@ -134,7 +141,7 @@ int Table::handler_login(Player *player)
 bool Table::sitdown(Player* player)
 {
     int seatid = -1;
-    for(int i = 0; i < SEATNUM; ++i)
+    for(int i = 0; i < SEAT_NUM; ++i)
     {
         if(m_seats[i] == 0) 
         {
@@ -148,7 +155,7 @@ bool Table::sitdown(Player* player)
         return false; 
     }
 
-    player->seatid = seatid;
+    player->m_seatid = seatid;
     m_seats[seatid] = player->uid;
     m_players[player->uid] = player;
     return true;
@@ -174,7 +181,7 @@ void Table::loginBC(Player* player)
     broadcast(player, packet.tostring());
 }
     
-void Table::sendCard(void)
+void Table::allocateCard(void)
 {
-
+    
 }

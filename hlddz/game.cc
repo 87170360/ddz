@@ -221,7 +221,7 @@ int Game::dispatch(Client *client)
     switch (cmd) {
         /*
            case CLIENT_CHAT_REQ:
-           all_tables[player->tid]->handler_chat(player);
+           all_tables[player->m_tid]->handler_chat(player);
            break;
            case CLIENT_LOGOUT_REQ:
            del_player(player);
@@ -251,9 +251,9 @@ int Game::safe_check(Client *client, int cmd)
         xt_log.error("safe check client player is NULL.\n");
         return -1;
     }
-    if (all_tables.find(player->tid) == all_tables.end())
+    if (all_tables.find(player->m_tid) == all_tables.end())
     {
-        xt_log.error("safe_check uid[%d] is not in tid[%d]\n", player->uid, player->tid);
+        xt_log.error("safe_check uid[%d] is not in tid[%d]\n", player->uid, player->m_tid);
         return -1;
     }
 
@@ -303,7 +303,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
     for(map<int, Table*>::iterator it = a.begin(); it != a.end(); it++)
     {
         Table *table = (*it).second; 
-        if(table->m_state == STATE_GAME || player->tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
+        if(table->m_state == STATE_GAME || player->m_tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
         {
             continue;
         }
@@ -413,9 +413,9 @@ int Game::add_player(Client *client)
     if (online_players.find(uid) != online_players.end()) {
         xt_log.debug("player[%d] rebind by online get info ok\n", uid);
         Player *player = online_players[uid];
-        if (all_tables.find(player->tid) == all_tables.end()) 
+        if (all_tables.find(player->m_tid) == all_tables.end()) 
         {
-            xt_log.error("add player rebind by online uid[%d] is not in tid[%d].\n", player->uid, player->tid);
+            xt_log.error("add player rebind by online uid[%d] is not in tid[%d].\n", player->uid, player->m_tid);
             return -1;
         }
         Client *oldClient = player->client;
@@ -433,9 +433,9 @@ int Game::add_player(Client *client)
     {
         xt_log.debug("player[%d] rebind by offline get info ok\n", uid);
         Player *player = offline_players[uid];
-        if (all_tables.find(player->tid) == all_tables.end())
+        if (all_tables.find(player->m_tid) == all_tables.end())
         {
-            xt_log.error("rebind by offline uid[%d] is not in table[%d]\n", player->uid, player->tid);
+            xt_log.error("rebind by offline uid[%d] is not in table[%d]\n", player->uid, player->m_tid);
             return -1;
         }
         offline_players.erase(uid);
@@ -477,7 +477,7 @@ int Game::add_player(Client *client)
 int Game::del_player(Player *player)
 {
     int ret = 0;
-    if (all_tables.find(player->tid) != all_tables.end()) {
+    if (all_tables.find(player->m_tid) != all_tables.end()) {
         if (ret < 0) {
             xt_log.error("del player table handler logout\n");
             return -1;
@@ -486,7 +486,7 @@ int Game::del_player(Player *player)
             xt_log.error("del player table del player\n");
             return -1;
         }
-        ret = handle_logout_table(player->tid);
+        ret = handle_logout_table(player->m_tid);
         if (ret < 0) {
             xt_log.error("del player table handle logout table.\n");
             return -1;
@@ -526,9 +526,9 @@ int Game::del_player(Player *player)
 
 int Game::change_table(Player *player)
 {
-    xt_log.info("change table uid[%d] money[%d] tid[%d].\n", player->uid, player->money, player->tid);
+    xt_log.info("change table uid[%d] money[%d] tid[%d].\n", player->uid, player->money, player->m_tid);
     int ret = 0;
-    if (all_tables.find(player->tid) != all_tables.end()) {
+    if (all_tables.find(player->m_tid) != all_tables.end()) {
         player->logout_type = 2;   
         if (ret < 0) {
             xt_log.error("change table handler logout error.\n");
@@ -538,7 +538,7 @@ int Game::change_table(Player *player)
             xt_log.error("change table del player error.\n");
             return -1;
         }
-        ret = handle_logout_table(player->tid);
+        ret = handle_logout_table(player->m_tid);
         if (ret < 0) {
             xt_log.error("change table handle logout table error.\n");
             return -1;

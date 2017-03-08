@@ -13,6 +13,7 @@ STATIC_LIB = libddz.a
 OBJECTS_LIB = XtCard.o  XtTypeDeck.o XtHoleCards.o XtShuffleDeck.o
 
 lib: $(STATIC_LIB)
+	ctags -R
 
 $(STATIC_LIB): $(OBJECTS_LIB)
 	ar -r $(STATIC_LIB) $(OBJECTS_LIB)
