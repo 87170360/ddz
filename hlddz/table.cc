@@ -33,14 +33,14 @@ Table::~Table()
 
 int Table::init(int tid)
 {
-	// xt_log.debug("begin to init table [%d]\n", table_id);
+    // xt_log.debug("begin to init table [%d]\n", table_id);
     m_tid = tid;
 
     reset();
 
     return 0;
 }
-    
+
 void Table::reset(void)
 {
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
@@ -80,40 +80,40 @@ int Table::unicast(Player *p, const std::string &packet)
 
 int Table::random(int start, int end)
 {
-	return start + rand() % (end - start + 1);
+    return start + rand() % (end - start + 1);
 }
 
 void Table::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)
 {
-	for (unsigned int i = 0; i < cards.size(); i++) {
-		packet.val[key].append(cards[i].m_value);
-	}
+    for (unsigned int i = 0; i < cards.size(); i++) {
+        packet.val[key].append(cards[i].m_value);
+    }
 
-	if (cards.size() == 0) {
-		packet.val[key].append(0);
-	}
+    if (cards.size() == 0) {
+        packet.val[key].append(0);
+    }
 }
 
 void Table::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key)
 {
-	std::map<int, XtCard>::iterator it;
-	for (it = cards.begin(); it != cards.end(); it++)
-	{
-		XtCard &card = it->second;
-		packet.val[key].append(card.m_value);
-	}
+    std::map<int, XtCard>::iterator it;
+    for (it = cards.begin(); it != cards.end(); it++)
+    {
+        XtCard &card = it->second;
+        packet.val[key].append(card.m_value);
+    }
 }
 
 void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
 {
-	Json::Value &val = packet.tojson();
-	
-	for (unsigned int i = 0; i < val[key].size(); i++)
-	{
-		XtCard card(val[key][i].asInt());
-		
-		cards.push_back(card);
-	}
+    Json::Value &val = packet.tojson();
+
+    for (unsigned int i = 0; i < val[key].size(); i++)
+    {
+        XtCard card(val[key][i].asInt());
+
+        cards.push_back(card);
+    }
 }
 
 int Table::handler_login(Player *player)
@@ -138,7 +138,7 @@ int Table::handler_login(Player *player)
 
     return 0;
 }
-    
+
 bool Table::sitdown(Player* player)
 {
     int seatid = -1;
@@ -161,7 +161,7 @@ bool Table::sitdown(Player* player)
     m_players[player->uid] = player;
     return true;
 }
-    
+
 void Table::loginUC(Player* player)
 {
     Jpacket packet;
@@ -181,9 +181,25 @@ void Table::loginBC(Player* player)
     packet.end();
     broadcast(player, packet.tostring());
 }
-    
-void Table::allocateCard(void)
+
+bool Table::allocateCard(void)
 {
     //底牌    
-    m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM);
+    if(!m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM))
+    {
+        xt_log.error("%s:%d, get bottom card error,  tid:%d", __FILE__, __LINE__, m_tid); 
+        return false;
+    }
+    //手牌
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        if(!m_deck.getHoleCards(pl->m_holecard.m_cards, HAND_CARD_NUM))
+        {
+            xt_log.error("%s:%d, get hand card error,  tid:%d", __FILE__, __LINE__, m_tid); 
+            return false;
+        }
+    }
+
+    return true;
 }

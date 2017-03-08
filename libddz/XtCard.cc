@@ -66,7 +66,7 @@ void XtCard::setValue(int val)
 	// printf("Face[%d] Suit[%d]\n", m_face, m_suit);	
 }
 
-string XtCard::getCardDescription() const
+const char* XtCard::getCardDescription() const
 {
 	string card;
 
@@ -79,14 +79,14 @@ string XtCard::getCardDescription() const
 	card.append(m_face_symbols[m_face - 3]);
 	card.append(m_suit_symbols[m_suit]);
 
-	return card;
+	return card.c_str();
 }
 
 void XtCard::dumpCards(std::vector<XtCard> &v, string str )
 {
 	fprintf(stdout, "[%s]: [[ ", str.c_str());
 	for (std::vector<XtCard>::iterator it = v.begin(); it != v.end(); it++)
-		fprintf(stdout, "%s ", it->getCardDescription().c_str());
+		fprintf(stdout, "%s ", it->getCardDescription());
 
 	fprintf(stdout, "]]\n");
 }
@@ -97,7 +97,7 @@ void XtCard::dumpCards(std::map<int, XtCard> &m, string str)
 	fprintf(stdout, "[%s]: [[ ", str.c_str());
 	for (std::map<int, XtCard>::iterator it = m.begin(); it != m.end(); it++)
 	{
-		fprintf(stdout, "%s ", it->second.getCardDescription().c_str());
+		fprintf(stdout, "%s ", it->second.getCardDescription());
 	}
 
 	fprintf(stdout, "]]\n");

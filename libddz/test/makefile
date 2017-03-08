@@ -15,6 +15,7 @@ shuffleDeckTest=shuffleDeckTest
 shuffleDeckTestObj=shuffleDeckTest.o
 
 all: $(shuffleDeckTest)
+	ctags -R
 
 $(shuffleDeckTest) : $(shuffleDeckTestObj)
 	$(LD) $(LFLAGS) -o $(shuffleDeckTest) $(shuffleDeckTestObj) $(LIBS) 

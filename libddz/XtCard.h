@@ -21,7 +21,7 @@ class XtCard
 	public:
 		void setValue(int val);
 
-		std::string getCardDescription() const;
+		const char* getCardDescription() const;
 
 		bool operator <  (const XtCard &c) const{ return (m_face < c.m_face); };
 		bool operator >  (const XtCard &c) const { return (m_face > c.m_face); };
@@ -48,10 +48,8 @@ class XtCard
 					return -1;
 				}	
 			}
-
 			return 0;
 		}
-
 
 	public:
 		int m_face;

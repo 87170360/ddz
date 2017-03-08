@@ -108,6 +108,6 @@ void XtShuffleDeck::showCards(void) const
 {
     for(vector<XtCard>::const_iterator it = m_cards.begin(); it != m_cards.end(); ++it)
     {
-       printf("%s\n", it->getCardDescription().c_str());
+       printf("%s\n", it->getCardDescription());
     }
 }

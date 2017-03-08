@@ -48,7 +48,7 @@ public:
 
     bool sitdown(Player* player);
     //分牌
-    void allocateCard(void);
+    bool allocateCard(void);
 
     //msg
     void loginUC(Player* player);
