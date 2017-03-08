@@ -4,7 +4,7 @@ CXX = g++
 CFLAGS = -O0 -Wall
 # CXXFLAGS = -O0 -frtti -fexceptions -Wall
 CXXFLAGS = -g -O0 -fno-strict-aliasing -Wno-write-strings -frtti -fexceptions -Wall -DDEBUG
-INCPATH = -I/download/jsoncpp-src-0.5.0/include -I../libddz -I/usr/local/include
+INCPATH = -I/data/download/jsoncpp-src-0.5.0/include -I../libddz -I/usr/local/include
 
 LD = gcc
 LFLAGS = #-static

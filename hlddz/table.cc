@@ -85,12 +85,15 @@ int Table::random(int start, int end)
 
 void Table::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)
 {
-    for (unsigned int i = 0; i < cards.size(); i++) {
-        packet.val[key].append(cards[i].m_value);
+    if (cards.empty()) 
+    {
+        packet.val[key].append(0);
+        return;
     }
 
-    if (cards.size() == 0) {
-        packet.val[key].append(0);
+    for (unsigned int i = 0; i < cards.size(); i++) 
+    {
+        packet.val[key].append(cards[i].m_value);
     }
 }
 
@@ -135,6 +138,8 @@ int Table::handler_login(Player *player)
     loginBC(player);
 
     //人满开始, 定时器
+    //发牌
+    allocateCard();
 
     return 0;
 }
@@ -202,4 +207,17 @@ bool Table::allocateCard(void)
     }
 
     return true;
+}
+    
+void Table::sendCard(void)
+{
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        Jpacket packet;
+        packet.val["cmd"]   = SERVER_CARD_1;
+        vector_to_json_array(pl->m_holecard.m_cards, packet, "card");
+        packet.end();
+        unicast(pl, packet.tostring());
+    }
 }

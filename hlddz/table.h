@@ -53,6 +53,7 @@ public:
     //msg
     void loginUC(Player* player);
     void loginBC(Player* player);
+    void sendCard(void);
 
 private:
     void reset(void);

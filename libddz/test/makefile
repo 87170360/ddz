@@ -4,15 +4,15 @@ CXX = g++
 CFLAGS = -O0 -Wall
 # CXXFLAGS = -O0 -frtti -fexceptions -Wall
 CXXFLAGS = -g -O0 -fno-strict-aliasing -Wno-write-strings -frtti -fexceptions -Wall -DDEBUG
-INCPATH = -I/usr/local/include -I../../zjhsvr  -I../  -I../../libxtgame -I../../libxtnet  -I../ 
+INCPATH = -I/usr/local/include -I../../hlddz  -I../  -I../../libxtgame -I../../libxtnet  -I../ 
 
 LD = gcc
 LFLAGS = #-static
-LIBS = -L. -L../../zjhsvr/libddz -L/usr/local/lib  -L../../libxtgame -L../../libxtnet -L../ -lxtgame  -lddz -lxtnet -lstdc++ -lev -ljsoncpp -lhiredis 
+LIBS = -L. -L../../libddz -L/usr/local/lib  -L../../libxtgame -L../../libxtnet -L../ -lxtgame  -lddz -lxtnet -lstdc++ -lev -lhiredis 
 
 shuffleDeckTest=shuffleDeckTest
 
-shuffleDeckTestObj=shuffleDeckTest.o
+shuffleDeckTestObj=shuffleDeckTest.o 
 
 all: $(shuffleDeckTest)
 	ctags -R
