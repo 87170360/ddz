@@ -23,9 +23,9 @@
 #include "XtHoleCards.h"
 #include "jpacket.h"
 
-const int SEAT_NUM          = 3;
-const int BOTTON_CARD_NUM   = 3;
-const int HAND_CARD_NUM     = 17;
+const unsigned int SEAT_NUM          = 3;
+const unsigned int HAND_CARD_NUM     = 17;
+const unsigned int BOTTON_CARD_NUM     = 17;
 
 class Player;
 class Client;
@@ -66,7 +66,7 @@ public:
 
 private:
     XtShuffleDeck               m_deck;
-    XtCard                      m_bottomCard[BOTTON_CARD_NUM];
+    std::vector<XtCard>         m_bottomCard;
 };
 
 #endif

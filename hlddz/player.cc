@@ -107,7 +107,7 @@ void Player::reset(void)
 	logout_type = 0;
 	time_cnt = 0;
 	stop_offline_timer();
-    m_holecard.clear();
+    m_holecard.reset();
 }
 
 int Player::update_info()

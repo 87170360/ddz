@@ -10,35 +10,14 @@ LD = gcc
 LFLAGS = #-static
 LIBS = -L. -L../../zjhsvr/libddz -L/usr/local/lib  -L../../libxtgame -L../../libxtnet -L../ -lxtgame  -lddz -lxtnet -lstdc++ -lev -ljsoncpp -lhiredis 
 
-DESK_TEST_RAND= Deck_Test_Rand
-DESK_TEST_TYPE= Deck_Test_Type
-DESK_TEST_FAPAI=Deck_Test_FaPai
-DESK_TEST=Deck_Test
 shuffleDeckTest=shuffleDeckTest
 
-DESK_TEST_FAPAI_OBJ= Deck_Test_FaPai.o  
-DESK_TEST_OBJ=Deck_Test.o 
-DESK_TEST_TYPE_OBJ=  Deck_Test_Type.o 
-DESK_TEST_RAND_OBJ=  Deck_Test_Rand.o 
 shuffleDeckTestObj=shuffleDeckTest.o
 
 all: $(shuffleDeckTest)
 
 $(shuffleDeckTest) : $(shuffleDeckTestObj)
 	$(LD) $(LFLAGS) -o $(shuffleDeckTest) $(shuffleDeckTestObj) $(LIBS) 
-
-$(DESK_TEST_TYPE) : $(DESK_TEST_TYPE_OBJ)
-	$(LD) $(LFLAGS) -o $(DESK_TEST_TYPE) $(DESK_TEST_TYPE_OBJ) $(LIBS) 
-
-$(DESK_TEST_FAPAI) : $(DESK_TEST_FAPAI_OBJ)
-	$(LD) $(LFLAGS) -o $(DESK_TEST_FAPAI) $(DESK_TEST_FAPAI_OBJ) $(LIBS) 
-
-$(DESK_TEST):$(DESK_TEST_OBJ)
-	$(LD) $(LFLAGS) -o $(DESK_TEST) $(DESK_TEST_OBJ) $(LIBS) 
-
-$(DESK_TEST_RAND): $(DESK_TEST_RAND_OBJ)
-	$(LD) $(LFLAGS) -o $(DESK_TEST_RAND) $(DESK_TEST_RAND_OBJ) $(LIBS) 
-
 
 ####### Implicit rules ######
 
@@ -56,4 +35,4 @@ $(DESK_TEST_RAND): $(DESK_TEST_RAND_OBJ)
 	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
 
 clean:
-	rm -f $(shuffleDeckTest) $(DESK_TEST_FAPAI) $(DESK_TEST) $(DESK_TEST_TYPE) $(DESK_TEST_RAND) *.o
+	rm -f $(shuffleDeckTest) *.o

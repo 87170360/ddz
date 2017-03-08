@@ -10,18 +10,18 @@ class XtShuffleDeck
 		XtShuffleDeck();
 		~XtShuffleDeck();
 
-	public:
 		void shuffle(int seed);
 		void fill();
 		void empty();
 		int count() const;
-		bool getHoleCards(XtHoleCards* hole_card, unsigned int num);
+		bool getHoleCards(std::vector<XtCard>& card, unsigned int num);
 		int changeHoleCards(int pos,XtHoleCards* hole_card);
 
 		bool push(const XtCard& card);
-		bool pop(XtCard& card);
-
         void showCards(void) const;
+
+    private:
+		bool pop(XtCard& card);
 
 
 	private:

@@ -43,10 +43,11 @@ int Table::init(int tid)
     
 void Table::reset(void)
 {
-    for(int i = 0; i < SEAT_NUM; ++i)
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         m_seats[i] = 0; 
     }
+    m_bottomCard.clear();
     m_deck.fill();
     m_deck.shuffle(m_tid);
 }
@@ -141,7 +142,7 @@ int Table::handler_login(Player *player)
 bool Table::sitdown(Player* player)
 {
     int seatid = -1;
-    for(int i = 0; i < SEAT_NUM; ++i)
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         if(m_seats[i] == 0) 
         {
@@ -183,5 +184,6 @@ void Table::loginBC(Player* player)
     
 void Table::allocateCard(void)
 {
-    
+    //底牌    
+    m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM);
 }
