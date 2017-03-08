@@ -31,7 +31,7 @@ void XtShuffleDeck::fill()
 {
 	m_cards.clear();
 
-	for (int i = 0; i < 52; i++)
+	for (int i = 0; i < 54; i++)
 	{
 		XtCard c(card_arr[i]);
 		push(c);

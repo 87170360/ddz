@@ -27,6 +27,7 @@ secret_venue/secret_venue
 libzjh/libzjh
 zjhsvr/zjhsvr
 hlddz/hlddz
+libddz/test/shuffleDeckTest
 
 # Prerequisites
 *.d
