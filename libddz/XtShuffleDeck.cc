@@ -54,14 +54,14 @@ bool XtShuffleDeck::push(const XtCard& card)
 	return true;
 }
 
-bool XtShuffleDeck::pop(XtCard* card)
+bool XtShuffleDeck::pop(XtCard& card)
 {
-	if(m_cards.size()==0)
+	if(m_cards.empty())
 	{
 		return false;
 	}
 
-	*card = m_cards.back();
+    card.setValue(m_cards.back().m_value);
 	m_cards.pop_back();
 
 	return true;
@@ -73,18 +73,21 @@ void XtShuffleDeck::shuffle(int seed)
 	random_shuffle(m_cards.begin(), m_cards.end());
 }
 
-int XtShuffleDeck::getHoleCards(XtHoleCards* holecards)
+bool XtShuffleDeck::getHoleCards(XtHoleCards* holecards, unsigned int num)
 {
-	XtCard card;
+    if(m_cards.size() < num)
+    {
+        return false;
+    }
 
+	XtCard card;
 	holecards->clear();
-	for (int i = 0; i < 3; i++)
+	for (unsigned int i = 0; i < num; i++)
 	{
-		pop(&card);
+		pop(card);
 		holecards->addCard(card);
 	}
-
-	return 0;
+	return true;
 }
 
 int XtShuffleDeck::changeHoleCards(int pos, XtHoleCards* holecards)
@@ -96,13 +99,10 @@ int XtShuffleDeck::changeHoleCards(int pos, XtHoleCards* holecards)
 
 	XtCard card;
 	holecards->m_cards.erase(holecards->m_cards.begin() + pos);
-
-	pop(&card);
-
+	pop(card);
 	holecards->m_cards.push_back(card);
 
 	holecards->analysis();
-
 	return 0;
 }
 

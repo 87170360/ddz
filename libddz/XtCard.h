@@ -19,7 +19,6 @@ class XtCard
 		XtCard(int val);
 
 	public:
-
 		void setValue(int val);
 
 		std::string getCardDescription() const;

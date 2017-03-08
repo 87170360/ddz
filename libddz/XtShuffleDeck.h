@@ -15,11 +15,11 @@ class XtShuffleDeck
 		void fill();
 		void empty();
 		int count() const;
-		int getHoleCards(XtHoleCards* hole_card);
+		bool getHoleCards(XtHoleCards* hole_card, unsigned int num);
 		int changeHoleCards(int pos,XtHoleCards* hole_card);
 
 		bool push(const XtCard& card);
-		bool pop(XtCard* card);
+		bool pop(XtCard& card);
 
         void showCards(void) const;
 

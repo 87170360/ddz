@@ -24,14 +24,10 @@ void XtHoleCards::addCard(XtCard card)
 	m_cards.push_back(card);
 }
 
-
-
 void XtHoleCards::sort()
 {
 	XtCard::sortByDescending(m_cards);
 }
-
-
 
 void XtHoleCards::analysis()
 {
