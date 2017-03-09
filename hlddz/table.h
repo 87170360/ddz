@@ -53,7 +53,10 @@ public:
     //msg
     void loginUC(Player* player);
     void loginBC(Player* player);
-    void sendCard(void);
+    //第一次发牌
+    void sendCard1(void);
+
+    void gameStart(void);
 
 private:
     void reset(void);
@@ -68,6 +71,12 @@ public:
 private:
     XtShuffleDeck               m_deck;
     std::vector<XtCard>         m_bottomCard;
+
+    ev_timer                    m_timerPrepare;                 //准备
+    ev_timer                    m_timerCall;                    //抢地主
+    ev_timer                    m_timerDouble;                  //加倍
+    ev_timer                    m_timerCard;                    //出牌
+    ev_timer                    m_timerEnd;                     //结算
 };
 
 #endif

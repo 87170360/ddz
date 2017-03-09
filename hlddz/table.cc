@@ -23,8 +23,15 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
+const ev_tstamp prepareTime(10); 
+
 Table::Table()
 {
+    m_timerPrepare.data = this;
+    m_timerCall.data = this;
+    m_timerDouble.data = this;
+    m_timerCard.data = this;
+    m_timerEnd.data = this;
 }
 
 Table::~Table()
@@ -138,8 +145,7 @@ int Table::handler_login(Player *player)
     loginBC(player);
 
     //人满开始, 定时器
-    //发牌
-    allocateCard();
+    gameStart();
 
     return 0;
 }
@@ -209,7 +215,7 @@ bool Table::allocateCard(void)
     return true;
 }
     
-void Table::sendCard(void)
+void Table::sendCard1(void)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -220,4 +226,10 @@ void Table::sendCard(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
+}
+    
+void Table::gameStart(void)
+{
+    allocateCard();
+    sendCard1();
 }
