@@ -131,3 +131,88 @@ bool XtShuffleDeck::isRocket(const vector<XtCard>& card) const
 
     return false;
 }
+
+bool XtShuffleDeck::isBomb(const vector<XtCard>& card) const
+{
+    if(card.size() != 4)
+    {
+        return false;
+    }
+
+    if(card[0].m_face == card[1].m_face && card[1].m_face == card[2].m_face && card[2].m_face == card[3].m_face)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool XtShuffleDeck::isShuttle(const vector<XtCard>& card) const
+{
+    if(card.size() < 8 || card.size() > 20)
+    {
+        return false;
+    }
+
+    if((card.size() % 4 != 0) && (card.size() % 6 != 0))
+    {
+        return false;
+    }
+
+    vector<XtCard> cardcp(card);
+    XtCard::sortByDescending(cardcp);
+    map<int, int> result;
+    analyze(result, cardcp);
+
+    //检查是4或者4+2
+    
+    //AAAABBBB
+    if(result.size() == 1 && result.find(4) != result.end()) 
+    {
+    }
+
+    //AAAA12BBBB34
+    if(result.size() == 2 && result.find(4) != result.end() && result.find(2) != result.end()) 
+    {
+    
+    }
+
+    //是否连续
+
+    return false;
+}
+        
+void XtShuffleDeck::analyze(map<int, int>& result, const vector<XtCard>& card) const
+{
+    result.clear();
+    map<int, int> faceCot;
+    for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+       faceCot[it->m_face] += 1;  
+    }
+
+    for(map<int, int>::const_iterator it = faceCot.begin(); it != faceCot.end(); ++it)
+    {
+        result[it->second] += 1;
+    }
+}
+        
+void XtShuffleDeck::keep4(vector<XtCard>& result, const vector<XtCard>& card)
+{
+    result.clear();
+    map<int, int> faceCot;
+    map<int, int>::const_iterator findit;
+    for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+       faceCot[it->m_face] += 1;  
+    }
+
+    for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        findit = faceCot.find(it->m_face);
+        if(findit != faceCot.end() && findit->second == 4) 
+        {
+            result.push_back(*it); 
+        }
+    }
+}

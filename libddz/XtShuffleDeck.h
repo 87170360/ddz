@@ -25,6 +25,11 @@ class XtShuffleDeck
 	//private:
 		bool pop(XtCard& card);
         bool isRocket(const vector<XtCard>& card) const;
+        bool isBomb(const vector<XtCard>& card) const;
+        bool isShuttle(const vector<XtCard>& card) const;
+
+        void analyze(map<int, int>& result, const vector<XtCard>& card) const;
+        void keep4(vector<XtCard>& result, const vector<XtCard>& card);
 
 	private:
 		vector<XtCard> m_cards;
