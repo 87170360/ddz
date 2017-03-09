@@ -111,3 +111,23 @@ void XtShuffleDeck::showCards(void) const
        printf("%s\n", it->getCardDescription());
     }
 }
+        
+int XtShuffleDeck::getCardType(const std::vector<XtCard>& card) const
+{
+    return 0;
+}
+        
+bool XtShuffleDeck::isRocket(const vector<XtCard>& card) const
+{
+    if(card.size() != 2)
+    {
+        return false;
+    }
+
+    if(card[0].m_face == card[1].m_face && card[0].m_face == 16)
+    {
+        return true;
+    }
+
+    return false;
+}

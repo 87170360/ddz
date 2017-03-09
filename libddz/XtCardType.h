@@ -3,14 +3,17 @@
 
 enum XtCardType
 {
-	CARD_TYPE_ERROR   = 0,			// 错误类型
-	CARD_TYPE_BAOZI   = 1,			// 豹子
-	CARD_TYPE_SHUNJIN = 2,		    // 顺金
-	CARD_TYPE_JINHUA  = 3,			// 金花 
-	CARD_TYPE_SHUNZI  = 4,		    // 顺子
-	CARD_TYPE_DUIZI   = 5,			// 对子		
-	CARD_TYPE_DANPAI  = 6,			// 单牌
-	CARD_TYPE_TESHU	  = 7,	        // 特殊
+	CT_ERROR                = 0,			// 错误类型
+	CT_ROCKET               = 1,			// 火箭
+	CT_BOMB                 = 2,			// 炸弹
+	CT_SHUTTLE              = 3,			// 航天飞机
+	CT_AIRCRAFT             = 4,			// 飞机
+	CT_FOUR_TWO             = 5,			// 四带二
+	CT_DOUBLE_STRAIGHT      = 6,			// 双顺 
+	CT_STRAIGHT             = 7,			// 单顺 
+	CT_THREE                = 8,			// 三带
+	CT_PAIR                 = 9,			// 对子
+	CT_SINGLE               = 10,			// 单牌
 };
 
 #endif /* _CARD_TYPE_H_ */

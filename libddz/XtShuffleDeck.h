@@ -20,9 +20,11 @@ class XtShuffleDeck
 		bool push(const XtCard& card);
         void showCards(void) const;
 
-    private:
-		bool pop(XtCard& card);
+        int getCardType(const std::vector<XtCard>& card) const;
 
+	//private:
+		bool pop(XtCard& card);
+        bool isRocket(const vector<XtCard>& card) const;
 
 	private:
 		vector<XtCard> m_cards;

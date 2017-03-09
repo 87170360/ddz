@@ -7,17 +7,25 @@ int main()
     XtShuffleDeck deck;
     deck.fill();
     deck.shuffle(0);
-    //deck.showCards();
     printf("count:%d\n", deck.count());
 
-    vector<XtCard> bottom;
-    deck.getHoleCards(bottom, 17);
-
-    for(vector<XtCard>::const_iterator it = bottom.begin(); it != bottom.end(); ++it)
+    XtCard card1(0x00);
+    XtCard card2(0x10);
+    
+    printf("card1:%s\n", card1.getCardDescription());
+    printf("card2:%s\n", card2.getCardDescription());
+    vector<XtCard> cards;
+    cards.push_back(card1);
+    cards.push_back(card2);
+    if(deck.isRocket(cards))
     {
-        printf("%s ", it->getCardDescription()); 
+        printf("is Rocket!\n");
     }
-    printf("\n");
+    else
+    {
+    
+        printf("not Rocket!\n");
+    }
 
     return 0;
 }
