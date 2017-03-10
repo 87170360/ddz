@@ -384,21 +384,6 @@ bool XtShuffleDeck::isSingle(const vector<XtCard>& card) const
     return card.size() == 1;
 }
 
-void XtShuffleDeck::analyze(map<int, int>& result, const vector<XtCard>& card) const
-{
-    result.clear();
-    map<int, int> faceCot;
-    for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
-    {
-       faceCot[it->m_face] += 1;  
-    }
-
-    for(map<int, int>::const_iterator it = faceCot.begin(); it != faceCot.end(); ++it)
-    {
-        result[it->second] += 1;
-    }
-}
-        
 void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu)
 {
     result.clear();

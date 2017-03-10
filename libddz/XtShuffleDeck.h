@@ -36,7 +36,6 @@ class XtShuffleDeck
         bool isPair(const vector<XtCard>& card);
         bool isSingle(const vector<XtCard>& card) const;
 
-        void analyze(map<int, int>& result, const vector<XtCard>& card) const;
         //保留相同点数的牌是N张的牌
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
         //是否M带N模式
