@@ -24,10 +24,14 @@ class XtShuffleDeck
 
 	//private:
 		bool pop(XtCard& card);
+
         bool isRocket(const vector<XtCard>& card) const;
         bool isBomb(const vector<XtCard>& card) const;
         bool isShuttle(const vector<XtCard>& card);
         bool isAircraft(const vector<XtCard>& card);
+        bool is4and2(const vector<XtCard>& card);
+        bool isDoubleStraight(const vector<XtCard>& card);
+        bool isStraight(const vector<XtCard>& card);
 
         void analyze(map<int, int>& result, const vector<XtCard>& card) const;
         //保留相同点数的牌是N张的牌
@@ -41,5 +45,4 @@ class XtShuffleDeck
 		vector<XtCard> m_cards;
 };
 
-#endif /*_XT_SHULLE_DECK_H_*/
-
+#endif /*_XT_SHULLE_DECK_H_*/ 

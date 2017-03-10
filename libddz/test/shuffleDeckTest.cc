@@ -62,6 +62,89 @@ void testAircraft(void)
     }
 }
 
+void test4and2(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard[] = {XtCard(0x01), XtCard(0x11), XtCard(0x2D), XtCard(0x3D), XtCard(0x3C), XtCard(0x1C), XtCard(0x0C), XtCard(0x2C)};
+    vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
+    XtCard::sortByDescending(cards);
+
+    for(vector<XtCard>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+
+    if(deck.is4and2(cards))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
+
+void testDoubleStraight(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard[] = {XtCard(0x0A), XtCard(0x1A), XtCard(0x2A), XtCard(0x3A), XtCard(0x3B), XtCard(0x1B), XtCard(0x0C), XtCard(0x2C)};
+    vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
+    XtCard::sortByDescending(cards);
+
+    for(vector<XtCard>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+
+    if(deck.isDoubleStraight(cards))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
+
+void testStraight(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard[] = {XtCard(0x03), XtCard(0x14), XtCard(0x25), XtCard(0x36), XtCard(0x37), XtCard(0x18), XtCard(0x09), XtCard(0x29)};
+    vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
+    XtCard::sortByDescending(cards);
+
+    for(vector<XtCard>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+
+    if(deck.isStraight(cards))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
 /*
 static int card_arr[] = {
 	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -85,7 +168,10 @@ static int card_arr[] = {
 int main()
 {
     //testShuttle();
-    testAircraft();
+    //testAircraft();
+    //test4and2();
+    //testDoubleStraight();
+    testStraight();
     return 0;
 }
 
