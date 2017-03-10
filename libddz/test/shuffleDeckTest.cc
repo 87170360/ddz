@@ -45,11 +45,12 @@ int main()
     }
 
     vector<XtCard> four;
-    deck.keep4(four, cards);
+    deck.keepN(four, cards, 1);
     for(vector<XtCard>::const_iterator it = four.begin(); it != four.end(); ++it)
     {
         cout << it->getCardDescription() << " ";
     }
+    cout << endl;
 
 
     if(deck.isShuttle(cards))

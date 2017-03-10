@@ -197,7 +197,7 @@ void XtShuffleDeck::analyze(map<int, int>& result, const vector<XtCard>& card) c
     }
 }
         
-void XtShuffleDeck::keep4(vector<XtCard>& result, const vector<XtCard>& card)
+void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu)
 {
     result.clear();
     map<int, int> faceCot;
@@ -210,9 +210,10 @@ void XtShuffleDeck::keep4(vector<XtCard>& result, const vector<XtCard>& card)
     for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
         findit = faceCot.find(it->m_face);
-        if(findit != faceCot.end() && findit->second == 4) 
+        if(findit != faceCot.end() && findit->second == nu) 
         {
             result.push_back(*it); 
         }
     }
 }
+

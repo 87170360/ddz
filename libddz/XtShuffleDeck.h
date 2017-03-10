@@ -29,7 +29,7 @@ class XtShuffleDeck
         bool isShuttle(const vector<XtCard>& card) const;
 
         void analyze(map<int, int>& result, const vector<XtCard>& card) const;
-        void keep4(vector<XtCard>& result, const vector<XtCard>& card);
+        void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
 
 	private:
 		vector<XtCard> m_cards;
