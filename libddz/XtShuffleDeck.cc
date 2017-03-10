@@ -179,6 +179,33 @@ bool XtShuffleDeck::isShuttle(const vector<XtCard>& card)
     return true;
 }
         
+bool XtShuffleDeck::isAircraft(const vector<XtCard>& card)
+{
+    if(card.size() < 6 || card.size() > 20)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<XtCard> vecThree;
+    keepN(vecThree, card, 3);
+
+    //翼数量 0, +1, +2
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if((wingNu != 0) && (wingNu != vecThree.size() / 3) && (wingNu != vecThree.size() / 3 * 2))
+    {
+        return false;
+    }
+
+    //是否连续
+    if(!isNContinue(vecThree, 3))
+    {
+       return false;  
+    }
+
+    return true;
+}
+        
 void XtShuffleDeck::analyze(map<int, int>& result, const vector<XtCard>& card) const
 {
     result.clear();
