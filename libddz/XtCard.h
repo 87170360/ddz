@@ -85,6 +85,12 @@ class XtCard
 
 		static void dumpCards(std::vector<XtCard> &v, string str = "cards");
 		static void dumpCards(std::map<int, XtCard> &m, string str = "cards");
+
+        bool isContinuCard(void) const
+        {
+            //大小王和2不能作为连续的牌
+            return (m_face != 16) && (m_face != 2);
+        }
 };
 
 #endif /* _CARD_H_ */

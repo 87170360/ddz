@@ -26,10 +26,15 @@ class XtShuffleDeck
 		bool pop(XtCard& card);
         bool isRocket(const vector<XtCard>& card) const;
         bool isBomb(const vector<XtCard>& card) const;
-        bool isShuttle(const vector<XtCard>& card) const;
+        bool isShuttle(const vector<XtCard>& card);
 
         void analyze(map<int, int>& result, const vector<XtCard>& card) const;
+        //保留相同点数的牌是N张的牌
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
+        //是否M带N模式
+        bool isMN(const vector<XtCard>& card, int m , int n) const;
+        //是否是连续, 需要降序队列, 不判断n之间是否相同
+        bool isNContinue(const vector<XtCard>& card, int n) const;
 
 	private:
 		vector<XtCard> m_cards;

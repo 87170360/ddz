@@ -147,7 +147,7 @@ bool XtShuffleDeck::isBomb(const vector<XtCard>& card) const
     return false;
 }
 
-bool XtShuffleDeck::isShuttle(const vector<XtCard>& card) const
+bool XtShuffleDeck::isShuttle(const vector<XtCard>& card)
 {
     if(card.size() < 8 || card.size() > 20)
     {
@@ -159,27 +159,24 @@ bool XtShuffleDeck::isShuttle(const vector<XtCard>& card) const
         return false;
     }
 
-    vector<XtCard> cardcp(card);
-    XtCard::sortByDescending(cardcp);
-    map<int, int> result;
-    analyze(result, cardcp);
+    //取出全4的组合
+    vector<XtCard> vecFour;
+    keepN(vecFour, card, 4);
 
-    //检查是4或者4+2
-    
-    //AAAABBBB
-    if(result.size() == 1 && result.find(4) != result.end()) 
+    //翼数量
+    unsigned int wingNu = card.size() - vecFour.size(); 
+    if((wingNu != 0) && (wingNu != vecFour.size() / 2))
     {
-    }
-
-    //AAAA12BBBB34
-    if(result.size() == 2 && result.find(4) != result.end() && result.find(2) != result.end()) 
-    {
-    
+        return false;
     }
 
     //是否连续
+    if(!isNContinue(vecFour, 4))
+    {
+       return false;  
+    }
 
-    return false;
+    return true;
 }
         
 void XtShuffleDeck::analyze(map<int, int>& result, const vector<XtCard>& card) const
@@ -217,3 +214,33 @@ void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, in
     }
 }
 
+bool XtShuffleDeck::isMN(const vector<XtCard>& card, int m , int n) const
+{
+    return false;
+}
+        
+bool XtShuffleDeck::isNContinue(const vector<XtCard>& card, int n) const
+{
+    if(card.size() % n != 0)
+    {
+        return false;
+    }
+
+    for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        //大小王和2不能算
+        if(!it->isContinuCard())
+        {
+            return false;
+        }
+    }
+
+    for(size_t i = 0; i + n < card.size(); i += n)
+    {
+        if(card[i].m_face != card[i + n].m_face + 1)
+        {
+            return false;
+        }
+    }
+    return true;
+}

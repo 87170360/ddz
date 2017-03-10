@@ -25,10 +25,10 @@ int main()
     deck.fill();
     deck.shuffle(0);
 
-    //XtCard initCard[] = { XtCard(0x10), XtCard(0x32), XtCard(0x02) };
-    //vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
-    vector<XtCard> cards;
-    deck.getHoleCards(cards, 17);
+    XtCard initCard[] = {XtCard(0x04), XtCard(0x35), XtCard(0x26), XtCard(0x0B), XtCard(0x3B), XtCard(0x2B), XtCard(0x1B), XtCard(0x1C), XtCard(0x0C), XtCard(0x2C), XtCard(0x3C)};
+    vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
+    //vector<XtCard> cards;
+    //deck.getHoleCards(cards, 17);
     XtCard::sortByDescending(cards);
 
     for(vector<XtCard>::const_iterator it = cards.begin(); it != cards.end(); ++it)
@@ -37,30 +37,15 @@ int main()
     }
     cout << endl;
     
-    map<int, int> result;
-    deck.analyze(result, cards);
-    for(map<int, int>::const_iterator it = result.begin(); it != result.end(); ++it)
-    {
-        printf("type:%d, num:%d\n", it->first, it->second); 
-    }
-
-    vector<XtCard> four;
-    deck.keepN(four, cards, 1);
-    for(vector<XtCard>::const_iterator it = four.begin(); it != four.end(); ++it)
-    {
-        cout << it->getCardDescription() << " ";
-    }
-    cout << endl;
-
 
     if(deck.isShuttle(cards))
     {
-        //printf("true!\n");
+        printf("true!\n");
     }
     else
     {
     
-        //printf("false!\n");
+        printf("false!\n");
     }
     return 0;
 }
