@@ -8,7 +8,7 @@ enum XtCardType
 	CT_BOMB                 = 2,			// 炸弹
 	CT_SHUTTLE              = 3,			// 航天飞机
 	CT_AIRCRAFT             = 4,			// 飞机
-	CT_FOUR_TWO             = 5,			// 四带二
+	CT_4AND2                = 5,			// 四带二
 	CT_DOUBLE_STRAIGHT      = 6,			// 双顺 
 	CT_STRAIGHT             = 7,			// 单顺 
 	CT_THREE                = 8,			// 三带

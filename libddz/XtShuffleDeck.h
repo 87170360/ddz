@@ -20,7 +20,7 @@ class XtShuffleDeck
 		bool push(const XtCard& card);
         void showCards(void) const;
 
-        int getCardType(const std::vector<XtCard>& card) const;
+        int getCardType(const std::vector<XtCard>& card);
 
 	//private:
 		bool pop(XtCard& card);
@@ -34,7 +34,7 @@ class XtShuffleDeck
         bool isStraight(const vector<XtCard>& card);
         bool isThree(const vector<XtCard>& card);
         bool isPair(const vector<XtCard>& card);
-        bool isSingle(const vector<XtCard>& card);
+        bool isSingle(const vector<XtCard>& card) const;
 
         void analyze(map<int, int>& result, const vector<XtCard>& card) const;
         //保留相同点数的牌是N张的牌

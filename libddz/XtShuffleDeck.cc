@@ -112,9 +112,59 @@ void XtShuffleDeck::showCards(void) const
     }
 }
         
-int XtShuffleDeck::getCardType(const std::vector<XtCard>& card) const
+int XtShuffleDeck::getCardType(const std::vector<XtCard>& card) 
 {
-    return 0;
+    if(isRocket(card))
+    {
+        return CT_ROCKET;
+    }
+
+    if(isBomb(card))
+    {
+        return CT_BOMB;
+    }
+
+    if(isShuttle(card))
+    {
+        return CT_BOMB;
+    }
+
+    if(isAircraft(card))
+    {
+        return CT_AIRCRAFT;
+    }
+
+    if(is4and2(card))
+    {
+        return CT_4AND2;
+    }
+
+    if(isDoubleStraight(card))
+    {
+        return CT_DOUBLE_STRAIGHT;
+    }
+
+    if(isStraight(card))
+    {
+        return CT_STRAIGHT;
+    }
+
+    if(isThree(card))
+    {
+        return CT_THREE;
+    }
+
+    if(isPair(card))
+    {
+        return CT_PAIR;
+    }
+
+    if(isSingle(card))
+    {
+        return CT_SINGLE;
+    }
+
+    return CT_ERROR;
 }
         
 bool XtShuffleDeck::isRocket(const vector<XtCard>& card) const
@@ -329,7 +379,7 @@ bool XtShuffleDeck::isPair(const vector<XtCard>& card)
     return true;
 }
         
-bool XtShuffleDeck::isSingle(const vector<XtCard>& card)
+bool XtShuffleDeck::isSingle(const vector<XtCard>& card) const
 {
     return card.size() == 1;
 }
