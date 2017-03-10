@@ -32,6 +32,9 @@ class XtShuffleDeck
         bool is4and2(const vector<XtCard>& card);
         bool isDoubleStraight(const vector<XtCard>& card);
         bool isStraight(const vector<XtCard>& card);
+        bool isThree(const vector<XtCard>& card);
+        bool isPair(const vector<XtCard>& card);
+        bool isSingle(const vector<XtCard>& card);
 
         void analyze(map<int, int>& result, const vector<XtCard>& card) const;
         //保留相同点数的牌是N张的牌

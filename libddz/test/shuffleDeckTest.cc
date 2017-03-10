@@ -145,6 +145,63 @@ void testStraight(void)
         printf("false!\n");
     }
 }
+
+void testThree(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard[] = { XtCard(0x19), XtCard(0x09), XtCard(0x29)};
+    vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
+    XtCard::sortByDescending(cards);
+
+    for(vector<XtCard>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+
+    if(deck.isThree(cards))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
+
+void testPair(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard[] = { XtCard(0x00), XtCard(0x10) };
+    vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
+    XtCard::sortByDescending(cards);
+
+    for(vector<XtCard>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+
+    if(deck.isPair(cards))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
+
 /*
 static int card_arr[] = {
 	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -171,7 +228,9 @@ int main()
     //testAircraft();
     //test4and2();
     //testDoubleStraight();
-    testStraight();
+    //testStraight();
+    //testThree();
+    testPair();
     return 0;
 }
 

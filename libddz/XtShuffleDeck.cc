@@ -287,6 +287,52 @@ bool XtShuffleDeck::isStraight(const vector<XtCard>& card)
 
     return false;
 }
+        
+bool XtShuffleDeck::isThree(const vector<XtCard>& card)
+{
+    if(card.size() < 3 || card.size() > 5)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<XtCard> vecThree;
+    keepN(vecThree, card, 3);
+
+    //翼数量 0, +1, +2
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if((wingNu != 0) && (wingNu != 1) && (wingNu != 2))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool XtShuffleDeck::isPair(const vector<XtCard>& card)
+{
+    if(card.size() != 2)
+    {
+        return false;
+    }
+
+    if(card[0].m_face != card[1].m_face)
+    {
+        return false;
+    }
+
+    if(card[0].isJoker())
+    {
+        return false; 
+    }
+
+    return true;
+}
+        
+bool XtShuffleDeck::isSingle(const vector<XtCard>& card)
+{
+    return card.size() == 1;
+}
 
 void XtShuffleDeck::analyze(map<int, int>& result, const vector<XtCard>& card) const
 {

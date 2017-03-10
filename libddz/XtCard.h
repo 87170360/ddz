@@ -91,6 +91,11 @@ class XtCard
             //大小王和2不能作为连续的牌
             return (m_face != 16) && (m_face != 2);
         }
+
+        bool isJoker(void) const
+        {
+            return m_face == 16; 
+        }
 };
 
 #endif /* _CARD_H_ */
