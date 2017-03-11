@@ -202,6 +202,114 @@ void testPair(void)
     }
 }
 
+void testCompareBomb(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+    XtCard::sortByDescending(cards1);
+    for(vector<XtCard>::const_iterator it = cards1.begin(); it != cards1.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x33) };
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    XtCard::sortByDescending(cards2);
+    for(vector<XtCard>::const_iterator it = cards2.begin(); it != cards2.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+
+    if(deck.compareBomb(cards1, cards2))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
+
+void testCompareShuttle(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard1[] = { XtCard(0x04), XtCard(0x14), XtCard(0x24), XtCard(0x34), XtCard(0x05), XtCard(0x15), XtCard(0x25), XtCard(0x35) };
+    vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+    XtCard::sortByDescending(cards1);
+    for(vector<XtCard>::const_iterator it = cards1.begin(); it != cards1.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x33), XtCard(0x04), XtCard(0x14), XtCard(0x24), XtCard(0x34) };
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    XtCard::sortByDescending(cards2);
+    for(vector<XtCard>::const_iterator it = cards2.begin(); it != cards2.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+    //不检测牌型
+    if(deck.compareShuttle(cards1, cards2))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
+
+void testCompareAircraft(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    XtCard initCard1[] = { XtCard(0x04), XtCard(0x14), XtCard(0x24), XtCard(0x05), XtCard(0x15)};
+    vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+    XtCard::sortByDescending(cards1);
+    for(vector<XtCard>::const_iterator it = cards1.begin(); it != cards1.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x04), XtCard(0x14)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    XtCard::sortByDescending(cards2);
+    for(vector<XtCard>::const_iterator it = cards2.begin(); it != cards2.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+    
+    //不检测牌型
+    if(deck.compareAircraft(cards1, cards2))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+    
+        printf("false!\n");
+    }
+}
+
 /*
 static int card_arr[] = {
 	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -230,7 +338,10 @@ int main()
     //testDoubleStraight();
     //testStraight();
     //testThree();
-    testPair();
+    //testPair();
+    //testCompareBomb();
+    //testCompareShuttle();
+    testCompareAircraft();
     return 0;
 }
 

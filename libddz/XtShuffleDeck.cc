@@ -124,19 +124,44 @@ int XtShuffleDeck::getCardType(const std::vector<XtCard>& card)
         return CT_BOMB;
     }
 
-    if(isShuttle(card))
+    if(isShuttle0(card))
     {
-        return CT_BOMB;
+        return CT_SHUTTLE_0;
     }
 
-    if(isAircraft(card))
+    if(isShuttle2(card))
     {
-        return CT_AIRCRAFT;
+        return CT_SHUTTLE_2;
     }
 
-    if(is4and2(card))
+    if(isAircraft0(card))
     {
-        return CT_4AND2;
+        return CT_AIRCRAFT_0;
+    }
+
+    if(isAircraft1(card))
+    {
+        return CT_AIRCRAFT_1;
+    }
+
+    if(isAircraft2s(card))
+    {
+        return CT_AIRCRAFT_2S;
+    }
+
+    if(is4and22s(card))
+    {
+        return CT_4AND2_2S;
+    }
+
+    if(is4and22d(card))
+    {
+        return CT_4AND2_2D;
+    }
+
+    if(is4and24(card))
+    {
+        return CT_4AND2_4;
     }
 
     if(isDoubleStraight(card))
@@ -149,9 +174,19 @@ int XtShuffleDeck::getCardType(const std::vector<XtCard>& card)
         return CT_STRAIGHT;
     }
 
-    if(isThree(card))
+    if(isThree0(card))
     {
-        return CT_THREE;
+        return CT_THREE_0;
+    }
+
+    if(isThree1(card))
+    {
+        return CT_THREE_1;
+    }
+
+    if(isThree2s(card))
+    {
+        return CT_THREE_2S;
     }
 
     if(isPair(card))
@@ -197,14 +232,14 @@ bool XtShuffleDeck::isBomb(const vector<XtCard>& card) const
     return false;
 }
 
-bool XtShuffleDeck::isShuttle(const vector<XtCard>& card)
+bool XtShuffleDeck::isShuttle0(const vector<XtCard>& card)
 {
     if(card.size() < 8 || card.size() > 20)
     {
         return false;
     }
 
-    if((card.size() % 4 != 0) && (card.size() % 6 != 0))
+    if((card.size() % 4 != 0))
     {
         return false;
     }
@@ -215,7 +250,39 @@ bool XtShuffleDeck::isShuttle(const vector<XtCard>& card)
 
     //翼数量
     unsigned int wingNu = card.size() - vecFour.size(); 
-    if((wingNu != 0) && (wingNu != vecFour.size() / 2))
+    if(wingNu != 0)
+    {
+        return false;
+    }
+
+    //是否连续
+    if(!isNContinue(vecFour, 4))
+    {
+       return false;  
+    }
+
+    return true;
+}
+
+bool XtShuffleDeck::isShuttle2(const vector<XtCard>& card)
+{
+    if(card.size() < 8 || card.size() > 20)
+    {
+        return false;
+    }
+
+    if((card.size() % 6 != 0))
+    {
+        return false;
+    }
+
+    //取出全4的组合
+    vector<XtCard> vecFour;
+    keepN(vecFour, card, 4);
+
+    //翼数量
+    unsigned int wingNu = card.size() - vecFour.size(); 
+    if(wingNu != vecFour.size() / 2)
     {
         return false;
     }
@@ -229,9 +296,9 @@ bool XtShuffleDeck::isShuttle(const vector<XtCard>& card)
     return true;
 }
         
-bool XtShuffleDeck::isAircraft(const vector<XtCard>& card)
+bool XtShuffleDeck::isAircraft0(const vector<XtCard>& card)
 {
-    if(card.size() < 6 || card.size() > 20)
+    if(card.size() < 6 || card.size() > 18)
     {
         return false;
     }
@@ -240,9 +307,9 @@ bool XtShuffleDeck::isAircraft(const vector<XtCard>& card)
     vector<XtCard> vecThree;
     keepN(vecThree, card, 3);
 
-    //翼数量 0, +1, +2
+    //翼数量 0 
     unsigned int wingNu = card.size() - vecThree.size(); 
-    if((wingNu != 0) && (wingNu != vecThree.size() / 3) && (wingNu != vecThree.size() / 3 * 2))
+    if(wingNu != 0)
     {
         return false;
     }
@@ -255,10 +322,71 @@ bool XtShuffleDeck::isAircraft(const vector<XtCard>& card)
 
     return true;
 }
-        
-bool XtShuffleDeck::is4and2(const vector<XtCard>& card)
+
+bool XtShuffleDeck::isAircraft1(const vector<XtCard>& card)
 {
-    if(card.size() < 6 || card.size() > 8)
+    if(card.size() < 8 || card.size() > 20)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<XtCard> vecThree;
+    keepN(vecThree, card, 3);
+
+    //翼数量 1 
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if(wingNu != vecThree.size() / 3)
+    {
+        return false;
+    }
+
+   //是否连续
+    if(!isNContinue(vecThree, 3))
+    {
+       return false;  
+    }
+
+    return true;
+}
+
+bool XtShuffleDeck::isAircraft2s(const vector<XtCard>& card)
+{
+    if(card.size() < 10 || card.size() > 20)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<XtCard> vecThree;
+    keepN(vecThree, card, 3);
+
+    //是否连续
+    if(!isNContinue(vecThree, 3))
+    {
+       return false;  
+    }
+
+    //翼和飞机比例
+    vector<XtCard> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    if(vecTwo.size() + vecThree.size() != card.size())
+    {
+        return false;
+    }
+
+    if(vecTwo.size() * 3 == vecThree.size() * 2)
+    {
+        return true;
+    }
+
+    return false;
+}
+        
+bool XtShuffleDeck::is4and22s(const vector<XtCard>& card)
+{
+    if(card.size() != 6)
     {
         return false;
     }
@@ -267,22 +395,62 @@ bool XtShuffleDeck::is4and2(const vector<XtCard>& card)
     vector<XtCard> vecFour;
     keepN(vecFour, card, 4);
 
-    //翼数量
-    unsigned int wingNu = card.size() - vecFour.size(); 
-    if(wingNu == 2)
+    //取出全2的组合
+    vector<XtCard> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    //翼比例
+    if(vecFour.size() == vecTwo.size() * 2)
     {
         return true; 
     }
 
-    if(wingNu == 4)
+    return false;
+}
+
+bool XtShuffleDeck::is4and22d(const vector<XtCard>& card)
+{
+    if(card.size() != 6)
     {
-        //取出全2的组合
-        vector<XtCard> vecTwo;
-        keepN(vecTwo, card, 2);
-        if(vecTwo.size() == 4)
-        {
-            return true;
-        }
+        return false;
+    }
+
+    //取出全4的组合
+    vector<XtCard> vecFour;
+    keepN(vecFour, card, 4);
+
+    //取出全1的组合
+    vector<XtCard> vecOne;
+    keepN(vecOne, card, 1);
+
+    //翼比例
+    if(vecFour.size() == vecOne.size() * 2)
+    {
+        return true; 
+    }
+
+    return false;
+}
+
+bool XtShuffleDeck::is4and24(const vector<XtCard>& card)
+{
+    if(card.size() != 8)
+    {
+        return false;
+    }
+
+    //取出全4的组合
+    vector<XtCard> vecFour;
+    keepN(vecFour, card, 4);
+
+    //取出全2的组合
+    vector<XtCard> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    //翼比例
+    if(vecFour.size() == vecTwo.size() * 2)
+    {
+        return true; 
     }
 
     return false;
@@ -337,10 +505,10 @@ bool XtShuffleDeck::isStraight(const vector<XtCard>& card)
 
     return false;
 }
-        
-bool XtShuffleDeck::isThree(const vector<XtCard>& card)
+
+bool XtShuffleDeck::isThree0(const vector<XtCard>& card)
 {
-    if(card.size() < 3 || card.size() > 5)
+    if(card.size() != 3)
     {
         return false;
     }
@@ -349,9 +517,52 @@ bool XtShuffleDeck::isThree(const vector<XtCard>& card)
     vector<XtCard> vecThree;
     keepN(vecThree, card, 3);
 
-    //翼数量 0, +1, +2
+    //翼数量 0
     unsigned int wingNu = card.size() - vecThree.size(); 
-    if((wingNu != 0) && (wingNu != 1) && (wingNu != 2))
+    if(wingNu != 0)
+    {
+        return false;
+    }
+
+    return true;
+}
+        
+bool XtShuffleDeck::isThree1(const vector<XtCard>& card)
+{
+    if(card.size() != 4)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<XtCard> vecThree;
+    keepN(vecThree, card, 3);
+
+    //翼数量 0
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if(wingNu != 1)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool XtShuffleDeck::isThree2s(const vector<XtCard>& card)
+{
+    if(card.size() != 5)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<XtCard> vecThree;
+    keepN(vecThree, card, 3);
+    //取出全2的组合
+    vector<XtCard> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    if(vecThree.size() + vecTwo.size() != card.size())
     {
         return false;
     }
@@ -383,6 +594,56 @@ bool XtShuffleDeck::isSingle(const vector<XtCard>& card) const
 {
     return card.size() == 1;
 }
+        
+bool XtShuffleDeck::compareBomb(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return card1[0].m_face > card2[0].m_face;
+}
+        
+bool XtShuffleDeck::compareShuttle(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return compareMN(card1, card2, 4);
+}
+
+bool XtShuffleDeck::compareAircraft(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return compareMN(card1, card2, 3);
+}
+
+bool XtShuffleDeck::compare4and2(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return compareMN(card1, card2, 4);
+}
+
+bool XtShuffleDeck::compareDoubleStraight(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return compareMN(card1, card2, 2);
+}
+
+bool XtShuffleDeck::compareStraight(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    if(card1.size() != card2.size())
+    {
+        return false;
+    }
+   
+    return card1[0].m_face > card2[0].m_face;
+}
+
+bool XtShuffleDeck::compareThree(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return compareMN(card1, card2, 3);
+}
+
+bool XtShuffleDeck::comparePair(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return card1[0].m_face > card2[0].m_face;
+}
+
+bool XtShuffleDeck::compareSingle(const vector<XtCard>& card1, const vector<XtCard>& card2)        
+{
+    return card1[0].m_face > card2[0].m_face;
+}
 
 void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu)
 {
@@ -402,11 +663,6 @@ void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, in
             result.push_back(*it); 
         }
     }
-}
-
-bool XtShuffleDeck::isMN(const vector<XtCard>& card, int m , int n) const
-{
-    return false;
 }
         
 bool XtShuffleDeck::isNContinue(const vector<XtCard>& card, int n) const
@@ -433,4 +689,29 @@ bool XtShuffleDeck::isNContinue(const vector<XtCard>& card, int n) const
         }
     }
     return true;
+}
+
+bool XtShuffleDeck::compareMN(const vector<XtCard>& card1, const vector<XtCard>& card2, int m) 
+{
+    if(card1.size() != card2.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> card1keep;
+    vector<XtCard> card2keep;
+    keepN(card1keep, card1, m);
+    keepN(card2keep, card2, m);
+
+    if(card1keep.size() != card2keep.size())
+    {
+        return false;
+    }
+
+    if(card1keep[0].m_face > card2keep[0].m_face)
+    {
+       return true; 
+    }
+
+    return false;
 }

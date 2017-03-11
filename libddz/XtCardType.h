@@ -6,14 +6,21 @@ enum XtCardType
 	CT_ERROR                = 0,			// 错误类型
 	CT_ROCKET               = 1,			// 火箭
 	CT_BOMB                 = 2,			// 炸弹
-	CT_SHUTTLE              = 3,			// 航天飞机
-	CT_AIRCRAFT             = 4,			// 飞机
-	CT_4AND2                = 5,			// 四带二
-	CT_DOUBLE_STRAIGHT      = 6,			// 双顺 
-	CT_STRAIGHT             = 7,			// 单顺 
-	CT_THREE                = 8,			// 三带
-	CT_PAIR                 = 9,			// 对子
-	CT_SINGLE               = 10,			// 单牌
+	CT_SHUTTLE_0            = 3,			// 航天飞机0翼
+	CT_SHUTTLE_2            = 4,			// 航天飞机2翼(同或异)
+	CT_AIRCRAFT_0           = 5,			// 飞机0翼
+	CT_AIRCRAFT_1           = 6,			// 飞机1翼
+	CT_AIRCRAFT_2S          = 7,			// 飞机2同翼
+	CT_4AND2_2S             = 8,			// 四带二2同翼
+	CT_4AND2_2D             = 9,			// 四带二2异翼
+	CT_4AND2_4              = 10,			// 四带二4翼(2对)
+	CT_DOUBLE_STRAIGHT      = 11,			// 双顺 
+	CT_STRAIGHT             = 12,			// 单顺 
+	CT_THREE_0              = 13,			// 三带0翼
+	CT_THREE_1              = 14,			// 三带1翼
+	CT_THREE_2S             = 15,			// 三带2同翼
+	CT_PAIR                 = 16,			// 对子
+	CT_SINGLE               = 17,			// 单牌
 };
 
 #endif /* _CARD_TYPE_H_ */
