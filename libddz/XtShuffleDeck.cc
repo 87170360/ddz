@@ -266,7 +266,7 @@ bool XtShuffleDeck::isShuttle0(const vector<XtCard>& card)
 
 bool XtShuffleDeck::isShuttle2(const vector<XtCard>& card)
 {
-    if(card.size() < 8 || card.size() > 20)
+    if(card.size() < 12 || card.size() > 20)
     {
         return false;
     }
@@ -282,7 +282,7 @@ bool XtShuffleDeck::isShuttle2(const vector<XtCard>& card)
 
     //翼数量
     unsigned int wingNu = card.size() - vecFour.size(); 
-    if(wingNu != vecFour.size() / 2)
+    if(wingNu * != vecFour.size())
     {
         return false;
     }
@@ -336,7 +336,7 @@ bool XtShuffleDeck::isAircraft1(const vector<XtCard>& card)
 
     //翼数量 1 
     unsigned int wingNu = card.size() - vecThree.size(); 
-    if(wingNu != vecThree.size() / 3)
+    if(wingNu * 3 != vecThree.size())
     {
         return false;
     }
@@ -448,7 +448,7 @@ bool XtShuffleDeck::is4and24(const vector<XtCard>& card)
     keepN(vecTwo, card, 2);
 
     //翼比例
-    if(vecFour.size() == vecTwo.size() * 2)
+    if(vecFour.size() == vecTwo.size())
     {
         return true; 
     }

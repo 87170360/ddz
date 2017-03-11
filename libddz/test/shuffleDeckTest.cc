@@ -21,7 +21,7 @@ void testShuttle(void)
     cout << endl;
     
 
-    if(deck.isShuttle(cards))
+    if(deck.isShuttle0(cards))
     {
         printf("true!\n");
     }
@@ -51,7 +51,7 @@ void testAircraft(void)
     cout << endl;
     
 
-    if(deck.isAircraft(cards))
+    if(deck.isAircraft0(cards))
     {
         printf("true!\n");
     }
@@ -79,7 +79,7 @@ void test4and2(void)
     cout << endl;
     
 
-    if(deck.is4and2(cards))
+    if(deck.is4and22s(cards))
     {
         printf("true!\n");
     }
@@ -163,7 +163,7 @@ void testThree(void)
     cout << endl;
     
 
-    if(deck.isThree(cards))
+    if(deck.isThree0(cards))
     {
         printf("true!\n");
     }
@@ -310,6 +310,14 @@ void testCompareAircraft(void)
     }
 }
 
+void testGetCardType(void)
+{
+    XtCard initData[] = 
+    {
+        XtCard(0x04), XtCard(0x35), XtCard(0x26), XtCard(0x0B), XtCard(0x3B), XtCard(0x2B), XtCard(0x1B), XtCard(0x1C), XtCard(0x0C), XtCard(0x2C), XtCard(0x3C)
+    };
+}
+
 /*
 static int card_arr[] = {
 	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -332,16 +340,12 @@ static int card_arr[] = {
 
 int main()
 {
-    //testShuttle();
-    //testAircraft();
-    //test4and2();
     //testDoubleStraight();
     //testStraight();
-    //testThree();
     //testPair();
     //testCompareBomb();
     //testCompareShuttle();
-    testCompareAircraft();
+    //testCompareAircraft();
     return 0;
 }
 
