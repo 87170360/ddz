@@ -44,7 +44,13 @@ public:
 	void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
 	void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
 
-    int handler_login(Player* player);
+    static void prepareCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+    static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+    static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+    static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+    static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+
+    int login(Player* player);
 
     bool sitdown(Player* player);
     //分牌

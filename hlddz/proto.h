@@ -4,7 +4,7 @@
 enum CLIENT_COMMAND
 {
     CLIENT_LOGIN                = 1001,         //登录   
-    CLIENT_START                = 1002,         //开始 
+    CLIENT_PREPARE              = 1002,         //准备 
     CLIENT_CALL                 = 1003,         //叫分
     CLIENT_FARMER               = 1004,         //农民加倍
     CLIENT_OUT                  = 1005,         //出牌

@@ -320,7 +320,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
     b[target->m_tid] = target;
 
     client->set_positon(POSITION_TABLE);
-    target->handler_login(client->player);
+    target->login(client->player);
     return 0;
 }
 

@@ -24,14 +24,27 @@ extern HLDDZ hlddz;
 extern Log xt_log;
 
 const ev_tstamp prepareTime(10); 
+const ev_tstamp callTime(10); 
+const ev_tstamp doubleTime(10); 
+const ev_tstamp cardTime(10); 
+const ev_tstamp endTime(10); 
 
 Table::Table()
 {
     m_timerPrepare.data = this;
+    ev_timer_init(&m_timerPrepare, Table::prepareCB, prepareTime, prepareTime);
+
     m_timerCall.data = this;
+    ev_timer_init(&m_timerCall, Table::callCB, callTime, callTime);
+
     m_timerDouble.data = this;
+    ev_timer_init(&m_timerDouble, Table::doubleCB, doubleTime, doubleTime);
+
     m_timerCard.data = this;
+    ev_timer_init(&m_timerCard, Table::cardCB, cardTime, cardTime);
+
     m_timerEnd.data = this;
+    ev_timer_init(&m_timerEnd, Table::endCB, endTime, endTime);
 }
 
 Table::~Table()
@@ -126,7 +139,37 @@ void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, st
     }
 }
 
-int Table::handler_login(Player *player)
+void Table::prepareCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(hlddz.loop, &table->m_timerPrepare);
+}
+
+void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(hlddz.loop, &table->m_timerCall);
+}
+
+void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(hlddz.loop, &table->m_timerDouble);
+}
+
+void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(hlddz.loop, &table->m_timerCard);
+}
+
+void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(hlddz.loop, &table->m_timerEnd);
+}
+
+int Table::login(Player *player)
 {
     if(m_players.find(player->uid) != m_players.end())
     {
@@ -145,7 +188,10 @@ int Table::handler_login(Player *player)
     loginBC(player);
 
     //人满开始, 定时器
-    gameStart();
+    if(m_players.size() == 3)
+    {
+        gameStart();
+    }
 
     return 0;
 }
