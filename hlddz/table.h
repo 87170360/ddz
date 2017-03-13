@@ -50,7 +50,14 @@ public:
     static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
     static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
 
+    //msg
     int login(Player* player);
+
+    void prepare(void);
+    void call(void);
+    void doubl(void);
+    void card(void);
+    void end(void);
 
     bool sitdown(Player* player);
     //分牌

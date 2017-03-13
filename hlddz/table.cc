@@ -143,30 +143,35 @@ void Table::prepareCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerPrepare);
+    table->prepare();
 }
 
 void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerCall);
+    table->call();
 }
 
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerDouble);
+    table->doubl();
 }
 
 void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerCard);
+    table->card();
 }
 
 void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerEnd);
+    table->end();
 }
 
 int Table::login(Player *player)
@@ -194,6 +199,26 @@ int Table::login(Player *player)
     }
 
     return 0;
+}
+
+void Table::prepare(void)
+{
+}
+
+void Table::call(void)
+{
+}
+
+void Table::doubl(void)
+{
+}
+
+void Table::card(void)
+{
+}
+
+void Table::end(void)
+{
 }
 
 bool Table::sitdown(Player* player)
