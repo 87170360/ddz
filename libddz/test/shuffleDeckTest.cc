@@ -27,7 +27,6 @@ void testShuttle(void)
     }
     else
     {
-    
         printf("false!\n");
     }
 }
@@ -169,7 +168,6 @@ void testThree(void)
     }
     else
     {
-    
         printf("false!\n");
     }
 }
@@ -197,7 +195,6 @@ void testPair(void)
     }
     else
     {
-    
         printf("false!\n");
     }
 }
@@ -233,7 +230,6 @@ void testCompareBomb(void)
     }
     else
     {
-    
         printf("false!\n");
     }
 }
@@ -269,7 +265,6 @@ void testCompareShuttle(void)
     }
     else
     {
-    
         printf("false!\n");
     }
 }
@@ -305,17 +300,8 @@ void testCompareAircraft(void)
     }
     else
     {
-    
         printf("false!\n");
     }
-}
-
-void testGetCardType(void)
-{
-    XtCard initData[] = 
-    {
-        XtCard(0x04), XtCard(0x35), XtCard(0x26), XtCard(0x0B), XtCard(0x3B), XtCard(0x2B), XtCard(0x1B), XtCard(0x1C), XtCard(0x0C), XtCard(0x2C), XtCard(0x3C)
-    };
 }
 
 /*

@@ -282,7 +282,7 @@ bool XtShuffleDeck::isShuttle2(const vector<XtCard>& card)
 
     //翼数量
     unsigned int wingNu = card.size() - vecFour.size(); 
-    if(wingNu * != vecFour.size())
+    if(wingNu * 2 != vecFour.size())
     {
         return false;
     }
