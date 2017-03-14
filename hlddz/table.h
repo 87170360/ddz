@@ -44,13 +44,12 @@ public:
 	void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
 	void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
 
-    static void prepareCB(struct ev_loop *loop, struct ev_timer *w, int revents);
     static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
     static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
     static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
     static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
 
-    //msg
+    //receive msg
     int login(Player* player);
 
     void prepare(void);
@@ -63,11 +62,13 @@ public:
     //分牌
     bool allocateCard(void);
 
-    //msg
+    // send msg
     void loginUC(Player* player);
     void loginBC(Player* player);
     //第一次发牌
     void sendCard1(void);
+    //叫分
+    void sendCall(void);
 
     void gameStart(void);
 
@@ -84,9 +85,9 @@ public:
 private:
     XtShuffleDeck               m_deck;
     std::vector<XtCard>         m_bottomCard;
+    int                         m_operator;                     //当前操作者
 
-    ev_timer                    m_timerPrepare;                 //准备
-    ev_timer                    m_timerCall;                    //抢地主
+    ev_timer                    m_timerCall;                    //叫分
     ev_timer                    m_timerDouble;                  //加倍
     ev_timer                    m_timerCard;                    //出牌
     ev_timer                    m_timerEnd;                     //结算

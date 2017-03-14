@@ -34,7 +34,6 @@ enum ERROR_CODE
 enum STATE
 {
     STATE_WAIT                  = 0,            //等待
-    STATE_PREPARE               = 1,            //准备
     STATE_CALL                  = 1,            //叫分
     STATE_GAME                  = 2,            //游戏
     STATE_END                   = 3,            //结算

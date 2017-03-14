@@ -23,28 +23,24 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
-const ev_tstamp prepareTime(10); 
-const ev_tstamp callTime(10); 
-const ev_tstamp doubleTime(10); 
-const ev_tstamp cardTime(10); 
-const ev_tstamp endTime(10); 
+const int CALLTIME          = 10;
+const int DOUBLETIME        = 10;
+const int CARDTIME          = 10;
+const int ENDTIME           = 10;
 
 Table::Table()
 {
-    m_timerPrepare.data = this;
-    ev_timer_init(&m_timerPrepare, Table::prepareCB, prepareTime, prepareTime);
-
     m_timerCall.data = this;
-    ev_timer_init(&m_timerCall, Table::callCB, callTime, callTime);
+    ev_timer_init(&m_timerCall, Table::callCB, ev_tstamp(CALLTIME), ev_tstamp(CALLTIME));
 
     m_timerDouble.data = this;
-    ev_timer_init(&m_timerDouble, Table::doubleCB, doubleTime, doubleTime);
+    ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(DOUBLETIME), ev_tstamp(DOUBLETIME));
 
     m_timerCard.data = this;
-    ev_timer_init(&m_timerCard, Table::cardCB, cardTime, cardTime);
+    ev_timer_init(&m_timerCard, Table::cardCB, ev_tstamp(CARDTIME), ev_tstamp(CARDTIME));
 
     m_timerEnd.data = this;
-    ev_timer_init(&m_timerEnd, Table::endCB, endTime, endTime);
+    ev_timer_init(&m_timerEnd, Table::endCB, ev_tstamp(ENDTIME), ev_tstamp(ENDTIME));
 }
 
 Table::~Table()
@@ -70,6 +66,7 @@ void Table::reset(void)
     m_bottomCard.clear();
     m_deck.fill();
     m_deck.shuffle(m_tid);
+    m_state = STATE_WAIT;
 }
 
 int Table::broadcast(Player *p, const std::string &packet)
@@ -137,13 +134,6 @@ void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, st
 
         cards.push_back(card);
     }
-}
-
-void Table::prepareCB(struct ev_loop *loop, struct ev_timer *w, int revents)
-{
-    Table *table = (Table*) w->data;
-    ev_timer_stop(hlddz.loop, &table->m_timerPrepare);
-    table->prepare();
 }
 
 void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -299,8 +289,26 @@ void Table::sendCard1(void)
     }
 }
     
+void Table::sendCall(void)
+{
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        Jpacket packet;
+        packet.val["cmd"]           = SERVER_START_CALL;
+        packet.val["time"]          = CALLTIME;
+        packet.val["operator"]      = m_operator;
+        packet.end();
+        unicast(pl, packet.tostring());
+    }
+}
+    
 void Table::gameStart(void)
 {
     allocateCard();
     sendCard1();
+    ev_timer_again(hlddz.loop, &m_timerCall);
+    m_operator = m_seats[rand() % SEAT_NUM];
+    m_state = STATE_CALL;
+    sendCall();
 }
