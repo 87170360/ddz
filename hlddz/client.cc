@@ -40,7 +40,7 @@ _ev_nodata_tstamp(60 * 20)
     int set = 1;
     setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 #endif
-    xt_log.debug("client[%d] open\n", fd);
+    //xt_log.debug("client[%d] open\n", fd);
 }
 
 Client::~Client()
@@ -53,12 +53,12 @@ Client::~Client()
 		_write_q.pop_front();
 	}
 	close(fd);
-	xt_log.info("~client fd[%d] uid[%d] destrutor\n", fd, uid);
+	//xt_log.info("~client fd[%d] uid[%d] destrutor\n", fd, uid);
 }
 
 void Client::destroy(Client *client)
 {
-    xt_log.info("client destroy fd[%d] uid[%d] destroy\n", client->fd, client->uid);
+    //xt_log.info("client destroy fd[%d] uid[%d] destroy\n", client->fd, client->uid);
     hlddz.game->del_client(client);
 }
 

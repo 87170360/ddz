@@ -17,6 +17,9 @@ OBJECTS = hlddz.o daemonize.o log.o client.o game.o jpacket.o table.o player.o r
 all: $(DESTDIR_TARGET)
 	ctags -R
 
+cp: all
+	cp -f $(DESTDIR_TARGET) /data/game/bin
+
 $(DESTDIR_TARGET): $(OBJECTS)
 	$(LD) $(LFLAGS) -o $(DESTDIR_TARGET) $(OBJECTS) $(LIBS)
 

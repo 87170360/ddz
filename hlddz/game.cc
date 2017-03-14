@@ -150,11 +150,11 @@ void Game::del_client(Client *client)
             // todo delete this status
             if (offline_players.find(player->uid) != offline_players.end()) {
                 offline_players.erase(player->uid);
-                xt_log.info("del client player uid[%d] offline.\n", player->uid);
+                //xt_log.info("del client player uid[%d] offline.\n", player->uid);
             }
             if (online_players.find(player->uid) != online_players.end()) {
                 online_players.erase(player->uid);
-                xt_log.info("del client player uid[%d] online.\n", player->uid);
+                //xt_log.info("del client player uid[%d] online.\n", player->uid);
             }
             delete player;
         } else if (client->position == POSITION_TABLE) {
@@ -172,7 +172,7 @@ void Game::del_client(Client *client)
         robot_client = NULL;
     }
 
-    xt_log.info("del client fd[%d].\n", client->fd);
+    //xt_log.info("del client fd[%d].\n", client->fd);
     delete client;
     dump_game_info("del_client");
 }
@@ -470,7 +470,7 @@ int Game::add_player(Client *client)
         xt_log.error("cache redis error(set gameinfo");
     }
 
-    xt_log.info("add player uid[%d] login success.\n", uid);
+    //xt_log.info("add player uid[%d] login success.\n", uid);
     return 0;
 }
 
@@ -495,7 +495,7 @@ int Game::del_player(Player *player)
 
     if (offline_players.find(player->uid) != offline_players.end()) {
         offline_players.erase(player->uid);
-        xt_log.info("del player uid[%d] offline.\n", player->uid);
+        //xt_log.info("del player uid[%d] offline.\n", player->uid);
     }
 
     if (online_players.find(player->uid) != online_players.end()) {
