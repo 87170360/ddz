@@ -166,6 +166,8 @@ void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 int Table::login(Player *player)
 {
+    xt_log.debug("player login uid:%d\n", player->uid);
+
     if(m_players.find(player->uid) != m_players.end())
     {
         xt_log.error("%s:%d, player was existed! uid:%d", __FILE__, __LINE__, player->uid); 
@@ -305,6 +307,7 @@ void Table::sendCall(void)
     
 void Table::gameStart(void)
 {
+    xt_log.debug("game start\n");
     allocateCard();
     sendCard1();
     ev_timer_again(hlddz.loop, &m_timerCall);

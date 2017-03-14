@@ -16,6 +16,7 @@ zjhsvr/zjhsvr
 zjhsvr/tags
 libzjh/tags
 hlddz/tags
+hlddz_robot/tags
 libddz/tags
 libddz/test/tags
 
@@ -28,6 +29,7 @@ secret_venue/secret_venue
 libzjh/libzjh
 zjhsvr/zjhsvr
 hlddz/hlddz
+hlddz_robot/hlddz_robot
 libddz/test/shuffleDeckTest
 
 # Prerequisites

@@ -10,6 +10,7 @@ build:
 	make -C grab_robot
 	make -C zjhsvr  
 	make -C hlddz  
+	make -C hlddz_robot
 
 clean :
 	make -C libbull clean
@@ -20,6 +21,7 @@ clean :
 	make -C libzjh  clean
 	make -C zjhsvr clean 
 	make -C hlddz clean 
+	make -C hlddz_robot clean 
 
 cp: build
 	cp -f /data/src/bull/normal_bull/normal_bull  /data/game/bin 
@@ -27,3 +29,4 @@ cp: build
 	cp -f /data/src/bull/grab_bull/grab_bull  /data/game/bin 
 	cp -f /data/src/bull/grab_robot/grab_robot /data/game/bin
 	cp -f /data/src/bull/hlddz/hlddz /data/game/bin
+	cp -f /data/src/bull/hlddz_robot/hlddz_robot /data/game/bin

@@ -11,7 +11,7 @@ LFLAGS = #-static
 #LIBS = -L. -L./libzjh -L/usr/local/lib -lstdc++ -lev -ljsoncpp -lhiredis
 LIBS =/usr/local/lib/libjsoncpp.a /usr/local/lib/libhiredis.a -L. -L./libzjh -L/usr/local/lib -lstdc++ -lev 
 
-DESTDIR_TARGET = robots
+DESTDIR_TARGET = hlddz_robot
 OBJECTS = main.o XtRobotClient.o jpacket.o Robots.o
 
 all: $(DESTDIR_TARGET)
