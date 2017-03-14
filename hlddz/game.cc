@@ -216,23 +216,28 @@ int Game::dispatch(Client *client)
         return -1;
     }
 
-    //Player *player = client->player;
+    Player *player = client->player;
     // dispatch 
     switch (cmd) {
-        /*
-           case CLIENT_CHAT_REQ:
-           all_tables[player->m_tid]->handler_chat(player);
-           break;
-           case CLIENT_LOGOUT_REQ:
-           del_player(player);
-           break;
-           case CLIENT_CHANGE_REQ:
-           change_table(player);
-           break;
-           default:
-           xt_log.error("invalid command[%d]\n", cmd);
-           return -1;
-           */
+        case CLIENT_CALL:
+            {
+                all_tables[player->m_tid]->msgCall(player);
+            } 
+            break;
+            /*
+               case CLIENT_CHAT_REQ:
+               all_tables[player->m_tid]->handler_chat(player);
+               break;
+               case CLIENT_LOGOUT_REQ:
+               del_player(player);
+               break;
+               case CLIENT_CHANGE_REQ:
+               change_table(player);
+               break;
+               default:
+               xt_log.error("invalid command[%d]\n", cmd);
+               return -1;
+               */
     }
 
     // xt_log.debug("dispatch succ\n");

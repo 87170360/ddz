@@ -40,7 +40,7 @@ public:
 	int 				index;
 	// table info
 	int					m_tid;
-	int					m_seatid;
+	unsigned int		m_seatid;
     XtHoleCards         m_holecard;
 
 	// player information

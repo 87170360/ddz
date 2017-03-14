@@ -5,7 +5,7 @@ enum CLIENT_COMMAND
 {
     CLIENT_LOGIN                = 1001,         //登录   
     CLIENT_PREPARE              = 1002,         //准备 
-    CLIENT_CALL                 = 1003,         //叫分
+    CLIENT_CALL                 = 1003,         //叫分 score = 0,1,2,3
     CLIENT_FARMER               = 1004,         //农民加倍
     CLIENT_OUT                  = 1005,         //出牌
 };
@@ -38,6 +38,12 @@ enum STATE
     STATE_GAME                  = 2,            //游戏
     STATE_END                   = 3,            //结算
     STATE_PREREADAY             = 4,            //等待准备
+};
+
+enum STATE_CALL
+{
+    CALL_WAIT                   = -2,            //等待通知
+    CALL_NOTIFY                 = -1,            //已通知
 };
 
 #endif

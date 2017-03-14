@@ -15,6 +15,10 @@ DESTDIR_TARGET = hlddz_robot
 OBJECTS = main.o XtRobotClient.o jpacket.o Robots.o
 
 all: $(DESTDIR_TARGET)
+	ctags -R
+
+cp: all
+	cp -f $(DESTDIR_TARGET) /data/game/bin
 
 $(DESTDIR_TARGET): $(OBJECTS)
 	$(LD) $(LFLAGS) -o $(DESTDIR_TARGET) $(OBJECTS) $(LIBS)

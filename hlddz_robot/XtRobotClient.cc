@@ -265,55 +265,13 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
 {
     Json::Value &val = data.tojson();
     int cmd = val["cmd"].asInt();
-
-	printf("onReciveCmd(%d)\n",cmd);
-
 	switch(cmd)
 	{
-		case SERVER_GAME_START_BC:
-			{
-				handleGameStart(val);
-				break;
-			}
-
-		case SERVER_GAME_END_BC:
-			{
-				//handleGameEnd(val);
-				break;
-			}
-
-		case SERVER_ROBOT_CHANGE_UC:
-			{
-				handleRobotChange(val);
-				break;
-			}
-
-		case SERVER_TABLE_INFO_UC:
-			{
-				handleTableInfo(val);
-				break;
-			}
-
-		case SERVER_BET_SUCC_UC:
-			{
-
-				handleBetBc(val);
-				break;
-			}
-
-		case SERVER_BET_SUCC_BC:
-			{
-				handleBetBc(val);
-				break;
-			}
-
-		case SERVER_NEXT_BET_BC:
-			{
-				handleGameNextBet(val);
-			}
+        case SERVER_START_CALL:
+            handleCall(val);
+            break;
 	}
 
-//	printf("recive data");
 	return 0;
 }
 
@@ -331,6 +289,20 @@ void XtRobotClient::handleGameEnd(Json::Value& data)
 void XtRobotClient::handleRobotChange(Json::Value& data)
 {
 	doChangeTable();
+}
+        
+void XtRobotClient::handleCall(Json::Value& msg) 
+{
+    if(msg["operator"].asInt() != m_uid)
+    {
+        return;
+    }
+	Jpacket data;
+	data.val["cmd"]     =   CLIENT_CALL;
+	data.val["score"]   =   1;
+	data.end();
+
+	send(data.tostring());
 }
 
 void XtRobotClient::handleTableInfo(Json::Value& data)
@@ -363,8 +335,9 @@ void XtRobotClient::handleGameStart(Json::Value& data)
 
 void XtRobotClient::handleBetBc(Json::Value& data)
 {
-	int action=data["action"].asInt();
+	//int action=data["action"].asInt();
 
+    /*
 	switch(action)
 	{
 		case PLAYER_CALL:
@@ -447,11 +420,13 @@ void XtRobotClient::handleBetBc(Json::Value& data)
 		case PLAYER_ALLIN_COMPARE :
 			break;
 	}
+*/
 }
 
 
 void XtRobotClient::handleGameNextBet(Json::Value&  val)
 {
+    /*
 	if(!m_isBetting)
 	{
 		return;
@@ -533,6 +508,7 @@ void XtRobotClient::handleGameNextBet(Json::Value&  val)
 			return;
 		}
 	}
+*/
 }
 
 
@@ -642,7 +618,7 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 void XtRobotClient::sendLoginPackage()
 {
 	Jpacket data;
-	data.val["cmd"]=CLIENT_LOGIN_REQ;
+	data.val["cmd"]=CLIENT_LOGIN;
 	data.val["uid"]=m_uid;
 	data.val["skey"]="fsdffdf";
 	data.end();
@@ -654,7 +630,7 @@ void XtRobotClient::sendChangeTablePackage()
 {
 
 	Jpacket data;
-	data.val["cmd"]=CLIENT_CHANGE_REQ;
+	//data.val["cmd"]=CLIENT_CHANGE_REQ;
 
 	data.end();
 	send(data.tostring());
@@ -663,8 +639,8 @@ void XtRobotClient::sendChangeTablePackage()
 void XtRobotClient::sendFoldPackage()
 {
 	Jpacket data;
-	data.val["cmd"] = CLIENT_BET_REQ;
-	data.val["action"] = PLAYER_FOLD;
+	//data.val["cmd"] = CLIENT_BET_REQ;
+	//data.val["action"] = PLAYER_FOLD;
 	data.end();
 	send(data.tostring());
 }
@@ -672,8 +648,8 @@ void XtRobotClient::sendFoldPackage()
 void XtRobotClient::sendSeePackage()
 {
 	Jpacket data;
-	data.val["cmd"] = CLIENT_BET_REQ;
-	data.val["action"] = PLAYER_SEE;
+	//data.val["cmd"] = CLIENT_BET_REQ;
+	//data.val["action"] = PLAYER_SEE;
 	data.end();
 	send(data.tostring());
 }
@@ -681,8 +657,8 @@ void XtRobotClient::sendSeePackage()
 void XtRobotClient::sendFollowPackage()
 {
 	Jpacket data;
-	data.val["cmd"] = CLIENT_BET_REQ;
-	data.val["action"] = PLAYER_CALL;
+	//data.val["cmd"] = CLIENT_BET_REQ;
+	//data.val["action"] = PLAYER_CALL;
 	data.end();
 	send(data.tostring());
 }
@@ -693,8 +669,8 @@ void XtRobotClient::sendAllInPacket()
 {
 	int target_seat_id=getTargetSeatId();
 	Jpacket data;
-	data.val["cmd"] = CLIENT_BET_REQ;
-	data.val["action"] = PLAYER_ALLIN_COMPARE;
+	//data.val["cmd"] = CLIENT_BET_REQ;
+	//data.val["action"] = PLAYER_ALLIN_COMPARE;
 	data.val["seatid"]=m_seatid;
 	data.val["target_seatid"]=target_seat_id;
 	data.end();
@@ -705,8 +681,8 @@ void XtRobotClient::sendComparePacket()
 {
 	int target_seat_id=getTargetSeatId();
 	Jpacket data;
-	data.val["cmd"] = CLIENT_BET_REQ;
-	data.val["action"] = PLAYER_COMPARE;
+	//data.val["cmd"] = CLIENT_BET_REQ;
+	//data.val["action"] = PLAYER_COMPARE;
 	data.val["seatid"]=m_seatid;
 	data.val["target_seatid"]=target_seat_id;
 	data.end();

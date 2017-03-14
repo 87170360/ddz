@@ -48,15 +48,15 @@ public:
     static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
     static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
     static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-
-    //receive msg
-    int login(Player* player);
-
-    void prepare(void);
     void call(void);
     void doubl(void);
     void card(void);
     void end(void);
+
+    //receive msg
+    int login(Player* player);
+    void msgCall(Player* player);
+
 
     bool sitdown(Player* player);
     //分牌
@@ -81,6 +81,7 @@ public:
     int                         m_state;
 	std::map<int, Player*>		m_players;
     int                         m_seats[SEAT_NUM];
+    int                         m_call[SEAT_NUM];               
 
 private:
     XtShuffleDeck               m_deck;

@@ -23,7 +23,7 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
-const int CALLTIME          = 10;
+const int CALLTIME          = 3;
 const int DOUBLETIME        = 10;
 const int CARDTIME          = 10;
 const int ENDTIME           = 10;
@@ -62,6 +62,7 @@ void Table::reset(void)
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         m_seats[i] = 0; 
+        m_call[i] = CALL_WAIT;
     }
     m_bottomCard.clear();
     m_deck.fill();
@@ -166,8 +167,7 @@ void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 int Table::login(Player *player)
 {
-    xt_log.debug("player login uid:%d\n", player->uid);
-
+    //xt_log.debug("player login uid:%d\n", player->uid);
     if(m_players.find(player->uid) != m_players.end())
     {
         xt_log.error("%s:%d, player was existed! uid:%d", __FILE__, __LINE__, player->uid); 
@@ -192,9 +192,37 @@ int Table::login(Player *player)
 
     return 0;
 }
-
-void Table::prepare(void)
+    
+void Table::msgCall(Player* player)
 {
+    xt_log.debug("msg Call uid:%d\n", player->uid);
+    if(m_state != STATE_CALL)
+    {
+        xt_log.error("%s:%d, no call state.\n", __FILE__, __LINE__); 
+        return;
+    }
+
+    if(player->m_seatid >= SEAT_NUM || player->m_seatid < 0 || m_seats[player->m_seatid] != player->uid)
+    {
+        xt_log.error("%s:%d, seat info error. player seatid:%d, uid:%d, seatuid:%d\n", __FILE__, __LINE__, player->m_seatid, player->uid, m_seats[player->m_seatid]); 
+        return;
+    }
+
+    if(m_call[player->m_seatid] != CALL_NOTIFY)
+    {//座位通知过
+        xt_log.error("%s:%d, player callstate error. player seatid:%d, uid:%d, callstate:%d\n", __FILE__, __LINE__, player->m_seatid, player->uid, m_call[player->m_seatid]); 
+        return; 
+    }
+
+    if(m_operator != player->uid)
+    {
+        xt_log.error("%s:%d, operator error. operator:%d, uid:%d\n", __FILE__, __LINE__, m_operator, player->uid); 
+        return; 
+    }
+
+    Json::Value &msg = player->client->packet.tojson();
+    m_call[player->m_seatid] = msg["score"].asInt();
+    xt_log.debug("call score :%d\n", m_call[player->m_seatid]);
 }
 
 void Table::call(void)
@@ -231,6 +259,7 @@ bool Table::sitdown(Player* player)
     }
 
     player->m_seatid = seatid;
+    player->m_tid = m_tid;
     m_seats[seatid] = player->uid;
     m_players[player->uid] = player;
     return true;
@@ -307,11 +336,15 @@ void Table::sendCall(void)
     
 void Table::gameStart(void)
 {
-    xt_log.debug("game start\n");
+    //xt_log.debug("game start\n");
+    unsigned int seatid = rand() % SEAT_NUM;
+    m_operator = m_seats[seatid];
+    m_call[seatid] = CALL_NOTIFY;
+    m_state = STATE_CALL;
+
     allocateCard();
     sendCard1();
-    ev_timer_again(hlddz.loop, &m_timerCall);
-    m_operator = m_seats[rand() % SEAT_NUM];
-    m_state = STATE_CALL;
     sendCall();
+
+    ev_timer_again(hlddz.loop, &m_timerCall);
 }

@@ -68,9 +68,11 @@ class XtRobotClient
 		void handleGameNextBet(Json::Value& cmd);
 		void handleBetBc(Json::Value& cmd);
 		void handleTableInfo(Json::Value& cmd);
-
 		void handleRobotChange(Json::Value& cmd);
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+        void handleCall(Json::Value& msg); 
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
 
@@ -81,8 +83,6 @@ class XtRobotClient
 		void doChangeTable();
 		void doCompare();
 		void doAllIn();
-
-
 
 
 		void sendLoginPackage();
