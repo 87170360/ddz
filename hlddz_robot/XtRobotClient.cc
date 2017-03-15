@@ -267,8 +267,11 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
     int cmd = val["cmd"].asInt();
 	switch(cmd)
 	{
-        case SERVER_START_CALL:
+        case SERVER_CARD_1:
             handleCall(val);
+            break;
+        case SERVER_AGAIN_CALL:
+            handleAgainCall(val);
             break;
 	}
 
@@ -293,13 +296,27 @@ void XtRobotClient::handleRobotChange(Json::Value& data)
         
 void XtRobotClient::handleCall(Json::Value& msg) 
 {
-    if(msg["operator"].asInt() != m_uid)
+    if(msg["cur_id"].asInt() != m_uid)
     {
         return;
     }
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_CALL;
 	data.val["score"]   =   1;
+	data.end();
+
+	send(data.tostring());
+}
+
+void XtRobotClient::handleAgainCall(Json::Value& msg) 
+{
+    if(msg["cur_id"].asInt() != m_uid)
+    {
+        return;
+    }
+	Jpacket data;
+	data.val["cmd"]     =   CLIENT_CALL;
+	data.val["score"]   =   msg["score"].asInt() + 1;
 	data.end();
 
 	send(data.tostring());

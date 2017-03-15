@@ -308,7 +308,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
     for(map<int, Table*>::iterator it = a.begin(); it != a.end(); it++)
     {
         Table *table = (*it).second; 
-        if(table->m_state == STATE_GAME || player->m_tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
+        if(table->m_state != STATE_WAIT || player->m_tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
         {
             continue;
         }
@@ -319,6 +319,12 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
         }
         target = table;
         break;
+    }
+
+    if(target == NULL)
+    {
+        xt_log.error("%s:%d, not found table!", __FILE__, __LINE__); 
+        return 0;
     }
 
     a.erase(target->m_tid);

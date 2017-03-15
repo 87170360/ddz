@@ -14,9 +14,9 @@ enum SERVER_COMMAND
 {
     SERVER_RESPOND              = 2000,         //客户端请求回复
     SERVER_LOGIN                = 2001,         //玩家登录
-    SERVER_CARD_1               = 2002,         //第一次发牌17张
-    SERVER_START_CALL           = 2003,         //开始叫分
-    SERVER_CALL_INFO            = 2004,         //叫分情况
+    SERVER_CARD_1               = 2002,         //第一次发牌17张,开始叫分:当前操作者id:cur_id, 叫分倒计时:time
+    SERVER_AGAIN_CALL           = 2003,         //通知下一个叫分: 上次叫分:score, 当前操作者id:cur_id,上一个操作者id:pre_id, 叫分倒计时:time
+    SERVER_RESULT_CALL          = 2004,         //叫分结果： 最终分数:score, 地主id:lord, 加倍倒计时:time
     SERVER_START_FARMER         = 2005,         //开始农民加倍
     SERVER_FARMER_INFO          = 2006,         //农民加倍结果
     SERVER_CARD_2               = 2007,         //第二次发牌3张底牌
@@ -33,17 +33,22 @@ enum ERROR_CODE
 
 enum STATE
 {
-    STATE_WAIT                  = 0,            //等待
-    STATE_CALL                  = 1,            //叫分
-    STATE_GAME                  = 2,            //游戏
-    STATE_END                   = 3,            //结算
-    STATE_PREREADAY             = 4,            //等待准备
+    STATE_WAIT                  = 1,            //等待
+    STATE_CALL                  = 2,            //叫分
+    STATE_DOUBLE                = 3,            //加倍
+    STATE_CARD                  = 4,            //出牌
+    STATE_END                   = 5,            //结算
 };
 
-enum STATE_CALL
+//当前座位状态
+enum OP_STATE
 {
-    CALL_WAIT                   = -2,            //等待通知
-    CALL_NOTIFY                 = -1,            //已通知
+    CALL_WAIT                   = 1,            //等待叫分通知
+    CALL_NOTIFY                 = 2,            //已叫分通知
+    DOUBLE_WAIT                 = 3,            //等待通知
+    DOUBLE_NOTIFY               = 4,            //已通知
+    CARD_WAIT                   = 5,            //等待通知
+    CARD_NOTIFY                 = 6,            //已通知
 };
 
 #endif

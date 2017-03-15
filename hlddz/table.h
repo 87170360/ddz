@@ -69,8 +69,20 @@ public:
     void sendCard1(void);
     //叫分
     void sendCall(void);
+    //继续叫分
+    void sendCallAgain(void); 
+    //叫分结果
+    void sendCallResult(void);
 
     void gameStart(void);
+    //获取下一个操作用户
+    bool getNext(void);
+    //获取用户id
+    int getSeatUid(unsigned int seatid);
+    //设置座位状态
+    void setAllSeatOp(int state);
+    //评选地主
+    bool selecLord(void);
 
 private:
     void reset(void);
@@ -80,13 +92,18 @@ public:
     int             			m_vid;
     int                         m_state;
 	std::map<int, Player*>		m_players;
-    int                         m_seats[SEAT_NUM];
-    int                         m_call[SEAT_NUM];               
 
 private:
+    int                         m_seats[SEAT_NUM];              //各座位玩家id
+    int                         m_opState[SEAT_NUM];            //各座位操作状态            
+    int                         m_score[SEAT_NUM];              //各座位叫分
+    unsigned int                m_curSeat;                      //当前操作者座位
+    unsigned int                m_preSeat;                      //上个操作者座位
+    unsigned int                m_lordSeat;                     //地主座位
+    int                         m_topCall;                      //最高叫分
+
     XtShuffleDeck               m_deck;
-    std::vector<XtCard>         m_bottomCard;
-    int                         m_operator;                     //当前操作者
+    std::vector<XtCard>         m_bottomCard;                   //底牌
 
     ev_timer                    m_timerCall;                    //叫分
     ev_timer                    m_timerDouble;                  //加倍
