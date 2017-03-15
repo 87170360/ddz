@@ -56,8 +56,11 @@ public:
     //receive msg
     int login(Player* player);
     void msgCall(Player* player);
+    void msgDouble(Player* player);
 
-
+    //加倍处理
+    void doubleProc(void);
+    //坐下
     bool sitdown(Player* player);
     //分牌
     bool allocateCard(void);
@@ -73,6 +76,8 @@ public:
     void sendCallAgain(void); 
     //叫分结果
     void sendCallResult(void);
+    //继续加倍
+    void sendDoubleAgain(void);
 
     void gameStart(void);
     //获取下一个操作用户
@@ -97,6 +102,7 @@ private:
     int                         m_seats[SEAT_NUM];              //各座位玩家id
     int                         m_opState[SEAT_NUM];            //各座位操作状态            
     int                         m_score[SEAT_NUM];              //各座位叫分
+    int                         m_count[SEAT_NUM];             //各座位加倍 0:不加倍 1:加倍
     unsigned int                m_curSeat;                      //当前操作者座位
     unsigned int                m_preSeat;                      //上个操作者座位
     unsigned int                m_lordSeat;                     //地主座位

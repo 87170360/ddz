@@ -224,6 +224,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgCall(player);
             } 
             break;
+        case CLIENT_DOUBLE:
+            {
+                all_tables[player->m_tid]->msgDouble(player);
+            } 
+            break;
             /*
                case CLIENT_CHAT_REQ:
                all_tables[player->m_tid]->handler_chat(player);

@@ -273,6 +273,12 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_AGAIN_CALL:
             handleAgainCall(val);
             break;
+        case SERVER_RESULT_CALL:
+            handleDouble(val);
+            break;
+        case SERVER_AGAIN_DOUBLE:
+            handleAgainDouble(val);
+            break;
 	}
 
 	return 0;
@@ -317,6 +323,34 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_CALL;
 	data.val["score"]   =   msg["score"].asInt() + 1;
+	data.end();
+
+	send(data.tostring());
+}
+        
+void XtRobotClient::handleDouble(Json::Value& msg) 
+{
+    if(msg["cur_id"].asInt() != m_uid)
+    {
+        return;
+    }
+	Jpacket data;
+	data.val["cmd"]     =   CLIENT_DOUBLE;
+	data.val["count"]   =   1;
+	data.end();
+
+	send(data.tostring());
+}
+
+void XtRobotClient::handleAgainDouble(Json::Value& msg) 
+{
+    if(msg["cur_id"].asInt() != m_uid)
+    {
+        return;
+    }
+	Jpacket data;
+	data.val["cmd"]     =   CLIENT_DOUBLE;
+	data.val["count"]   =   1;
 	data.end();
 
 	send(data.tostring());

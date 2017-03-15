@@ -61,6 +61,7 @@ void Table::reset(void)
     {
         m_seats[i] = 0; 
         m_score[i] = 0;
+        m_count[i] = 0;
     }
     setAllSeatOp(CALL_WAIT);
     m_bottomCard.clear();
@@ -236,12 +237,23 @@ void Table::msgCall(Player* player)
         sendCallAgain(); 
     }
     else if(selecLord())
-    {
+    {//选地主，进入加倍环节
+        doubleProc();
         sendCallResult(); 
     }
     else
     {//重新发牌
     
+    }
+}
+    
+void Table::msgDouble(Player* player)
+{
+    xt_log.debug("msg double, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
+    if(getNext())
+    {
+        getNext();
+        sendDoubleAgain();
     }
 }
 
@@ -259,6 +271,17 @@ void Table::card(void)
 
 void Table::end(void)
 {
+}
+    
+void Table::doubleProc(void)
+{
+    m_state = STATE_DOUBLE; 
+    setAllSeatOp(DOUBLE_WAIT);
+    m_opState[m_lordSeat] = DOUBLE_NONE;
+
+    //选择一个农民加倍
+    m_curSeat = (m_lordSeat + 1) % SEAT_NUM;
+    m_preSeat = m_curSeat;
 }
 
 bool Table::sitdown(Player* player)
@@ -368,6 +391,23 @@ void Table::sendCallResult(void)
         packet.val["time"]          = DOUBLETIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeatUid(m_lordSeat);
+        packet.val["cur_id"]        = getSeatUid(m_curSeat);
+        packet.end();
+        unicast(pl, packet.tostring());
+    }
+}
+    
+void Table::sendDoubleAgain(void)
+{
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        Jpacket packet;
+        packet.val["cmd"]           = SERVER_AGAIN_DOUBLE;
+        packet.val["time"]          = CALLTIME;
+        packet.val["cur_id"]        = getSeatUid(m_curSeat);
+        packet.val["pre_id"]        = getSeatUid(m_preSeat);
+        packet.val["count"]         = m_count[m_preSeat];
         packet.end();
         unicast(pl, packet.tostring());
     }
