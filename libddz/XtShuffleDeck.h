@@ -19,8 +19,8 @@ class XtShuffleDeck
 
 		bool push(const XtCard& card);
         void showCards(void) const;
-
         int getCardType(const std::vector<XtCard>& card);
+        bool compareCard(const vector<XtCard>& card1, const vector<XtCard>& card2);
 
 	//private:
 		bool pop(XtCard& card);

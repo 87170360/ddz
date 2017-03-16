@@ -7,22 +7,20 @@ enum CLIENT_COMMAND
     CLIENT_PREPARE              = 1002,         //准备 
     CLIENT_CALL                 = 1003,         //叫分 score = 0,1,2,3
     CLIENT_DOUBLE               = 1004,         //农民加倍 count = 0, 1
-    CLIENT_OUT                  = 1005,         //出牌
+    CLIENT_OUT                  = 1005,         //出牌 card
 };
 
 enum SERVER_COMMAND
 {
-    SERVER_RESPOND              = 2000,         //客户端请求回复
+    SERVER_RESPOND              = 2000,         //其他回复
     SERVER_LOGIN                = 2001,         //玩家登录
-    SERVER_CARD_1               = 2002,         //第一次发牌17张,开始叫分:当前操作者id:cur_id, 叫分倒计时:time
+    SERVER_CARD_1               = 2002,         //第一次发牌17张,开始叫分:当前操作者id:cur_id, 叫分倒计时:time, 17张牌:card
     SERVER_AGAIN_CALL           = 2003,         //通知下一个叫分: 上次叫分:score, 当前操作者id:cur_id,上一个操作者id:pre_id, 叫分倒计时:time
     SERVER_RESULT_CALL          = 2004,         //叫分结果： 最终分数:score, 地主id:lord, 加倍倒计时:time, 加倍操作者id:cur_id
     SERVER_AGAIN_DOUBLE         = 2005,         //通知下一个农民加倍: 上次加倍情况:count, 当前操作者id:cur_id,上一个操作者id:pre_id, 加倍倒计时:time
-    SERVER_DOUBLE_INFO          = 2006,         //农民加倍结果
-    SERVER_CARD_2               = 2007,         //第二次发牌3张底牌
-    SERVER_START_OUT            = 2008,         //开始出牌
-    SERVER_OUT_INFO             = 2009,         //出牌信息
-    SERVER_END                  = 2010,         //牌局结束
+    SERVER_RESULT_DOUBLE        = 2006,         //加倍结果,发底牌,通知地主出牌: 总倍数:count, 当前操作者(地主)id:cur_id, 3底牌:card, 出牌倒计时:time
+    SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌
+    SERVER_END                  = 2008,         //牌局结束
 };
 
 enum ERROR_CODE

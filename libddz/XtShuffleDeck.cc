@@ -202,6 +202,49 @@ int XtShuffleDeck::getCardType(const std::vector<XtCard>& card)
     return CT_ERROR;
 }
         
+bool XtShuffleDeck::compareCard(const vector<XtCard>& card1, const vector<XtCard>& card2)
+{
+    int type1 = getCardType(card1);
+    int type2 = getCardType(card2);
+    if(type1 != type2)
+    {
+        return false;
+    }
+
+    switch(type1)
+    {
+        case CT_ROCKET: 
+            return true;
+        case CT_BOMB:   
+            return compareBomb(card1, card2);
+        case CT_SHUTTLE_0:   
+        case CT_SHUTTLE_2:   
+            return compareShuttle(card1, card2);
+        case CT_AIRCRAFT_0:           
+        case CT_AIRCRAFT_1:           
+        case CT_AIRCRAFT_2S:         
+            return compareAircraft(card1, card2);
+        case CT_4AND2_2S:         
+        case CT_4AND2_2D:         
+        case CT_4AND2_4:         
+            return compare4and2(card1, card2);
+        case CT_DOUBLE_STRAIGHT:         
+            return compareDoubleStraight(card1, card2);
+        case CT_STRAIGHT:         
+            return compareStraight(card1, card2);
+        case CT_THREE_0:         
+        case CT_THREE_1:         
+        case CT_THREE_2S:         
+            return compareThree(card1, card2);
+        case CT_PAIR:         
+            return comparePair(card1, card2);
+        case CT_SINGLE:         
+            return compareSingle(card1, card2);
+    }
+
+    return false;
+}
+        
 bool XtShuffleDeck::isRocket(const vector<XtCard>& card) const
 {
     if(card.size() != 2)

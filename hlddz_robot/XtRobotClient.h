@@ -18,6 +18,7 @@
 
 #include "jpacket.h"
 #include "XtBuffer.h"
+#include "XtCard.h"
 
 
 
@@ -71,10 +72,15 @@ class XtRobotClient
 		void handleRobotChange(Json::Value& cmd);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+	    void vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key);
+        void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
+        void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
+
         void handleCall(Json::Value& msg); 
         void handleAgainCall(Json::Value& msg); 
         void handleDouble(Json::Value& msg); 
         void handleAgainDouble(Json::Value& msg); 
+        void handleOut(Json::Value& msg);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
@@ -110,6 +116,9 @@ class XtRobotClient
 
 
 	private:
+        ///////////////////////////////////////
+        std::vector<XtCard>         m_card;                   //底牌
+        ///////////////////////////////////////
 		struct ev_loop* m_evloop;
 
 		ev_io m_evWrite;
@@ -120,11 +129,7 @@ class XtRobotClient
 		ev_timer m_evCompareTimer;
 		ev_timer m_evAllInTimer;
 
-
-
 		int m_serverfd;
-
-
 		/*game info */
 		int m_uid;
 		bool m_isBetting;
@@ -147,19 +152,9 @@ class XtRobotClient
 
 		std::string m_body;
 		Jpacket m_packet;
-
-
-
-
 		std::list<XtBuffer*> m_writeQueue;
 
 };
-
-
-
-
-
-
 
 #endif /*_XT_ROBOT_CLIENT_H_*/
 

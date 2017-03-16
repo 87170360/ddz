@@ -268,6 +268,7 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
 	switch(cmd)
 	{
         case SERVER_CARD_1:
+            json_array_to_vector(m_card, data, "card");
             handleCall(val);
             break;
         case SERVER_AGAIN_CALL:
@@ -278,6 +279,13 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             break;
         case SERVER_AGAIN_DOUBLE:
             handleAgainDouble(val);
+            break;
+        case SERVER_RESULT_DOUBLE:
+            if(val["cur_id"].asInt() == m_uid)
+            {
+                json_array_to_vector(m_card, data, "card");
+            }
+            handleOut(val);
             break;
 	}
 
@@ -298,6 +306,42 @@ void XtRobotClient::handleGameEnd(Json::Value& data)
 void XtRobotClient::handleRobotChange(Json::Value& data)
 {
 	doChangeTable();
+}
+
+void XtRobotClient::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)
+{
+    if (cards.empty()) 
+    {
+        packet.val[key].append(0);
+        return;
+    }
+
+    for (unsigned int i = 0; i < cards.size(); i++) 
+    {
+        packet.val[key].append(cards[i].m_value);
+    }
+}
+
+void XtRobotClient::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key)
+{
+    std::map<int, XtCard>::iterator it;
+    for (it = cards.begin(); it != cards.end(); it++)
+    {
+        XtCard &card = it->second;
+        packet.val[key].append(card.m_value);
+    }
+}
+
+void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
+{
+    Json::Value &val = packet.tojson();
+
+    for (unsigned int i = 0; i < val[key].size(); i++)
+    {
+        XtCard card(val[key][i].asInt());
+
+        cards.push_back(card);
+    }
 }
         
 void XtRobotClient::handleCall(Json::Value& msg) 
@@ -351,6 +395,25 @@ void XtRobotClient::handleAgainDouble(Json::Value& msg)
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_DOUBLE;
 	data.val["count"]   =   1;
+	data.end();
+
+	send(data.tostring());
+}
+
+void XtRobotClient::handleOut(Json::Value& msg) 
+{
+    if(msg["cur_id"].asInt() != m_uid)
+    {
+        return;
+    }
+
+	Jpacket data;
+	data.val["cmd"]     =   CLIENT_OUT;
+
+    vector<XtCard> outCard;
+    outCard.push_back(m_card.back());
+    vector_to_json_array(outCard, data, "card");
+	data.val["keep"]     =   outCard.empty();
 	data.end();
 
 	send(data.tostring());

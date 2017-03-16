@@ -22,6 +22,7 @@ class XtCard
 		void setValue(int val);
 
 		const char* getCardDescription() const;
+		string getCardDescriptionString(void) const;
 
 		bool operator <  (const XtCard &c) const{ return (m_face < c.m_face); };
 		bool operator >  (const XtCard &c) const { return (m_face > c.m_face); };

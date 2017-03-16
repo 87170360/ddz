@@ -82,6 +82,15 @@ const char* XtCard::getCardDescription() const
 	return card.c_str();
 }
 
+string XtCard::getCardDescriptionString() const
+{
+	string card;
+	card.append(m_face_symbols[m_face - 3]);
+	card.append(m_suit_symbols[m_suit]);
+
+	return card;
+}
+
 void XtCard::dumpCards(std::vector<XtCard> &v, string str )
 {
 	fprintf(stdout, "[%s]: [[ ", str.c_str());

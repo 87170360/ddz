@@ -57,27 +57,32 @@ public:
     int login(Player* player);
     void msgCall(Player* player);
     void msgDouble(Player* player);
+    void msgOut(Player* player);
 
-    //加倍处理
-    void doubleProc(void);
     //坐下
     bool sitdown(Player* player);
     //分牌
     bool allocateCard(void);
+    //加倍处理
+    void doubleProc(void);
+    //出牌处理
+    void outProc(void);
 
     // send msg
     void loginUC(Player* player);
     void loginBC(Player* player);
     //第一次发牌
     void sendCard1(void);
-    //叫分
-    void sendCall(void);
     //继续叫分
     void sendCallAgain(void); 
     //叫分结果
     void sendCallResult(void);
     //继续加倍
     void sendDoubleAgain(void);
+    //加倍结果
+    void sendDoubleResult(void);
+    //继续出牌
+    void sendOutAgain(void);
 
     void gameStart(void);
     //获取下一个操作用户
@@ -88,6 +93,10 @@ public:
     void setAllSeatOp(int state);
     //评选地主
     bool selecLord(void);
+    //获取叫分倍数
+    int getCount(void);
+    //打印牌组
+    void show(const vector<XtCard>& card);
 
 private:
     void reset(void);
@@ -110,6 +119,7 @@ private:
 
     XtShuffleDeck               m_deck;
     std::vector<XtCard>         m_bottomCard;                   //底牌
+    std::vector<XtCard>         m_lastCard;                     //上一轮牌
 
     ev_timer                    m_timerCall;                    //叫分
     ev_timer                    m_timerDouble;                  //加倍
