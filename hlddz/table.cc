@@ -72,6 +72,7 @@ void Table::reset(void)
     m_curSeat = 0;
     m_preSeat = 0;
     m_lordSeat = 0;
+    m_outSeat = 0;
     m_topCall = 0;
 }
 
@@ -133,11 +134,14 @@ void Table::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, str
 void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
 {
     Json::Value &val = packet.tojson();
+    if(!val.isMember(key))
+    {
+        return;
+    }
 
     for (unsigned int i = 0; i < val[key].size(); i++)
     {
         XtCard card(val[key][i].asInt());
-
         cards.push_back(card);
     }
 }
@@ -273,27 +277,67 @@ void Table::msgOut(Player* player)
     xt_log.debug("msgOut, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
     Json::Value &msg = player->client->packet.tojson();
 
+    vector<XtCard> curCard;
+    json_array_to_vector(curCard, player->client->packet, "card");
+
     bool keep = msg["keep"].asBool();
-    if(keep)
+    if(keep && !curCard.empty())
     {
-        m_lastCard.clear();
+        xt_log.error("%s:%d, not allow keep && not empty card.", __FILE__, __LINE__); 
+        return;
     }
-    else
-    {//compare
-        vector<XtCard> curCard;
-        json_array_to_vector(curCard, player->client->packet, "card");
-        show(curCard);
-
-        m_lastCard = curCard;
-    }
-
-    if(getNext())
-    {
-        sendOutAgain();    
-    }
-    else
-    {
     
+    xt_log.debug("curCard:\n");
+    show(curCard);
+    xt_log.debug("lastCard:\n");
+    show(m_lastCard);
+
+    if(m_lastCard.empty())
+    {//首轮出牌
+        xt_log.debug("first round\n");
+        m_lastCard = curCard;
+        m_outSeat = player->m_seatid;
+    }
+    else if(keep && curCard.empty())
+    {//不出
+        xt_log.debug("keep\n");
+    }
+    else if(m_outSeat == player->m_seatid)
+    {//自己的牌
+        xt_log.debug("self card, new start\n");
+    }
+    else if(!curCard.empty())
+    {//出牌
+        xt_log.debug("compare\n");
+        if(!m_deck.compareCard(curCard, m_lastCard))
+        {
+            xt_log.error("%s:%d, compare faile.", __FILE__, __LINE__); 
+            return;
+        }
+        m_lastCard = curCard;
+        m_outSeat = player->m_seatid;
+    }
+
+    //扣除手牌
+    if(!curCard.empty())
+    {
+        player->m_holecard.popCard(curCard);
+    }
+
+    //判定结束
+    if(player->m_holecard.m_cards.empty())
+    {
+        xt_log.debug("game over\n");
+    }
+    else if(getNext())
+    {
+        //如果没人接出牌者的牌
+        if(m_curSeat == m_outSeat)
+        {
+            xt_log.debug("无人接牌， 新一轮\n");
+            m_lastCard.clear(); 
+        }
+        sendOutAgain();    
     }
 }
 
@@ -495,7 +539,8 @@ void Table::sendOutAgain(void)
         packet.val["time"]          = CARDTIME;
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
         packet.val["pre_id"]        = getSeatUid(m_preSeat);
-        packet.val["keep"]          = m_lastCard.empty();
+        packet.val["out_id"]        = getSeatUid(m_outSeat);
+        packet.val["keep"]          = (m_preSeat != m_outSeat);
         vector_to_json_array(m_lastCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
@@ -519,22 +564,34 @@ void Table::gameStart(void)
 bool Table::getNext(void)
 {
     int nextSeat = (m_curSeat + 1) % SEAT_NUM;
-    int targetState = 0;
-    switch(m_state)
-    {
-        case STATE_CALL:        targetState = CALL_WAIT;        break;
-        case STATE_DOUBLE:      targetState = DOUBLE_WAIT;      break;
-        case STATE_OUT:         targetState = OUT_WAIT;         break;
-    }
 
-    if(m_opState[nextSeat] == targetState) 
+    if(m_state == STATE_OUT)
     {
         m_preSeat = m_curSeat;
         m_curSeat = nextSeat;
-        m_opState[m_curSeat] = targetState + 1;
         xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
-        return true; 
+        return true;
     }
+    else
+    {
+        int targetState = 0;
+        switch(m_state)
+        {
+            case STATE_CALL:        targetState = CALL_WAIT;        break;
+            case STATE_DOUBLE:      targetState = DOUBLE_WAIT;      break;
+        }
+
+        if(m_opState[nextSeat] == targetState) 
+        {
+            m_preSeat = m_curSeat;
+            m_curSeat = nextSeat;
+            m_opState[m_curSeat] = targetState + 1;
+            xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+            return true; 
+        }
+    }
+
+    xt_log.debug("get next finish, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
     return false;
 }
 

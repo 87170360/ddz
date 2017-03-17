@@ -115,6 +115,7 @@ private:
     unsigned int                m_curSeat;                      //当前操作者座位
     unsigned int                m_preSeat;                      //上个操作者座位
     unsigned int                m_lordSeat;                     //地主座位
+    unsigned int                m_outSeat;                     //当前出牌者座位
     int                         m_topCall;                      //最高叫分
 
     XtShuffleDeck               m_deck;

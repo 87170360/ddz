@@ -24,6 +24,8 @@ class XtHoleCards
         bool same(XtHoleCards &hc);
         void reset(void);
 
+        void popCard(const std::vector<XtCard>& out); 
+
 	public:
 		std::vector<XtCard> m_cards;
 };

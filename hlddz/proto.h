@@ -19,7 +19,7 @@ enum SERVER_COMMAND
     SERVER_RESULT_CALL          = 2004,         //叫分结果： 最终分数:score, 地主id:lord, 加倍倒计时:time, 加倍操作者id:cur_id
     SERVER_AGAIN_DOUBLE         = 2005,         //通知下一个农民加倍: 上次加倍情况:count, 当前操作者id:cur_id,上一个操作者id:pre_id, 加倍倒计时:time
     SERVER_RESULT_DOUBLE        = 2006,         //加倍结果,发底牌,通知地主出牌: 总倍数:count, 当前操作者(地主)id:cur_id, 3底牌:card, 出牌倒计时:time
-    SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一个操作者id:pre_id, 出牌倒计时:time
+    SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 上轮出牌者id: out_id, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 出牌倒计时:time
     SERVER_END                  = 2008,         //牌局结束
 };
 
@@ -47,7 +47,6 @@ enum OP_STATE
     DOUBLE_NOTIFY               = 4,            //已通知
     DOUBLE_NONE                 = 4,            //不参与
     OUT_WAIT                    = 5,            //等待通知
-    OUT_NOTIFY                  = 6,            //已通知
 };
 
 #endif

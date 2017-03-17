@@ -281,11 +281,10 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             handleAgainDouble(val);
             break;
         case SERVER_RESULT_DOUBLE:
-            if(val["cur_id"].asInt() == m_uid)
-            {
-                json_array_to_vector(m_card, data, "card");
-            }
             handleOut(val);
+            break;
+        case SERVER_AGAIN_OUT:
+            handleAgainOut(val);
             break;
 	}
 
@@ -336,6 +335,16 @@ void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &pa
 {
     Json::Value &val = packet.tojson();
 
+    for (unsigned int i = 0; i < val[key].size(); i++)
+    {
+        XtCard card(val[key][i].asInt());
+
+        cards.push_back(card);
+    }
+}
+
+void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value &val, string key)
+{
     for (unsigned int i = 0; i < val[key].size(); i++)
     {
         XtCard card(val[key][i].asInt());
@@ -402,7 +411,11 @@ void XtRobotClient::handleAgainDouble(Json::Value& msg)
 
 void XtRobotClient::handleOut(Json::Value& msg) 
 {
-    if(msg["cur_id"].asInt() != m_uid)
+    if(msg["cur_id"].asInt() == m_uid)
+    {
+        json_array_to_vector(m_card, msg, "card");
+    }
+    else
     {
         return;
     }
@@ -417,6 +430,58 @@ void XtRobotClient::handleOut(Json::Value& msg)
 	data.end();
 
 	send(data.tostring());
+}
+        
+void XtRobotClient::handleAgainOut(Json::Value& msg)
+{
+    vector<XtCard> preCard;
+    json_array_to_vector(preCard, msg, "card");
+
+    //删除自己上次出的牌
+    if(msg["pre_id"].asInt() == m_uid && !msg["keep"].asBool())
+    {
+       //remove 
+       vector<XtCard> newCard;
+       bool find = false;
+       for(vector<XtCard>::iterator it1 = m_card.begin(); it1 != m_card.end(); ++it1)
+       {
+            find = false;
+            for(vector<XtCard>::iterator it2 = preCard.begin(); it2 != preCard.end(); ++it2)
+            {
+                if(it1->m_face == it2->m_face && it1->m_suit == it2->m_suit) 
+                {
+                    find = true;
+                    break;
+                }
+            }
+            if(!find)
+            {
+                newCard.push_back(*it1);
+            }
+       }
+       m_card = newCard;
+    }
+
+    //自己上轮的牌没人顶
+    if(msg["cur_id"].asInt() == m_uid && msg["out_id"].asInt() == m_uid) 
+    {
+        Jpacket data;
+        data.val["cmd"]     =   CLIENT_OUT;
+        vector<XtCard> outCard;
+        outCard.push_back(m_card.back());
+        vector_to_json_array(outCard, data, "card");
+        data.val["keep"]     =   outCard.empty();
+        data.end();
+        send(data.tostring());
+    }
+    else if(msg["cur_id"].asInt() == m_uid && msg["out_id"].asInt() != m_uid) 
+    {//不出牌
+        Jpacket data;
+        data.val["cmd"]     =   CLIENT_OUT;
+        data.val["keep"]    =   true;
+        data.end();
+        send(data.tostring());
+    }
 }
 
 void XtRobotClient::handleTableInfo(Json::Value& data)

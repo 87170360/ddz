@@ -75,12 +75,14 @@ class XtRobotClient
 	    void vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key);
         void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
         void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
+        void json_array_to_vector(std::vector<XtCard> &cards, Json::Value &val, string key);
 
         void handleCall(Json::Value& msg); 
         void handleAgainCall(Json::Value& msg); 
         void handleDouble(Json::Value& msg); 
         void handleAgainDouble(Json::Value& msg); 
         void handleOut(Json::Value& msg);
+        void handleAgainOut(Json::Value& msg);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
