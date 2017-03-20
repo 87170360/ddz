@@ -270,7 +270,7 @@ void Table::msgDouble(Player* player)
         sendDoubleResult(); 
     }
 }
-    
+
 void Table::msgOut(Player* player)
 {
     //check
@@ -286,7 +286,7 @@ void Table::msgOut(Player* player)
         xt_log.error("%s:%d, not allow keep && not empty card.", __FILE__, __LINE__); 
         return;
     }
-    
+
     xt_log.debug("curCard:\n");
     show(curCard);
     xt_log.debug("lastCard:\n");
@@ -388,6 +388,24 @@ void Table::loginUC(Player* player)
     packet.val["code"]  = CODE_SUCCESS;
     packet.val["msgid"] = CLIENT_LOGIN;
     packet.val["tid"]   = m_tid;
+
+    //pack other player info
+    for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
+    {
+        if(it->first == player->uid)  
+        {
+            continue; 
+        }
+        Json::Value jval;          
+        Player* player = it->second;
+        jval["uid"]     = player->uid;
+        jval["name"]    = player->name;
+        jval["money"]   = player->money;
+        jval["vlevel"]  = player->vlevel;
+        jval["avatar"]  = player->avatar;
+        packet.val["userinfo"].append(jval);
+    }
+
     packet.end();
     unicast(player, packet.tostring());
 }
@@ -397,6 +415,10 @@ void Table::loginBC(Player* player)
     Jpacket packet;
     packet.val["cmd"]   = SERVER_LOGIN;
     packet.val["uid"]   = player->uid;
+    packet.val["name"]   = player->name;
+    packet.val["money"]   = player->money;
+    packet.val["vlevel"]   = player->vlevel;
+    packet.val["avatar"]   = player->avatar;
     packet.end();
     broadcast(player, packet.tostring());
 }
@@ -440,7 +462,7 @@ void Table::doubleProc(void)
     m_curSeat = (m_lordSeat + 1) % SEAT_NUM;
     m_preSeat = m_curSeat;
 }
-    
+
 void Table::outProc(void)
 {
     m_state = STATE_OUT;
@@ -512,7 +534,7 @@ void Table::sendDoubleAgain(void)
         unicast(pl, packet.tostring());
     }
 }
-    
+
 void Table::sendDoubleResult(void)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -528,7 +550,7 @@ void Table::sendDoubleResult(void)
         unicast(pl, packet.tostring());
     }
 }
-    
+
 void Table::sendOutAgain(void)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -660,4 +682,4 @@ void Table::show(const vector<XtCard>& card)
     }
     xt_log.debug("%s\n", printStr.c_str());
 }
-        
+
