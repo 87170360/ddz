@@ -74,6 +74,8 @@ class Table
         void doubleProc(void);
         //出牌处理
         void outProc(void);
+        //玩家退出
+        void logout(Player* player);
 
         // send msg
         void loginUC(Player* player, int code);

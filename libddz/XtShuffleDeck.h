@@ -54,6 +54,9 @@ class XtShuffleDeck
         bool comparePair(const vector<XtCard>& card1, const vector<XtCard>& card2);
         bool compareSingle(const vector<XtCard>& card1, const vector<XtCard>& card2);
 
+        //获取牌型
+        bool getCard(const vector<XtCard>& holdcard, vector<XtCard>& ourcard, int cardtype);        
+
         //保留相同点数的牌是N张的牌
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
         //是否是连续, 需要降序队列, 不判断n之间是否相同

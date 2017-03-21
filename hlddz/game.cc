@@ -157,6 +157,7 @@ void Game::del_client(Client *client)
                 //xt_log.info("del client player uid[%d] online.\n", player->uid);
             }
             delete player;
+            player = NULL;
         } else if (client->position == POSITION_TABLE) {
             if (online_players.find(player->uid) != online_players.end()) {
                 online_players.erase(player->uid);
@@ -174,6 +175,7 @@ void Game::del_client(Client *client)
 
     //xt_log.info("del client fd[%d].\n", client->fd);
     delete client;
+    client = NULL;
     dump_game_info("del_client");
 }
 
@@ -300,7 +302,7 @@ int Game::handler_login_table(Client *client)
     else if (ret == -2)
         return -2;
 
-    xt_log.error("handler login table no seat.\n");
+    xt_log.error("%s:%d, not found table!\n", __FILE__, __LINE__); 
     return -1;
 }
 
@@ -331,7 +333,6 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
 
     if(target == NULL)
     {
-        xt_log.error("%s:%d, not found table!\n", __FILE__, __LINE__); 
         return 0;
     }
 
@@ -442,6 +443,7 @@ int Game::add_player(Client *client)
         client->set_positon(POSITION_TABLE);
         fd_client.erase(oldClient->fd);
         delete oldClient;
+        oldClient = NULL;
         player->stop_offline_timer();
         dump_game_info("rebind by online");
         return 2;
@@ -497,14 +499,9 @@ int Game::del_player(Player *player)
 {
     int ret = 0;
     if (all_tables.find(player->m_tid) != all_tables.end()) {
-        if (ret < 0) {
-            xt_log.error("del player table handler logout\n");
-            return -1;
-        }
-        if (ret < 0) {
-            xt_log.error("del player table del player\n");
-            return -1;
-        }
+        all_tables[player->m_tid]->logout(player);
+        xt_log.error("del player\n");
+
         ret = handle_logout_table(player->m_tid);
         if (ret < 0) {
             xt_log.error("del player table handle logout table.\n");
@@ -528,12 +525,15 @@ int Game::del_player(Player *player)
         Client::pre_destroy(client);
         client->player = NULL;
         delete player;
+        player = NULL;
+
         dump_game_info("del_player");
         return 0;
     }
 
     xt_log.debug("del player[%p] uid[%d]\n", player, player->uid);
     delete player;
+    player = NULL;
 
     if(hlddz.cache_rc->command("hset gameinfo %d %d",hlddz.conf["game"]["port"].asInt(),fd_client.size()))
     {

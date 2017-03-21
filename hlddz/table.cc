@@ -110,7 +110,6 @@ void Table::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, st
 {
     if (cards.empty()) 
     {
-        packet.val[key].append(0);
         return;
     }
 
@@ -205,8 +204,6 @@ void Table::reLogin(Player* player)
         ret_code = CODE_RELOGIN;
     }
 
-    //要分阶段回复
-    
     //准备阶段
     loginUC(player, ret_code);
 }
@@ -429,6 +426,8 @@ void Table::loginUC(Player* player, int code)
         packet.val["userinfo"].append(jval);
     }
 
+    vector_to_json_array(player->m_holecard.m_cards, packet, "card");
+
     packet.end();
     unicast(player, packet.tostring());
 }
@@ -505,6 +504,20 @@ void Table::outProc(void)
     setAllSeatOp(OUT_WAIT);
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
+}
+        
+void Table::logout(Player* player)
+{
+    map<int, Player*>::iterator it  = m_players.find(player->uid);
+    if(it != m_players.end())
+    {
+        m_players.erase(it);
+    }
+
+    if(m_players.empty())
+    {
+        reset(); 
+    }
 }
 
 void Table::sendCard1(void)
