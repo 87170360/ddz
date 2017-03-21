@@ -36,6 +36,7 @@ enum ERROR_CODE
 {
     CODE_SUCCESS                = 0,            //成功 
     CODE_SKEY                   = 1,            //skey错误
+    CODE_RELOGIN                = 1,            //重连错误，牌桌没有这个玩家
 };  
 
 //游戏阶段

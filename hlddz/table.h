@@ -55,6 +55,8 @@ class Table
 
         //receive msg
         int login(Player* player);
+        //断线重连
+        void reLogin(Player* player); 
         void msgPrepare(Player* player);
         void msgCall(Player* player);
         void msgDouble(Player* player);
@@ -74,7 +76,7 @@ class Table
         void outProc(void);
 
         // send msg
-        void loginUC(Player* player);
+        void loginUC(Player* player, int code);
         void loginBC(Player* player);
         //第一次发牌
         void sendCard1(void);

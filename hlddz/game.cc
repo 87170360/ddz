@@ -197,11 +197,13 @@ int Game::dispatch(Client *client)
                 return -1;
             } 
             else if (ret == 1) 
-            {
+            {//断线重连
+                all_tables[client->player->m_tid]->reLogin(client->player);
                 return 0;
             }
             else if (ret == 2) 
-            {
+            {//断线重连
+                all_tables[client->player->m_tid]->reLogin(client->player);
                 return 0;
             }
 
@@ -239,20 +241,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgOut(player);
             } 
             break;
-            /*
-               case CLIENT_CHAT_REQ:
-               all_tables[player->m_tid]->handler_chat(player);
-               break;
-               case CLIENT_LOGOUT_REQ:
-               del_player(player);
-               break;
-               case CLIENT_CHANGE_REQ:
-               change_table(player);
-               break;
-               default:
+        default:
+            {
                xt_log.error("invalid command[%d]\n", cmd);
                return -1;
-               */
+            }
     }
 
     // xt_log.debug("dispatch succ\n");

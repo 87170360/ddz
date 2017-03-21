@@ -187,17 +187,28 @@ int Table::login(Player *player)
     }
 
     //登录回复
-    loginUC(player);
+    loginUC(player, CODE_SUCCESS);
 
     //广播玩家信息
     loginBC(player);
 
-    //人满开始, 定时器
-    //if(m_players.size() == 3)
-    {
-        //gameStart();
-    }
     return 0;
+}
+        
+void Table::reLogin(Player* player) 
+{
+    xt_log.debug("player relogin uid:%d\n", player->uid);
+    int ret_code = CODE_SUCCESS;
+    if(m_players.find(player->uid) == m_players.end())
+    {
+        xt_log.error("%s:%d, player was not existed! uid:%d", __FILE__, __LINE__, player->uid); 
+        ret_code = CODE_RELOGIN;
+    }
+
+    //要分阶段回复
+    
+    //准备阶段
+    loginUC(player, ret_code);
 }
         
 void Table::msgPrepare(Player* player)
@@ -392,11 +403,11 @@ bool Table::sitdown(Player* player)
     return true;
 }
 
-void Table::loginUC(Player* player)
+void Table::loginUC(Player* player, int code)
 {
     Jpacket packet;
     packet.val["cmd"]   = SERVER_RESPOND;
-    packet.val["code"]  = CODE_SUCCESS;
+    packet.val["code"]  = code;
     packet.val["msgid"] = CLIENT_LOGIN;
     packet.val["tid"]   = m_tid;
 
@@ -414,6 +425,7 @@ void Table::loginUC(Player* player)
         jval["money"]   = player->money;
         jval["vlevel"]  = player->vlevel;
         jval["avatar"]  = player->avatar;
+        jval["state"]   = m_opState[player->m_seatid];
         packet.val["userinfo"].append(jval);
     }
 
