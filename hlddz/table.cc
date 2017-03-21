@@ -63,17 +63,16 @@ void Table::reset(void)
         m_score[i] = 0;
         m_count[i] = 0;
     }
-    setAllSeatOp(CALL_WAIT);
     m_bottomCard.clear();
     m_lastCard.clear();
     m_deck.fill();
     m_deck.shuffle(m_tid);
-    m_state = STATE_WAIT;
     m_curSeat = 0;
     m_preSeat = 0;
     m_lordSeat = 0;
     m_outSeat = 0;
     m_topCall = 0;
+    prepareProc();
 }
 
 int Table::broadcast(Player *p, const std::string &packet)
@@ -194,12 +193,25 @@ int Table::login(Player *player)
     loginBC(player);
 
     //人满开始, 定时器
-    if(m_players.size() == 3)
+    //if(m_players.size() == 3)
     {
-        gameStart();
+        //gameStart();
     }
-
     return 0;
+}
+        
+void Table::msgPrepare(Player* player)
+{
+    xt_log.debug("msg prepare uid:%d\n", player->uid);
+    m_opState[player->m_seatid] = PREPARE_REDAY; 
+    if(allSeatFit(PREPARE_REDAY) && m_players.size() == SEAT_NUM)
+    {
+        gameStart(); 
+    }
+    else
+    {
+        xt_log.debug("not fit for gamestart\n");
+    }
 }
 
 void Table::msgCall(Player* player)
@@ -255,7 +267,6 @@ void Table::msgCall(Player* player)
 void Table::msgDouble(Player* player)
 {
     //check
-
     xt_log.debug("msgdouble, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
     Json::Value &msg = player->client->packet.tojson();
     m_count[player->m_seatid] = msg["count"].asInt();
@@ -451,6 +462,19 @@ bool Table::allocateCard(void)
 
     return true;
 }
+        
+void Table::prepareProc(void)
+{
+    m_state = STATE_PREPARE; 
+    setAllSeatOp(PREPARE_WAIT);
+}
+
+void Table::callProc(void)
+{
+    m_state = STATE_CALL; 
+    setAllSeatOp(CALL_WAIT);
+    m_opState[m_curSeat] = CALL_NOTIFY;
+}
 
 void Table::doubleProc(void)
 {
@@ -572,45 +596,52 @@ void Table::sendOutAgain(void)
 void Table::gameStart(void)
 {
     m_curSeat = rand() % SEAT_NUM;
-    m_opState[m_curSeat] = CALL_NOTIFY;
-    m_state = STATE_CALL;
+    callProc();
 
     allocateCard();
     sendCard1();
 
     xt_log.debug("game start, cur_id:%d, seateid:%d\n", getSeatUid(m_curSeat), m_curSeat);
-
-    ev_timer_again(hlddz.loop, &m_timerCall);
+    //ev_timer_again(hlddz.loop, &m_timerCall);
 }
 
 bool Table::getNext(void)
 {
     int nextSeat = (m_curSeat + 1) % SEAT_NUM;
-
-    if(m_state == STATE_OUT)
+    switch(m_state)
     {
-        m_preSeat = m_curSeat;
-        m_curSeat = nextSeat;
-        xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
-        return true;
-    }
-    else
-    {
-        int targetState = 0;
-        switch(m_state)
-        {
-            case STATE_CALL:        targetState = CALL_WAIT;        break;
-            case STATE_DOUBLE:      targetState = DOUBLE_WAIT;      break;
-        }
-
-        if(m_opState[nextSeat] == targetState) 
-        {
-            m_preSeat = m_curSeat;
-            m_curSeat = nextSeat;
-            m_opState[m_curSeat] = targetState + 1;
-            xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
-            return true; 
-        }
+        case STATE_CALL:
+            {
+                if(m_opState[nextSeat] == CALL_WAIT) 
+                {
+                    m_preSeat = m_curSeat;
+                    m_curSeat = nextSeat;
+                    m_opState[m_curSeat] = CALL_NOTIFY;
+                    xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                    return true; 
+                }
+            }
+            break;
+        case STATE_DOUBLE:
+            {
+                if(m_opState[nextSeat] == DOUBLE_WAIT) 
+                {
+                    m_preSeat = m_curSeat;
+                    m_curSeat = nextSeat;
+                    m_opState[m_curSeat] = DOUBLE_NOTIFY;
+                    xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                    return true; 
+                }
+            }
+            break;
+        case STATE_OUT:
+            {//校验出牌时间戳
+                m_preSeat = m_curSeat;
+                m_curSeat = nextSeat;
+                xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                return true;
+            }
+            break;
     }
 
     xt_log.debug("get next finish, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
@@ -633,6 +664,18 @@ void Table::setAllSeatOp(int state)
     {
         m_opState[i] = state; 
     }
+}
+        
+bool Table::allSeatFit(int state)
+{
+    for(unsigned int i = 0; i < SEAT_NUM; ++i) 
+    {
+        if(m_opState[i] != state) 
+        {
+            return false; 
+        }
+    }
+    return true;
 }
 
 bool Table::selecLord(void)

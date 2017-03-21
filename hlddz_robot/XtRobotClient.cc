@@ -267,6 +267,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
     int cmd = val["cmd"].asInt();
 	switch(cmd)
 	{
+        case SERVER_RESPOND:
+            handleRespond(val);
+            break;
         case SERVER_CARD_1:
             json_array_to_vector(m_card, data, "card");
             handleCall(val);
@@ -351,6 +354,14 @@ void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value
 
         cards.push_back(card);
     }
+}
+        
+void XtRobotClient::handleRespond(Json::Value& msg) 
+{
+	Jpacket data;
+	data.val["cmd"]     =   CLIENT_PREPARE;
+	data.end();
+	send(data.tostring());
 }
         
 void XtRobotClient::handleCall(Json::Value& msg) 

@@ -219,6 +219,11 @@ int Game::dispatch(Client *client)
     Player *player = client->player;
     // dispatch 
     switch (cmd) {
+        case CLIENT_PREPARE:
+            {
+                all_tables[player->m_tid]->msgPrepare(player);
+            } 
+            break;
         case CLIENT_CALL:
             {
                 all_tables[player->m_tid]->msgCall(player);
@@ -318,7 +323,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
     for(map<int, Table*>::iterator it = a.begin(); it != a.end(); it++)
     {
         Table *table = (*it).second; 
-        if(table->m_state != STATE_WAIT || player->m_tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
+        if(table->m_state != STATE_PREPARE || player->m_tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
         {
             continue;
         }
@@ -333,7 +338,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
 
     if(target == NULL)
     {
-        xt_log.error("%s:%d, not found table!", __FILE__, __LINE__); 
+        xt_log.error("%s:%d, not found table!\n", __FILE__, __LINE__); 
         return 0;
     }
 

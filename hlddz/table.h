@@ -55,6 +55,7 @@ class Table
 
         //receive msg
         int login(Player* player);
+        void msgPrepare(Player* player);
         void msgCall(Player* player);
         void msgDouble(Player* player);
         void msgOut(Player* player);
@@ -63,6 +64,10 @@ class Table
         bool sitdown(Player* player);
         //分牌
         bool allocateCard(void);
+        //准备处理
+        void prepareProc(void);
+        //叫分处理
+        void callProc(void);
         //加倍处理
         void doubleProc(void);
         //出牌处理
@@ -91,6 +96,8 @@ class Table
         int getSeatUid(unsigned int seatid);
         //设置座位状态
         void setAllSeatOp(int state);
+        //座位状态查询
+        bool allSeatFit(int state);
         //评选地主
         bool selecLord(void);
         //获取叫分倍数
