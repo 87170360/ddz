@@ -289,6 +289,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_AGAIN_OUT:
             handleAgainOut(val);
             break;
+        case SERVER_RERREPARE:
+            handleReprepare(val);
+            break;
 	}
 
 	return 0;
@@ -358,8 +361,7 @@ void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value
         
 void XtRobotClient::handleRespond(Json::Value& msg) 
 {
-	Jpacket data;
-	data.val["cmd"]     =   CLIENT_PREPARE;
+	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
 	data.end();
 	send(data.tostring());
 }
@@ -493,6 +495,13 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
         data.end();
         send(data.tostring());
     }
+}
+        
+void XtRobotClient::handleReprepare(Json::Value& msg)
+{
+	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
+	data.end();
+	send(data.tostring());
 }
 
 void XtRobotClient::handleTableInfo(Json::Value& data)

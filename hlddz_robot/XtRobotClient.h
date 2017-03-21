@@ -84,6 +84,7 @@ class XtRobotClient
         void handleAgainDouble(Json::Value& msg); 
         void handleOut(Json::Value& msg);
         void handleAgainOut(Json::Value& msg);
+        void handleReprepare(Json::Value& msg);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:

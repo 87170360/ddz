@@ -22,7 +22,7 @@ extern HLDDZ hlddz;
 extern Log xt_log;
 
 Player::Player() :
-_offline_timeout(60 * 1)
+_offline_timeout(1 * 1)
 {
 	_offline_timer.data = this;
 	ev_timer_init(&_offline_timer, Player::offline_timeout, _offline_timeout, 0);

@@ -21,32 +21,24 @@ enum SERVER_COMMAND
     SERVER_RESULT_DOUBLE        = 2006,         //加倍结果,发底牌,通知地主出牌: 总倍数:count, 当前操作者(地主)id:cur_id, 3底牌:card, 出牌倒计时:time
     SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 上轮出牌者id: out_id, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 出牌倒计时:time
     SERVER_END                  = 2008,         //牌局结束
+    SERVER_RERREPARE            = 2009,         //通知机器人重新准备
 };
-
-/*
-userinfo:
-[
-    {uid: name: money:, vlevel: avatar},
-    {uid: name: money:, vlevel: avatar},
-]
- 用户id:uid, 用户名:name, 金币:money, vip等级:vlevel, 头像:avatar
- */
 
 enum ERROR_CODE
 {
     CODE_SUCCESS                = 0,            //成功 
     CODE_SKEY                   = 1,            //skey错误
+    CODE_RELOGIN                = 1,            //重连错误，牌桌没有这个玩家
 };  
 
 //游戏阶段
 enum STATE
 {
-    STATE_WAIT                  = 1,            //等待
-    STATE_PREPARE               = 2,            //准备
-    STATE_CALL                  = 3,            //叫分
-    STATE_DOUBLE                = 4,            //加倍
-    STATE_OUT                   = 5,            //出牌
-    STATE_END                   = 6,            //结算
+    STATE_PREPARE               = 1,            //准备
+    STATE_CALL                  = 2,            //叫分
+    STATE_DOUBLE                = 3,            //加倍
+    STATE_OUT                   = 4,            //出牌
+    STATE_END                   = 5,            //结算
 };
 
 //当前座位状态

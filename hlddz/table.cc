@@ -210,7 +210,7 @@ void Table::reLogin(Player* player)
         
 void Table::msgPrepare(Player* player)
 {
-    xt_log.debug("msg prepare uid:%d\n", player->uid);
+    xt_log.debug("msg prepare uid:%d, seatid:%d\n", player->uid, player->m_seatid);
     m_opState[player->m_seatid] = PREPARE_REDAY; 
     if(allSeatFit(PREPARE_REDAY) && m_players.size() == SEAT_NUM)
     {
@@ -218,7 +218,7 @@ void Table::msgPrepare(Player* player)
     }
     else
     {
-        xt_log.debug("not fit for gamestart\n");
+        xt_log.debug("not fit for gamestart, size:%d\n", m_players.size());
     }
 }
 
@@ -397,6 +397,7 @@ bool Table::sitdown(Player* player)
     player->m_tid = m_tid;
     m_seats[seatid] = player->uid;
     m_players[player->uid] = player;
+    xt_log.debug("sitdown uid:%d, seatid:%d\n", player->uid, seatid);
     return true;
 }
 
@@ -518,6 +519,32 @@ void Table::logout(Player* player)
     {
         reset(); 
     }
+    
+    bool findHuman = false;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        if(it->first > MAX_ROBOT_ID) 
+        {
+            findHuman = true;
+            break;
+        }
+    }
+
+    //通知机器人重新准备
+    if(!findHuman)
+    {
+        reset();
+        for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+        {
+            Jpacket packet;
+            packet.val["cmd"]           = SERVER_RELOGIN;
+            packet.val["uid"]           = it->first;
+            packet.end();
+            unicast(it->second, packet.tostring());
+            sitdown(it->second); 
+            it->second->m_holecard.reset();
+        }
+    }
 }
 
 void Table::sendCard1(void)
@@ -532,7 +559,6 @@ void Table::sendCard1(void)
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
         packet.end();
         unicast(pl, packet.tostring());
-
     }
 }
 
@@ -620,7 +646,9 @@ void Table::sendOutAgain(void)
 
 void Table::gameStart(void)
 {
-    m_curSeat = rand() % SEAT_NUM;
+    //for test
+    //m_curSeat = rand() % SEAT_NUM;
+    m_curSeat = 2;
     callProc();
 
     allocateCard();

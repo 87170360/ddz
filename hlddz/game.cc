@@ -212,7 +212,7 @@ int Game::dispatch(Client *client)
             ret = handler_login_table(client);
             return ret;
         }
-        xt_log.error("CLIENT_LOGIN_REQ player must be NULL.\n");
+        xt_log.error("CLIENT_LOGIN_REQ player must be NULL. uid:%d\n", client->player->uid);
         return -1;
     }
 
