@@ -62,6 +62,7 @@ void Table::reset(void)
         m_seats[i] = 0; 
         m_score[i] = 0;
         m_count[i] = 0;
+        m_seatcard[i].reset();
     }
     m_bottomCard.clear();
     m_lastCard.clear();
@@ -340,11 +341,11 @@ void Table::msgOut(Player* player)
     //扣除手牌
     if(!curCard.empty())
     {
-        player->m_holecard.popCard(curCard);
+        m_seatcard[player->m_seatid].popCard(curCard);
     }
 
     //判定结束
-    if(player->m_holecard.m_cards.empty())
+    if(m_seatcard[player->m_seatid].m_cards.empty())
     {
         xt_log.debug("game over\n");
     }
@@ -427,7 +428,7 @@ void Table::loginUC(Player* player, int code)
         packet.val["userinfo"].append(jval);
     }
 
-    vector_to_json_array(player->m_holecard.m_cards, packet, "card");
+    vector_to_json_array(m_seatcard[player->m_seatid].m_cards, packet, "card");
 
     packet.end();
     unicast(player, packet.tostring());
@@ -459,17 +460,15 @@ bool Table::allocateCard(void)
     show(m_bottomCard);
 
     //手牌
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        Player* pl = it->second;
-        if(!m_deck.getHoleCards(pl->m_holecard.m_cards, HAND_CARD_NUM))
+        if(!m_deck.getHoleCards(m_seatcard[i].m_cards, HAND_CARD_NUM))
         {
             xt_log.error("%s:%d, get hand card error,  tid:%d", __FILE__, __LINE__, m_tid); 
             return false;
         }
-
-        xt_log.debug("uid:%d\n", it->first);
-        show(pl->m_holecard.m_cards);
+        xt_log.debug("uid:%d\n", m_seats[i]);
+        show(m_seatcard[i].m_cards);
     }
 
     return true;
@@ -542,7 +541,6 @@ void Table::logout(Player* player)
             packet.end();
             unicast(it->second, packet.tostring());
             sitdown(it->second); 
-            it->second->m_holecard.reset();
         }
     }
 }
@@ -554,7 +552,7 @@ void Table::sendCard1(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_CARD_1;
-        vector_to_json_array(pl->m_holecard.m_cards, packet, "card");
+        vector_to_json_array(m_seatcard[pl->m_seatid].m_cards, packet, "card");
         packet.val["time"]          = CALLTIME;
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
         packet.end();

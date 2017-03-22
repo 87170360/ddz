@@ -41,7 +41,6 @@ public:
 	// table info
 	int					m_tid;
 	unsigned int		m_seatid;
-    XtHoleCards         m_holecard;
 
 	// player information
 	int                 uid;

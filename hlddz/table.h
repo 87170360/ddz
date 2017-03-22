@@ -124,6 +124,7 @@ class Table
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
         int                         m_score[SEAT_NUM];              //各座位叫分
         int                         m_count[SEAT_NUM];              //各座位加倍 0:不加倍 1:加倍
+        XtHoleCards                 m_seatcard[SEAT_NUM];           //座位手牌
         unsigned int                m_curSeat;                      //当前操作者座位
         unsigned int                m_preSeat;                      //上个操作者座位
         unsigned int                m_lordSeat;                     //地主座位
