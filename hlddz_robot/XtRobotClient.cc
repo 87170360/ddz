@@ -289,7 +289,7 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_AGAIN_OUT:
             handleAgainOut(val);
             break;
-        case SERVER_RERREPARE:
+        case SERVER_REPREPARE:
             handleReprepare(val);
             break;
 	}

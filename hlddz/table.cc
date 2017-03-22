@@ -537,7 +537,7 @@ void Table::logout(Player* player)
         for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
         {
             Jpacket packet;
-            packet.val["cmd"]           = SERVER_RELOGIN;
+            packet.val["cmd"]           = SERVER_REPREPARE;
             packet.val["uid"]           = it->first;
             packet.end();
             unicast(it->second, packet.tostring());
