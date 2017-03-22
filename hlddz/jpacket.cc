@@ -63,7 +63,16 @@ int Jpacket::parse(std::string& data)
 
 int Jpacket::safe_check()
 {
-	if (!val["cmd"].isNumeric()) return -2;
+    if(!val.isMember("cmd"))
+    {
+        xt_log.error("not cmd key \n");
+        return -3;
+    }
+	if (!val["cmd"].isNumeric())
+    {
+        xt_log.error("cmd not member \n");
+        return -2;
+    }
 
 	int cmd = val["cmd"].asInt();
 

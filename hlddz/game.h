@@ -31,7 +31,6 @@ public:
     std::map<int, Client*> 		fd_client;
 	std::map<int, Player*>      offline_players;
 	std::map<int, Player*>      online_players;
-	Client *robot_client;
 
 private:
     ev_io _ev_accept;

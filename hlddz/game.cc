@@ -22,7 +22,6 @@ extern Log xt_log;
 
 Game::Game()
 {
-    robot_client = NULL;
 }
 
 Game::~Game()
@@ -168,9 +167,6 @@ void Game::del_client(Client *client)
             }
             client->player->client = NULL;
         }
-    }
-    if (client->is_robot_svr) {
-        robot_client = NULL;
     }
 
     //xt_log.info("del client fd[%d].\n", client->fd);
@@ -524,8 +520,7 @@ int Game::del_player(Player *player)
         client->position = POSITION_WAIT;
         Client::pre_destroy(client);
         client->player = NULL;
-        delete player;
-        player = NULL;
+        //delete player;
 
         dump_game_info("del_player");
         return 0;
