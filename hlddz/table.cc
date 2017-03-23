@@ -95,6 +95,7 @@ int Table::broadcast(Player *p, const std::string &packet)
 
 int Table::unicast(Player *p, const std::string &packet)
 {
+    xt_log.debug("unicast msg:%s\n", packet.c_str());
     if (p->client)
     {
         return p->client->send(packet);
@@ -253,23 +254,27 @@ void Table::msgCall(Player* player)
     }
 
     Json::Value &msg = player->client->packet.tojson();
-    m_score[player->m_seatid] = msg["score"].asInt();
+    //保存当前叫分
+    m_score[m_curSeat] = msg["score"].asInt();
+    //记录状态
+    m_opState[m_curSeat] = CALL_RECEIVE;
     xt_log.debug("call score, uid:%d, seatid:%d, score :%d\n", player->uid, player->m_seatid, m_score[player->m_seatid]);
 
-    //叫3分直接地主
-    //广播当前叫分和下一个叫分
-    if(getNext())
+    //是否已经选出地主
+    if(selecLord())
     {
-        sendCallAgain(); 
-    }
-    else if(selecLord())
-    {//选地主，进入加倍环节
+        //选地主，进入加倍环节
         doubleProc();
         sendCallResult(); 
     }
+    else if(getNext())
+    {
+        //广播当前叫分和下一个叫分
+        sendCallAgain(); 
+    }
     else
     {//重新发牌
-
+        xt_log.debug("nobody call, need send card again.\n");
     }
 }
 
@@ -405,10 +410,11 @@ bool Table::sitdown(Player* player)
 void Table::loginUC(Player* player, int code)
 {
     Jpacket packet;
-    packet.val["cmd"]   = SERVER_RESPOND;
-    packet.val["code"]  = code;
-    packet.val["msgid"] = CLIENT_LOGIN;
-    packet.val["tid"]   = m_tid;
+    packet.val["cmd"]       = SERVER_RESPOND;
+    packet.val["code"]      = code;
+    packet.val["msgid"]     = CLIENT_LOGIN;
+    packet.val["tid"]       = m_tid;
+    packet.val["seatid"]    = player->m_seatid;
 
     //pack other player info
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
@@ -418,13 +424,14 @@ void Table::loginUC(Player* player, int code)
             continue; 
         }
         Json::Value jval;          
-        Player* player = it->second;
-        jval["uid"]     = player->uid;
-        jval["name"]    = player->name;
-        jval["money"]   = player->money;
-        jval["vlevel"]  = player->vlevel;
-        jval["avatar"]  = player->avatar;
-        jval["state"]   = m_opState[player->m_seatid];
+        Player* pl = it->second;
+        jval["uid"]     = pl->uid;
+        jval["seatid"]  = pl->m_seatid;
+        jval["name"]    = pl->name;
+        jval["money"]   = pl->money;
+        jval["vlevel"]  = pl->vlevel;
+        jval["avatar"]  = pl->avatar;
+        jval["state"]   = m_opState[pl->m_seatid];
         packet.val["userinfo"].append(jval);
     }
 
@@ -437,12 +444,13 @@ void Table::loginUC(Player* player, int code)
 void Table::loginBC(Player* player)
 {
     Jpacket packet;
-    packet.val["cmd"]   = SERVER_LOGIN;
-    packet.val["uid"]   = player->uid;
-    packet.val["name"]   = player->name;
-    packet.val["money"]   = player->money;
-    packet.val["vlevel"]   = player->vlevel;
-    packet.val["avatar"]   = player->avatar;
+    packet.val["cmd"]       = SERVER_LOGIN;
+    packet.val["uid"]       = player->uid;
+    packet.val["seatid"]    = player->m_seatid;
+    packet.val["name"]      = player->name;
+    packet.val["money"]     = player->money;
+    packet.val["vlevel"]    = player->vlevel;
+    packet.val["avatar"]    = player->avatar;
     packet.end();
     broadcast(player, packet.tostring());
 }
@@ -587,6 +595,7 @@ void Table::sendCallResult(void)
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeatUid(m_lordSeat);
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
+        vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -618,7 +627,6 @@ void Table::sendDoubleResult(void)
         packet.val["time"]          = CARDTIME;
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
         packet.val["count"]         = getCount();
-        vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -731,6 +739,17 @@ bool Table::allSeatFit(int state)
 
 bool Table::selecLord(void)
 {
+    //如果有3分直接地主, 
+    if(m_score[m_curSeat] == 3)
+    {
+        m_topCall = m_score[m_curSeat];
+        m_lordSeat = m_curSeat;
+        xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeatUid(m_lordSeat));
+        return true;
+    }
+
+    //如果3人都已经叫过分，选择最高分地主
+    bool isAll = true;
     unsigned int seatid = 0;
     int score = 0;
     for(unsigned int i = 0; i < SEAT_NUM; ++i) 
@@ -740,9 +759,22 @@ bool Table::selecLord(void)
             score = m_score[i]; 
             seatid = i;
         }
+
+        if(m_opState[i] != CALL_RECEIVE)
+        {
+            isAll = false;
+        }
     }
+    //not all respond
+    if(!isAll)
+    {
+        xt_log.debug("selectLord fail, no all respond.\n");
+        return false;
+    }
+    // no one give score
     if(score == 0)
     {
+        xt_log.debug("selectLord fail, no one give score.\n");
         return false;
     }
 

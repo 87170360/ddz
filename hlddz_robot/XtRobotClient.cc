@@ -396,6 +396,11 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
         
 void XtRobotClient::handleDouble(Json::Value& msg) 
 {
+    if(msg["lord"].asInt() == m_uid)
+    {
+        json_array_to_vector(m_card, msg, "card");
+    }
+
     if(msg["cur_id"].asInt() != m_uid)
     {
         return;
@@ -424,11 +429,7 @@ void XtRobotClient::handleAgainDouble(Json::Value& msg)
 
 void XtRobotClient::handleOut(Json::Value& msg) 
 {
-    if(msg["cur_id"].asInt() == m_uid)
-    {
-        json_array_to_vector(m_card, msg, "card");
-    }
-    else
+    if(msg["cur_id"].asInt() != m_uid)
     {
         return;
     }

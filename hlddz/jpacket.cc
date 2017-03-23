@@ -53,6 +53,7 @@ int Jpacket::parse(std::string& data)
 {
 	xorfunc(data);
     xt_log.debug("parse data %s\n", data.c_str());
+
 	if (reader.parse(data, val) < 0)
 	{
 		return -1;
