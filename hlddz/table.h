@@ -87,8 +87,8 @@ class Table
         void sendCallAgain(void); 
         //叫分结果
         void sendCallResult(void);
-        //继续加倍
-        void sendDoubleAgain(void);
+        //加倍广播
+        void sendDouble(void);
         //加倍结果
         void sendDoubleResult(void);
         //继续出牌
@@ -109,6 +109,8 @@ class Table
         int getCount(void);
         //打印牌组
         void show(const vector<XtCard>& card);
+        //加倍完毕
+        bool isDoubleFinish(void);
 
     private:
         void reset(void);

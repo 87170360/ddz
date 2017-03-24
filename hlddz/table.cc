@@ -281,16 +281,21 @@ void Table::msgCall(Player* player)
 void Table::msgDouble(Player* player)
 {
     //check
-    xt_log.debug("msgdouble, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
+    //地主不能加倍
     Json::Value &msg = player->client->packet.tojson();
     m_count[player->m_seatid] = msg["count"].asInt();
-    if(getNext())
+    xt_log.debug("msgdouble, uid:%d, seatid:%d, count:%d\n", player->uid, player->m_seatid, m_count[player->m_seatid]);
+
+    //加倍不分先后
+    m_opState[player->m_seatid] = DOUBLE_RECEIVE;
+    if(isDoubleFinish())
     {
-        sendDoubleAgain();
+        xt_log.debug("double continue!\n");
+        sendDouble();
     }
     else
     {
-        xt_log.debug("double result!\n");
+        xt_log.debug("double finish!\n");
         outProc();
         sendDoubleResult(); 
     }
@@ -498,12 +503,7 @@ void Table::callProc(void)
 void Table::doubleProc(void)
 {
     m_state = STATE_DOUBLE; 
-    setAllSeatOp(DOUBLE_WAIT);
-    m_opState[m_lordSeat] = DOUBLE_NONE;
-
-    //选择一个农民加倍
-    m_curSeat = (m_lordSeat + 1) % SEAT_NUM;
-    m_preSeat = m_curSeat;
+    setAllSeatOp(DOUBLE_NOTIFY);
 }
 
 void Table::outProc(void)
@@ -595,22 +595,19 @@ void Table::sendCallResult(void)
         packet.val["time"]          = DOUBLETIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeatUid(m_lordSeat);
-        packet.val["cur_id"]        = getSeatUid(m_curSeat);
         vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
     }
 }
 
-void Table::sendDoubleAgain(void)
+void Table::sendDouble(void)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
         Jpacket packet;
-        packet.val["cmd"]           = SERVER_AGAIN_DOUBLE;
-        packet.val["time"]          = CALLTIME;
-        packet.val["cur_id"]        = getSeatUid(m_curSeat);
+        packet.val["cmd"]           = SERVER_DOUBLE;
         packet.val["pre_id"]        = getSeatUid(m_preSeat);
         packet.val["count"]         = m_count[m_preSeat];
         packet.end();
@@ -677,18 +674,6 @@ bool Table::getNext(void)
                     m_preSeat = m_curSeat;
                     m_curSeat = nextSeat;
                     m_opState[m_curSeat] = CALL_NOTIFY;
-                    xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
-                    return true; 
-                }
-            }
-            break;
-        case STATE_DOUBLE:
-            {
-                if(m_opState[nextSeat] == DOUBLE_WAIT) 
-                {
-                    m_preSeat = m_curSeat;
-                    m_curSeat = nextSeat;
-                    m_opState[m_curSeat] = DOUBLE_NOTIFY;
                     xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
                     return true; 
                 }
@@ -810,3 +795,15 @@ void Table::show(const vector<XtCard>& card)
     xt_log.debug("%s\n", printStr.c_str());
 }
 
+bool Table::isDoubleFinish(void)
+{
+    //所以农民已经回复加倍
+    for(unsigned int i = 0; i < SEAT_NUM; ++i) 
+    {
+        if(m_opState[i] != DOUBLE_RECEIVE && m_lordSeat != i)
+        {
+            return false; 
+        }
+    }
+    return true;
+}

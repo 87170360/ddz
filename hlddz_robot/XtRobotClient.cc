@@ -276,8 +276,7 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_RESULT_CALL:
             handleDouble(val);
             break;
-        case SERVER_AGAIN_DOUBLE:
-            handleAgainDouble(val);
+        case SERVER_DOUBLE:
             break;
         case SERVER_RESULT_DOUBLE:
             handleOut(val);
@@ -397,29 +396,10 @@ void XtRobotClient::handleDouble(Json::Value& msg)
         json_array_to_vector(m_card, msg, "card");
     }
 
-    if(msg["cur_id"].asInt() != m_uid)
-    {
-        return;
-    }
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_DOUBLE;
 	data.val["count"]   =   1;
 	data.end();
-
-	send(data.tostring());
-}
-
-void XtRobotClient::handleAgainDouble(Json::Value& msg) 
-{
-    if(msg["cur_id"].asInt() != m_uid)
-    {
-        return;
-    }
-	Jpacket data;
-	data.val["cmd"]     =   CLIENT_DOUBLE;
-	data.val["count"]   =   1;
-	data.end();
-
 	send(data.tostring());
 }
 
