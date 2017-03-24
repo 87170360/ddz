@@ -16,11 +16,6 @@
 #include "proto.h"
 #include "jpacket.h"
 
-
-
-
-
-
 XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 {
 	m_evFoldTimer.data=this;
@@ -31,6 +26,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 	m_evCompareTimer.data=this;
 	m_evAllInTimer.data=this;
 
+    m_showTimer.data = this;
 
 
 	m_evloop=evloop;
@@ -59,6 +55,8 @@ XtRobotClient::~XtRobotClient()
 		ev_timer_stop(m_evloop,&m_evFoldTimer);
 		ev_timer_stop(m_evloop,&m_evFollowTimer);
 		ev_timer_stop(m_evloop,&m_evSeeTimer);
+
+		ev_timer_stop(m_evloop, &m_showTimer);
 		close(m_serverfd);
 	}
 
@@ -69,16 +67,10 @@ XtRobotClient::~XtRobotClient()
 	}
 }
 
-
-
-
-
 void XtRobotClient::onReadData( struct ev_loop* loop, struct ev_io* w, int revents)
 {
-
 	int ret;
 	static char recv_buf[XT_DEF_BUF_LEN];
-
 	XtRobotClient* self = (XtRobotClient*) w->data;
 
 	if (self->m_state == XT_PARSE_HEADER) 
@@ -236,9 +228,13 @@ void XtRobotClient::onDoAllIn(struct ev_loop* loop,struct ev_timer* w,int events
 	self->sendAllInPacket();
 }
 
-
-
-
+void XtRobotClient::tfShow(struct ev_loop* loop, struct ev_timer* w, int events)
+{
+    printf("showtimer active.\n");
+	ev_timer_stop(loop,w);
+	XtRobotClient* self = (XtRobotClient*) w->data;
+	self->sendCall();
+}
 
 int XtRobotClient::closeConnect()
 {
@@ -372,12 +368,12 @@ void XtRobotClient::handleCall(Json::Value& msg)
     {
         return;
     }
-	Jpacket data;
-	data.val["cmd"]     =   CLIENT_CALL;
-	data.val["score"]   =   1;
-	data.end();
-
-	send(data.tostring());
+    //sendCall();
+    int show_time = msg["show_time"].asInt();
+	ev_timer_stop(m_evloop, &m_showTimer);
+	ev_timer_set(&m_showTimer, show_time, 0);
+	ev_timer_start(m_evloop, &m_showTimer);
+    printf("handle call, showtimer active after %d second.\n", show_time);
 }
 
 void XtRobotClient::handleAgainCall(Json::Value& msg) 
@@ -502,6 +498,16 @@ void XtRobotClient::handleReprepare(Json::Value& msg)
 {
 	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
 	data.end();
+	send(data.tostring());
+}
+        
+void XtRobotClient::sendCall(void)
+{
+	Jpacket data;
+	data.val["cmd"]     =   CLIENT_CALL;
+	data.val["score"]   =   1;
+	data.end();
+
 	send(data.tostring());
 }
 
@@ -766,8 +772,6 @@ void XtRobotClient::doChangeTable()
 }
 
 
-
-
 int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 {
 
@@ -808,6 +812,8 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 	ev_timer_init(&m_evSeeTimer,XtRobotClient::onDoSee,4,0);
 	ev_timer_init(&m_evCompareTimer,XtRobotClient::onDoCompare,4,0);
 	ev_timer_init(&m_evAllInTimer,XtRobotClient::onDoAllIn,4,0);
+
+	ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 3, 0);
 
 	doLogin();
 

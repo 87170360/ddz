@@ -21,7 +21,6 @@
 #include "XtCard.h"
 
 
-
 enum XtParseState
 {
     XT_PARSE_HEADER    	= 0,
@@ -29,8 +28,6 @@ enum XtParseState
     XT_PARSE_ERR       	= 2,
     XT_PARSE_CROSS_DOMAIN	= 3,
 };
-
-
 
 
 #ifndef XT_MAX_BUF_LEN
@@ -55,6 +52,9 @@ class XtRobotClient
 		static void onDoSee(struct ev_loop* loop,struct ev_timer* w,int events);
 		static void onDoCompare(struct ev_loop* loop,struct ev_timer* w,int events);
 		static void onDoAllIn(struct ev_loop* loop,struct ev_timer* w,int events);
+
+        //showtimer 定时器回调函数
+		static void tfShow(struct ev_loop* loop, struct ev_timer* w, int events);
 
 	public:
 		int send(const char *buf, unsigned int len);
@@ -85,6 +85,8 @@ class XtRobotClient
         void handleOut(Json::Value& msg);
         void handleAgainOut(Json::Value& msg);
         void handleReprepare(Json::Value& msg);
+
+        void sendCall(void);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
@@ -122,6 +124,7 @@ class XtRobotClient
 	private:
         ///////////////////////////////////////
         std::vector<XtCard>         m_card;                   //底牌
+		ev_timer                    m_showTimer;              //出牌动画时间结束后再出牌
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
 

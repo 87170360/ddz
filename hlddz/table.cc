@@ -27,6 +27,7 @@ const int CALLTIME          = 3;
 const int DOUBLETIME        = 3;
 const int CARDTIME          = 10;
 const int ENDTIME           = 10;
+const int SHOWTIME          = 3;    //发牌动画时间
 
 Table::Table()
 {
@@ -95,7 +96,6 @@ int Table::broadcast(Player *p, const std::string &packet)
 
 int Table::unicast(Player *p, const std::string &packet)
 {
-    xt_log.debug("unicast msg:%s\n", packet.c_str());
     if (p->client)
     {
         return p->client->send(packet);
@@ -562,6 +562,7 @@ void Table::sendCard1(void)
         packet.val["cmd"]           = SERVER_CARD_1;
         vector_to_json_array(m_seatcard[pl->m_seatid].m_cards, packet, "card");
         packet.val["time"]          = CALLTIME;
+        packet.val["show_time"]     = SHOWTIME;
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
         packet.end();
         unicast(pl, packet.tostring());
