@@ -288,12 +288,11 @@ void Table::msgDouble(Player* player)
 
     //加倍不分先后
     m_opState[player->m_seatid] = DOUBLE_RECEIVE;
+
+    xt_log.debug("double continue!\n");
+    sendDouble();
+
     if(isDoubleFinish())
-    {
-        xt_log.debug("double continue!\n");
-        sendDouble();
-    }
-    else
     {
         xt_log.debug("double finish!\n");
         outProc();
@@ -612,6 +611,7 @@ void Table::sendDouble(void)
         packet.val["count"]         = m_count[m_preSeat];
         packet.end();
         unicast(pl, packet.tostring());
+        xt_log.debug("sendDouble: cmd:%d\n", SERVER_DOUBLE);
     }
 }
 
@@ -627,6 +627,7 @@ void Table::sendDoubleResult(void)
         packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
+        xt_log.debug("sendDoubleResult: cmd:%d\n", SERVER_RESULT_DOUBLE);
     }
 }
 
