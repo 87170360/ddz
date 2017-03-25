@@ -282,6 +282,7 @@ void Table::msgDouble(Player* player)
 {
     //check
     //地主不能加倍
+    //不能重复加倍
     Json::Value &msg = player->client->packet.tojson();
     m_count[player->m_seatid] = msg["count"].asInt();
     xt_log.debug("msgdouble, uid:%d, seatid:%d, count:%d\n", player->uid, player->m_seatid, m_count[player->m_seatid]);
@@ -290,7 +291,7 @@ void Table::msgDouble(Player* player)
     m_opState[player->m_seatid] = DOUBLE_RECEIVE;
 
     xt_log.debug("double continue!\n");
-    sendDouble();
+    sendDouble(player->uid);
 
     if(isDoubleFinish())
     {
@@ -303,7 +304,7 @@ void Table::msgDouble(Player* player)
 void Table::msgOut(Player* player)
 {
     //check
-    xt_log.debug("msgOut, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
+    //xt_log.debug("msgOut, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
     Json::Value &msg = player->client->packet.tojson();
 
     vector<XtCard> curCard;
@@ -316,28 +317,28 @@ void Table::msgOut(Player* player)
         return;
     }
 
-    xt_log.debug("curCard:\n");
-    show(curCard);
-    xt_log.debug("lastCard:\n");
-    show(m_lastCard);
+    //xt_log.debug("curCard:\n");
+    //show(curCard);
+    //xt_log.debug("lastCard:\n");
+    //show(m_lastCard);
 
     if(m_lastCard.empty())
     {//首轮出牌
-        xt_log.debug("first round\n");
+        //xt_log.debug("first round\n");
         m_lastCard = curCard;
         m_outSeat = player->m_seatid;
     }
     else if(keep && curCard.empty())
     {//不出
-        xt_log.debug("keep\n");
+        //xt_log.debug("keep\n");
     }
     else if(m_outSeat == player->m_seatid)
     {//自己的牌
-        xt_log.debug("self card, new start\n");
+        //xt_log.debug("self card, new start\n");
     }
     else if(!curCard.empty())
     {//出牌
-        xt_log.debug("compare\n");
+        //xt_log.debug("compare\n");
         if(!m_deck.compareCard(curCard, m_lastCard))
         {
             xt_log.error("%s:%d, compare faile.", __FILE__, __LINE__); 
@@ -363,7 +364,7 @@ void Table::msgOut(Player* player)
         //如果没人接出牌者的牌
         if(m_curSeat == m_outSeat)
         {
-            xt_log.debug("无人接牌， 新一轮\n");
+            //xt_log.debug("无人接牌， 新一轮\n");
             m_lastCard.clear(); 
         }
         sendOutAgain();    
@@ -600,18 +601,18 @@ void Table::sendCallResult(void)
     }
 }
 
-void Table::sendDouble(void)
+void Table::sendDouble(int uid)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_DOUBLE;
-        packet.val["pre_id"]        = getSeatUid(m_preSeat);
-        packet.val["count"]         = m_count[m_preSeat];
+        packet.val["pre_id"]        = uid;
+        packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
-        xt_log.debug("sendDouble: cmd:%d\n", SERVER_DOUBLE);
+        xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d\n", SERVER_DOUBLE, uid, getCount());
     }
 }
 
@@ -627,7 +628,7 @@ void Table::sendDoubleResult(void)
         packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
-        xt_log.debug("sendDoubleResult: cmd:%d\n", SERVER_RESULT_DOUBLE);
+        xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeatUid(m_curSeat), getCount());
     }
 }
 
@@ -675,7 +676,7 @@ bool Table::getNext(void)
                     m_preSeat = m_curSeat;
                     m_curSeat = nextSeat;
                     m_opState[m_curSeat] = CALL_NOTIFY;
-                    xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                    //xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
                     return true; 
                 }
             }
@@ -684,7 +685,7 @@ bool Table::getNext(void)
             {//校验出牌时间戳
                 m_preSeat = m_curSeat;
                 m_curSeat = nextSeat;
-                xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                //xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
                 return true;
             }
             break;
@@ -774,10 +775,13 @@ bool Table::selecLord(void)
 
 int Table::getCount(void)
 {
-    int ret = 0;
+    int ret = 1;
     for(unsigned int i = 0; i < SEAT_NUM; ++i) 
     {
-        ret += m_count[i]; 
+        if(m_count[i] != 0)
+        {
+            ret *= 2;
+        }
     }
     return ret;
 }
