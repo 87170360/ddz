@@ -54,15 +54,22 @@ class XtShuffleDeck
         bool comparePair(const vector<XtCard>& card1, const vector<XtCard>& card2);
         bool compareSingle(const vector<XtCard>& card1, const vector<XtCard>& card2);
 
-        //获取牌型
-        bool getCard(const vector<XtCard>& mycard, const vector<XtCard>& othercard, int cardtype);        
+        //获取更大的牌, mine, other要降序, 不对other的牌型校验
+        bool bigSingle(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);        
+        bool bigPair(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);        
+        bool bigThree2s(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);        
+        bool bigThree1(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);        
+        bool bigThree0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);        
+        bool bigStraight(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
 
-        //保留相同点数的牌是N张的牌
+        //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
         //是否是连续, 需要降序队列, 不判断n之间是否相同
         bool isNContinue(const vector<XtCard>& card, int n) const;
         //比较M带N牌型
         bool compareMN(const vector<XtCard>& card, const vector<XtCard>& card1, int m);
+        //整合所有相同的牌
+        void delSame(const vector<XtCard>& card, vector<XtCard>& result) const;
 
 	private:
 		vector<XtCard> m_cards;

@@ -1,5 +1,5 @@
 #include <algorithm>
-
+#include <set>
 #include "XtShuffleDeck.h"
 
 static int card_arr[] = {
@@ -691,6 +691,167 @@ bool XtShuffleDeck::compareSingle(const vector<XtCard>& card1, const vector<XtCa
     }
     return card1[0].m_face > card2[0].m_face;
 }
+        
+bool XtShuffleDeck::bigSingle(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)        
+{
+    for(vector<XtCard>::const_iterator it = mine.begin(); it != mine.end(); ++it)
+    {
+        if((*it).m_face > other[0].m_face) 
+        {
+            out.push_back(*it);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool XtShuffleDeck::bigPair(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)        
+{
+    if(mine.size() < 2)
+    {
+        return false;
+    }
+    vector<XtCard> vecTwo;
+    keepN(vecTwo, mine, 2);
+    for(size_t i = vecTwo.size() - 1; i > 2; i -= 2)
+    {
+        if(vecTwo[i].m_face > other[0].m_face) 
+        {
+            out.push_back(vecTwo[i]);
+            out.push_back(vecTwo[i-1]);
+            return true;
+        }
+    }
+    return false;
+}
+        
+bool XtShuffleDeck::bigThree2s(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)        
+{
+    if(mine.size() < 5)
+    {
+        return false;
+    }
+
+    vector<XtCard> v3;
+    keepN(v3, mine, 3);
+
+    vector<XtCard> v2;
+    keepN(v2, mine, 2);
+
+    if(v3.empty() || v2.empty())
+    {
+        return false;
+    }
+
+    for(size_t i = v3.size() - 1; i > 3; i -= 3)
+    {
+        if(v3[i].m_face > other[0].m_face) 
+        {
+            out.push_back(v3[i]); 
+            out.push_back(v3[i - 1]); 
+            out.push_back(v3[i - 2]); 
+            out.push_back(v2[v2.size() - 1]); 
+            out.push_back(v2[v2.size() - 2]); 
+            return true;
+        }
+    }
+    return false;
+}
+
+bool XtShuffleDeck::bigThree1(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)        
+{
+    if(mine.size() < 4)
+    {
+        return false;
+    }
+
+    vector<XtCard> v3;
+    keepN(v3, mine, 3);
+
+    vector<XtCard> v1;
+    keepN(v1, mine, 1);
+
+    if(v3.empty() || v1.empty())
+    {
+        return false;
+    }
+
+    for(size_t i = v3.size() - 1; i > 3; i -= 3)
+    {
+        if(v3[i].m_face > other[0].m_face) 
+        {
+            out.push_back(v3[i]); 
+            out.push_back(v3[i - 1]); 
+            out.push_back(v3[i - 2]); 
+            out.push_back(v1.back()); 
+            return true;
+        }
+    }
+    return false;
+}
+
+bool XtShuffleDeck::bigThree0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)        
+{
+    if(mine.size() < 3)
+    {
+        return false;
+    }
+
+    vector<XtCard> v3;
+    keepN(v3, mine, 3);
+
+    if(v3.empty())
+    {
+        return false;
+    }
+
+    for(size_t i = v3.size() - 1; i > 3; i -= 3)
+    {
+        if(v3[i].m_face > other[0].m_face) 
+        {
+            out.push_back(v3[i]); 
+            out.push_back(v3[i - 1]); 
+            out.push_back(v3[i - 2]); 
+            return true;
+        }
+    }
+    return false;
+}
+        
+bool XtShuffleDeck::bigStraight(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    //遍历所有该数量的顺子，然后分别比较
+    
+    vector<XtCard> vecdiff;
+    delSame(mine, vecdiff);
+
+    if(vecdiff.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= vecdiff.size() - other.size(); ++i)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < other.size(); ++j) 
+        {
+           vectmp.push_back(vecdiff[j + i]); 
+        }
+        if(isStraight(vectmp) && compareStraight(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+
+    return false;
+}
 
 void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu)
 {
@@ -761,4 +922,16 @@ bool XtShuffleDeck::compareMN(const vector<XtCard>& card1, const vector<XtCard>&
     }
 
     return false;
+}
+        
+void XtShuffleDeck::delSame(const vector<XtCard>& card, vector<XtCard>& result) const
+{
+    std::set<int> setdata;
+    for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        if(setdata.find((*it).m_face) == setdata.end())
+        {
+            result.push_back(*it);
+        }
+    }
 }
