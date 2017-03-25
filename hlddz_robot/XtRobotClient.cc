@@ -398,7 +398,7 @@ void XtRobotClient::handleDouble(Json::Value& msg)
 
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_DOUBLE;
-	data.val["count"]   =   1;
+	data.val["double"]  =   true;
 	data.end();
 	send(data.tostring());
 }

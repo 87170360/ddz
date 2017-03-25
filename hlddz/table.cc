@@ -62,7 +62,7 @@ void Table::reset(void)
     {
         m_seats[i] = 0; 
         m_score[i] = 0;
-        m_count[i] = 0;
+        m_famerDouble[i] = false;
         m_seatcard[i].reset();
     }
     m_bottomCard.clear();
@@ -284,14 +284,14 @@ void Table::msgDouble(Player* player)
     //地主不能加倍
     //不能重复加倍
     Json::Value &msg = player->client->packet.tojson();
-    m_count[player->m_seatid] = msg["count"].asInt();
-    xt_log.debug("msgdouble, uid:%d, seatid:%d, count:%d\n", player->uid, player->m_seatid, m_count[player->m_seatid]);
+    m_famerDouble[player->m_seatid] = msg["double"].asBool();
+    xt_log.debug("msgdouble, uid:%d, seatid:%d, double:%s\n", player->uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
 
     //加倍不分先后
     m_opState[player->m_seatid] = DOUBLE_RECEIVE;
 
     xt_log.debug("double continue!\n");
-    sendDouble(player->uid);
+    sendDouble(player->uid, m_famerDouble[player->m_seatid]);
 
     if(isDoubleFinish())
     {
@@ -601,7 +601,7 @@ void Table::sendCallResult(void)
     }
 }
 
-void Table::sendDouble(int uid)
+void Table::sendDouble(int uid, bool isDouble)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -610,9 +610,10 @@ void Table::sendDouble(int uid)
         packet.val["cmd"]           = SERVER_DOUBLE;
         packet.val["pre_id"]        = uid;
         packet.val["count"]         = getCount();
+        packet.val["double"]        = isDouble;
         packet.end();
         unicast(pl, packet.tostring());
-        xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d\n", SERVER_DOUBLE, uid, getCount());
+        xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getCount(), isDouble ? "true" : "false");
     }
 }
 
@@ -778,7 +779,7 @@ int Table::getCount(void)
     int ret = 1;
     for(unsigned int i = 0; i < SEAT_NUM; ++i) 
     {
-        if(m_count[i] != 0)
+        if(m_famerDouble[i])
         {
             ret *= 2;
         }
