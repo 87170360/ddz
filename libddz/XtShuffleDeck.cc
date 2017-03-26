@@ -245,6 +245,34 @@ bool XtShuffleDeck::compareCard(const vector<XtCard>& card1, const vector<XtCard
     return false;
 }
         
+void XtShuffleDeck::delCard(const vector<XtCard>& card, int seed)
+{
+   map<int, XtCard> tmap;
+   for(vector<XtCard>::iterator it = m_cards.begin(); it != m_cards.end(); ++it)
+   {
+        tmap[it->m_value] = *it;  
+   }
+
+   map<int, XtCard>::iterator findit;
+   for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
+   {
+      findit = tmap.find(it->m_value); 
+      if(findit != tmap.end())
+      {
+          tmap.erase(findit); 
+      }
+   }
+
+   m_cards.clear();
+
+   for(map<int, XtCard>::const_iterator it = tmap.begin(); it != tmap.end(); ++it)
+   {
+       m_cards.push_back(it->second); 
+   }
+    
+   shuffle(seed);
+}
+        
 bool XtShuffleDeck::isRocket(const vector<XtCard>& card) const
 {
     if(card.size() != 2)
@@ -851,6 +879,445 @@ bool XtShuffleDeck::bigStraight(const vector<XtCard>& mine, const vector<XtCard>
     }
 
     return false;
+}
+        
+bool XtShuffleDeck::bigDoubleStraight(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    //遍历所有该数量的双顺，然后分别比较
+    
+    vector<XtCard> v2;
+    keepN(v2, mine, 2);
+
+    if(v2.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v2.size() - other.size(); i += 2)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < other.size(); ++j) 
+        {
+           vectmp.push_back(v2[j + i]); 
+        }
+        if(isDoubleStraight(vectmp) && compareDoubleStraight(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+
+    return false;
+}
+        
+bool XtShuffleDeck::big4and24(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v2;
+    keepN(v2, mine, 2);
+
+    vector<XtCard> v4;
+    keepN(v4, mine, 4);
+
+
+    vector<XtCard> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v2o;
+    keepN(v2o, other, 2);
+    if(v4.size() < v2o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+           vectmp.push_back(v4[j + i]); 
+        }
+           
+        vectmp.push_back(v2.back()); 
+        vectmp.push_back(v2[v2.size() - 2]); 
+        vectmp.push_back(v2[v2.size() - 3]); 
+        vectmp.push_back(v2[v2.size() - 4]); 
+        if(is4and24(vectmp) && compare4and2(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool XtShuffleDeck::big4and22d(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v1;
+    keepN(v1, mine, 1);
+
+    vector<XtCard> v4;
+    keepN(v4, mine, 4);
+
+
+    vector<XtCard> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v1o;
+    keepN(v1o, other, 1);
+    if(v1.size() < v1o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+           vectmp.push_back(v4[j + i]); 
+        }
+           
+        vectmp.push_back(v1.back()); 
+        vectmp.push_back(v1[v1.size() - 2]); 
+        if(is4and22d(vectmp) && compare4and2(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool XtShuffleDeck::big4and22s(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v2;
+    keepN(v2, mine, 2);
+
+    vector<XtCard> v4;
+    keepN(v4, mine, 4);
+
+
+    vector<XtCard> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v2o;
+    keepN(v2o, other, 2);
+    if(v2.size() < v2o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+           vectmp.push_back(v4[j + i]); 
+        }
+           
+        vectmp.push_back(v2.back()); 
+        vectmp.push_back(v2[v2.size() - 2]); 
+        if(is4and22s(vectmp) && compare4and2(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool XtShuffleDeck::bigAircraft2s(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v2;
+    keepN(v2, mine, 2);
+
+    vector<XtCard> v3;
+    keepN(v3, mine, 3);
+
+
+    vector<XtCard> v3o;
+    keepN(v3o, other, 3);
+    if(v3.size() < v3o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v2o;
+    keepN(v2o, other, 2);
+    if(v2.size() < v2o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v3.size() - v3o.size(); i += 3)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v3o.size(); ++j) 
+        {
+           vectmp.push_back(v3[j + i]); 
+        }
+           
+        for(size_t k = 0; k < v2o.size(); ++k) 
+        {
+           vectmp.push_back(v2[v2.size() - 1 - k]); 
+        }
+
+        if(isAircraft2s(vectmp) && compareAircraft(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool XtShuffleDeck::bigAircraft1(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    //带的翅膀，只选单牌的
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v1;
+    keepN(v1, mine, 1);
+
+    vector<XtCard> v3;
+    keepN(v3, mine, 3);
+
+
+    vector<XtCard> v3o;
+    keepN(v3o, other, 3);
+    if(v3.size() < v3o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v1o;
+    keepN(v1o, other, 1);
+    if(v1.size() < v1o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v3.size() - v3o.size(); i += 3)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v3o.size(); ++j) 
+        {
+           vectmp.push_back(v3[j + i]); 
+        }
+           
+        for(size_t k = 0; k < v1o.size(); ++k) 
+        {
+           vectmp.push_back(v1[v1.size() - 1 - k]); 
+        }
+
+        if(isAircraft1(vectmp) && compareAircraft(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool XtShuffleDeck::bigAircraft0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v3;
+    keepN(v3, mine, 3);
+
+    vector<XtCard> v3o;
+    keepN(v3o, other, 3);
+    if(v3.size() < v3o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v3.size() - v3o.size(); i += 3)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v3o.size(); ++j) 
+        {
+           vectmp.push_back(v3[j + i]); 
+        }
+
+        if(isAircraft0(vectmp) && compareAircraft(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool XtShuffleDeck::bigShuttle2(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    //翅膀只单牌
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v4;
+    keepN(v4, mine, 4);
+
+    vector<XtCard> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v1;
+    keepN(v1, mine, 1);
+
+    if(v1.size() < other.size() - v4o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+           vectmp.push_back(v4[j + i]); 
+        }
+
+        for(size_t k = 0; k < other.size() - v4o.size(); ++k) 
+        {
+           vectmp.push_back(v1[v1.size() - 1 - k]); 
+        }
+
+        if(isShuttle2(vectmp) && compareShuttle(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool XtShuffleDeck::bigShuttle0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v4;
+    keepN(v4, mine, 4);
+
+    vector<XtCard> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+           vectmp.push_back(v4[j + i]); 
+        }
+
+        if(isShuttle0(vectmp) && compareShuttle(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+        
+bool XtShuffleDeck::bigBomb(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> v4;
+    keepN(v4, mine, 4);
+
+    if(v4.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<XtCard> vectmp;
+    for(size_t i = 0; i <= v4.size() - other.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < other.size(); ++j) 
+        {
+           vectmp.push_back(v4[j + i]); 
+        }
+
+        if(isBomb(vectmp) && compareBomb(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+
 }
 
 void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu)

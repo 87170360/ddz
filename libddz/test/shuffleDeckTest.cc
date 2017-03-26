@@ -37,7 +37,7 @@ void testAircraft(void)
     deck.fill();
     deck.shuffle(0);
 
-    XtCard initCard[] = {XtCard(0x14), XtCard(0x25), XtCard(0x04), XtCard(0x15), XtCard(0x0B), XtCard(0x3B), XtCard(0x2B), XtCard(0x1C), XtCard(0x0C), XtCard(0x2C)};
+    XtCard initCard[] = {XtCard(0x0B), XtCard(0x3B), XtCard(0x2B), XtCard(0x1C), XtCard(0x0C), XtCard(0x2C)};
     vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
     //vector<XtCard> cards;
     //deck.getHoleCards(cards, 17);
@@ -464,6 +464,453 @@ void testBigStraight(void)
     }
 }
 
+bool testBigDoubleStraight(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    vector<XtCard> cards1;
+    deck.getHoleCards(cards1, 17);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+
+    XtCard::sortByDescending(cards1);
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x04), XtCard(0x24), XtCard(0x05), XtCard(0x15)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.bigDoubleStraight(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBig4and24(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    vector<XtCard> cards1;
+    deck.getHoleCards(cards1, 17);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+    cards1[0] = XtCard(0x04);
+    cards1[1] = XtCard(0x14);
+    cards1[2] = XtCard(0x24);
+    cards1[3] = XtCard(0x34);
+
+    XtCard::sortByDescending(cards1);
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x33), XtCard(0x05), XtCard(0x15), XtCard(0x06), XtCard(0x16)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.big4and24(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBig4and22d(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(0);
+
+    vector<XtCard> cards1;
+    deck.getHoleCards(cards1, 17);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+    cards1[0] = XtCard(0x04);
+    cards1[1] = XtCard(0x14);
+    cards1[2] = XtCard(0x24);
+    cards1[3] = XtCard(0x34);
+
+    XtCard::sortByDescending(cards1);
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x33), XtCard(0x05), XtCard(0x06)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.big4and22d(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+static int timeindex = 0;
+bool testBig4and22s(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    deck.getHoleCards(cards1, 17);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+    cards1[0] = XtCard(0x04);
+    cards1[1] = XtCard(0x14);
+    cards1[2] = XtCard(0x24);
+    cards1[3] = XtCard(0x34);
+
+    XtCard::sortByDescending(cards1);
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x33), XtCard(0x05), XtCard(0x15)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.big4and22s(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBigAircraft2s(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    cards1.push_back(XtCard(0x17));
+    cards1.push_back(XtCard(0x27));
+    cards1.push_back(XtCard(0x18));
+    cards1.push_back(XtCard(0x28));
+    
+    deck.delCard(cards1, timeindex);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23),  XtCard(0x04), XtCard(0x14), XtCard(0x24), XtCard(0x12), XtCard(0x22), XtCard(0x19), XtCard(0x29)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+
+    deck.delCard(cards2, timeindex);
+
+    deck.getHoleCards(cards1, 7);
+
+    XtCard::sortByDescending(cards1);
+    XtCard::sortByDescending(cards2);
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.bigAircraft2s(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBigAircraft1(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    cards1.push_back(XtCard(0x27));
+    cards1.push_back(XtCard(0x28));
+    
+    deck.delCard(cards1, timeindex);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23),  XtCard(0x04), XtCard(0x14), XtCard(0x24), XtCard(0x12),  XtCard(0x19)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+
+    deck.delCard(cards2, timeindex);
+
+    deck.getHoleCards(cards1, 17 - cards1.size());
+
+    XtCard::sortByDescending(cards1);
+    XtCard::sortByDescending(cards2);
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.bigAircraft1(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBigAircraft0(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    
+    deck.delCard(cards1, timeindex);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+
+
+    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23),  XtCard(0x04), XtCard(0x14), XtCard(0x24)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+
+    deck.delCard(cards2, timeindex);
+
+    deck.getHoleCards(cards1, 17 - cards1.size());
+
+    XtCard::sortByDescending(cards1);
+    XtCard::sortByDescending(cards2);
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.bigAircraft0(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBigShuttle2(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x35));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    cards1.push_back(XtCard(0x36));
+    //cards1.push_back(XtCard(0x22));
+    //cards1.push_back(XtCard(0x39));
+    //cards1.push_back(XtCard(0x3A));
+    //cards1.push_back(XtCard(0x3B));
+    
+    deck.delCard(cards1, timeindex);
+    //XtCard initCard1[] = { XtCard(0x02), XtCard(0x12), XtCard(0x22), XtCard(0x32) };
+    //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+
+
+    XtCard initCard2[] = { 
+        XtCard(0x03), 
+        XtCard(0x13), 
+        XtCard(0x23),  
+        XtCard(0x33),  
+        XtCard(0x04), 
+        XtCard(0x14), 
+        XtCard(0x24),
+        XtCard(0x34),
+        XtCard(0x27),
+        XtCard(0x2A),
+        XtCard(0x2B),
+        XtCard(0x37)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+
+    deck.delCard(cards2, timeindex);
+
+    deck.getHoleCards(cards1, 17 - cards1.size());
+
+    XtCard::sortByDescending(cards1);
+    XtCard::sortByDescending(cards2);
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.bigShuttle2(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBigShuttle0(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    //cards1.push_back(XtCard(0x35));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    //cards1.push_back(XtCard(0x36));
+    
+    deck.delCard(cards1, timeindex);
+
+    XtCard initCard2[] = { 
+        XtCard(0x03), 
+        XtCard(0x13), 
+        XtCard(0x23),  
+        XtCard(0x33),  
+        XtCard(0x04), 
+        XtCard(0x14), 
+        XtCard(0x24),
+        XtCard(0x34)
+        };
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+
+    deck.delCard(cards2, timeindex);
+
+    deck.getHoleCards(cards1, 17 - cards1.size());
+
+    XtCard::sortByDescending(cards1);
+    XtCard::sortByDescending(cards2);
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.bigShuttle0(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+bool testBigBomb(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x35));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    cards1.push_back(XtCard(0x36));
+    
+    deck.delCard(cards1, timeindex);
+
+    XtCard initCard2[] = { 
+        XtCard(0x03), 
+        XtCard(0x13), 
+        XtCard(0x23),  
+        XtCard(0x33),  
+        };
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+
+    deck.delCard(cards2, timeindex);
+
+    deck.getHoleCards(cards1, 17 - cards1.size());
+
+    XtCard::sortByDescending(cards1);
+    XtCard::sortByDescending(cards2);
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.bigBomb(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
 /*
 static int card_arr[] = {
 	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -486,6 +933,7 @@ static int card_arr[] = {
 
 int main()
 {
+    //testAircraft();
     //testDoubleStraight();
     //testStraight();
     //testPair();
@@ -496,7 +944,20 @@ int main()
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();
-    testBigStraight();
+    //testBigStraight();
+    while(1)
+    {
+        //if(testBigDoubleStraight()) { break; }
+        //if(testBig4and24()) { break; }
+        //if(testBig4and22d()) { break; }
+        //if(testBig4and22s()) { break; }
+        //if(testBigAircraft2s()) { break; }
+        //if(testBigAircraft1()) { break; }
+        //if(testBigAircraft0()) { break; }
+        //if(testBigShuttle2()) { break; }
+        //if(testBigShuttle0()) { break; }
+        if(testBigBomb()) { break; }
+    }
     return 0;
 }
 

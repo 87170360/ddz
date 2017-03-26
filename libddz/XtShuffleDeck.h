@@ -21,6 +21,7 @@ class XtShuffleDeck
         void showCards(void) const;
         int getCardType(const std::vector<XtCard>& card);
         bool compareCard(const vector<XtCard>& card1, const vector<XtCard>& card2);
+        void delCard(const vector<XtCard>& card, int seed);
 
 	//private:
 		bool pop(XtCard& card);
@@ -61,10 +62,22 @@ class XtShuffleDeck
         bool bigThree1(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);        
         bool bigThree0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);        
         bool bigStraight(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigDoubleStraight(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool big4and24(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool big4and22d(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool big4and22s(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigAircraft2s(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigAircraft1(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigAircraft0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigShuttle2(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigShuttle0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        //需要优化取最小的
+        bool bigBomb(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        
 
         //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
-        //是否是连续, 需要降序队列, 不判断n之间是否相同
+        //是否是连续, 需要降序队列, 不判断n之间是否相同, n是连续相隔的数量，比如777888,n=2,  789,n=1
         bool isNContinue(const vector<XtCard>& card, int n) const;
         //比较M带N牌型
         bool compareMN(const vector<XtCard>& card, const vector<XtCard>& card1, int m);
