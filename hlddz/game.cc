@@ -63,9 +63,7 @@ int Game::init_table()
 
 int Game::init_accept()
 {
-    xt_log.info("Listening on %s:%d\n",
-            hlddz.conf["game"]["host"].asString().c_str(),
-            hlddz.conf["game"]["port"].asInt());
+    xt_log.info("Listening on %s:%d\n", hlddz.conf["game"]["host"].asString().c_str(), hlddz.conf["game"]["port"].asInt());
 
     struct sockaddr_in addr;
 

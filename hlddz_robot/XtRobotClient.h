@@ -19,6 +19,7 @@
 #include "jpacket.h"
 #include "XtBuffer.h"
 #include "XtCard.h"
+#include "XtShuffleDeck.h"
 
 
 enum XtParseState
@@ -124,6 +125,7 @@ class XtRobotClient
         ///////////////////////////////////////
         std::vector<XtCard>         m_card;                   //底牌
 		ev_timer                    m_showTimer;              //出牌动画时间结束后再出牌
+        XtShuffleDeck               m_deck;                   //牌库
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
 

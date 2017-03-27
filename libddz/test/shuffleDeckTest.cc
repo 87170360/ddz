@@ -965,28 +965,17 @@ bool testGetOut(void)
     deck.shuffle(timeindex++);
 
     vector<XtCard> cards1;
-    cards1.push_back(XtCard(0x05));
-    cards1.push_back(XtCard(0x15));
-    cards1.push_back(XtCard(0x25));
-    cards1.push_back(XtCard(0x35));
-    cards1.push_back(XtCard(0x06));
-    cards1.push_back(XtCard(0x16));
-    cards1.push_back(XtCard(0x26));
-    cards1.push_back(XtCard(0x36));
-    
+    cards1.push_back(XtCard(0x10));
     deck.delCard(cards1, timeindex);
 
     XtCard initCard2[] = { 
-        XtCard(0x03), 
-        XtCard(0x13), 
-        XtCard(0x23),  
-        XtCard(0x33),  
+        XtCard(0x00), 
         };
     vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
 
     deck.delCard(cards2, timeindex);
 
-    deck.getHoleCards(cards1, 17 - cards1.size());
+    //deck.getHoleCards(cards1, 17 - cards1.size());
 
     XtCard::sortByDescending(cards1);
     XtCard::sortByDescending(cards2);
@@ -996,13 +985,14 @@ bool testGetOut(void)
     vector<XtCard> result;
     if(deck.getOut(cards1, cards2, result))
     {
-        show(result);
         printf("true!\n");
+        show(result);
         return true;
     }
     else
     {
         printf("false!\n");
+        show(result);
         return false;
     }
 }
@@ -1041,7 +1031,8 @@ int main()
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();
-    while(1)
+    testGetOut();
+    while(0)
     {
         //if(testBigStraight()) { break; };
         //if(testBigDoubleStraight()) { break; }

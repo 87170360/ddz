@@ -268,6 +268,7 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             break;
         case SERVER_CARD_1:
             json_array_to_vector(m_card, data, "card");
+            XtCard::sortByDescending(m_card);
             handleCall(val);
             break;
         case SERVER_AGAIN_CALL:
@@ -312,7 +313,7 @@ void XtRobotClient::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &pa
 {
     if (cards.empty()) 
     {
-        packet.val[key].append(0);
+        //packet.val[key].append(0);
         return;
     }
 
@@ -394,6 +395,7 @@ void XtRobotClient::handleDouble(Json::Value& msg)
     if(msg["lord"].asInt() == m_uid)
     {
         json_array_to_vector(m_card, msg, "card");
+        XtCard::sortByDescending(m_card);
     }
 
 	Jpacket data;
@@ -465,10 +467,14 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
         send(data.tostring());
     }
     else if(msg["cur_id"].asInt() == m_uid && msg["out_id"].asInt() != m_uid) 
-    {//不出牌
+    {//别人出牌
+        vector<XtCard> outCard;
+        outCard.clear();
+        bool isOut = m_deck.getOut(m_card, preCard, outCard);
         Jpacket data;
         data.val["cmd"]     =   CLIENT_OUT;
-        data.val["keep"]    =   true;
+        data.val["keep"]    =   !isOut;
+        vector_to_json_array(outCard, data, "card");
         data.end();
         send(data.tostring());
     }

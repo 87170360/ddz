@@ -304,7 +304,6 @@ void Table::msgDouble(Player* player)
 void Table::msgOut(Player* player)
 {
     //check
-    //xt_log.debug("msgOut, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
     Json::Value &msg = player->client->packet.tojson();
 
     vector<XtCard> curCard;
@@ -313,12 +312,15 @@ void Table::msgOut(Player* player)
     bool keep = msg["keep"].asBool();
     if(keep && !curCard.empty())
     {
-        xt_log.error("%s:%d, not allow keep && not empty card.", __FILE__, __LINE__); 
+        xt_log.error("%s:%d, not allow keep && not empty card. uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->uid, player->m_seatid, keep ? "true" : "false"); 
+        xt_log.debug("curCard:\n");
+        show(curCard);
         return;
     }
 
-    //xt_log.debug("curCard:\n");
-    //show(curCard);
+    xt_log.debug("msgOut, uid:%d, seatid:%d, keep:%s\n", player->uid, player->m_seatid, keep ? "true" : "false");
+    xt_log.debug("curCard:\n");
+    show(curCard);
     //xt_log.debug("lastCard:\n");
     //show(m_lastCard);
 
@@ -613,7 +615,7 @@ void Table::sendDouble(int uid, bool isDouble)
         packet.val["double"]        = isDouble;
         packet.end();
         unicast(pl, packet.tostring());
-        xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getCount(), isDouble ? "true" : "false");
+        //xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getCount(), isDouble ? "true" : "false");
     }
 }
 
@@ -629,7 +631,7 @@ void Table::sendDoubleResult(void)
         packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
-        xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeatUid(m_curSeat), getCount());
+        //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeatUid(m_curSeat), getCount());
     }
 }
 
