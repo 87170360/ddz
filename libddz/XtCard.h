@@ -90,7 +90,7 @@ class XtCard
         bool isContinuCard(void) const
         {
             //大小王和2不能作为连续的牌
-            return (m_face != 16) && (m_face != 2);
+            return (m_face != 16) && (m_face != 15);
         }
 
         bool isJoker(void) const

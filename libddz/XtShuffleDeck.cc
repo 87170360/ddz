@@ -754,7 +754,7 @@ bool XtShuffleDeck::compareSingle(const vector<XtCard>& card1, const vector<XtCa
         
 bool XtShuffleDeck::bigSingle(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)        
 {
-    for(vector<XtCard>::const_iterator it = mine.begin(); it != mine.end(); ++it)
+    for(vector<XtCard>::const_reverse_iterator it = mine.rbegin(); it != mine.rend(); ++it)
     {
         if((*it).m_face > other[0].m_face) 
         {
@@ -880,6 +880,7 @@ bool XtShuffleDeck::bigThree0(const vector<XtCard>& mine, const vector<XtCard>& 
         
 bool XtShuffleDeck::bigStraight(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
 {
+    //会拆牌
     if(mine.size() < other.size())
     {
         return false;
@@ -896,7 +897,7 @@ bool XtShuffleDeck::bigStraight(const vector<XtCard>& mine, const vector<XtCard>
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= vecdiff.size() - other.size(); ++i)
+    for(int i = static_cast<int>(vecdiff.size() - other.size()); i >= 0; --i)
     {
         vectmp.clear();
         for(size_t j = 0; j < other.size(); ++j) 
@@ -915,7 +916,7 @@ bool XtShuffleDeck::bigStraight(const vector<XtCard>& mine, const vector<XtCard>
         
 bool XtShuffleDeck::bigDoubleStraight(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
 {
-
+    //不拆牌
     if(mine.size() < other.size())
     {
         return false;
@@ -932,7 +933,7 @@ bool XtShuffleDeck::bigDoubleStraight(const vector<XtCard>& mine, const vector<X
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v2.size() - other.size(); i += 2)
+    for(int i = static_cast<int>(v2.size() - other.size()); i >= 0; i -= 2)
     {
         vectmp.clear();
         for(size_t j = 0; j < other.size(); ++j) 
@@ -978,7 +979,7 @@ bool XtShuffleDeck::big4and24(const vector<XtCard>& mine, const vector<XtCard>& 
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    for(int i = static_cast<int>(v4.size() - v4o.size()); i >= 0; i -= 4)
     {
         vectmp.clear();
         for(size_t j = 0; j < v4o.size(); ++j) 
@@ -1028,7 +1029,7 @@ bool XtShuffleDeck::big4and22d(const vector<XtCard>& mine, const vector<XtCard>&
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    for(int i = static_cast<int>(v4.size() - v4o.size()); i >= 0; i -= 4)
     {
         vectmp.clear();
         for(size_t j = 0; j < v4o.size(); ++j) 
@@ -1076,7 +1077,7 @@ bool XtShuffleDeck::big4and22s(const vector<XtCard>& mine, const vector<XtCard>&
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    for(int i = static_cast<int>(v4.size() - v4o.size()); i >= 0; i -= 4)
     {
         vectmp.clear();
         for(size_t j = 0; j < v4o.size(); ++j) 
@@ -1124,7 +1125,7 @@ bool XtShuffleDeck::bigAircraft2s(const vector<XtCard>& mine, const vector<XtCar
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v3.size() - v3o.size(); i += 3)
+    for(int i = static_cast<int>(v3.size() - v3o.size()); i >= 0; i -= 3)
     {
         vectmp.clear();
         for(size_t j = 0; j < v3o.size(); ++j) 
@@ -1176,7 +1177,7 @@ bool XtShuffleDeck::bigAircraft1(const vector<XtCard>& mine, const vector<XtCard
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v3.size() - v3o.size(); i += 3)
+    for(int i = static_cast<int>(v3.size() - v3o.size()); i >= 0; i -= 3)
     {
         vectmp.clear();
         for(size_t j = 0; j < v3o.size(); ++j) 
@@ -1216,7 +1217,7 @@ bool XtShuffleDeck::bigAircraft0(const vector<XtCard>& mine, const vector<XtCard
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v3.size() - v3o.size(); i += 3)
+    for(int i = static_cast<int>(v3.size() - v3o.size()); i >= 0; i -= 3)
     {
         vectmp.clear();
         for(size_t j = 0; j < v3o.size(); ++j) 
@@ -1440,6 +1441,7 @@ void XtShuffleDeck::delSame(const vector<XtCard>& card, vector<XtCard>& result) 
         if(setdata.find((*it).m_face) == setdata.end())
         {
             result.push_back(*it);
+            setdata.insert((*it).m_face);
         }
     }
 }
