@@ -22,6 +22,8 @@ class XtShuffleDeck
         int getCardType(const std::vector<XtCard>& card);
         bool compareCard(const vector<XtCard>& card1, const vector<XtCard>& card2);
         void delCard(const vector<XtCard>& card, int seed);
+        //获取可出的牌
+        bool getOut(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& result);
 
 	//private:
 		bool pop(XtCard& card);
@@ -71,8 +73,9 @@ class XtShuffleDeck
         bool bigAircraft0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
         bool bigShuttle2(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
         bool bigShuttle0(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
-        //需要优化取最小的
         bool bigBomb(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigRocket(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
+        bool bigError(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
         
 
         //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
@@ -86,6 +89,9 @@ class XtShuffleDeck
 
 	private:
 		vector<XtCard> m_cards;
+
+        typedef bool (XtShuffleDeck::*pBigfun) (const vector<XtCard>&, const vector<XtCard>&, vector<XtCard>&);
+        map<int, pBigfun> m_bigfun;
 };
 
 #endif /*_XT_SHULLE_DECK_H_*/ 

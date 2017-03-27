@@ -21,6 +21,25 @@ static int card_arr[] = {
 
 XtShuffleDeck::XtShuffleDeck()
 {
+    m_bigfun[CT_ERROR]              = &XtShuffleDeck::bigError;
+    m_bigfun[CT_ROCKET]             = &XtShuffleDeck::bigRocket;
+    m_bigfun[CT_BOMB]               = &XtShuffleDeck::bigBomb;
+    m_bigfun[CT_SHUTTLE_0]          = &XtShuffleDeck::bigShuttle0;
+    m_bigfun[CT_SHUTTLE_2]          = &XtShuffleDeck::bigShuttle2;
+    m_bigfun[CT_AIRCRAFT_0]         = &XtShuffleDeck::bigAircraft0;
+    m_bigfun[CT_AIRCRAFT_1]         = &XtShuffleDeck::bigAircraft1;
+    m_bigfun[CT_AIRCRAFT_2S]        = &XtShuffleDeck::bigAircraft2s;
+    m_bigfun[CT_4AND2_2S]           = &XtShuffleDeck::big4and22s;
+    m_bigfun[CT_4AND2_2D]           = &XtShuffleDeck::big4and22d;
+    m_bigfun[CT_4AND2_4]            = &XtShuffleDeck::big4and24;
+    m_bigfun[CT_DOUBLE_STRAIGHT]    = &XtShuffleDeck::bigDoubleStraight;
+    m_bigfun[CT_STRAIGHT]           = &XtShuffleDeck::bigStraight;
+    m_bigfun[CT_THREE_0]            = &XtShuffleDeck::bigThree0;
+    m_bigfun[CT_THREE_1]            = &XtShuffleDeck::bigThree1;
+    m_bigfun[CT_THREE_2S]           = &XtShuffleDeck::bigThree2s;
+    m_bigfun[CT_PAIR]               = &XtShuffleDeck::bigPair;
+    m_bigfun[CT_SINGLE]             = &XtShuffleDeck::bigSingle;
+
 }
 
 XtShuffleDeck::~XtShuffleDeck()
@@ -271,6 +290,19 @@ void XtShuffleDeck::delCard(const vector<XtCard>& card, int seed)
    }
     
    shuffle(seed);
+}
+        
+bool XtShuffleDeck::getOut(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& result)
+{
+   int cardtype = getCardType(other); 
+   map<int, pBigfun>::const_iterator it = m_bigfun.find(cardtype);
+   if(it == m_bigfun.end())
+   {
+        printf("not found big function!, cardtype:%d", cardtype);
+        return false;
+   }
+
+   return (this->*(it->second))(mine, other, result);
 }
         
 bool XtShuffleDeck::isRocket(const vector<XtCard>& card) const
@@ -1287,7 +1319,6 @@ bool XtShuffleDeck::bigShuttle0(const vector<XtCard>& mine, const vector<XtCard>
         
 bool XtShuffleDeck::bigBomb(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
 {
-
     if(mine.size() < other.size())
     {
         return false;
@@ -1302,12 +1333,12 @@ bool XtShuffleDeck::bigBomb(const vector<XtCard>& mine, const vector<XtCard>& ot
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = 0; i <= v4.size() - other.size(); i += 4)
+    for(size_t i = v4.size() - 1; i > 4 ; i -= 4)
     {
         vectmp.clear();
-        for(size_t j = 0; j < other.size(); ++j) 
+        for(size_t j = 0; j < other.size() && j <= i; ++j) 
         {
-           vectmp.push_back(v4[j + i]); 
+           vectmp.push_back(v4[i - j]); 
         }
 
         if(isBomb(vectmp) && compareBomb(vectmp, other))
@@ -1318,6 +1349,16 @@ bool XtShuffleDeck::bigBomb(const vector<XtCard>& mine, const vector<XtCard>& ot
     }
     return false; 
 
+}
+        
+bool XtShuffleDeck::bigRocket(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    return false;
+}
+
+bool XtShuffleDeck::bigError(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)
+{
+    return false;
 }
 
 void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu)

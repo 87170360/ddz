@@ -911,6 +911,56 @@ bool testBigBomb(void)
     }
 }
 
+bool testGetOut(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x35));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    cards1.push_back(XtCard(0x36));
+    
+    deck.delCard(cards1, timeindex);
+
+    XtCard initCard2[] = { 
+        XtCard(0x03), 
+        XtCard(0x13), 
+        XtCard(0x23),  
+        XtCard(0x33),  
+        };
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+
+    deck.delCard(cards2, timeindex);
+
+    deck.getHoleCards(cards1, 17 - cards1.size());
+
+    XtCard::sortByDescending(cards1);
+    XtCard::sortByDescending(cards2);
+    
+    show(cards1);
+    show(cards2);
+    vector<XtCard> result;
+    if(deck.getOut(cards1, cards2, result))
+    {
+        show(result);
+        printf("true!\n");
+        return true;
+    }
+    else
+    {
+        printf("false!\n");
+        return false;
+    }
+}
+
+
 /*
 static int card_arr[] = {
 	0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -956,7 +1006,8 @@ int main()
         //if(testBigAircraft0()) { break; }
         //if(testBigShuttle2()) { break; }
         //if(testBigShuttle0()) { break; }
-        if(testBigBomb()) { break; }
+        //if(testBigBomb()) { break; }
+        if(testGetOut()) { break; }
     }
     return 0;
 }
