@@ -67,6 +67,7 @@ void Table::reset(void)
         m_seatCard[i].reset();
         m_bomb[i] = 0;
         m_outNum[i] = 0;
+        m_money[i] = 0;
     }
     m_bottomCard.clear();
     m_lastCard.clear();
@@ -77,6 +78,7 @@ void Table::reset(void)
     m_lordSeat = 0;
     m_outSeat = 0;
     m_topCall = 0;
+    m_win = 0;
     prepareProc();
 }
 
@@ -385,7 +387,8 @@ void Table::msgOut(Player* player)
     if(m_seatCard[player->m_seatid].m_cards.empty())
     {
         xt_log.debug("game over\n");
-        sendEnd();
+        m_win = player->m_seatid;
+        endProc();
     }
     else if(getNext())
     {
@@ -580,6 +583,52 @@ void Table::logout(Player* player)
         }
     }
 }
+        
+void Table::endProc(void)
+{
+    //计算各座位输赢
+    int doubleNum = max(getAllDouble(), 1);
+    int score = ROOMSCORE * doubleNum;
+
+    //获取地主本钱
+    int lordmoney = getLordMoney(); 
+    //获取最穷的农民本钱
+    int famerMoney = getFamerMoney();
+
+    score = min(score, lordmoney);
+    score = min(score, famerMoney);
+
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        //地主赢
+        if(m_win == m_lordSeat)    
+        {
+            if(i == m_lordSeat)
+            {
+                m_money[i] = score; 
+            }
+            else
+            {
+                m_money[i] = -score / 2; 
+            }
+            continue;
+        }
+        else
+        {//农民赢
+            if(i == m_lordSeat)
+            {
+                m_money[i] = -score; 
+            }
+            else
+            {
+                m_money[i] = score / 2; 
+            }
+            continue;
+        }
+    }
+
+    sendEnd(doubleNum, score);
+}
 
 void Table::sendCard1(void)
 {
@@ -679,14 +728,14 @@ void Table::sendOutAgain(void)
     }
 }
         
-void Table::sendEnd(void)
+void Table::sendEnd(int doubleNum, int score)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_END;
     packet.val["code"]      = CODE_SUCCESS;
-    packet.val["double"]    = getAllDouble();
+    packet.val["double"]    = doubleNum;
     packet.val["bomb"]      = getBombNum();
-    packet.val["score"]     = ROOMSCORE * (max(getAllDouble(), 1));
+    packet.val["score"]     = score;
 
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
@@ -694,7 +743,7 @@ void Table::sendEnd(void)
         Player* pl = it->second;
         jval["uid"]     = pl->uid;
         jval["name"]    = pl->name;
-        jval["money"]   = pl->money;
+        jval["money"]   = m_money[pl->m_seatid];
         packet.val["info"].append(jval);
     }
 
@@ -755,6 +804,19 @@ int Table::getSeatUid(unsigned int seatid)
         return 0;
     }
     return m_seats[seatid];
+}
+        
+Player* Table::getSeatPlayer(unsigned int seatid)
+{
+    int uid = m_seats[seatid];
+    map<int, Player*>::const_iterator it = m_players.find(uid);
+    if(it != m_players.end())
+    {
+        return it->second; 
+    }
+
+    xt_log.error("%s:%d, getSeatPlayer error! seatid:%d", __FILE__, __LINE__, seatid); 
+    return NULL;
 }
 
 void Table::setAllSeatOp(int state)
@@ -881,8 +943,11 @@ int Table::getAllDouble(void)
     int antiSpringDouble = isAntiSpring() ? 2 : 0;
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        callDouble += m_callScore[i]; 
         bombDouble += m_bomb[i];
+        if(m_callScore[i] > callDouble)
+        {
+            callDouble = m_callScore[i];
+        }
     }
     xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble);
     ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble;
@@ -986,4 +1051,38 @@ int Table::getBombNum(void)
         ret +=  m_bomb[i]; 
     }
     return ret;
+}
+        
+int Table::getLordMoney(void)
+{
+    Player* pl = getSeatPlayer(m_lordSeat);
+    if(pl)
+    {
+        return pl->money;
+    }
+    return 0;
+}
+
+int Table::getFamerMoney(void)
+{
+    int money = 0; 
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(i != m_lordSeat) 
+        {
+            Player* pl = getSeatPlayer(i);
+            if(pl)
+            {
+                if(money == 0)
+                {
+                    money = pl->money;
+                }
+                else if(pl->money < money)
+                {
+                    money = pl->money;
+                }
+            }
+        }
+    }
+    return money;
 }

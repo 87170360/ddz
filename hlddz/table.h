@@ -77,6 +77,8 @@ class Table
         void outProc(void);
         //玩家退出
         void logout(Player* player);
+        //结算处理
+        void endProc(void);
 
         // send msg
         void loginUC(Player* player, int code);
@@ -93,13 +95,15 @@ class Table
         //继续出牌
         void sendOutAgain(void);
         //结束
-        void sendEnd(void);
+        void sendEnd(int doubleNum, int score);
 
         void gameStart(void);
         //获取下一个操作用户
         bool getNext(void);
         //获取用户id
         int getSeatUid(unsigned int seatid);
+        //获取用户
+        Player* getSeatPlayer(unsigned int seatid);
         //设置座位状态
         void setAllSeatOp(int state);
         //座位状态查询
@@ -122,6 +126,10 @@ class Table
         bool isAntiSpring(void);
         //炸弹数量
         int getBombNum(void);
+        //获取地主本钱
+        int getLordMoney(void);
+        //获取最穷农民本钱
+        int getFamerMoney(void);
 
     private:
         void reset(void);
@@ -139,12 +147,14 @@ class Table
         bool                        m_famerDouble[SEAT_NUM];        //农民加倍 0:不加倍 1:加倍
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
+        int                         m_money[SEAT_NUM];              //各座位输赢
         XtHoleCards                 m_seatCard[SEAT_NUM];           //座位手牌
         unsigned int                m_curSeat;                      //当前操作者座位
         unsigned int                m_preSeat;                      //上个操作者座位
         unsigned int                m_lordSeat;                     //地主座位
         unsigned int                m_outSeat;                      //当前出牌者座位
         int                         m_topCall;                      //最高叫分
+        unsigned int                m_win;                          //胜利座位
 
         XtShuffleDeck               m_deck;
         std::vector<XtCard>         m_bottomCard;                   //底牌
