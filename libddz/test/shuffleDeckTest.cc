@@ -997,6 +997,85 @@ bool testGetOut(void)
     }
 }
 
+int testGetBottomDouble(void)
+{
+    XtShuffleDeck m_deck;
+    vector<XtCard> m_bottomCard;
+    m_bottomCard.push_back(XtCard(0x05));
+    m_bottomCard.push_back(XtCard(0x15));
+    m_bottomCard.push_back(XtCard(0x25));
+    XtCard::sortByDescending(m_bottomCard);
+    show(m_bottomCard);
+
+    bool littleJoke = false;
+    bool bigJoke = false;
+    set<int> suitlist; 
+    set<int> facelist; 
+    bool isContinue = m_deck.isNContinue(m_bottomCard, 1);
+    for(vector<XtCard>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
+    {
+        if(it->m_value == 0x00) 
+        {
+            littleJoke = true;
+        }
+        else if(it->m_value == 0x10) 
+        {
+            bigJoke = true; 
+        }
+        suitlist.insert(it->m_suit);
+        facelist.insert(it->m_face);
+    }
+
+    //火箭
+    if(bigJoke && littleJoke)
+    {        
+        printf("火箭");
+        return 4;
+    }
+
+    //大王
+    if(bigJoke && !littleJoke)
+    {
+        printf("大王");
+        return 2;
+    }
+
+    //小王
+    if(!bigJoke && littleJoke)
+    {
+        printf("小王");
+        return 2;
+    }
+
+    //同花
+    if(!isContinue && suitlist.size() == 1)
+    {
+        printf("同花");
+        return 3; 
+    }
+
+    //顺子
+    if(isContinue && suitlist.size() != 1)
+    {
+        printf("顺子");
+        return 3; 
+    }
+
+    //同花顺
+    if(isContinue && suitlist.size() == 1)
+    {
+        printf("同花顺");
+        return 4; 
+    }
+
+    //三同
+    if(facelist.size() == 1)
+    {
+        printf("三同");
+        return 4; 
+    }
+    return 0;
+}
 
 /*
 static int card_arr[] = {
@@ -1031,7 +1110,8 @@ int main()
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();
-    testGetOut();
+    //testGetOut();
+    testGetBottomDouble();
     while(0)
     {
         //if(testBigStraight()) { break; };

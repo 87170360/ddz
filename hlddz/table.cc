@@ -28,6 +28,7 @@ const int DOUBLETIME        = 3;
 const int CARDTIME          = 10;
 const int ENDTIME           = 10;
 const int SHOWTIME          = 3;    //发牌动画时间
+const int ROOMSCORE         = 10;   //房间底分
 
 Table::Table()
 {
@@ -61,9 +62,11 @@ void Table::reset(void)
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         m_seats[i] = 0; 
-        m_score[i] = 0;
+        m_callScore[i] = 0;
         m_famerDouble[i] = false;
-        m_seatcard[i].reset();
+        m_seatCard[i].reset();
+        m_bomb[i] = 0;
+        m_outNum[i] = 0;
     }
     m_bottomCard.clear();
     m_lastCard.clear();
@@ -255,10 +258,10 @@ void Table::msgCall(Player* player)
 
     Json::Value &msg = player->client->packet.tojson();
     //保存当前叫分
-    m_score[m_curSeat] = msg["score"].asInt();
+    m_callScore[m_curSeat] = msg["score"].asInt();
     //记录状态
     m_opState[m_curSeat] = CALL_RECEIVE;
-    xt_log.debug("call score, uid:%d, seatid:%d, score :%d\n", player->uid, player->m_seatid, m_score[player->m_seatid]);
+    xt_log.debug("call score, uid:%d, seatid:%d, score :%d\n", player->uid, player->m_seatid, m_callScore[player->m_seatid]);
 
     //是否已经选出地主
     if(selecLord())
@@ -309,6 +312,7 @@ void Table::msgOut(Player* player)
     vector<XtCard> curCard;
     json_array_to_vector(curCard, player->client->packet, "card");
 
+    //不出校验
     bool keep = msg["keep"].asBool();
     if(keep && !curCard.empty())
     {
@@ -318,9 +322,30 @@ void Table::msgOut(Player* player)
         return;
     }
 
-    xt_log.debug("msgOut, uid:%d, seatid:%d, keep:%s\n", player->uid, player->m_seatid, keep ? "true" : "false");
-    xt_log.debug("curCard:\n");
-    show(curCard);
+    if(!curCard.empty())
+    {
+        //牌型校验
+        int cardtype = m_deck.getCardType(curCard);
+        if(cardtype == CT_ERROR)
+        {
+            xt_log.error("%s:%d, cardtype error. uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->uid, player->m_seatid, keep ? "true" : "false"); 
+            xt_log.debug("curCard:\n");
+            show(curCard);
+            return;
+        }
+        //记录炸弹
+        if(cardtype == CT_BOMB || cardtype == CT_ROCKET)
+        {
+            m_bomb[player->m_seatid]++; 
+        }
+    }
+
+    //出牌次数
+    m_outNum[player->m_seatid] += 1;
+
+    //xt_log.debug("msgOut, uid:%d, seatid:%d, keep:%s\n", player->uid, player->m_seatid, keep ? "true" : "false");
+    //xt_log.debug("curCard:\n");
+    //show(curCard);
     //xt_log.debug("lastCard:\n");
     //show(m_lastCard);
 
@@ -353,13 +378,14 @@ void Table::msgOut(Player* player)
     //扣除手牌
     if(!curCard.empty())
     {
-        m_seatcard[player->m_seatid].popCard(curCard);
+        m_seatCard[player->m_seatid].popCard(curCard);
     }
 
     //判定结束
-    if(m_seatcard[player->m_seatid].m_cards.empty())
+    if(m_seatCard[player->m_seatid].m_cards.empty())
     {
         xt_log.debug("game over\n");
+        sendEnd();
     }
     else if(getNext())
     {
@@ -442,7 +468,7 @@ void Table::loginUC(Player* player, int code)
         packet.val["userinfo"].append(jval);
     }
 
-    vector_to_json_array(m_seatcard[player->m_seatid].m_cards, packet, "card");
+    vector_to_json_array(m_seatCard[player->m_seatid].m_cards, packet, "card");
 
     packet.end();
     unicast(player, packet.tostring());
@@ -477,13 +503,13 @@ bool Table::allocateCard(void)
     //手牌
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        if(!m_deck.getHoleCards(m_seatcard[i].m_cards, HAND_CARD_NUM))
+        if(!m_deck.getHoleCards(m_seatCard[i].m_cards, HAND_CARD_NUM))
         {
             xt_log.error("%s:%d, get hand card error,  tid:%d", __FILE__, __LINE__, m_tid); 
             return false;
         }
         xt_log.debug("uid:%d\n", m_seats[i]);
-        show(m_seatcard[i].m_cards);
+        show(m_seatCard[i].m_cards);
     }
 
     return true;
@@ -562,7 +588,7 @@ void Table::sendCard1(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_CARD_1;
-        vector_to_json_array(m_seatcard[pl->m_seatid].m_cards, packet, "card");
+        vector_to_json_array(m_seatCard[pl->m_seatid].m_cards, packet, "card");
         packet.val["time"]          = CALLTIME;
         packet.val["show_time"]     = SHOWTIME;
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
@@ -581,7 +607,7 @@ void Table::sendCallAgain(void)
         packet.val["time"]          = CALLTIME;
         packet.val["cur_id"]        = getSeatUid(m_curSeat);
         packet.val["pre_id"]        = getSeatUid(m_preSeat);
-        packet.val["score"]         = m_score[m_preSeat];
+        packet.val["score"]         = m_callScore[m_preSeat];
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -651,6 +677,29 @@ void Table::sendOutAgain(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
+}
+        
+void Table::sendEnd(void)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_END;
+    packet.val["code"]      = CODE_SUCCESS;
+    packet.val["double"]    = getAllDouble();
+    packet.val["bomb"]      = getBombNum();
+    packet.val["score"]     = ROOMSCORE * (max(getAllDouble(), 1));
+
+    for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
+    {
+        Json::Value jval;          
+        Player* pl = it->second;
+        jval["uid"]     = pl->uid;
+        jval["name"]    = pl->name;
+        jval["money"]   = pl->money;
+        packet.val["info"].append(jval);
+    }
+
+    packet.end();
+    broadcast(NULL, packet.tostring());
 }
 
 void Table::gameStart(void)
@@ -731,9 +780,9 @@ bool Table::allSeatFit(int state)
 bool Table::selecLord(void)
 {
     //如果有3分直接地主, 
-    if(m_score[m_curSeat] == 3)
+    if(m_callScore[m_curSeat] == 3)
     {
-        m_topCall = m_score[m_curSeat];
+        m_topCall = m_callScore[m_curSeat];
         m_lordSeat = m_curSeat;
         xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeatUid(m_lordSeat));
         return true;
@@ -745,9 +794,9 @@ bool Table::selecLord(void)
     int score = 0;
     for(unsigned int i = 0; i < SEAT_NUM; ++i) 
     {
-        if(m_score[i] > score) 
+        if(m_callScore[i] > score) 
         {
-            score = m_score[i]; 
+            score = m_callScore[i]; 
             seatid = i;
         }
 
@@ -814,4 +863,127 @@ bool Table::isDoubleFinish(void)
         }
     }
     return true;
+}
+        
+int Table::getAllDouble(void)
+{
+    int ret = 0;
+
+    //叫分加倍
+    int callDouble = 0;
+    //炸弹加倍
+    int bombDouble = 0;
+    //底牌加倍
+    int bottomDouble = getBottomDouble();
+    //春天加倍
+    int springDouble = isSpring() ? 2 : 0;
+    //反春天加倍
+    int antiSpringDouble = isAntiSpring() ? 2 : 0;
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        callDouble += m_callScore[i]; 
+        bombDouble += m_bomb[i];
+    }
+    xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble);
+    ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble;
+    return ret;
+}
+        
+int Table::getBottomDouble(void)
+{
+    bool littleJoke = false;
+    bool bigJoke = false;
+    set<int> suitlist; 
+    set<int> facelist; 
+    bool isContinue = m_deck.isNContinue(m_bottomCard, 1);
+    for(vector<XtCard>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
+    {
+        if(it->m_value == 0x00) 
+        {
+            littleJoke = true;
+        }
+        else if(it->m_value == 0x10) 
+        {
+            bigJoke = true; 
+        }
+        suitlist.insert(it->m_suit);
+        facelist.insert(it->m_face);
+    }
+
+    //火箭
+    if(bigJoke && littleJoke)
+    {        
+        printf("火箭");
+        return 4;
+    }
+
+    //大王
+    if(bigJoke && !littleJoke)
+    {
+        printf("大王");
+        return 2;
+    }
+
+    //小王
+    if(!bigJoke && littleJoke)
+    {
+        printf("小王");
+        return 2;
+    }
+
+    //同花
+    if(!isContinue && suitlist.size() == 1)
+    {
+        printf("同花");
+        return 3; 
+    }
+
+    //顺子
+    if(isContinue && suitlist.size() != 1)
+    {
+        printf("顺子");
+        return 3; 
+    }
+
+    //同花顺
+    if(isContinue && suitlist.size() == 1)
+    {
+        printf("同花顺");
+        return 4; 
+    }
+
+    //三同
+    if(facelist.size() == 1)
+    {
+        printf("三同");
+        return 4; 
+    }
+    return 0;
+}
+        
+bool Table::isSpring(void)
+{
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(i != m_lordSeat && m_outNum[i] != 0)
+        {
+            return false; 
+        }
+    }
+    return true;
+}
+
+bool Table::isAntiSpring(void)
+{
+    return m_outNum[m_lordSeat] == 1;
+}
+        
+int Table::getBombNum(void)
+{
+    int ret = 0;
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        ret +=  m_bomb[i]; 
+    }
+    return ret;
 }

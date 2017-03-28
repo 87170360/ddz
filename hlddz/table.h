@@ -92,6 +92,8 @@ class Table
         void sendDoubleResult(void);
         //继续出牌
         void sendOutAgain(void);
+        //结束
+        void sendEnd(void);
 
         void gameStart(void);
         //获取下一个操作用户
@@ -110,6 +112,16 @@ class Table
         void show(const vector<XtCard>& card);
         //加倍完毕
         bool isDoubleFinish(void);
+        //获取所有加倍数量
+        int getAllDouble(void);
+        //获取底牌加倍
+        int getBottomDouble(void);
+        //是否春天
+        bool isSpring(void);
+        //是否反春天
+        bool isAntiSpring(void);
+        //炸弹数量
+        int getBombNum(void);
 
     private:
         void reset(void);
@@ -123,9 +135,11 @@ class Table
     private:
         int                         m_seats[SEAT_NUM];              //各座位玩家id
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
-        int                         m_score[SEAT_NUM];              //各座位叫分
+        int                         m_callScore[SEAT_NUM];          //各座位叫分
         bool                        m_famerDouble[SEAT_NUM];        //农民加倍 0:不加倍 1:加倍
-        XtHoleCards                 m_seatcard[SEAT_NUM];           //座位手牌
+        int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
+        int                         m_outNum[SEAT_NUM];             //各座位出牌次数
+        XtHoleCards                 m_seatCard[SEAT_NUM];           //座位手牌
         unsigned int                m_curSeat;                      //当前操作者座位
         unsigned int                m_preSeat;                      //上个操作者座位
         unsigned int                m_lordSeat;                     //地主座位

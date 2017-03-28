@@ -773,7 +773,12 @@ bool XtShuffleDeck::bigPair(const vector<XtCard>& mine, const vector<XtCard>& ot
     }
     vector<XtCard> vecTwo;
     keepN(vecTwo, mine, 2);
-    for(size_t i = vecTwo.size() - 1; i > 2; i -= 2)
+    if(vecTwo.size() < out.size())
+    {
+        return false;
+    }
+
+    for(int i = static_cast<int>(vecTwo.size() - 1); i > 2; i -= 2)
     {
         if(vecTwo[i].m_face > other[0].m_face) 
         {
@@ -803,7 +808,7 @@ bool XtShuffleDeck::bigThree2s(const vector<XtCard>& mine, const vector<XtCard>&
         return false;
     }
 
-    for(size_t i = v3.size() - 1; i > 3; i -= 3)
+    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
     {
         if(v3[i].m_face > other[0].m_face) 
         {
@@ -836,7 +841,7 @@ bool XtShuffleDeck::bigThree1(const vector<XtCard>& mine, const vector<XtCard>& 
         return false;
     }
 
-    for(size_t i = v3.size() - 1; i > 3; i -= 3)
+    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
     {
         if(v3[i].m_face > other[0].m_face) 
         {
@@ -865,7 +870,7 @@ bool XtShuffleDeck::bigThree0(const vector<XtCard>& mine, const vector<XtCard>& 
         return false;
     }
 
-    for(size_t i = v3.size() - 1; i > 3; i -= 3)
+    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
     {
         if(v3[i].m_face > other[0].m_face) 
         {
@@ -1334,10 +1339,10 @@ bool XtShuffleDeck::bigBomb(const vector<XtCard>& mine, const vector<XtCard>& ot
     }
 
     vector<XtCard> vectmp;
-    for(size_t i = v4.size() - 1; i > 4 ; i -= 4)
+    for(int i = static_cast<int>(v4.size() - 1); i > 4 ; i -= 4)
     {
         vectmp.clear();
-        for(size_t j = 0; j < other.size() && j <= i; ++j) 
+        for(int j = 0; j < static_cast<int>(other.size()) && j <= i; ++j) 
         {
            vectmp.push_back(v4[i - j]); 
         }
