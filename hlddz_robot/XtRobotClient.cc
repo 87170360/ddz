@@ -267,6 +267,7 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             handleRespond(val);
             break;
         case SERVER_CARD_1:
+            m_card.clear();
             json_array_to_vector(m_card, data, "card");
             XtCard::sortByDescending(m_card);
             handleCall(val);
@@ -292,8 +293,6 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
 
 	return 0;
 }
-
-
 
 
 void XtRobotClient::handleGameEnd(Json::Value& data)
@@ -384,7 +383,8 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
     }
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_CALL;
-	data.val["score"]   =   msg["score"].asInt() + 1;
+	//data.val["score"]   =   msg["score"].asInt() + 1;
+	data.val["score"]   =   0;
 	data.end();
 
 	send(data.tostring());
@@ -494,7 +494,8 @@ void XtRobotClient::sendCall(void)
 {
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_CALL;
-	data.val["score"]   =   1;
+	//data.val["score"]   =   1;
+	data.val["score"]   =   0;
 	data.end();
 
 	send(data.tostring());

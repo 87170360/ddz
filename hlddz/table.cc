@@ -289,6 +289,7 @@ void Table::msgCall(Player* player)
     else
     {//重新发牌
         xt_log.debug("nobody call, need send card again.\n");
+        gameRestart();
     }
 }
 
@@ -785,6 +786,39 @@ void Table::gameStart(void)
 
     xt_log.debug("game start, cur_id:%d, seateid:%d\n", getSeatUid(m_curSeat), m_curSeat);
     //ev_timer_again(hlddz.loop, &m_timerCall);
+}
+        
+void Table::gameRestart(void)
+{
+    //重置部分数据
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        m_callScore[i] = 0;
+        m_famerDouble[i] = false;
+        m_seatCard[i].reset();
+        m_bomb[i] = 0;
+        m_outNum[i] = 0;
+        m_money[i] = 0;
+    }
+    m_bottomCard.clear();
+    m_lastCard.clear();
+    m_deck.fill();
+    m_deck.shuffle(m_tid);
+    m_curSeat = 0;
+    m_preSeat = 0;
+    m_lordSeat = 0;
+    m_outSeat = 0;
+    m_topCall = 0;
+    m_win = 0;
+
+    m_curSeat = rand() % SEAT_NUM;
+    
+    callProc();
+
+    allocateCard();
+    sendCard1();
+
+    xt_log.debug("game restart, cur_id:%d, seateid:%d\n", getSeatUid(m_curSeat), m_curSeat);
 }
 
 bool Table::getNext(void)

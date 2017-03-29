@@ -96,8 +96,11 @@ class Table
         void sendOutAgain(void);
         //结束
         void sendEnd(int doubleNum, int score);
-
+    
+        //开始发牌
         void gameStart(void);
+        //重新发牌
+        void gameRestart(void);
         //获取下一个操作用户
         bool getNext(void);
         //获取用户id
