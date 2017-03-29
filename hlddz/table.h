@@ -129,6 +129,11 @@ class Table
         //获取最小本钱
         int getMinMoney(void);
 
+        //扣除玩家牌局的输赢
+        void payResult(void);
+        //扣除入场费
+        void payTax(void);
+
     private:
         void reset(void);
 

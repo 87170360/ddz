@@ -188,6 +188,14 @@ int Table::login(Player *player)
         xt_log.error("%s:%d, player was existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
         return 0;
     }
+    
+    //检查入场费
+    if(player->money < ROOMTAX)
+    {
+        loginUC(player, CODE_MONEY);
+        return 0; 
+    }
+
     if(!sitdown(player))
     {
         return 0;
@@ -627,13 +635,7 @@ void Table::endProc(void)
         }
     }
     //修改玩家金币
-    Player* tmpplayer = NULL;
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        tmpplayer = it->second;
-        if(tmpplayer == NULL) continue;
-        tmpplayer->changeMoney(m_money[tmpplayer->m_seatid]);
-    }
+    payResult();
 
     //通知结算
     sendEnd(doubleNum, finalScore);
@@ -767,9 +769,13 @@ void Table::sendEnd(int doubleNum, int score)
 
 void Table::gameStart(void)
 {
+    payTax();
+
+    m_curSeat = rand() % SEAT_NUM;
+
     //for test
-    //m_curSeat = rand() % SEAT_NUM;
-    m_curSeat = 2;
+    //m_curSeat = 2;
+    
     callProc();
 
     allocateCard();
@@ -1086,4 +1092,26 @@ int Table::getMinMoney(void)
         }
     }
     return money;
+}
+        
+void Table::payResult(void)
+{
+    Player* tmpplayer = NULL;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        tmpplayer = it->second;
+        if(tmpplayer == NULL) continue;
+        tmpplayer->changeMoney(m_money[tmpplayer->m_seatid]);
+    }
+}
+        
+void Table::payTax(void)
+{
+    Player* tmpplayer = NULL;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        tmpplayer = it->second;
+        if(tmpplayer == NULL) continue;
+        tmpplayer->changeMoney(-ROOMTAX);
+    }
 }
