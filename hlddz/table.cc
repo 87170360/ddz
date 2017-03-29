@@ -761,6 +761,7 @@ void Table::sendEnd(int doubleNum, int score)
         jval["uid"]     = pl->uid;
         jval["name"]    = pl->name;
         jval["money"]   = m_money[pl->m_seatid];
+        jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
     }
 
