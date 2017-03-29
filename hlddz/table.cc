@@ -28,7 +28,7 @@ const int DOUBLETIME        = 3;
 const int CARDTIME          = 10;
 const int ENDTIME           = 10;
 const int SHOWTIME          = 3;    //发牌动画时间
-const int ROOMSCORE         = 10000;   //房间底分
+const int ROOMSCORE         = 10;   //房间底分
 
 Table::Table()
 {
@@ -946,7 +946,7 @@ int Table::getAllDouble(void)
             callDouble = m_callScore[i];
         }
     }
-    xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble);
+    //xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble);
     ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble;
     return ret;
 }
@@ -975,49 +975,49 @@ int Table::getBottomDouble(void)
     //火箭
     if(bigJoke && littleJoke)
     {        
-        printf("火箭");
+        //printf("火箭");
         return 4;
     }
 
     //大王
     if(bigJoke && !littleJoke)
     {
-        printf("大王");
+        //printf("大王");
         return 2;
     }
 
     //小王
     if(!bigJoke && littleJoke)
     {
-        printf("小王");
+        //printf("小王");
         return 2;
     }
 
     //同花
     if(!isContinue && suitlist.size() == 1)
     {
-        printf("同花");
+        //printf("同花");
         return 3; 
     }
 
     //顺子
     if(isContinue && suitlist.size() != 1)
     {
-        printf("顺子");
+        //printf("顺子");
         return 3; 
     }
 
     //同花顺
     if(isContinue && suitlist.size() == 1)
     {
-        printf("同花顺");
+        //printf("同花顺");
         return 4; 
     }
 
     //三同
     if(facelist.size() == 1)
     {
-        printf("三同");
+        //printf("三同");
         return 4; 
     }
     return 0;
