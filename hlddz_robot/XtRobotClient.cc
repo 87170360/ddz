@@ -470,6 +470,9 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
     {//别人出牌
         vector<XtCard> outCard;
         outCard.clear();
+
+        XtCard::sortByDescending(m_card);
+        XtCard::sortByDescending(preCard);
         bool isOut = m_deck.getOut(m_card, preCard, outCard);
         Jpacket data;
         data.val["cmd"]     =   CLIENT_OUT;

@@ -19,10 +19,12 @@ class XtShuffleDeck
 
 		bool push(const XtCard& card);
         void showCards(void) const;
+        //要降序
         int getCardType(const std::vector<XtCard>& card);
+        //要降序
         bool compareCard(const vector<XtCard>& card1, const vector<XtCard>& card2);
         void delCard(const vector<XtCard>& card, int seed);
-        //获取可出的牌
+        //获取可出的牌, 降序
         bool getOut(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& result);
 
 	//private:

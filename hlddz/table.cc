@@ -336,6 +336,7 @@ void Table::msgOut(Player* player)
     if(!curCard.empty())
     {
         //牌型校验
+        XtCard::sortByDescending(curCard);
         int cardtype = m_deck.getCardType(curCard);
         if(cardtype == CT_ERROR)
         {
@@ -505,7 +506,7 @@ bool Table::allocateCard(void)
     //底牌    
     if(!m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM))
     {
-        xt_log.error("%s:%d, get bottom card error,  tid:%d\n" __FILE__, __LINE__, m_tid); 
+        xt_log.error("%s:%d, get bottom card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
         return false;
     }
 
@@ -517,7 +518,7 @@ bool Table::allocateCard(void)
     {
         if(!m_deck.getHoleCards(m_seatCard[i].m_cards, HAND_CARD_NUM))
         {
-            xt_log.error("%s:%d, get hand card error,  tid:%d\n" __FILE__, __LINE__, m_tid); 
+            xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
             return false;
         }
         xt_log.debug("uid:%d\n", m_seats[i]);
@@ -820,7 +821,7 @@ int Table::getSeatUid(unsigned int seatid)
 {
     if(seatid < 0 || seatid >= SEAT_NUM) 
     {
-        xt_log.error("%s:%d, getSeatUid error! seatid:%d\n" __FILE__, __LINE__, seatid); 
+        xt_log.error("%s:%d, getSeatUid error! seatid:%d\n",__FILE__, __LINE__, seatid); 
         return 0;
     }
     return m_seats[seatid];
@@ -835,7 +836,7 @@ Player* Table::getSeatPlayer(unsigned int seatid)
         return it->second; 
     }
 
-    xt_log.error("%s:%d, getSeatPlayer error! seatid:%d\n" __FILE__, __LINE__, seatid); 
+    xt_log.error("%s:%d, getSeatPlayer error! seatid:%d\n",__FILE__, __LINE__, seatid); 
     return NULL;
 }
 

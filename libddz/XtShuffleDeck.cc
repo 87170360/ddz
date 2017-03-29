@@ -101,8 +101,14 @@ bool XtShuffleDeck::getHoleCards(std::vector<XtCard>& card, unsigned int num)
 	XtCard tmp;
 	for (unsigned int i = 0; i < num; i++)
 	{
-		pop(tmp);
-        card.push_back(tmp);
+        if(pop(tmp))
+        {
+            card.push_back(tmp);
+        }
+        else
+        {
+            return false; 
+        }
         
 	}
 	return true;

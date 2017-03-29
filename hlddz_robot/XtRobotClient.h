@@ -54,7 +54,7 @@ class XtRobotClient
 		static void onDoCompare(struct ev_loop* loop,struct ev_timer* w,int events);
 		static void onDoAllIn(struct ev_loop* loop,struct ev_timer* w,int events);
 
-        //showtimer 定时器回调函数
+        //showTimer 定时器回调函数
 		static void tfShow(struct ev_loop* loop, struct ev_timer* w, int events);
 
 	public:
@@ -124,7 +124,7 @@ class XtRobotClient
 	private:
         ///////////////////////////////////////
         std::vector<XtCard>         m_card;                   //底牌
-		ev_timer                    m_showTimer;              //出牌动画时间结束后再出牌
+		ev_timer                    m_showTimer;              //第一次出牌延时定时器
         XtShuffleDeck               m_deck;                   //牌库
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
