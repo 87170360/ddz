@@ -126,10 +126,8 @@ class Table
         bool isAntiSpring(void);
         //炸弹数量
         int getBombNum(void);
-        //获取地主本钱
-        int getLordMoney(void);
-        //获取最穷农民本钱
-        int getFamerMoney(void);
+        //获取最小本钱
+        int getMinMoney(void);
 
     private:
         void reset(void);

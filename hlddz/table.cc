@@ -28,7 +28,7 @@ const int DOUBLETIME        = 3;
 const int CARDTIME          = 10;
 const int ENDTIME           = 10;
 const int SHOWTIME          = 3;    //发牌动画时间
-const int ROOMSCORE         = 10;   //房间底分
+const int ROOMSCORE         = 10000;   //房间底分
 
 Table::Table()
 {
@@ -589,14 +589,11 @@ void Table::endProc(void)
     //计算各座位输赢
     int doubleNum = max(getAllDouble(), 1);
     int score = ROOMSCORE * doubleNum;
-
-    //获取地主本钱
-    int lordmoney = getLordMoney(); 
-    //获取最穷的农民本钱
-    int famerMoney = getFamerMoney();
-
-    score = min(score, lordmoney);
-    score = min(score, famerMoney);
+    //获取最小本钱
+    int minMoney = getMinMoney(); 
+    //最终数值
+    int finalScore = min(score, minMoney);
+    //xt_log.debug("endProc, befor score:%d, min money:%d, finalScore:%d\n", score, minMoney, finalScore);
 
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
@@ -605,11 +602,11 @@ void Table::endProc(void)
         {
             if(i == m_lordSeat)
             {
-                m_money[i] = score; 
+                m_money[i] = finalScore; 
             }
             else
             {
-                m_money[i] = -score / 2; 
+                m_money[i] = -finalScore / 2; 
             }
             continue;
         }
@@ -617,17 +614,17 @@ void Table::endProc(void)
         {//农民赢
             if(i == m_lordSeat)
             {
-                m_money[i] = -score; 
+                m_money[i] = -finalScore; 
             }
             else
             {
-                m_money[i] = score / 2; 
+                m_money[i] = finalScore / 2; 
             }
             continue;
         }
     }
 
-    sendEnd(doubleNum, score);
+    sendEnd(doubleNum, finalScore);
 }
 
 void Table::sendCard1(void)
@@ -1053,34 +1050,21 @@ int Table::getBombNum(void)
     return ret;
 }
         
-int Table::getLordMoney(void)
-{
-    Player* pl = getSeatPlayer(m_lordSeat);
-    if(pl)
-    {
-        return pl->money;
-    }
-    return 0;
-}
-
-int Table::getFamerMoney(void)
+int Table::getMinMoney(void)
 {
     int money = 0; 
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        if(i != m_lordSeat) 
+        Player* pl = getSeatPlayer(i);
+        if(pl)
         {
-            Player* pl = getSeatPlayer(i);
-            if(pl)
+            if(money == 0)
             {
-                if(money == 0)
-                {
-                    money = pl->money;
-                }
-                else if(pl->money < money)
-                {
-                    money = pl->money;
-                }
+                money = pl->money;
+            }
+            else if(pl->money < money)
+            {
+                money = pl->money;
             }
         }
     }
