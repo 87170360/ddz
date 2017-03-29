@@ -31,10 +31,11 @@ public:
 	void reset(void);
 	int update_info();
 	int set_money(int value);
-	int incr_money(int type, int value);
 	void start_offline_timer();
 	void stop_offline_timer();
 	static void offline_timeout(struct ev_loop *loop, ev_timer *w, int revents);
+
+    void changeMoney(int value);
 
 public:
 	int 				index;

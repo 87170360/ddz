@@ -29,6 +29,7 @@ const int CARDTIME          = 10;
 const int ENDTIME           = 10;
 const int SHOWTIME          = 3;    //发牌动画时间
 const int ROOMSCORE         = 10;   //房间底分
+const int ROOMTAX           = 10;   //房间抽水
 
 Table::Table()
 {
@@ -184,7 +185,7 @@ int Table::login(Player *player)
     xt_log.debug("player login uid:%d\n", player->uid);
     if(m_players.find(player->uid) != m_players.end())
     {
-        xt_log.error("%s:%d, player was existed! uid:%d", __FILE__, __LINE__, player->uid); 
+        xt_log.error("%s:%d, player was existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
         return 0;
     }
     if(!sitdown(player))
@@ -207,7 +208,7 @@ void Table::reLogin(Player* player)
     int ret_code = CODE_SUCCESS;
     if(m_players.find(player->uid) == m_players.end())
     {
-        xt_log.error("%s:%d, player was not existed! uid:%d", __FILE__, __LINE__, player->uid); 
+        xt_log.error("%s:%d, player was not existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
         ret_code = CODE_RELOGIN;
     }
 
@@ -386,7 +387,7 @@ void Table::msgOut(Player* player)
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())
     {
-        xt_log.debug("game over\n");
+        xt_log.debug("gameover\n");
         m_win = player->m_seatid;
         endProc();
     }
@@ -496,7 +497,7 @@ bool Table::allocateCard(void)
     //底牌    
     if(!m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM))
     {
-        xt_log.error("%s:%d, get bottom card error,  tid:%d", __FILE__, __LINE__, m_tid); 
+        xt_log.error("%s:%d, get bottom card error,  tid:%d\n" __FILE__, __LINE__, m_tid); 
         return false;
     }
 
@@ -508,7 +509,7 @@ bool Table::allocateCard(void)
     {
         if(!m_deck.getHoleCards(m_seatCard[i].m_cards, HAND_CARD_NUM))
         {
-            xt_log.error("%s:%d, get hand card error,  tid:%d", __FILE__, __LINE__, m_tid); 
+            xt_log.error("%s:%d, get hand card error,  tid:%d\n" __FILE__, __LINE__, m_tid); 
             return false;
         }
         xt_log.debug("uid:%d\n", m_seats[i]);
@@ -547,6 +548,7 @@ void Table::outProc(void)
         
 void Table::logout(Player* player)
 {
+    //退出发生后，牌桌内只有机器人,重新进入准备状态，方便测试
     map<int, Player*>::iterator it  = m_players.find(player->uid);
     if(it != m_players.end())
     {
@@ -587,6 +589,7 @@ void Table::logout(Player* player)
 void Table::endProc(void)
 {
     //计算各座位输赢
+    ////////////////////////////////////////////////////////////////////////
     int doubleNum = max(getAllDouble(), 1);
     int score = ROOMSCORE * doubleNum;
     //获取最小本钱
@@ -623,8 +626,22 @@ void Table::endProc(void)
             continue;
         }
     }
+    //修改玩家金币
+    Player* tmpplayer = NULL;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        tmpplayer = it->second;
+        if(tmpplayer == NULL) continue;
+        tmpplayer->changeMoney(m_money[tmpplayer->m_seatid]);
+    }
 
+    //通知结算
     sendEnd(doubleNum, finalScore);
+    ////////////////////////////////////////////////////////////////////////
+
+    //重置游戏
+    reset();
+
 }
 
 void Table::sendCard1(void)
@@ -797,7 +814,7 @@ int Table::getSeatUid(unsigned int seatid)
 {
     if(seatid < 0 || seatid >= SEAT_NUM) 
     {
-        xt_log.error("%s:%d, getSeatUid error! seatid:%d", __FILE__, __LINE__, seatid); 
+        xt_log.error("%s:%d, getSeatUid error! seatid:%d\n" __FILE__, __LINE__, seatid); 
         return 0;
     }
     return m_seats[seatid];
@@ -812,7 +829,7 @@ Player* Table::getSeatPlayer(unsigned int seatid)
         return it->second; 
     }
 
-    xt_log.error("%s:%d, getSeatPlayer error! seatid:%d", __FILE__, __LINE__, seatid); 
+    xt_log.error("%s:%d, getSeatPlayer error! seatid:%d\n" __FILE__, __LINE__, seatid); 
     return NULL;
 }
 

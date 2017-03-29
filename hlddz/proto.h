@@ -8,6 +8,8 @@ enum CLIENT_COMMAND
     CLIENT_CALL                 = 1003,         //叫分 score = 0,1,2,3
     CLIENT_DOUBLE               = 1004,         //农民加倍 double: true, false
     CLIENT_OUT                  = 1005,         //出牌 不出: keep: true, false, 牌: card
+    CLIENT_LOGOUT               = 1006,         //退出
+    CLIENT_CHANGE               = 1007,         //换桌
 };
 
 enum SERVER_COMMAND

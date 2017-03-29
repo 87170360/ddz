@@ -146,27 +146,6 @@ int Player::set_money(int value)
 	return 0;
 }
 
-int Player::incr_money(int type, int value)
-{
-	if (value == 0) {
-		return 0;
-	}
-	int ret;
-	if (type == 0) {
-		ret = hlddz.main_rc[index]->command("hincrby hu:%d money %d", uid, value);
-	} else {
-		ret = hlddz.main_rc[index]->command("hincrby hu:%d money -%d", uid, value);
-	}
-	if (ret < 0) {
-		xt_log.error("incr money error.\n");
-		return -1;
-	}
-	xt_log.info("incr money uid[%d] value[%d] old[%d] new[%d].\n", uid, value, money, hlddz.main_rc[index]->reply->integer);
-	money = hlddz.main_rc[index]->reply->integer; //update the money.
-
-	return 0;
-}
-
 void Player::start_offline_timer()
 {
 	ev_timer_start(hlddz.loop, &_offline_timer);
@@ -183,4 +162,22 @@ void Player::offline_timeout(struct ev_loop *loop, ev_timer *w, int revents)
 	 * remove from offline table */
 	Player* self = (Player*)w->data;
 	hlddz.game->del_player(self);
+}
+    
+void Player::changeMoney(int value)
+{
+	if(value == 0) 
+    {
+		return;
+	}
+
+    int ret = hlddz.main_rc[index]->command("hincrby hu:%d money %d", uid, value);
+	if (ret < 0) 
+    {
+        xt_log.error("%s:%d, changeMoney error. uid:%d, value:%d\n", __FILE__, __LINE__, uid, value); 
+		return;
+	}
+	xt_log.info("changeMoney uid[%d] value[%d] old[%d] new[%d].\n", uid, value, money, hlddz.main_rc[index]->reply->integer);
+    //update the money
+	money = hlddz.main_rc[index]->reply->integer; 
 }
