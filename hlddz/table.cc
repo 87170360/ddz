@@ -232,13 +232,19 @@ void Table::msgPrepare(Player* player)
 {
     xt_log.debug("msg prepare uid:%d, seatid:%d\n", player->uid, player->m_seatid);
     m_opState[player->m_seatid] = PREPARE_REDAY; 
-    if(allSeatFit(PREPARE_REDAY) && m_players.size() == SEAT_NUM)
+    if(!allSeatFit(PREPARE_REDAY))
     {
-        gameStart(); 
+        xt_log.debug("not all is prepare.\n");
+        return;
+    }
+    else if(m_players.size() != SEAT_NUM)
+    {
+        xt_log.debug("not enouth player, size:%d\n", m_players.size());
+        return;
     }
     else
     {
-        xt_log.debug("not fit for gamestart, size:%d\n", m_players.size());
+        gameStart(); 
     }
 }
 
@@ -446,7 +452,7 @@ bool Table::sitdown(Player* player)
     }
     if(seatid < 0)
     {
-        xt_log.error("%s:%d, no empty seat.", __FILE__, __LINE__); 
+        xt_log.error("%s:%d, no empty seat.\n", __FILE__, __LINE__); 
         return false; 
     }
 
@@ -537,6 +543,7 @@ void Table::prepareProc(void)
 {
     m_state = STATE_PREPARE; 
     setAllSeatOp(PREPARE_WAIT);
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::callProc(void)
@@ -544,12 +551,14 @@ void Table::callProc(void)
     m_state = STATE_CALL; 
     setAllSeatOp(CALL_WAIT);
     m_opState[m_curSeat] = CALL_NOTIFY;
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::doubleProc(void)
 {
     m_state = STATE_DOUBLE; 
     setAllSeatOp(DOUBLE_NOTIFY);
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::outProc(void)
@@ -558,6 +567,7 @@ void Table::outProc(void)
     setAllSeatOp(OUT_WAIT);
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
         
 void Table::logout(Player* player)
@@ -596,7 +606,6 @@ void Table::logout(Player* player)
             packet.val["uid"]           = it->first;
             packet.end();
             unicast(it->second, packet.tostring());
-            sitdown(it->second); 
         }
     }
 
@@ -606,6 +615,10 @@ void Table::logout(Player* player)
         
 void Table::endProc(void)
 {
+    m_state = STATE_END;
+    setAllSeatOp(GAME_END);
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+
     //计算各座位输赢
     ////////////////////////////////////////////////////////////////////////
     int doubleNum = max(getAllDouble(), 1);
@@ -874,6 +887,7 @@ bool Table::allSeatFit(int state)
     {
         if(m_opState[i] != state) 
         {
+            xt_log.debug("seatid:%d state is %s, check state is %s\n", i, DESC_OP[m_opState[i]], DESC_OP[state]);
             return false; 
         }
     }

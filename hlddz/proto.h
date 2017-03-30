@@ -38,16 +38,29 @@ enum ERROR_CODE
 //游戏阶段
 enum STATE
 {
+    STATE_NULL                  = 0,
     STATE_PREPARE               = 1,            //准备
     STATE_CALL                  = 2,            //叫分
     STATE_DOUBLE                = 3,            //加倍
     STATE_OUT                   = 4,            //出牌
     STATE_END                   = 5,            //结算
+    STATE_MAX                   = 6,            //
+};
+
+static const char* DESC_STATE[STATE_MAX] = 
+{
+    "STATE_NULL",
+    "STATE_PREPARE",
+    "STATE_CALL",
+    "STATE_DOUBLE",
+    "STATE_OUT",
+    "STATE_END"
 };
 
 //当前座位状态
 enum OP_STATE
 {
+    OP_NULL                     = 0,            //NULL
     PREPARE_WAIT                = 1,            //等待准备
     PREPARE_REDAY               = 2,            //已准备
     CALL_WAIT                   = 3,            //等待叫分通知
@@ -56,6 +69,22 @@ enum OP_STATE
     DOUBLE_NOTIFY               = 6,            //已经通知
     DOUBLE_RECEIVE              = 7,            //已经响应
     OUT_WAIT                    = 8,            //等待出牌
+    GAME_END                    = 9,            //结算中
+    OP_MAX                      = 10,           //MAX
+};
+
+static const char* DESC_OP[OP_MAX] = 
+{
+    "OP_NULL",
+    "PREPARE_WAIT",
+    "PREPARE_REDAY",
+    "CALL_WAIT",
+    "CALL_NOTIFY",
+    "CALL_RECEIVE",
+    "DOUBLE_NOTIFY",
+    "DOUBLE_RECEIVE",
+    "OUT_WAIT",
+    "GAME_END"
 };
 
 #endif
