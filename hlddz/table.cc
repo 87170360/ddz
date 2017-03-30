@@ -231,8 +231,8 @@ void Table::reLogin(Player* player)
 void Table::msgPrepare(Player* player)
 {
     xt_log.debug("msg prepare uid:%d, seatid:%d\n", player->uid, player->m_seatid);
-    m_opState[player->m_seatid] = PREPARE_REDAY; 
-    if(!allSeatFit(PREPARE_REDAY))
+    m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
+    if(!allSeatFit(OP_PREPARE_REDAY))
     {
         xt_log.debug("not all is prepare.\n");
         return;
@@ -264,7 +264,7 @@ void Table::msgCall(Player* player)
         return;
     }
 
-    if(m_opState[player->m_seatid] != CALL_NOTIFY)
+    if(m_opState[player->m_seatid] != OP_CALL_NOTIFY)
     {//座位通知过
         xt_log.error("%s:%d, player callstate error. player seatid:%d, uid:%d, callstate:%d\n", __FILE__, __LINE__, player->m_seatid, player->uid, m_opState[player->m_seatid]); 
         return; 
@@ -281,7 +281,7 @@ void Table::msgCall(Player* player)
     //保存当前叫分
     m_callScore[m_curSeat] = msg["score"].asInt();
     //记录状态
-    m_opState[m_curSeat] = CALL_RECEIVE;
+    m_opState[m_curSeat] = OP_CALL_RECEIVE;
     xt_log.debug("call score, uid:%d, seatid:%d, score :%d\n", player->uid, player->m_seatid, m_callScore[player->m_seatid]);
 
     //是否已经选出地主
@@ -313,7 +313,7 @@ void Table::msgDouble(Player* player)
     xt_log.debug("msgdouble, uid:%d, seatid:%d, double:%s\n", player->uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
 
     //加倍不分先后
-    m_opState[player->m_seatid] = DOUBLE_RECEIVE;
+    m_opState[player->m_seatid] = OP_DOUBLE_RECEIVE;
 
     xt_log.debug("double continue!\n");
     sendDouble(player->uid, m_famerDouble[player->m_seatid]);
@@ -542,29 +542,29 @@ bool Table::allocateCard(void)
 void Table::prepareProc(void)
 {
     m_state = STATE_PREPARE; 
-    setAllSeatOp(PREPARE_WAIT);
+    setAllSeatOp(OP_PREPARE_WAIT);
     xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::callProc(void)
 {
     m_state = STATE_CALL; 
-    setAllSeatOp(CALL_WAIT);
-    m_opState[m_curSeat] = CALL_NOTIFY;
+    setAllSeatOp(OP_CALL_WAIT);
+    m_opState[m_curSeat] = OP_CALL_NOTIFY;
     xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::doubleProc(void)
 {
     m_state = STATE_DOUBLE; 
-    setAllSeatOp(DOUBLE_NOTIFY);
+    setAllSeatOp(OP_DOUBLE_NOTIFY);
     xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::outProc(void)
 {
     m_state = STATE_OUT;
-    setAllSeatOp(OUT_WAIT);
+    setAllSeatOp(OP_OUT_WAIT);
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
     xt_log.debug("state: %s\n", DESC_STATE[m_state]);
@@ -616,7 +616,7 @@ void Table::logout(Player* player)
 void Table::endProc(void)
 {
     m_state = STATE_END;
-    setAllSeatOp(GAME_END);
+    setAllSeatOp(OP_GAME_END);
     xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 
     //计算各座位输赢
@@ -836,11 +836,11 @@ bool Table::getNext(void)
     {
         case STATE_CALL:
             {
-                if(m_opState[nextSeat] == CALL_WAIT) 
+                if(m_opState[nextSeat] == OP_CALL_WAIT) 
                 {
                     m_preSeat = m_curSeat;
                     m_curSeat = nextSeat;
-                    m_opState[m_curSeat] = CALL_NOTIFY;
+                    m_opState[m_curSeat] = OP_CALL_NOTIFY;
                     //xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
                     return true; 
                 }
@@ -917,7 +917,7 @@ bool Table::selecLord(void)
             seatid = i;
         }
 
-        if(m_opState[i] != CALL_RECEIVE)
+        if(m_opState[i] != OP_CALL_RECEIVE)
         {
             isAll = false;
         }
@@ -987,7 +987,7 @@ bool Table::isDoubleFinish(void)
     //所以农民已经回复加倍
     for(unsigned int i = 0; i < SEAT_NUM; ++i) 
     {
-        if(m_opState[i] != DOUBLE_RECEIVE && m_lordSeat != i)
+        if(m_opState[i] != OP_DOUBLE_RECEIVE && m_lordSeat != i)
         {
             return false; 
         }

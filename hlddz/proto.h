@@ -61,30 +61,30 @@ static const char* DESC_STATE[STATE_MAX] =
 enum OP_STATE
 {
     OP_NULL                     = 0,            //NULL
-    PREPARE_WAIT                = 1,            //等待准备
-    PREPARE_REDAY               = 2,            //已准备
-    CALL_WAIT                   = 3,            //等待叫分通知
-    CALL_NOTIFY                 = 4,            //已通知
-    CALL_RECEIVE                = 5,            //已经叫分
-    DOUBLE_NOTIFY               = 6,            //已经通知
-    DOUBLE_RECEIVE              = 7,            //已经响应
-    OUT_WAIT                    = 8,            //等待出牌
-    GAME_END                    = 9,            //结算中
+    OP_PREPARE_WAIT                = 1,            //等待准备
+    OP_PREPARE_REDAY               = 2,            //已准备
+    OP_CALL_WAIT                   = 3,            //等待叫分通知
+    OP_CALL_NOTIFY                 = 4,            //已通知
+    OP_CALL_RECEIVE                = 5,            //已经叫分
+    OP_DOUBLE_NOTIFY               = 6,            //已经通知
+    OP_DOUBLE_RECEIVE              = 7,            //已经响应
+    OP_OUT_WAIT                    = 8,            //等待出牌
+    OP_GAME_END                    = 9,            //结算中
     OP_MAX                      = 10,           //MAX
 };
 
 static const char* DESC_OP[OP_MAX] = 
 {
     "OP_NULL",
-    "PREPARE_WAIT",
-    "PREPARE_REDAY",
-    "CALL_WAIT",
-    "CALL_NOTIFY",
-    "CALL_RECEIVE",
-    "DOUBLE_NOTIFY",
-    "DOUBLE_RECEIVE",
-    "OUT_WAIT",
-    "GAME_END"
+    "OP_PREPARE_WAIT",
+    "OP_PREPARE_REDAY",
+    "OP_CALL_WAIT",
+    "OP_CALL_NOTIFY",
+    "OP_CALL_RECEIVE",
+    "OP_DOUBLE_NOTIFY",
+    "OP_DOUBLE_RECEIVE",
+    "OP_OUT_WAIT",
+    "OP_GAME_END"
 };
 
 #endif
