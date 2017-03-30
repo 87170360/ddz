@@ -37,7 +37,7 @@ void Jpacket::end()
     //header[0] = 0xFA;
     //header[1] = 0xF1;
 	std::string out = val.toStyledString().c_str();
-	printf("sendDataStyled: [%s]\n", out.c_str());
+	//printf("sendDataStyled: [%s]\n", out.c_str());
 	xorfunc(out);
     header.m_length = out.length();
 	
@@ -49,7 +49,7 @@ void Jpacket::end()
 int Jpacket::parse(std::string &str)
 {
 	xorfunc(str);
-	printf("recvData: [%s]\n", str.c_str());
+	//printf("recvData: [%s]\n", str.c_str());
     if (reader.parse(str, val) < 0)
     {
         return -1;

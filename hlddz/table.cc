@@ -208,6 +208,7 @@ int Table::login(Player *player)
     //检查入场费
     if(player->money < ROOMTAX)
     {
+        xt_log.error("%s:%d, player was no enouth money! uid:%d\n", __FILE__, __LINE__, player->uid); 
         loginUC(player, CODE_MONEY);
         return 0; 
     }

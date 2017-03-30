@@ -151,7 +151,7 @@ void XtRobotClient::onWriteData(struct ev_loop *loop, struct ev_io *w, int reven
 		ev_io_stop(EV_A_ w);
 		return;
 	}
-	printf("WriteData To Server\n");
+	//printf("WriteData To Server\n");
 
 	XtBuffer* buffer = self->m_writeQueue.front();
 
