@@ -24,7 +24,7 @@ enum SERVER_COMMAND
     SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time
     SERVER_END                  = 2008,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2009,         //通知机器人重新准备
-    SERVER_LOGOUT               = 2010,         //离开牌桌
+    SERVER_KICK                 = 2010,         //踢人离场
 };
 
 enum ERROR_CODE

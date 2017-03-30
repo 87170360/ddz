@@ -57,7 +57,7 @@ int Table::init(int tid)
     reset();
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        m_seats[i] = 0; 
+        setSeat(0, i);
     }
     return 0;
 }
@@ -67,7 +67,6 @@ void Table::reset(void)
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         //重新下一局， 座位信息不能删除
-        //m_seats[i] = 0; 
         m_callScore[i] = 0;
         m_famerDouble[i] = false;
         m_seatCard[i].reset();
@@ -253,9 +252,9 @@ void Table::msgCall(Player* player)
     }
 
     //座位玩家是否匹配
-    if(player->m_seatid >= SEAT_NUM || player->m_seatid < 0 || m_seats[player->m_seatid] != player->uid)
+    if(player->m_seatid >= SEAT_NUM || player->m_seatid < 0 || getSeat(player->m_seatid) != player->uid)
     {
-        xt_log.error("%s:%d, seat info error. player seatid:%d, uid:%d, seatuid:%d\n", __FILE__, __LINE__, player->m_seatid, player->uid, m_seats[player->m_seatid]); 
+        xt_log.error("%s:%d, seat info error. player seatid:%d, uid:%d, seatuid:%d\n", __FILE__, __LINE__, player->m_seatid, player->uid, getSeat(player->m_seatid)); 
         return;
     }
 
@@ -439,7 +438,7 @@ bool Table::sitdown(Player* player)
     int seatid = -1;
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        if(m_seats[i] == 0) 
+        if(getSeat(i) == 0) 
         {
             seatid = i; 
             break;
@@ -453,7 +452,7 @@ bool Table::sitdown(Player* player)
 
     player->m_seatid = seatid;
     player->m_tid = m_tid;
-    m_seats[seatid] = player->uid;
+    setSeat(player->uid, seatid);
     m_players[player->uid] = player;
     xt_log.debug("sitdown uid:%d, seatid:%d\n", player->uid, seatid);
     return true;
@@ -527,7 +526,7 @@ bool Table::allocateCard(void)
             xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
             return false;
         }
-        xt_log.debug("uid:%d\n", m_seats[i]);
+        xt_log.debug("uid:%d\n", getSeat(i));
         show(m_seatCard[i].m_cards);
     }
 
@@ -563,8 +562,9 @@ void Table::outProc(void)
         
 void Table::logout(Player* player)
 {
+    xt_log.debug("player logout, uid:%d\n", player->uid);
     //退出发生后，牌桌内只有机器人,重新进入准备状态，方便测试
-    map<int, Player*>::iterator it  = m_players.find(player->uid);
+    map<int, Player*>::iterator it = m_players.find(player->uid);
     if(it != m_players.end())
     {
         m_players.erase(it);
@@ -601,7 +601,7 @@ void Table::logout(Player* player)
     }
 
     //清理座位信息
-    m_seats[player->m_seatid] = 0;
+    setSeat(0, player->m_seatid);
 }
         
 void Table::endProc(void)
@@ -653,6 +653,19 @@ void Table::endProc(void)
 
     //重置游戏
     reset();
+
+    //检查入场费, 踢出不够的
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        if(pl->money < ROOMTAX)
+        {
+            Jpacket packet;
+            packet.val["cmd"]           = SERVER_KICK;
+            unicast(pl, packet.tostring());
+            xt_log.debug("%s:%d, kick player uid:%d, seatid:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid); 
+        }
+    }
 }
 
 void Table::sendCard1(void)
@@ -665,7 +678,7 @@ void Table::sendCard1(void)
         vector_to_json_array(m_seatCard[pl->m_seatid].m_cards, packet, "card");
         packet.val["time"]          = CALLTIME;
         packet.val["show_time"]     = SHOWTIME;
-        packet.val["cur_id"]        = getSeatUid(m_curSeat);
+        packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -679,8 +692,8 @@ void Table::sendCallAgain(void)
         Jpacket packet;
         packet.val["cmd"]           = SERVER_AGAIN_CALL;
         packet.val["time"]          = CALLTIME;
-        packet.val["cur_id"]        = getSeatUid(m_curSeat);
-        packet.val["pre_id"]        = getSeatUid(m_preSeat);
+        packet.val["cur_id"]        = getSeat(m_curSeat);
+        packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["score"]         = m_callScore[m_preSeat];
         packet.end();
         unicast(pl, packet.tostring());
@@ -696,7 +709,7 @@ void Table::sendCallResult(void)
         packet.val["cmd"]           = SERVER_RESULT_CALL;
         packet.val["time"]          = DOUBLETIME;
         packet.val["score"]         = m_topCall;
-        packet.val["lord"]          = getSeatUid(m_lordSeat);
+        packet.val["lord"]          = getSeat(m_lordSeat);
         vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
@@ -727,11 +740,11 @@ void Table::sendDoubleResult(void)
         Jpacket packet;
         packet.val["cmd"]           = SERVER_RESULT_DOUBLE;
         packet.val["time"]          = CARDTIME;
-        packet.val["cur_id"]        = getSeatUid(m_curSeat);
+        packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
-        //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeatUid(m_curSeat), getCount());
+        //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeat(m_curSeat), getCount());
     }
 }
 
@@ -743,9 +756,9 @@ void Table::sendOutAgain(void)
         Jpacket packet;
         packet.val["cmd"]           = SERVER_AGAIN_OUT;
         packet.val["time"]          = CARDTIME;
-        packet.val["cur_id"]        = getSeatUid(m_curSeat);
-        packet.val["pre_id"]        = getSeatUid(m_preSeat);
-        packet.val["out_id"]        = getSeatUid(m_outSeat);
+        packet.val["cur_id"]        = getSeat(m_curSeat);
+        packet.val["pre_id"]        = getSeat(m_preSeat);
+        packet.val["out_id"]        = getSeat(m_outSeat);
         packet.val["keep"]          = (m_preSeat != m_outSeat);
         vector_to_json_array(m_lastCard, packet, "card");
         packet.end();
@@ -791,7 +804,7 @@ void Table::gameStart(void)
     allocateCard();
     sendCard1();
 
-    xt_log.debug("game start, cur_id:%d, seateid:%d\n", getSeatUid(m_curSeat), m_curSeat);
+    xt_log.debug("game start, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
     //ev_timer_again(hlddz.loop, &m_timerCall);
 }
         
@@ -825,7 +838,7 @@ void Table::gameRestart(void)
     allocateCard();
     sendCard1();
 
-    xt_log.debug("game restart, cur_id:%d, seateid:%d\n", getSeatUid(m_curSeat), m_curSeat);
+    xt_log.debug("game restart, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
 }
 
 bool Table::getNext(void)
@@ -858,20 +871,10 @@ bool Table::getNext(void)
     xt_log.debug("get next finish, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
     return false;
 }
-
-int Table::getSeatUid(unsigned int seatid)
-{
-    if(seatid < 0 || seatid >= SEAT_NUM) 
-    {
-        xt_log.error("%s:%d, getSeatUid error! seatid:%d\n",__FILE__, __LINE__, seatid); 
-        return 0;
-    }
-    return m_seats[seatid];
-}
         
 Player* Table::getSeatPlayer(unsigned int seatid)
 {
-    int uid = m_seats[seatid];
+    int uid = getSeat(seatid);
     map<int, Player*>::const_iterator it = m_players.find(uid);
     if(it != m_players.end())
     {
@@ -909,7 +912,7 @@ bool Table::selecLord(void)
     {
         m_topCall = m_callScore[m_curSeat];
         m_lordSeat = m_curSeat;
-        xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeatUid(m_lordSeat));
+        xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
         return true;
     }
 
@@ -946,7 +949,7 @@ bool Table::selecLord(void)
     m_topCall = score;
     m_lordSeat = seatid;
 
-    xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeatUid(m_lordSeat));
+    xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
     return true;
 }
 
@@ -1157,4 +1160,24 @@ void Table::payTax(void)
         if(tmpplayer == NULL) continue;
         tmpplayer->changeMoney(-ROOMTAX);
     }
+}
+        
+void Table::setSeat(int uid, int seatid)
+{
+    if(seatid < 0 || seatid >= static_cast<int>(SEAT_NUM))
+    {
+       xt_log.error("%s:%d, setSeat error seatid:%d, uid:%d\n", __FILE__, __LINE__, seatid, uid); 
+       return; 
+    }
+    m_seats[seatid] = uid;
+}
+
+int Table::getSeat(int seatid)
+{
+    if(seatid < 0 || seatid >= static_cast<int>(SEAT_NUM))
+    {
+       xt_log.error("%s:%d, getSeat error seatid:%d\n", __FILE__, __LINE__, seatid); 
+       return 0; 
+    }
+    return m_seats[seatid];
 }

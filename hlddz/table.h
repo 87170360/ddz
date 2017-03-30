@@ -103,8 +103,6 @@ class Table
         void gameRestart(void);
         //获取下一个操作用户
         bool getNext(void);
-        //获取用户id
-        int getSeatUid(unsigned int seatid);
         //获取用户
         Player* getSeatPlayer(unsigned int seatid);
         //设置座位状态
@@ -136,6 +134,11 @@ class Table
         void payResult(void);
         //扣除入场费
         void payTax(void);
+
+        //设置座位的玩家
+        void setSeat(int uid, int seatid);
+        //获取座位的玩家uid
+        int getSeat(int seatid);
 
     private:
         void reset(void);
