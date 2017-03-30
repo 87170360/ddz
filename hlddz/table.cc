@@ -615,38 +615,10 @@ void Table::endProc(void)
     //最终数值
     int finalScore = min(score, minMoney);
     //xt_log.debug("endProc, befor score:%d, min money:%d, finalScore:%d\n", score, minMoney, finalScore);
-
-    for(unsigned int i = 0; i < SEAT_NUM; ++i)
-    {
-        //地主赢
-        if(m_win == m_lordSeat)    
-        {
-            if(i == m_lordSeat)
-            {
-                m_money[i] = finalScore; 
-            }
-            else
-            {
-                m_money[i] = -finalScore / 2; 
-            }
-            continue;
-        }
-        else
-        {//农民赢
-            if(i == m_lordSeat)
-            {
-                m_money[i] = -finalScore; 
-            }
-            else
-            {
-                m_money[i] = finalScore / 2; 
-            }
-            continue;
-        }
-    }
+    //计算各座位输赢
+    calculate(finalScore);
     //修改玩家金币
     payResult();
-
     //通知结算
     sendEnd(doubleNum, finalScore);
     ////////////////////////////////////////////////////////////////////////
@@ -663,7 +635,8 @@ void Table::endProc(void)
             Jpacket packet;
             packet.val["cmd"]           = SERVER_KICK;
             unicast(pl, packet.tostring());
-            xt_log.debug("%s:%d, kick player uid:%d, seatid:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid); 
+            xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid, pl->money, ROOMTAX); 
+            setSeat(0, pl->m_seatid);
         }
     }
 }
@@ -805,6 +778,7 @@ void Table::gameStart(void)
     sendCard1();
 
     xt_log.debug("game start, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    showGame();
     //ev_timer_again(hlddz.loop, &m_timerCall);
 }
         
@@ -839,6 +813,7 @@ void Table::gameRestart(void)
     sendCard1();
 
     xt_log.debug("game restart, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    showGame();
 }
 
 bool Table::getNext(void)
@@ -978,6 +953,19 @@ void Table::show(const vector<XtCard>& card)
         printStr.append(" ");
     }
     xt_log.debug("%s\n", printStr.c_str());
+}
+
+void Table::showGame(void)
+{
+    Player* tmpplayer = NULL;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        tmpplayer = it->second;
+        if(tmpplayer == NULL) continue;
+        xt_log.debug("uid:%d, money:%d, name:%s\n", tmpplayer->uid, tmpplayer->money, tmpplayer->name.c_str());
+    }
+        
+    xt_log.debug("seat0:%d, seat1:%d, seat2:%d\n", getSeat(0), getSeat(1), getSeat(2));
 }
 
 bool Table::isDoubleFinish(void)
@@ -1159,6 +1147,38 @@ void Table::payTax(void)
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
         tmpplayer->changeMoney(-ROOMTAX);
+    }
+}
+        
+void Table::calculate(int finalScore)
+{
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        //地主赢
+        if(m_win == m_lordSeat)    
+        {
+            if(i == m_lordSeat)
+            {
+                m_money[i] = finalScore; 
+            }
+            else
+            {
+                m_money[i] = -finalScore / 2; 
+            }
+            continue;
+        }
+        else
+        {//农民赢
+            if(i == m_lordSeat)
+            {
+                m_money[i] = -finalScore; 
+            }
+            else
+            {
+                m_money[i] = finalScore / 2; 
+            }
+            continue;
+        }
     }
 }
         

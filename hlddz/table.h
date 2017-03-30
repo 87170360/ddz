@@ -115,6 +115,8 @@ class Table
         int getCount(void);
         //打印牌组
         void show(const vector<XtCard>& card);
+        //打印游戏信息
+        void showGame(void);
         //加倍完毕
         bool isDoubleFinish(void);
         //获取所有加倍数量
@@ -134,6 +136,8 @@ class Table
         void payResult(void);
         //扣除入场费
         void payTax(void);
+        //计算各座位输赢
+        void calculate(int finalScore);
 
         //设置座位的玩家
         void setSeat(int uid, int seatid);
