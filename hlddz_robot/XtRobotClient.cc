@@ -209,9 +209,6 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             handleRespond(val);
             break;
         case SERVER_CARD_1:
-            m_card.clear();
-            json_array_to_vector(m_card, data, "card");
-            XtCard::sortByDescending(m_card);
             handleCall(val);
             break;
         case SERVER_AGAIN_CALL:
@@ -263,6 +260,7 @@ void XtRobotClient::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &pac
     }
 }
 
+/*
 void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
 {
     Json::Value &val = packet.tojson();
@@ -274,6 +272,7 @@ void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &pa
         cards.push_back(card);
     }
 }
+*/
 
 void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value &val, string key)
 {
@@ -294,11 +293,14 @@ void XtRobotClient::handleRespond(Json::Value& msg)
         
 void XtRobotClient::handleCall(Json::Value& msg) 
 {
+    m_card.clear();
+    json_array_to_vector(m_card, msg, "card");
+    XtCard::sortByDescending(m_card);
+
     if(msg["cur_id"].asInt() != m_uid)
     {
         return;
     }
-    //sendCall();
     int show_time = msg["show_time"].asInt();
 	ev_timer_stop(m_evloop, &m_showTimer);
 	ev_timer_set(&m_showTimer, show_time, 0);
