@@ -24,7 +24,7 @@ enum SERVER_COMMAND
     SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time
     SERVER_END                  = 2008,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2009,         //通知机器人重新准备
-    SERVER_LOGOUT               = 2010,         //离开牌桌
+    SERVER_KICK                 = 2010,         //踢人离场
 };
 
 enum ERROR_CODE
@@ -38,24 +38,53 @@ enum ERROR_CODE
 //游戏阶段
 enum STATE
 {
+    STATE_NULL                  = 0,
     STATE_PREPARE               = 1,            //准备
     STATE_CALL                  = 2,            //叫分
     STATE_DOUBLE                = 3,            //加倍
     STATE_OUT                   = 4,            //出牌
     STATE_END                   = 5,            //结算
+    STATE_MAX                   = 6,            //
+};
+
+static const char* DESC_STATE[STATE_MAX] = 
+{
+    "STATE_NULL",
+    "STATE_PREPARE",
+    "STATE_CALL",
+    "STATE_DOUBLE",
+    "STATE_OUT",
+    "STATE_END"
 };
 
 //当前座位状态
 enum OP_STATE
 {
-    PREPARE_WAIT                = 1,            //等待准备
-    PREPARE_REDAY               = 2,            //已准备
-    CALL_WAIT                   = 3,            //等待叫分通知
-    CALL_NOTIFY                 = 4,            //已通知
-    CALL_RECEIVE                = 5,            //已经叫分
-    DOUBLE_NOTIFY               = 6,            //已经通知
-    DOUBLE_RECEIVE              = 7,            //已经响应
-    OUT_WAIT                    = 8,            //等待出牌
+    OP_NULL                     = 0,            //NULL
+    OP_PREPARE_WAIT                = 1,            //等待准备
+    OP_PREPARE_REDAY               = 2,            //已准备
+    OP_CALL_WAIT                   = 3,            //等待叫分通知
+    OP_CALL_NOTIFY                 = 4,            //已通知
+    OP_CALL_RECEIVE                = 5,            //已经叫分
+    OP_DOUBLE_NOTIFY               = 6,            //已经通知
+    OP_DOUBLE_RECEIVE              = 7,            //已经响应
+    OP_OUT_WAIT                    = 8,            //等待出牌
+    OP_GAME_END                    = 9,            //结算中
+    OP_MAX                      = 10,           //MAX
+};
+
+static const char* DESC_OP[OP_MAX] = 
+{
+    "OP_NULL",
+    "OP_PREPARE_WAIT",
+    "OP_PREPARE_REDAY",
+    "OP_CALL_WAIT",
+    "OP_CALL_NOTIFY",
+    "OP_CALL_RECEIVE",
+    "OP_DOUBLE_NOTIFY",
+    "OP_DOUBLE_RECEIVE",
+    "OP_OUT_WAIT",
+    "OP_GAME_END"
 };
 
 #endif

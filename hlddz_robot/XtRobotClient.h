@@ -30,7 +30,6 @@ enum XtParseState
     XT_PARSE_CROSS_DOMAIN	= 3,
 };
 
-
 #ifndef XT_MAX_BUF_LEN
 #   define XT_MAX_BUF_LEN (1024*8)
 #endif
@@ -39,21 +38,11 @@ enum XtParseState
 #   define XT_DEF_BUF_LEN (1024*8)
 #endif
 
-
-
-
 class XtRobotClient 
 {
 	public:
 		static void onReadData(struct ev_loop *loop, struct ev_io *w, int revents);
 		static void onWriteData(struct ev_loop *loop, struct ev_io *w, int revents);
-
-		static void onDoFold(struct ev_loop* loop,struct ev_timer* w,int events);
-		static void onDoFollow(struct ev_loop* loop,struct ev_timer* w,int events);
-		static void onDoSee(struct ev_loop* loop,struct ev_timer* w,int events);
-		static void onDoCompare(struct ev_loop* loop,struct ev_timer* w,int events);
-		static void onDoAllIn(struct ev_loop* loop,struct ev_timer* w,int events);
-
         //showTimer 定时器回调函数
 		static void tfShow(struct ev_loop* loop, struct ev_timer* w, int events);
 
@@ -64,13 +53,6 @@ class XtRobotClient
 
 	public:
 		int onReciveCmd(Jpacket& cmd);
-
-		void handleGameStart(Json::Value& cmd);
-		void handleGameEnd(Json::Value& cmd);
-		void handleGameNextBet(Json::Value& cmd);
-		void handleBetBc(Json::Value& cmd);
-		void handleTableInfo(Json::Value& cmd);
-		void handleRobotChange(Json::Value& cmd);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 	    void vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key);
@@ -93,34 +75,14 @@ class XtRobotClient
 	public:
 
 		void doLogin();
-		void doFold();
-		void doFollow();
-		void doSee();
-		void doChangeTable();
-		void doCompare();
-		void doAllIn();
-
-
 		void sendLoginPackage();
-		void sendFoldPackage();
-		void sendFollowPackage();
-		void sendSeePackage();
-		void sendChangeTablePackage();
-		void sendComparePacket();
-		void sendAllInPacket();
-
-
 	public:
 		int connectToServer(const char* ip,int port,int uid);
 		int closeConnect();
 
-		int getTargetSeatId();
-
-
 	public:
 		XtRobotClient(struct ev_loop* evloop);
 		~XtRobotClient();
-
 
 	private:
         ///////////////////////////////////////
@@ -132,25 +94,10 @@ class XtRobotClient
 
 		ev_io m_evWrite;
 		ev_io m_evRead;
-		ev_timer m_evFollowTimer;
-		ev_timer m_evSeeTimer;
-		ev_timer m_evFoldTimer;
-		ev_timer m_evCompareTimer;
-		ev_timer m_evAllInTimer;
 
 		int m_serverfd;
 		/*game info */
 		int m_uid;
-		bool m_isBetting;
-		bool m_hasSee;
-		bool m_isAllIn;
-		int m_seatid;
-		int m_cardType;
-		int m_maxRound;
-		int m_seatBettingInfo[5];
-		int m_curRound;
-
-
 
 		/* parse data */
 		int m_state;
@@ -166,8 +113,3 @@ class XtRobotClient
 };
 
 #endif /*_XT_ROBOT_CLIENT_H_*/
-
-
-
-
-

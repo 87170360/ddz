@@ -18,16 +18,9 @@
 
 XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 {
-	m_evFoldTimer.data=this;
-	m_evFollowTimer.data=this;
-	m_evSeeTimer.data=this;
 	m_evWrite.data=this;
 	m_evRead.data=this;
-	m_evCompareTimer.data=this;
-	m_evAllInTimer.data=this;
-
     m_showTimer.data = this;
-
 
 	m_evloop=evloop;
 
@@ -35,14 +28,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 
 	m_serverfd=-1;
 
-	m_uid=0;
-	m_hasSee=false;
-	m_isBetting=false;
-	m_isAllIn=false;
-	m_seatid=-1;
 	m_state=XT_PARSE_HEADER;
-	m_curRound=0;
-
 }
 
 
@@ -52,10 +38,6 @@ XtRobotClient::~XtRobotClient()
 	{
 		ev_io_stop(m_evloop,&m_evWrite);
 		ev_io_stop(m_evloop,&m_evRead);
-		ev_timer_stop(m_evloop,&m_evFoldTimer);
-		ev_timer_stop(m_evloop,&m_evFollowTimer);
-		ev_timer_stop(m_evloop,&m_evSeeTimer);
-
 		ev_timer_stop(m_evloop, &m_showTimer);
 		close(m_serverfd);
 	}
@@ -190,44 +172,6 @@ void XtRobotClient::onWriteData(struct ev_loop *loop, struct ev_io *w, int reven
 	delete buffer;
 }
 
-
-void XtRobotClient::onDoFold(struct ev_loop* loop,struct ev_timer* w,int events)
-{
-	ev_timer_stop(loop,w);
-	XtRobotClient* self = (XtRobotClient*) w->data;
-
-	self->sendFoldPackage();
-}
-
-void XtRobotClient::onDoFollow(struct ev_loop* loop,struct ev_timer* w,int events)
-{
-
-	ev_timer_stop(loop,w);
-	XtRobotClient* self = (XtRobotClient*) w->data;
-	self->sendFollowPackage();
-}
-
-void XtRobotClient::onDoSee(struct ev_loop* loop,struct ev_timer* w,int events)
-{
-	ev_timer_stop(loop,w);
-	XtRobotClient* self = (XtRobotClient*) w->data;
-	self->sendSeePackage();
-}
-
-void XtRobotClient::onDoCompare(struct ev_loop* loop,struct ev_timer* w,int events)
-{
-	ev_timer_stop(loop,w);
-	XtRobotClient* self = (XtRobotClient*) w->data;
-	self->sendComparePacket();
-}
-
-void XtRobotClient::onDoAllIn(struct ev_loop* loop,struct ev_timer* w,int events)
-{
-	ev_timer_stop(loop,w);
-	XtRobotClient* self = (XtRobotClient*) w->data;
-	self->sendAllInPacket();
-}
-
 void XtRobotClient::tfShow(struct ev_loop* loop, struct ev_timer* w, int events)
 {
     printf("showtimer active.\n");
@@ -242,9 +186,7 @@ int XtRobotClient::closeConnect()
 	{
 		ev_io_stop(m_evloop,&m_evWrite);
 		ev_io_stop(m_evloop,&m_evRead);
-		ev_timer_stop(m_evloop,&m_evFoldTimer);
-		ev_timer_stop(m_evloop,&m_evFollowTimer);
-		ev_timer_stop(m_evloop,&m_evSeeTimer);
+		ev_timer_stop(m_evloop, &m_showTimer);
 		close(m_serverfd);
 	}
 	m_serverfd=-1;
@@ -295,20 +237,6 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
 	}
 
 	return 0;
-}
-
-
-void XtRobotClient::handleGameEnd(Json::Value& data)
-{
-	if(rand()%12<6)
-	{
-		doChangeTable();
-	}
-}
-
-void XtRobotClient::handleRobotChange(Json::Value& data)
-{
-	doChangeTable();
 }
 
 void XtRobotClient::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)
@@ -512,266 +440,10 @@ void XtRobotClient::sendCall(void)
 	send(data.tostring());
 }
 
-void XtRobotClient::handleTableInfo(Json::Value& data)
-{
-	m_seatid=data["seatid"].asInt();
-	m_isBetting=false;
-}
-
-
-void XtRobotClient::handleGameStart(Json::Value& data)
-{
-	m_isBetting=true;
-	m_hasSee=false;
-	m_isAllIn=false;
-	m_cardType=0;
-	m_maxRound=0;
-	m_curRound=0;
-
-	for(int i=0;i<5;i++)
-	{
-		m_seatBettingInfo[i]=0;
-	}
-
-	int size= data["seatids"].size();
-	for(int i=0;i<size;i++)
-	{
-		m_seatBettingInfo[data["seatids"][i].asInt()]=1;
-	}
-}
-
-void XtRobotClient::handleBetBc(Json::Value& data)
-{
-	//int action=data["action"].asInt();
-
-    /*
-	switch(action)
-	{
-		case PLAYER_CALL:
-			break;
-
-		case PLAYER_RAISE:
-			break;
-
-		case PLAYER_COMPARE:
-			{
-
-				int seat_id=data["seatid"].asInt();
-				int status=data["status"].asInt();
-
-				int target_seatid = data["target_seatid"].asInt();
-				int target_status = data["target_status"].asInt();
-
-				if(target_status==2)
-				{
-					m_seatBettingInfo[target_seatid]=0;
-					if(target_seatid==m_seatid)
-					{
-						m_isBetting=false;
-					}
-				}
-				if(status==2)
-				{
-					m_seatBettingInfo[seat_id]=0;
-					if(seat_id==m_seatid)
-					{
-						m_isBetting=false;
-					}
-				}
-			}
-			break;
-
-		case PLAYER_SEE:
-			{
-				if(data["uid"].asInt()==m_uid)
-				{
-					m_cardType=data["card_type"].asInt();
-					switch(m_cardType)
-					{
-						case CARD_TYPE_BAOZI:
-						case CARD_TYPE_SHUNJIN:
-						case CARD_TYPE_JINHUA:
-							m_maxRound=rand()%9+10;
-							break;
-
-						case CARD_TYPE_SHUNZI:
-							m_maxRound=rand()%4+7;
-							break;
-
-						case CARD_TYPE_DUIZI:
-							m_maxRound=rand()%4+4;
-							break;
-
-						case CARD_TYPE_DANPAI:
-						case CARD_TYPE_TESHU:
-							m_maxRound=0;
-							break;
-					}
-				}
-			}
-
-			break;
-
-		case PLAYER_FOLD:
-			{
-				int seat_id=data["seatid"].asInt();
-				m_seatBettingInfo[seat_id]=0;
-			}
-			break;
-
-		case PLAYER_ALLIN :
-			m_isAllIn=true;
-
-			break;
-
-		case PLAYER_ALLIN_COMPARE :
-			break;
-	}
-*/
-}
-
-
-void XtRobotClient::handleGameNextBet(Json::Value&  val)
-{
-    /*
-	if(!m_isBetting)
-	{
-		return;
-	}
-
-	printf("uid=(%d,%d)",m_uid,val["uid"].asInt());
-	if(m_uid==val["uid"].asInt())
-	{
-		m_curRound++;
-		int cur_round=val["cur_round"].asInt();
-		if(m_curRound>30)
-		{
-			doFold();
-			return;
-		}
-
-		if(!m_hasSee)
-		{
-			if(rand()%10<7||m_isAllIn)
-			{
-				doSee();
-				m_hasSee=true;
-			}
-			else 
-			{
-				doFollow();
-			}
-			return ;
-		}
-
-		if(m_cardType==CARD_TYPE_DANPAI||m_cardType==CARD_TYPE_TESHU)
-		{
-			doFold();
-			m_isBetting=false;
-			return;
-		}
-
-		if(m_isAllIn)
-		{
-			if(m_cardType==CARD_TYPE_SHUNZI)
-			{
-				if(rand()%10<6)
-				{
-					doAllIn();
-				}
-				else 
-				{
-					doFold();
-				}
-			}
-			else  if(m_cardType==CARD_TYPE_DUIZI)
-			{
-				if(rand()%14<2)
-				{
-					doAllIn();
-				}
-				else 
-				{
-					doFold();
-				}
-
-			}
-			else 
-			{
-				doAllIn();
-			}
-
-			return;
-		}
-
-		if(cur_round<m_maxRound)
-		{
-			doFollow();
-			return;
-		}
-		else 
-		{
-			doCompare();
-			return;
-		}
-	}
-*/
-}
-
-
-
-
-
 void XtRobotClient::doLogin()
 {
 	sendLoginPackage();
 }
-
-void XtRobotClient::doFold()
-{
-	ev_timer_stop(m_evloop,&m_evFoldTimer);
-	ev_timer_set(&m_evFoldTimer,rand()%5+2,0);
-	ev_timer_start(m_evloop,&m_evFoldTimer);
-
-}
-
-void XtRobotClient::doFollow()
-{
-	ev_timer_stop(m_evloop,&m_evFollowTimer);
-	ev_timer_set(&m_evFollowTimer,rand()%5+1,0);
-	ev_timer_start(m_evloop,&m_evFollowTimer);
-}
-
-void XtRobotClient::doSee()
-{
-	ev_timer_stop(m_evloop,&m_evSeeTimer);
-	ev_timer_set(&m_evSeeTimer,rand()%4+1,0);
-	ev_timer_start(m_evloop,&m_evSeeTimer);
-}
-
-
-void XtRobotClient::doCompare()
-{
-	ev_timer_stop(m_evloop,&m_evCompareTimer);
-	ev_timer_set(&m_evCompareTimer,rand()%3+2,0);
-	ev_timer_start(m_evloop,&m_evCompareTimer);
-}
-
-void XtRobotClient::doAllIn()
-{
-	ev_timer_stop(m_evloop,&m_evAllInTimer);
-	ev_timer_set(&m_evAllInTimer,rand()%3+2,0);
-	ev_timer_start(m_evloop,&m_evAllInTimer);
-}
-
-
-
-
-void XtRobotClient::doChangeTable()
-{
-	sendChangeTablePackage();
-}
-
 
 int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 {
@@ -807,13 +479,6 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 
 	ev_io_init(&m_evWrite,XtRobotClient::onWriteData,m_serverfd,EV_WRITE);
 
-
-	ev_timer_init(&m_evFoldTimer,XtRobotClient::onDoFold,4,0);
-	ev_timer_init(&m_evFollowTimer,XtRobotClient::onDoFollow,4,0);
-	ev_timer_init(&m_evSeeTimer,XtRobotClient::onDoSee,4,0);
-	ev_timer_init(&m_evCompareTimer,XtRobotClient::onDoCompare,4,0);
-	ev_timer_init(&m_evAllInTimer,XtRobotClient::onDoAllIn,4,0);
-
 	ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 3, 0);
 
 	doLogin();
@@ -832,97 +497,6 @@ void XtRobotClient::sendLoginPackage()
 
 	send(data.tostring());
 }
-
-void XtRobotClient::sendChangeTablePackage()
-{
-
-	Jpacket data;
-	//data.val["cmd"]=CLIENT_CHANGE_REQ;
-
-	data.end();
-	send(data.tostring());
-}
-
-void XtRobotClient::sendFoldPackage()
-{
-	Jpacket data;
-	//data.val["cmd"] = CLIENT_BET_REQ;
-	//data.val["action"] = PLAYER_FOLD;
-	data.end();
-	send(data.tostring());
-}
-
-void XtRobotClient::sendSeePackage()
-{
-	Jpacket data;
-	//data.val["cmd"] = CLIENT_BET_REQ;
-	//data.val["action"] = PLAYER_SEE;
-	data.end();
-	send(data.tostring());
-}
-
-void XtRobotClient::sendFollowPackage()
-{
-	Jpacket data;
-	//data.val["cmd"] = CLIENT_BET_REQ;
-	//data.val["action"] = PLAYER_CALL;
-	data.end();
-	send(data.tostring());
-}
-
-
-
-void XtRobotClient::sendAllInPacket()
-{
-	int target_seat_id=getTargetSeatId();
-	Jpacket data;
-	//data.val["cmd"] = CLIENT_BET_REQ;
-	//data.val["action"] = PLAYER_ALLIN_COMPARE;
-	data.val["seatid"]=m_seatid;
-	data.val["target_seatid"]=target_seat_id;
-	data.end();
-	send(data.tostring());
-}
-
-void XtRobotClient::sendComparePacket()
-{
-	int target_seat_id=getTargetSeatId();
-	Jpacket data;
-	//data.val["cmd"] = CLIENT_BET_REQ;
-	//data.val["action"] = PLAYER_COMPARE;
-	data.val["seatid"]=m_seatid;
-	data.val["target_seatid"]=target_seat_id;
-	data.end();
-	send(data.tostring());
-}
-
-
-int XtRobotClient::getTargetSeatId()
-{
-	std::vector<int> bets;
-
-	for(int i=0;i<5;i++)
-	{
-		if((m_seatBettingInfo[i]==1)&&(i!=m_seatid))
-		{
-			bets.push_back(i);
-		}
-	}
-
-	random_shuffle(bets.begin(),bets.end());
-
-	if(bets.size()>0)
-	{
-		return bets[0];
-	}
-
-	return m_seatid;
-}
-
-
-
-
-
 
 int XtRobotClient::send(const char *buf, unsigned int len)
 {
