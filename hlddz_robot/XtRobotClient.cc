@@ -289,6 +289,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_REPREPARE:
             handleReprepare(val);
             break;
+        case SERVER_END:
+            handleEnd(val);
+            break;
 	}
 
 	return 0;
@@ -485,6 +488,15 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
         
 void XtRobotClient::handleReprepare(Json::Value& msg)
 {
+    m_card.clear();
+	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
+	data.end();
+	send(data.tostring());
+}
+        
+void XtRobotClient::handleEnd(Json::Value& msg)
+{
+    m_card.clear();
 	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
 	data.end();
 	send(data.tostring());

@@ -55,6 +55,10 @@ int Table::init(int tid)
     // xt_log.debug("begin to init table [%d]\n", table_id);
     m_tid = tid;
     reset();
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        m_seats[i] = 0; 
+    }
     return 0;
 }
 
@@ -62,7 +66,8 @@ void Table::reset(void)
 {
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        m_seats[i] = 0; 
+        //重新下一局， 座位信息不能删除
+        //m_seats[i] = 0; 
         m_callScore[i] = 0;
         m_famerDouble[i] = false;
         m_seatCard[i].reset();
@@ -594,6 +599,9 @@ void Table::logout(Player* player)
             sitdown(it->second); 
         }
     }
+
+    //清理座位信息
+    m_seats[player->m_seatid] = 0;
 }
         
 void Table::endProc(void)
@@ -645,7 +653,6 @@ void Table::endProc(void)
 
     //重置游戏
     reset();
-
 }
 
 void Table::sendCard1(void)

@@ -85,6 +85,7 @@ class XtRobotClient
         void handleOut(Json::Value& msg);
         void handleAgainOut(Json::Value& msg);
         void handleReprepare(Json::Value& msg);
+        void handleEnd(Json::Value& msg);
 
         void sendCall(void);
 //////////////////////////////////////////////////////////////////////////////////////////////
