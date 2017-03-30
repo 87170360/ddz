@@ -383,7 +383,7 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
     }
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_CALL;
-	//data.val["score"]   =   msg["score"].asInt() + 1;
+	data.val["score"]   =   msg["score"].asInt() + 1;
 	data.val["score"]   =   0;
 	data.end();
 
@@ -494,8 +494,7 @@ void XtRobotClient::sendCall(void)
 {
 	Jpacket data;
 	data.val["cmd"]     =   CLIENT_CALL;
-	//data.val["score"]   =   1;
-	data.val["score"]   =   0;
+	data.val["score"]   =   rand() % 2;
 	data.end();
 
 	send(data.tostring());
