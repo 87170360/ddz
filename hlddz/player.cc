@@ -177,7 +177,7 @@ void Player::changeMoney(int value)
         xt_log.error("%s:%d, changeMoney error. uid:%d, value:%d\n", __FILE__, __LINE__, uid, value); 
 		return;
 	}
-	//xt_log.info("changeMoney uid[%d] value[%d] old[%d] new[%d].\n", uid, value, money, hlddz.main_rc[index]->reply->integer);
+	xt_log.info("changeMoney uid[%d] value[%d] old[%d] new[%d].\n", uid, value, money, hlddz.main_rc[index]->reply->integer);
     //update the money
 	money = hlddz.main_rc[index]->reply->integer; 
 }

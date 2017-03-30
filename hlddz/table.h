@@ -45,14 +45,19 @@ class Table
         void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
         void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
 
+        //定时器函数
+        /////////////////////////////////////////////////////////////////////////////
         static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+        static void kickCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void call(void);
         void doubl(void);
         void card(void);
         void end(void);
+        void onKick(void);
+        /////////////////////////////////////////////////////////////////////////////
 
         //receive msg
         int login(Player* player);
@@ -144,6 +149,9 @@ class Table
         //获取座位的玩家uid
         int getSeat(int seatid);
 
+        //踢出玩家
+        void kick(void);
+
     private:
         void reset(void);
 
@@ -177,6 +185,9 @@ class Table
         ev_timer                    m_timerDouble;                  //加倍
         ev_timer                    m_timerCard;                    //出牌
         ev_timer                    m_timerEnd;                     //结算
+        ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
+
+        vector<Player*>             m_delPlayer;
 };
 
 #endif

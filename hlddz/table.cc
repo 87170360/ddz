@@ -27,9 +27,11 @@ const int CALLTIME          = 3;
 const int DOUBLETIME        = 3;
 const int CARDTIME          = 10;
 const int ENDTIME           = 10;
+const int KICKTIME          = 1;
+
 const int SHOWTIME          = 3;    //发牌动画时间
-const int ROOMSCORE         = 10;   //房间底分
-const int ROOMTAX           = 10;   //房间抽水
+const int ROOMSCORE         = 10000;   //房间底分
+const int ROOMTAX           = 10000;   //房间抽水
 
 Table::Table()
 {
@@ -44,6 +46,9 @@ Table::Table()
 
     m_timerEnd.data = this;
     ev_timer_init(&m_timerEnd, Table::endCB, ev_tstamp(ENDTIME), ev_tstamp(ENDTIME));
+
+    m_timerKick.data = this;
+    ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
 }
 
 Table::~Table()
@@ -184,6 +189,13 @@ void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
     table->end();
 }
 
+void Table::kickCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(hlddz.loop, &table->m_timerKick);
+    table->onKick();
+}
+
 int Table::login(Player *player)
 {
     xt_log.debug("player login uid:%d\n", player->uid);
@@ -230,7 +242,7 @@ void Table::reLogin(Player* player)
         
 void Table::msgPrepare(Player* player)
 {
-    xt_log.debug("msg prepare uid:%d, seatid:%d\n", player->uid, player->m_seatid);
+    xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
@@ -315,12 +327,12 @@ void Table::msgDouble(Player* player)
     //加倍不分先后
     m_opState[player->m_seatid] = OP_DOUBLE_RECEIVE;
 
-    xt_log.debug("double continue!\n");
+    //xt_log.debug("double continue!\n");
     sendDouble(player->uid, m_famerDouble[player->m_seatid]);
 
     if(isDoubleFinish())
     {
-        xt_log.debug("double finish!\n");
+        //xt_log.debug("double finish!\n");
         outProc();
         sendDoubleResult(); 
     }
@@ -437,6 +449,19 @@ void Table::card(void)
 
 void Table::end(void)
 {
+}
+
+void Table::onKick(void)
+{
+    Player* pl = NULL;
+    for(vector<Player*>::iterator it = m_delPlayer.begin(); it != m_delPlayer.end(); ++it)
+    {
+        pl = *it;
+        xt_log.debug("%s:%d, kick player active! uid:%d, seatid:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid); 
+        //删除后，最后流程走回这里的logout
+        hlddz.game->del_player(*it);
+    }
+    m_delPlayer.clear();
 }
 
 bool Table::sitdown(Player* player)
@@ -640,18 +665,7 @@ void Table::endProc(void)
     reset();
 
     //检查入场费, 踢出不够的
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        Player* pl = it->second;
-        if(pl->money < ROOMTAX)
-        {
-            Jpacket packet;
-            packet.val["cmd"]           = SERVER_KICK;
-            unicast(pl, packet.tostring());
-            xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid, pl->money, ROOMTAX); 
-            setSeat(0, pl->m_seatid);
-        }
-    }
+    kick();
 }
 
 void Table::sendCard1(void)
@@ -1214,4 +1228,25 @@ int Table::getSeat(int seatid)
        return 0; 
     }
     return m_seats[seatid];
+}
+        
+void Table::kick(void)
+{
+    xt_log.debug("check kick.\n");
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        if(pl->money < ROOMTAX)
+        {
+            Jpacket packet;
+            packet.val["cmd"]           = SERVER_KICK;
+            packet.end();
+            unicast(pl, packet.tostring());
+            xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid, pl->money, ROOMTAX); 
+            m_delPlayer.push_back(pl);
+            //不能这里删除，否则logout里有对m_players的删除操作,导致容器错误, 且要保证发送消息完毕
+        }
+    }
+
+    ev_timer_again(hlddz.loop, &m_timerKick);
 }
