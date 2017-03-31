@@ -242,6 +242,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgChange(player);
             } 
             break;
+        case CLIENT_LOGOUT:
+            {
+               del_player(player); 
+            } 
+            break;
         default:
             {
                xt_log.error("invalid command[%d]\n", cmd);

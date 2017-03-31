@@ -437,7 +437,8 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
 void XtRobotClient::handleReprepare(Json::Value& msg)
 {
     m_card.clear();
-    Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_PREPARE;
     data.end();
     send(data.tostring());
 }
@@ -446,8 +447,10 @@ void XtRobotClient::handleEnd(Json::Value& msg)
 {
     printf("handleEnd !\n");
     m_card.clear();
-    Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
-    //Jpacket data; data.val["cmd"]     =   CLIENT_CHANGE;
+    Jpacket data; 
+    data.val["cmd"]     =   CLIENT_PREPARE;
+    //data.val["cmd"]     =   CLIENT_CHANGE;
+    //data.val["cmd"]     =   CLIENT_LOGOUT;
     data.end();
     send(data.tostring());
 }
@@ -455,7 +458,8 @@ void XtRobotClient::handleEnd(Json::Value& msg)
 void XtRobotClient::handleKick(Json::Value& msg)
 {
     printf("handleKick !\n");
-    Jpacket data; data.val["cmd"]     =   CLIENT_CHANGE;
+    Jpacket data; 
+    data.val["cmd"]     =   CLIENT_CHANGE;
     data.end();
     send(data.tostring());
 }
