@@ -102,6 +102,8 @@ class Table
         void sendOutAgain(void);
         //结束
         void sendEnd(int doubleNum, int score);
+        //换桌结束
+        void sendChangeEnd(Player* player, int doubleNum, int score);
     
         //开始发牌
         void gameStart(void);

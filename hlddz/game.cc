@@ -332,7 +332,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
 
     if(target == NULL)
     {
-        return 0;
+        return -3;
     }
 
     a.erase(target->m_tid);
@@ -545,22 +545,21 @@ int Game::change_table(Player *player)
 {
     xt_log.info("change table uid[%d], tid[%d].\n", player->uid, player->m_tid);
     int ret = 0;
-    Table* table = NULL;
     map<int, Table*>::iterator it = all_tables.find(player->m_tid);
     if (it != all_tables.end()) 
     {
-        table = it->second;
-        table->logout(player);
         ret = handle_logout_table(player->m_tid);
         if (ret < 0) {
-            xt_log.error("change table handle logout table error.\n");
+            xt_log.error("handle logout table error.\n");
             return -1;
         }
         Client *client = player->client;
         client->position = POSITION_WAIT;
-        dump_game_info("handler_login_table begin.");
         ret = handler_login_table(client);
-        dump_game_info("handler_login_table end.");
+        if (ret < 0) {
+            xt_log.error("handle login table error.\n");
+            return -1;
+        }
     }
     return 0;
 }

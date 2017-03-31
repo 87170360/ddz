@@ -204,7 +204,7 @@ int Table::login(Player *player)
         xt_log.error("%s:%d, login fail! player was existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
         return 0;
     }
-    
+
     //检查入场费
     if(player->money < ROOMTAX)
     {
@@ -226,7 +226,7 @@ int Table::login(Player *player)
 
     return 0;
 }
-        
+
 void Table::reLogin(Player* player) 
 {
     xt_log.debug("player relogin uid:%d\n", player->uid);
@@ -240,7 +240,7 @@ void Table::reLogin(Player* player)
     //准备阶段
     loginUC(player, ret_code);
 }
-        
+
 void Table::msgPrepare(Player* player)
 {
     //xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
@@ -255,7 +255,7 @@ void Table::msgPrepare(Player* player)
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
-        xt_log.debug("not all is prepare.\n");
+        //xt_log.debug("not all is prepare.\n");
         return;
     }
     else if(m_players.size() != SEAT_NUM)
@@ -446,16 +446,47 @@ void Table::msgOut(Player* player)
 
 void Table::msgChange(Player* player)
 {
-   //地主退，农民赢，反之亦然 
-   if(player->m_seatid == m_lordSeat)  
-   {
-        m_win = (m_lordSeat + 1) % SEAT_NUM;
-   }
-   else
-   {
-        m_win = m_lordSeat;
-   }
-   endProc(); 
+    xt_log.debug("msgChange, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
+
+    if(m_state == STATE_OUT)
+    {
+        //地主退，农民赢，反之亦然 
+        if(player->m_seatid == m_lordSeat)  
+        {
+            m_win = (m_lordSeat + 1) % SEAT_NUM;
+        }
+        else
+        {
+            m_win = m_lordSeat;
+        }
+
+        m_state = STATE_END;
+        setAllSeatOp(OP_GAME_END);
+
+        //计算各座位输赢
+        ////////////////////////////////////////////////////////////////////////
+        int doubleNum = max(getAllDouble(), 1);
+        int score = ROOMSCORE * doubleNum;
+        //获取最小本钱
+        int minMoney = getMinMoney(); 
+        //最终数值
+        int finalScore = min(score, minMoney);
+        //xt_log.debug("endProc, befor score:%d, min money:%d, finalScore:%d\n", score, minMoney, finalScore);
+        //计算各座位输赢
+        calculate(finalScore);
+        //修改玩家金币
+        payResult();
+        //通知结算
+        sendChangeEnd(player, doubleNum, finalScore);
+        ////////////////////////////////////////////////////////////////////////
+    }
+
+    //重置游戏
+    reset();
+    //清理座位信息
+    setSeat(0, player->m_seatid);
+
+    hlddz.game->change_table(player);
 }
 
 void Table::call(void)
@@ -508,7 +539,7 @@ bool Table::sitdown(Player* player)
     player->m_tid = m_tid;
     setSeat(player->uid, seatid);
     m_players[player->uid] = player;
-    xt_log.debug("sitdown uid:%d, seatid:%d\n", player->uid, seatid);
+    //xt_log.debug("sitdown uid:%d, seatid:%d\n", player->uid, seatid);
     return true;
 }
 
@@ -586,7 +617,7 @@ bool Table::allocateCard(void)
 
     return true;
 }
-        
+
 void Table::prepareProc(void)
 {
     m_state = STATE_PREPARE; 
@@ -598,14 +629,14 @@ void Table::callProc(void)
     m_state = STATE_CALL; 
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::doubleProc(void)
 {
     m_state = STATE_DOUBLE; 
     setAllSeatOp(OP_DOUBLE_NOTIFY);
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::outProc(void)
@@ -614,9 +645,9 @@ void Table::outProc(void)
     setAllSeatOp(OP_OUT_WAIT);
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
-        
+
 void Table::logout(Player* player)
 {
     xt_log.debug("player logout, uid:%d\n", player->uid);
@@ -630,9 +661,9 @@ void Table::logout(Player* player)
     if(m_players.empty())
     {
         reset(); 
-        xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+        //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     }
-    
+
     bool findHuman = false;
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -661,7 +692,7 @@ void Table::logout(Player* player)
     //清理座位信息
     setSeat(0, player->m_seatid);
 }
-        
+
 void Table::endProc(void)
 {
     m_state = STATE_END;
@@ -790,7 +821,7 @@ void Table::sendOutAgain(void)
         unicast(pl, packet.tostring());
     }
 }
-        
+
 void Table::sendEnd(int doubleNum, int score)
 {
     Jpacket packet;
@@ -815,6 +846,30 @@ void Table::sendEnd(int doubleNum, int score)
     broadcast(NULL, packet.tostring());
 }
 
+void Table::sendChangeEnd(Player* player, int doubleNum, int score)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_CHANGE_END;
+    packet.val["code"]      = CODE_SUCCESS;
+    packet.val["double"]    = doubleNum;
+    packet.val["bomb"]      = getBombNum();
+    packet.val["score"]     = score;
+
+    for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
+    {
+        Json::Value jval;          
+        Player* pl = it->second;
+        jval["uid"]     = pl->uid;
+        jval["name"]    = pl->name;
+        jval["money"]   = m_money[pl->m_seatid];
+        jval["isLord"]  = (pl->m_seatid == m_lordSeat);
+        packet.val["info"].append(jval);
+    }
+
+    packet.end();
+    broadcast(player, packet.tostring());
+}
+
 void Table::gameStart(void)
 {
     payTax();
@@ -823,7 +878,7 @@ void Table::gameStart(void)
 
     //for test
     //m_curSeat = 2;
-    
+
     callProc();
 
     allocateCard();
@@ -833,7 +888,7 @@ void Table::gameStart(void)
     showGame();
     //ev_timer_again(hlddz.loop, &m_timerCall);
 }
-        
+
 void Table::gameRestart(void)
 {
     //重置部分数据
@@ -858,7 +913,7 @@ void Table::gameRestart(void)
     m_win = 0;
 
     m_curSeat = rand() % SEAT_NUM;
-    
+
     callProc();
 
     allocateCard();
@@ -898,7 +953,7 @@ bool Table::getNext(void)
     xt_log.debug("get next finish, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
     return false;
 }
-        
+
 Player* Table::getSeatPlayer(unsigned int seatid)
 {
     int uid = getSeat(seatid);
@@ -919,14 +974,14 @@ void Table::setAllSeatOp(int state)
         m_opState[i] = state; 
     }
 }
-        
+
 bool Table::allSeatFit(int state)
 {
     for(unsigned int i = 0; i < SEAT_NUM; ++i) 
     {
         if(m_opState[i] != state) 
         {
-            xt_log.debug("seatid:%d state is %s, check state is %s\n", i, DESC_OP[m_opState[i]], DESC_OP[state]);
+            //xt_log.debug("seatid:%d state is %s, check state is %s\n", i, DESC_OP[m_opState[i]], DESC_OP[state]);
             return false; 
         }
     }
@@ -1017,7 +1072,7 @@ void Table::showGame(void)
         if(tmpplayer == NULL) continue;
         xt_log.debug("uid:%d, money:%d, name:%s\n", tmpplayer->uid, tmpplayer->money, tmpplayer->name.c_str());
     }
-        
+
     xt_log.debug("seat0:%d, seat1:%d, seat2:%d\n", getSeat(0), getSeat(1), getSeat(2));
 }
 
@@ -1033,7 +1088,7 @@ bool Table::isDoubleFinish(void)
     }
     return true;
 }
-        
+
 int Table::getAllDouble(void)
 {
     int ret = 0;
@@ -1060,7 +1115,7 @@ int Table::getAllDouble(void)
     ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble;
     return ret;
 }
-        
+
 int Table::getBottomDouble(void)
 {
     bool littleJoke = false;
@@ -1132,7 +1187,7 @@ int Table::getBottomDouble(void)
     }
     return 0;
 }
-        
+
 bool Table::isSpring(void)
 {
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
@@ -1149,7 +1204,7 @@ bool Table::isAntiSpring(void)
 {
     return m_outNum[m_lordSeat] == 1;
 }
-        
+
 int Table::getBombNum(void)
 {
     int ret = 0;
@@ -1159,7 +1214,7 @@ int Table::getBombNum(void)
     }
     return ret;
 }
-        
+
 int Table::getMinMoney(void)
 {
     int money = 0; 
@@ -1180,7 +1235,7 @@ int Table::getMinMoney(void)
     }
     return money;
 }
-        
+
 void Table::payResult(void)
 {
     Player* tmpplayer = NULL;
@@ -1191,7 +1246,7 @@ void Table::payResult(void)
         tmpplayer->changeMoney(m_money[tmpplayer->m_seatid]);
     }
 }
-        
+
 void Table::payTax(void)
 {
     Player* tmpplayer = NULL;
@@ -1202,7 +1257,7 @@ void Table::payTax(void)
         tmpplayer->changeMoney(-ROOMTAX);
     }
 }
-        
+
 void Table::calculate(int finalScore)
 {
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
@@ -1234,13 +1289,13 @@ void Table::calculate(int finalScore)
         }
     }
 }
-        
+
 void Table::setSeat(int uid, int seatid)
 {
     if(seatid < 0 || seatid >= static_cast<int>(SEAT_NUM))
     {
-       xt_log.error("%s:%d, setSeat error seatid:%d, uid:%d\n", __FILE__, __LINE__, seatid, uid); 
-       return; 
+        xt_log.error("%s:%d, setSeat error seatid:%d, uid:%d\n", __FILE__, __LINE__, seatid, uid); 
+        return; 
     }
     m_seats[seatid] = uid;
 }
@@ -1249,12 +1304,12 @@ int Table::getSeat(int seatid)
 {
     if(seatid < 0 || seatid >= static_cast<int>(SEAT_NUM))
     {
-       xt_log.error("%s:%d, getSeat error seatid:%d\n", __FILE__, __LINE__, seatid); 
-       return 0; 
+        xt_log.error("%s:%d, getSeat error seatid:%d\n", __FILE__, __LINE__, seatid); 
+        return 0; 
     }
     return m_seats[seatid];
 }
-        
+
 void Table::kick(void)
 {
     //xt_log.debug("check kick.\n");

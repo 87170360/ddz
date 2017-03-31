@@ -25,6 +25,7 @@ enum SERVER_COMMAND
     SERVER_END                  = 2008,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2009,         //通知机器人重新准备
     SERVER_KICK                 = 2010,         //踢人离场
+    SERVER_CHANGE_END           = 2011,         //因有人换桌牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
 };
 
 enum ERROR_CODE
@@ -86,5 +87,4 @@ static const char* DESC_OP[OP_MAX] =
     "OP_OUT_WAIT",
     "OP_GAME_END"
 };
-
 #endif
