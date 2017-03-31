@@ -31,7 +31,7 @@ const int KICKTIME          = 1;
 
 const int SHOWTIME          = 3;    //发牌动画时间
 const int ROOMSCORE         = 10;   //房间底分
-const int ROOMTAX           = 50;   //房间抽水
+const int ROOMTAX           = 5000;   //房间抽水
 
 Table::Table()
 {
@@ -342,6 +342,7 @@ void Table::msgDouble(Player* player)
     if(isDoubleFinish())
     {
         xt_log.debug("===================================== start out card, double finish!\n");
+        showGame();
         outProc();
         sendDoubleResult(); 
     }
@@ -511,6 +512,10 @@ void Table::onKick(void)
     for(vector<Player*>::iterator it = m_delPlayer.begin(); it != m_delPlayer.end(); ++it)
     {
         pl = *it;
+        if(pl->isRobot())
+        {
+            continue;
+        }
         xt_log.debug("%s:%d, del player active! uid:%d \n",__FILE__, __LINE__, pl->uid); 
         //删除后，最后流程走回这里的logout
         hlddz.game->del_player(*it);
@@ -885,7 +890,6 @@ void Table::gameStart(void)
     sendCard1();
 
     xt_log.debug("=================================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
-    showGame();
     //ev_timer_again(hlddz.loop, &m_timerCall);
 }
 
@@ -920,7 +924,6 @@ void Table::gameRestart(void)
     sendCard1();
 
     xt_log.debug("=================================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
-    showGame();
 }
 
 bool Table::getNext(void)
