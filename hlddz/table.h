@@ -147,6 +147,8 @@ class Table
         void calculate(int finalScore);
         //检查入场费并踢出玩家
         void kick(void);
+        //增加robot money
+        void addRobotMoney(Player* player);
 
         //设置座位的玩家
         void setSeat(int uid, int seatid);

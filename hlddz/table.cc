@@ -205,6 +205,9 @@ int Table::login(Player *player)
         return 0;
     }
 
+    //给机器人加钱
+    addRobotMoney(player);
+
     //检查入场费
     if(player->money < ROOMTAX)
     {
@@ -243,7 +246,7 @@ void Table::reLogin(Player* player)
 
 void Table::msgPrepare(Player* player)
 {
-    xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
+    //xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
     //检查入场费
     if(player->money < ROOMTAX)
     {
@@ -255,12 +258,12 @@ void Table::msgPrepare(Player* player)
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
-        xt_log.debug("not all is prepare.\n");
+        //xt_log.debug("not all is prepare.\n");
         return;
     }
     else if(m_players.size() != SEAT_NUM)
     {
-        xt_log.debug("not enouth player, size:%d\n", m_players.size());
+        //xt_log.debug("not enouth player, size:%d\n", m_players.size());
         return;
     }
     else
@@ -1332,4 +1335,16 @@ void Table::kick(void)
     }
 
     ev_timer_again(hlddz.loop, &m_timerKick);
+}
+        
+void Table::addRobotMoney(Player* player)
+{
+    if(!player->isRobot())
+    {
+        return;
+    }
+
+    int addval = ROOMTAX * (rand() % 9 + 1);
+    xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->uid, addval); 
+    player->changeMoney(addval);
 }
