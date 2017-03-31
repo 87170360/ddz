@@ -86,5 +86,4 @@ static const char* DESC_OP[OP_MAX] =
     "OP_OUT_WAIT",
     "OP_GAME_END"
 };
-
 #endif

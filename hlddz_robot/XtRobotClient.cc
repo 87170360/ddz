@@ -429,6 +429,7 @@ void XtRobotClient::handleReprepare(Json::Value& msg)
         
 void XtRobotClient::handleEnd(Json::Value& msg)
 {
+    printf("handleEnd !\n");
     m_card.clear();
 	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
 	data.end();

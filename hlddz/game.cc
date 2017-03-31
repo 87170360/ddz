@@ -237,6 +237,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgOut(player);
             } 
             break;
+        case CLIENT_CHANGE:
+            {
+                all_tables[player->m_tid]->msgChange(player);
+            } 
+            break;
         default:
             {
                xt_log.error("invalid command[%d]\n", cmd);
@@ -538,18 +543,14 @@ int Game::del_player(Player *player)
 
 int Game::change_table(Player *player)
 {
-    xt_log.info("change table uid[%d] money[%d] tid[%d].\n", player->uid, player->money, player->m_tid);
+    xt_log.info("change table uid[%d], tid[%d].\n", player->uid, player->m_tid);
     int ret = 0;
-    if (all_tables.find(player->m_tid) != all_tables.end()) {
-        player->logout_type = 2;   
-        if (ret < 0) {
-            xt_log.error("change table handler logout error.\n");
-            return -1;
-        }
-        if (ret < 0) {
-            xt_log.error("change table del player error.\n");
-            return -1;
-        }
+    Table* table = NULL;
+    map<int, Table*>::iterator it = all_tables.find(player->m_tid);
+    if (it != all_tables.end()) 
+    {
+        table = it->second;
+        table->logout(player);
         ret = handle_logout_table(player->m_tid);
         if (ret < 0) {
             xt_log.error("change table handle logout table error.\n");

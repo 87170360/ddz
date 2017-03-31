@@ -67,6 +67,7 @@ class Table
         void msgCall(Player* player);
         void msgDouble(Player* player);
         void msgOut(Player* player);
+        void msgChange(Player* player);
 
         //坐下
         bool sitdown(Player* player);

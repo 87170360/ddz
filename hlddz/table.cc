@@ -30,8 +30,8 @@ const int ENDTIME           = 10;
 const int KICKTIME          = 1;
 
 const int SHOWTIME          = 3;    //发牌动画时间
-const int ROOMSCORE         = 10000;   //房间底分
-const int ROOMTAX           = 10000;   //房间抽水
+const int ROOMSCORE         = 10;   //房间底分
+const int ROOMTAX           = 10;   //房间抽水
 
 Table::Table()
 {
@@ -341,7 +341,7 @@ void Table::msgDouble(Player* player)
 
     if(isDoubleFinish())
     {
-        //xt_log.debug("double finish!\n");
+        xt_log.debug("===================================== start out card, double finish!\n");
         outProc();
         sendDoubleResult(); 
     }
@@ -428,7 +428,7 @@ void Table::msgOut(Player* player)
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())
     {
-        xt_log.debug("gameover\n");
+        xt_log.debug("================================================gameover\n");
         m_win = player->m_seatid;
         endProc();
     }
@@ -442,6 +442,20 @@ void Table::msgOut(Player* player)
         }
         sendOutAgain();    
     }
+}
+
+void Table::msgChange(Player* player)
+{
+   //地主退，农民赢，反之亦然 
+   if(player->m_seatid == m_lordSeat)  
+   {
+        m_win = (m_lordSeat + 1) % SEAT_NUM;
+   }
+   else
+   {
+        m_win = m_lordSeat;
+   }
+   endProc(); 
 }
 
 void Table::call(void)
@@ -466,7 +480,7 @@ void Table::onKick(void)
     for(vector<Player*>::iterator it = m_delPlayer.begin(); it != m_delPlayer.end(); ++it)
     {
         pl = *it;
-        xt_log.debug("%s:%d, kick player active! uid:%d, seatid:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid); 
+        xt_log.debug("%s:%d, kick player active! uid:%d \n",__FILE__, __LINE__, pl->uid); 
         //删除后，最后流程走回这里的logout
         hlddz.game->del_player(*it);
     }
@@ -815,7 +829,7 @@ void Table::gameStart(void)
     allocateCard();
     sendCard1();
 
-    xt_log.debug("game start, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    xt_log.debug("=================================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
     showGame();
     //ev_timer_again(hlddz.loop, &m_timerCall);
 }
@@ -850,7 +864,7 @@ void Table::gameRestart(void)
     allocateCard();
     sendCard1();
 
-    xt_log.debug("game restart, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    xt_log.debug("=================================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
     showGame();
 }
 
@@ -1243,7 +1257,7 @@ int Table::getSeat(int seatid)
         
 void Table::kick(void)
 {
-    xt_log.debug("check kick.\n");
+    //xt_log.debug("check kick.\n");
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
