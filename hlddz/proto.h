@@ -14,7 +14,7 @@ enum CLIENT_COMMAND
 
 enum SERVER_COMMAND
 {
-    SERVER_RESPOND              = 2000,         //其他回复
+    SERVER_RESPOND              = 2000,         //其他回复, 消息id:msgid, code:错误码
     SERVER_LOGIN                = 2001,         //其他玩家登录  
     SERVER_CARD_1               = 2002,         //第一次发牌17张,开始叫分:当前操作者id:cur_id, 叫分倒计时:time, 发牌时间:show_time, 17张牌:card
     SERVER_AGAIN_CALL           = 2003,         //通知下一个叫分: 上次叫分:score, 当前操作者id:cur_id,上一个操作者id:pre_id, 叫分倒计时:time

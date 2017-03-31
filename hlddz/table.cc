@@ -243,7 +243,7 @@ void Table::reLogin(Player* player)
 
 void Table::msgPrepare(Player* player)
 {
-    //xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
+    xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
     //检查入场费
     if(player->money < ROOMTAX)
     {
@@ -255,7 +255,7 @@ void Table::msgPrepare(Player* player)
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
-        //xt_log.debug("not all is prepare.\n");
+        xt_log.debug("not all is prepare.\n");
         return;
     }
     else if(m_players.size() != SEAT_NUM)

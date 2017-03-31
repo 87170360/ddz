@@ -18,125 +18,125 @@
 
 XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 {
-	m_evWrite.data=this;
-	m_evRead.data=this;
+    m_evWrite.data=this;
+    m_evRead.data=this;
     m_showTimer.data = this;
 
-	m_evloop=evloop;
+    m_evloop=evloop;
 
-	m_header=(struct Header*)m_headerBuf;
+    m_header=(struct Header*)m_headerBuf;
 
-	m_serverfd=-1;
+    m_serverfd=-1;
 
-	m_state=XT_PARSE_HEADER;
+    m_state=XT_PARSE_HEADER;
 }
 
 
 XtRobotClient::~XtRobotClient()
 {
-	if(m_serverfd!=-1)
-	{
-		ev_io_stop(m_evloop,&m_evWrite);
-		ev_io_stop(m_evloop,&m_evRead);
-		ev_timer_stop(m_evloop, &m_showTimer);
-		close(m_serverfd);
-	}
+    if(m_serverfd!=-1)
+    {
+        ev_io_stop(m_evloop,&m_evWrite);
+        ev_io_stop(m_evloop,&m_evRead);
+        ev_timer_stop(m_evloop, &m_showTimer);
+        close(m_serverfd);
+    }
 
-	while(!m_writeQueue.empty())
-	{
-		delete m_writeQueue.front();
-		m_writeQueue.pop_front();
-	}
+    while(!m_writeQueue.empty())
+    {
+        delete m_writeQueue.front();
+        m_writeQueue.pop_front();
+    }
 }
 
 void XtRobotClient::onReadData( struct ev_loop* loop, struct ev_io* w, int revents)
 {
-	int ret;
-	static char recv_buf[XT_DEF_BUF_LEN];
-	XtRobotClient* self = (XtRobotClient*) w->data;
+    int ret;
+    static char recv_buf[XT_DEF_BUF_LEN];
+    XtRobotClient* self = (XtRobotClient*) w->data;
 
-	if (self->m_state == XT_PARSE_HEADER) 
-	{
-		ret = read(self->m_serverfd, &self->m_headerBuf[self->m_curHeaderLen],
-				sizeof(struct Header) - self->m_curHeaderLen);
+    if (self->m_state == XT_PARSE_HEADER) 
+    {
+        ret = read(self->m_serverfd, &self->m_headerBuf[self->m_curHeaderLen],
+                sizeof(struct Header) - self->m_curHeaderLen);
 
-		if (ret < 0) 
-		{
-			if (errno == EAGAIN || errno == EINPROGRESS || errno == EINTR) 
-			{
-				printf("read cb read header failed[%s]\n", strerror(errno));
-				return;
-			}
+        if (ret < 0) 
+        {
+            if (errno == EAGAIN || errno == EINPROGRESS || errno == EINTR) 
+            {
+                printf("read cb read header failed[%s]\n", strerror(errno));
+                return;
+            }
 
-			self->closeConnect();
+            self->closeConnect();
 
-			return;
-		}
-
-
-		if (ret == 0) 
-		{
-			printf("connection close in read header[%d]\n", self->m_serverfd);
-			self->closeConnect();
-			return;
-		}
-
-		self->m_curHeaderLen+= ret;
-
-		if (self->m_curHeaderLen== sizeof(struct Header)) 
-		{
-			if (self->m_header->m_length > XT_MAX_BUF_LEN || self->m_header->m_length == 0) 
-			{
-				self->closeConnect();
-				return;
-			}
-
-			self->m_state = XT_PARSE_BODY;
-			self->m_curHeaderLen= 0;
-			self->m_body.clear();
-		}
-	} 
-	else if (self->m_state == XT_PARSE_BODY) 
-	{
-		ret = read(self->m_serverfd, recv_buf, self->m_header->m_length - self->m_body.length());
+            return;
+        }
 
 
-		if (ret < 0) 
-		{
-			if (errno == EAGAIN || errno == EINPROGRESS || errno == EINTR) 
-			{
-				printf("read body failed[%s]\n", strerror(errno));
-				return;
-			}
-			printf("read body failed[%s]\n", strerror(errno));
-			self->closeConnect();
-			return;
-		}
+        if (ret == 0) 
+        {
+            printf("connection close in read header[%d]\n", self->m_serverfd);
+            self->closeConnect();
+            return;
+        }
 
-		if (ret == 0) 
-		{
-			printf("connection close in read body[%d]\n", self->m_serverfd);
-			self->closeConnect();
-			return;
-		}
+        self->m_curHeaderLen+= ret;
+
+        if (self->m_curHeaderLen== sizeof(struct Header)) 
+        {
+            if (self->m_header->m_length > XT_MAX_BUF_LEN || self->m_header->m_length == 0) 
+            {
+                self->closeConnect();
+                return;
+            }
+
+            self->m_state = XT_PARSE_BODY;
+            self->m_curHeaderLen= 0;
+            self->m_body.clear();
+        }
+    } 
+    else if (self->m_state == XT_PARSE_BODY) 
+    {
+        ret = read(self->m_serverfd, recv_buf, self->m_header->m_length - self->m_body.length());
 
 
-		recv_buf[ret] = '\0';
-		self->m_body.append(recv_buf);
+        if (ret < 0) 
+        {
+            if (errno == EAGAIN || errno == EINPROGRESS || errno == EINTR) 
+            {
+                printf("read body failed[%s]\n", strerror(errno));
+                return;
+            }
+            printf("read body failed[%s]\n", strerror(errno));
+            self->closeConnect();
+            return;
+        }
 
-		if (self->m_body.length() == self->m_header->m_length) 
-		{
-			self->m_state = XT_PARSE_HEADER;
-			if (self->m_packet.parse(self->m_body) < 0) 
-			{
-				printf("parse err!!\n");
-				self->closeConnect();
-				return;
-			}
+        if (ret == 0) 
+        {
+            printf("connection close in read body[%d]\n", self->m_serverfd);
+            self->closeConnect();
+            return;
+        }
 
-			self->onReciveCmd(self->m_packet);
 
-		}
+        recv_buf[ret] = '\0';
+        self->m_body.append(recv_buf);
+
+        if (self->m_body.length() == self->m_header->m_length) 
+        {
+            self->m_state = XT_PARSE_HEADER;
+            if (self->m_packet.parse(self->m_body) < 0) 
+            {
+                printf("parse err!!\n");
+                self->closeConnect();
+                return;
+            }
+
+            self->onReciveCmd(self->m_packet);
+
+        }
     } 
 
 }
@@ -144,58 +144,58 @@ void XtRobotClient::onReadData( struct ev_loop* loop, struct ev_io* w, int reven
 void XtRobotClient::onWriteData(struct ev_loop *loop, struct ev_io *w, int revents)
 {
 
-	XtRobotClient* self = (XtRobotClient*) w->data;
+    XtRobotClient* self = (XtRobotClient*) w->data;
 
-	if (self->m_writeQueue.empty()) 
-	{
-		ev_io_stop(EV_A_ w);
-		return;
-	}
-	//printf("WriteData To Server\n");
+    if (self->m_writeQueue.empty()) 
+    {
+        ev_io_stop(EV_A_ w);
+        return;
+    }
+    //printf("WriteData To Server\n");
 
-	XtBuffer* buffer = self->m_writeQueue.front();
+    XtBuffer* buffer = self->m_writeQueue.front();
 
-	ssize_t written = write(self->m_serverfd, buffer->m_data, buffer->m_len);
+    ssize_t written = write(self->m_serverfd, buffer->m_data, buffer->m_len);
 
-	if (written < 0) {
-		if (errno == EAGAIN || errno == EINPROGRESS || errno == EINTR) {
-			printf("write failed[%s]\n", strerror(errno));
-			return;
-		}
-		/* todo close this client */
-		printf("unknow err in written [%d]\n", self->m_serverfd);
-		self->closeConnect();
-		return;
-	}
+    if (written < 0) {
+        if (errno == EAGAIN || errno == EINPROGRESS || errno == EINTR) {
+            printf("write failed[%s]\n", strerror(errno));
+            return;
+        }
+        /* todo close this client */
+        printf("unknow err in written [%d]\n", self->m_serverfd);
+        self->closeConnect();
+        return;
+    }
 
-	self->m_writeQueue .pop_front();
-	delete buffer;
+    self->m_writeQueue .pop_front();
+    delete buffer;
 }
 
 void XtRobotClient::tfShow(struct ev_loop* loop, struct ev_timer* w, int events)
 {
     printf("showtimer active.\n");
-	ev_timer_stop(loop,w);
-	XtRobotClient* self = (XtRobotClient*) w->data;
-	self->sendCall();
+    ev_timer_stop(loop,w);
+    XtRobotClient* self = (XtRobotClient*) w->data;
+    self->sendCall();
 }
 
 int XtRobotClient::closeConnect()
 {
-	if(m_serverfd!=-1)
-	{
-		ev_io_stop(m_evloop,&m_evWrite);
-		ev_io_stop(m_evloop,&m_evRead);
-		ev_timer_stop(m_evloop, &m_showTimer);
-		close(m_serverfd);
-	}
-	m_serverfd=-1;
-	while(!m_writeQueue.empty())
-	{
-		delete m_writeQueue.front();
-		m_writeQueue.pop_front();
-	}
-	return 0;
+    if(m_serverfd!=-1)
+    {
+        ev_io_stop(m_evloop,&m_evWrite);
+        ev_io_stop(m_evloop,&m_evRead);
+        ev_timer_stop(m_evloop, &m_showTimer);
+        close(m_serverfd);
+    }
+    m_serverfd=-1;
+    while(!m_writeQueue.empty())
+    {
+        delete m_writeQueue.front();
+        m_writeQueue.pop_front();
+    }
+    return 0;
 }
 
 
@@ -203,8 +203,8 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
 {
     Json::Value &val = data.tojson();
     int cmd = val["cmd"].asInt();
-	switch(cmd)
-	{
+    switch(cmd)
+    {
         case SERVER_RESPOND:
             handleRespond(val);
             break;
@@ -234,9 +234,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_KICK:
             handleKick(val);
             break;
-	}
+    }
 
-	return 0;
+    return 0;
 }
 
 void XtRobotClient::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)
@@ -264,18 +264,18 @@ void XtRobotClient::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &pac
 }
 
 /*
-void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
-{
-    Json::Value &val = packet.tojson();
+   void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
+   {
+   Json::Value &val = packet.tojson();
 
-    for (unsigned int i = 0; i < val[key].size(); i++)
-    {
-        XtCard card(val[key][i].asInt());
+   for (unsigned int i = 0; i < val[key].size(); i++)
+   {
+   XtCard card(val[key][i].asInt());
 
-        cards.push_back(card);
-    }
-}
-*/
+   cards.push_back(card);
+   }
+   }
+   */
 
 void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value &val, string key)
 {
@@ -286,14 +286,29 @@ void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value
         cards.push_back(card);
     }
 }
-        
+
 void XtRobotClient::handleRespond(Json::Value& msg) 
 {
-	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
-	data.end();
-	send(data.tostring());
+    int msgid = msg["msgid"].asInt();
+    int code = msg["code"].asInt();
+    printf("msgid:%d\n", msgid);
+    printf("code:%d\n", code);
+    switch(msgid)
+    {
+        case CLIENT_LOGIN:
+            {
+                if(code == CODE_SUCCESS) 
+                {
+                    Jpacket data;
+                    data.val["cmd"]     =   CLIENT_PREPARE;
+                    data.end();
+                    send(data.tostring());
+                }
+            }
+            break;
+    }
 }
-        
+
 void XtRobotClient::handleCall(Json::Value& msg) 
 {
     m_card.clear();
@@ -305,9 +320,9 @@ void XtRobotClient::handleCall(Json::Value& msg)
         return;
     }
     int show_time = msg["show_time"].asInt();
-	ev_timer_stop(m_evloop, &m_showTimer);
-	ev_timer_set(&m_showTimer, show_time, 0);
-	ev_timer_start(m_evloop, &m_showTimer);
+    ev_timer_stop(m_evloop, &m_showTimer);
+    ev_timer_set(&m_showTimer, show_time, 0);
+    ev_timer_start(m_evloop, &m_showTimer);
     printf("handle call, showtimer active after %d second.\n", show_time);
 }
 
@@ -317,15 +332,15 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
     {
         return;
     }
-	Jpacket data;
-	data.val["cmd"]     =   CLIENT_CALL;
-	data.val["score"]   =   msg["score"].asInt() + 1;
-	data.val["score"]   =   0;
-	data.end();
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_CALL;
+    data.val["score"]   =   msg["score"].asInt() + 1;
+    data.val["score"]   =   0;
+    data.end();
 
-	send(data.tostring());
+    send(data.tostring());
 }
-        
+
 void XtRobotClient::handleDouble(Json::Value& msg) 
 {
     if(msg["lord"].asInt() == m_uid)
@@ -334,11 +349,11 @@ void XtRobotClient::handleDouble(Json::Value& msg)
         XtCard::sortByDescending(m_card);
     }
 
-	Jpacket data;
-	data.val["cmd"]     =   CLIENT_DOUBLE;
-	data.val["double"]  =   true;
-	data.end();
-	send(data.tostring());
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_DOUBLE;
+    data.val["double"]  =   true;
+    data.end();
+    send(data.tostring());
 }
 
 void XtRobotClient::handleOut(Json::Value& msg) 
@@ -348,18 +363,18 @@ void XtRobotClient::handleOut(Json::Value& msg)
         return;
     }
 
-	Jpacket data;
-	data.val["cmd"]     =   CLIENT_OUT;
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_OUT;
 
     vector<XtCard> outCard;
     outCard.push_back(m_card.back());
     vector_to_json_array(outCard, data, "card");
-	data.val["keep"]     =   outCard.empty();
-	data.end();
+    data.val["keep"]     =   outCard.empty();
+    data.end();
 
-	send(data.tostring());
+    send(data.tostring());
 }
-        
+
 void XtRobotClient::handleAgainOut(Json::Value& msg)
 {
     vector<XtCard> preCard;
@@ -368,11 +383,11 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
     //删除自己上次出的牌
     if(msg["pre_id"].asInt() == m_uid && !msg["keep"].asBool())
     {
-       //remove 
-       vector<XtCard> newCard;
-       bool find = false;
-       for(vector<XtCard>::iterator it1 = m_card.begin(); it1 != m_card.end(); ++it1)
-       {
+        //remove 
+        vector<XtCard> newCard;
+        bool find = false;
+        for(vector<XtCard>::iterator it1 = m_card.begin(); it1 != m_card.end(); ++it1)
+        {
             find = false;
             for(vector<XtCard>::iterator it2 = preCard.begin(); it2 != preCard.end(); ++it2)
             {
@@ -386,8 +401,8 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
             {
                 newCard.push_back(*it1);
             }
-       }
-       m_card = newCard;
+        }
+        m_card = newCard;
     }
 
     //自己上轮的牌没人顶
@@ -418,122 +433,122 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
         send(data.tostring());
     }
 }
-        
+
 void XtRobotClient::handleReprepare(Json::Value& msg)
 {
     m_card.clear();
-	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
-	data.end();
-	send(data.tostring());
+    Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
+    data.end();
+    send(data.tostring());
 }
-        
+
 void XtRobotClient::handleEnd(Json::Value& msg)
 {
     printf("handleEnd !\n");
     m_card.clear();
-	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
-	//Jpacket data; data.val["cmd"]     =   CLIENT_CHANGE;
-	data.end();
-	send(data.tostring());
+    Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
+    //Jpacket data; data.val["cmd"]     =   CLIENT_CHANGE;
+    data.end();
+    send(data.tostring());
 }
-        
+
 void XtRobotClient::handleKick(Json::Value& msg)
 {
     printf("handleKick !\n");
-	Jpacket data; data.val["cmd"]     =   CLIENT_CHANGE;
-	data.end();
-	send(data.tostring());
+    Jpacket data; data.val["cmd"]     =   CLIENT_CHANGE;
+    data.end();
+    send(data.tostring());
 }
-        
+
 void XtRobotClient::sendCall(void)
 {
-	Jpacket data;
-	data.val["cmd"]     =   CLIENT_CALL;
-	data.val["score"]   =   rand() % 2;
-	data.end();
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_CALL;
+    data.val["score"]   =   rand() % 2;
+    data.end();
 
-	send(data.tostring());
+    send(data.tostring());
 }
 
 void XtRobotClient::doLogin()
 {
-	sendLoginPackage();
+    sendLoginPackage();
 }
 
 int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 {
 
-	int socket_fd;
-	struct sockaddr_in serv_addr;
+    int socket_fd;
+    struct sockaddr_in serv_addr;
 
-	socket_fd=socket(AF_INET,SOCK_STREAM,0);
-	if(socket_fd==-1)
-	{
-		printf("create Socket failed\n");
-		return -1;
-	}
+    socket_fd=socket(AF_INET,SOCK_STREAM,0);
+    if(socket_fd==-1)
+    {
+        printf("create Socket failed\n");
+        return -1;
+    }
 
-	serv_addr.sin_family=AF_INET;
-	serv_addr.sin_port=htons(port);
-	serv_addr.sin_addr.s_addr=inet_addr(ip);
-	memset(&serv_addr.sin_zero,0,8);
+    serv_addr.sin_family=AF_INET;
+    serv_addr.sin_port=htons(port);
+    serv_addr.sin_addr.s_addr=inet_addr(ip);
+    memset(&serv_addr.sin_zero,0,8);
 
-	if(connect(socket_fd,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr))==-1)
-	{
-		printf("connect to server failed\n");
-		return -1;
-	}
+    if(connect(socket_fd,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr))==-1)
+    {
+        printf("connect to server failed\n");
+        return -1;
+    }
 
 
 
-	m_serverfd=socket_fd;
-	m_uid=uid;
+    m_serverfd=socket_fd;
+    m_uid=uid;
 
-	ev_io_init(&m_evRead,XtRobotClient::onReadData,m_serverfd,EV_READ);
-	ev_io_start(m_evloop,&m_evRead);
+    ev_io_init(&m_evRead,XtRobotClient::onReadData,m_serverfd,EV_READ);
+    ev_io_start(m_evloop,&m_evRead);
 
-	ev_io_init(&m_evWrite,XtRobotClient::onWriteData,m_serverfd,EV_WRITE);
+    ev_io_init(&m_evWrite,XtRobotClient::onWriteData,m_serverfd,EV_WRITE);
 
-	ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 3, 0);
+    ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 3, 0);
 
-	doLogin();
+    doLogin();
 
-	return 0;
+    return 0;
 }
 
 
 void XtRobotClient::sendLoginPackage()
 {
-	Jpacket data;
-	data.val["cmd"]=CLIENT_LOGIN;
-	data.val["uid"]=m_uid;
-	data.val["skey"]="fsdffdf";
-	data.end();
+    Jpacket data;
+    data.val["cmd"]=CLIENT_LOGIN;
+    data.val["uid"]=m_uid;
+    data.val["skey"]="fsdffdf";
+    data.end();
 
-	send(data.tostring());
+    send(data.tostring());
 }
 
 int XtRobotClient::send(const char *buf, unsigned int len)
 {
-	if (m_serverfd>=0)
-	{
-		if (m_writeQueue.empty()) 
-		{
-			m_evWrite.data = this;
-			ev_io_start(m_evloop, &m_evWrite);
-		}
-		m_writeQueue.push_back(new XtBuffer(buf, len));
-		return 0;
-	}
+    if (m_serverfd>=0)
+    {
+        if (m_writeQueue.empty()) 
+        {
+            m_evWrite.data = this;
+            ev_io_start(m_evloop, &m_evWrite);
+        }
+        m_writeQueue.push_back(new XtBuffer(buf, len));
+        return 0;
+    }
 
-	printf("server error\n");
+    printf("server error\n");
 
-	return -1;
+    return -1;
 }
 
 int XtRobotClient::send(const std::string &res)
 {
-	return send(res.c_str(), res.length());
-	//return safe_writen(res.c_str(), res.length());
+    return send(res.c_str(), res.length());
+    //return safe_writen(res.c_str(), res.length());
 }
 
