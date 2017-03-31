@@ -201,7 +201,7 @@ int Table::login(Player *player)
     xt_log.debug("player login uid:%d\n", player->uid);
     if(m_players.find(player->uid) != m_players.end())
     {
-        xt_log.error("%s:%d, player was existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
+        xt_log.error("%s:%d, login fail! player was existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
         return 0;
     }
     
@@ -243,7 +243,15 @@ void Table::reLogin(Player* player)
         
 void Table::msgPrepare(Player* player)
 {
-    xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
+    //xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
+    //检查入场费
+    if(player->money < ROOMTAX)
+    {
+        xt_log.error("%s:%d, prepare fail!, player was no enouth money! uid:%d\n", __FILE__, __LINE__, player->uid); 
+        //loginUC(player, CODE_MONEY);
+        return; 
+    }
+
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
@@ -263,7 +271,7 @@ void Table::msgPrepare(Player* player)
 
 void Table::msgCall(Player* player)
 {
-    xt_log.debug("msg Call uid:%d\n", player->uid);
+    //xt_log.debug("msg Call uid:%d\n", player->uid);
     if(m_state != STATE_CALL)
     {
         xt_log.error("%s:%d, no call state.\n", __FILE__, __LINE__); 
@@ -295,7 +303,7 @@ void Table::msgCall(Player* player)
     m_callScore[m_curSeat] = msg["score"].asInt();
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    xt_log.debug("call score, uid:%d, seatid:%d, score :%d\n", player->uid, player->m_seatid, m_callScore[player->m_seatid]);
+    //xt_log.debug("call score, uid:%d, seatid:%d, score :%d\n", player->uid, player->m_seatid, m_callScore[player->m_seatid]);
 
     //是否已经选出地主
     if(selecLord())
@@ -323,7 +331,7 @@ void Table::msgDouble(Player* player)
     //不能重复加倍
     Json::Value &msg = player->client->packet.tojson();
     m_famerDouble[player->m_seatid] = msg["double"].asBool();
-    xt_log.debug("msgdouble, uid:%d, seatid:%d, double:%s\n", player->uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
+    //xt_log.debug("msgdouble, uid:%d, seatid:%d, double:%s\n", player->uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
 
     //加倍不分先后
     m_opState[player->m_seatid] = OP_DOUBLE_RECEIVE;
@@ -569,7 +577,6 @@ void Table::prepareProc(void)
 {
     m_state = STATE_PREPARE; 
     setAllSeatOp(OP_PREPARE_WAIT);
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::callProc(void)
@@ -609,6 +616,7 @@ void Table::logout(Player* player)
     if(m_players.empty())
     {
         reset(); 
+        xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     }
     
     bool findHuman = false;
@@ -625,6 +633,7 @@ void Table::logout(Player* player)
     if(!findHuman)
     {
         reset();
+        xt_log.debug("state: %s\n", DESC_STATE[m_state]);
         for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
         {
             Jpacket packet;
@@ -664,6 +673,7 @@ void Table::endProc(void)
 
     //重置游戏
     reset();
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 
     //检查入场费, 踢出不够的
     kick();
@@ -916,7 +926,7 @@ bool Table::selecLord(void)
     {
         m_topCall = m_callScore[m_curSeat];
         m_lordSeat = m_curSeat;
-        xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
+        //xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
         return true;
     }
 
@@ -940,20 +950,20 @@ bool Table::selecLord(void)
     //not all respond
     if(!isAll)
     {
-        xt_log.debug("selectLord fail, no all respond.\n");
+        //xt_log.debug("selectLord fail, no all respond.\n");
         return false;
     }
     // no one give score
     if(score == 0)
     {
-        xt_log.debug("selectLord fail, no one give score.\n");
+        //xt_log.debug("selectLord fail, no one give score.\n");
         return false;
     }
 
     m_topCall = score;
     m_lordSeat = seatid;
 
-    xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
+    //xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
     return true;
 }
 

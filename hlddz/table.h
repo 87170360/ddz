@@ -143,14 +143,14 @@ class Table
         void payTax(void);
         //计算各座位输赢
         void calculate(int finalScore);
+        //检查入场费并踢出玩家
+        void kick(void);
 
         //设置座位的玩家
         void setSeat(int uid, int seatid);
         //获取座位的玩家uid
         int getSeat(int seatid);
 
-        //踢出玩家
-        void kick(void);
 
     private:
         void reset(void);

@@ -231,6 +231,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_END:
             handleEnd(val);
             break;
+        case SERVER_KICK:
+            handleKick(val);
+            break;
 	}
 
 	return 0;
@@ -430,6 +433,11 @@ void XtRobotClient::handleEnd(Json::Value& msg)
 	Jpacket data; data.val["cmd"]     =   CLIENT_PREPARE;
 	data.end();
 	send(data.tostring());
+}
+        
+void XtRobotClient::handleKick(Json::Value& msg)
+{
+    printf("handleKick !\n");
 }
         
 void XtRobotClient::sendCall(void)
