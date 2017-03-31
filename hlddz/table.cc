@@ -1079,7 +1079,7 @@ void Table::showGame(void)
         xt_log.debug("uid:%d, money:%d, name:%s\n", tmpplayer->uid, tmpplayer->money, tmpplayer->name.c_str());
     }
 
-    xt_log.debug("seat0:%d, seat1:%d, seat2:%d\n", getSeat(0), getSeat(1), getSeat(2));
+    xt_log.debug("tid:%d, seat0:%d, seat1:%d, seat2:%d\n", m_tid, getSeat(0), getSeat(1), getSeat(2));
 }
 
 bool Table::isDoubleFinish(void)
@@ -1326,8 +1326,9 @@ void Table::kick(void)
         {
             Jpacket packet;
             packet.val["cmd"]           = SERVER_KICK;
+            packet.val["uid"]           = pl->uid;
             packet.end();
-            unicast(pl, packet.tostring());
+            unicast(NULL, packet.tostring());
             xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid, pl->money, ROOMTAX); 
             m_delPlayer.push_back(pl);
             //不能这里删除，否则logout里有对m_players的删除操作,导致容器错误, 且要保证发送消息完毕
