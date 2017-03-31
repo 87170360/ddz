@@ -36,6 +36,7 @@ public:
 	static void offline_timeout(struct ev_loop *loop, ev_timer *w, int revents);
 
     void changeMoney(int value);
+    bool isRobot(void) { return uid < XT_ROBOT_UID_MAX; }
 
 public:
 	int 				index;

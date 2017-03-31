@@ -31,7 +31,7 @@ const int KICKTIME          = 1;
 
 const int SHOWTIME          = 3;    //发牌动画时间
 const int ROOMSCORE         = 10;   //房间底分
-const int ROOMTAX           = 10;   //房间抽水
+const int ROOMTAX           = 50;   //房间抽水
 
 Table::Table()
 {
@@ -511,7 +511,7 @@ void Table::onKick(void)
     for(vector<Player*>::iterator it = m_delPlayer.begin(); it != m_delPlayer.end(); ++it)
     {
         pl = *it;
-        xt_log.debug("%s:%d, kick player active! uid:%d \n",__FILE__, __LINE__, pl->uid); 
+        xt_log.debug("%s:%d, del player active! uid:%d \n",__FILE__, __LINE__, pl->uid); 
         //删除后，最后流程走回这里的logout
         hlddz.game->del_player(*it);
     }
@@ -667,7 +667,7 @@ void Table::logout(Player* player)
     bool findHuman = false;
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
-        if(it->first > MAX_ROBOT_ID) 
+        if(!it->second->isRobot()) 
         {
             findHuman = true;
             break;

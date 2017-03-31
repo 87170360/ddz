@@ -26,7 +26,6 @@
 const unsigned int SEAT_NUM          = 3;
 const unsigned int HAND_CARD_NUM     = 17;
 const unsigned int BOTTON_CARD_NUM     = 3;
-const int MAX_ROBOT_ID      = 100;
 
 class Player;
 class Client;
