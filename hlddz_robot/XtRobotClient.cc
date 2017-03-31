@@ -291,8 +291,8 @@ void XtRobotClient::handleRespond(Json::Value& msg)
 {
     int msgid = msg["msgid"].asInt();
     int code = msg["code"].asInt();
-    printf("msgid:%d\n", msgid);
-    printf("code:%d\n", code);
+    //printf("msgid:%d\n", msgid);
+    //printf("code:%d\n", code);
     switch(msgid)
     {
         case CLIENT_LOGIN:

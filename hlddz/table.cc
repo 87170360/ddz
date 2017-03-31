@@ -31,7 +31,7 @@ const int KICKTIME          = 1;
 
 const int SHOWTIME          = 3;    //发牌动画时间
 const int ROOMSCORE         = 10;   //房间底分
-const int ROOMTAX           = 5000;   //房间抽水
+const int ROOMTAX           = 10;   //房间抽水
 
 Table::Table()
 {
@@ -198,7 +198,7 @@ void Table::kickCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 int Table::login(Player *player)
 {
-    xt_log.debug("player login uid:%d\n", player->uid);
+    xt_log.debug("player login uid:%d, tid:%d\n", player->uid, m_tid);
     if(m_players.find(player->uid) != m_players.end())
     {
         xt_log.error("%s:%d, login fail! player was existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
