@@ -472,7 +472,11 @@ void Table::msgOut(Player* player)
         //xt_log.debug("compare\n");
         if(!m_deck.compareCard(curCard, m_lastCard))
         {
-            xt_log.error("%s:%d, compare faile.", __FILE__, __LINE__); 
+            xt_log.error("%s:%d, compare fail.", __FILE__, __LINE__); 
+            xt_log.error("curCard:\n");
+            show(curCard);
+            xt_log.error("lastCard:\n");
+            show(m_lastCard);
             return;
         }
         m_lastCard = curCard;
