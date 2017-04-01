@@ -14,7 +14,7 @@ enum CLIENT_COMMAND
 
 enum SERVER_COMMAND
 {
-    SERVER_RESPOND              = 2000,         //其他回复
+    SERVER_RESPOND              = 2000,         //其他回复, 消息id:msgid, code:错误码
     SERVER_LOGIN                = 2001,         //其他玩家登录  
     SERVER_CARD_1               = 2002,         //第一次发牌17张,开始叫分:当前操作者id:cur_id, 叫分倒计时:time, 发牌时间:show_time, 17张牌:card
     SERVER_AGAIN_CALL           = 2003,         //通知下一个叫分: 上次叫分:score, 当前操作者id:cur_id,上一个操作者id:pre_id, 叫分倒计时:time
@@ -24,8 +24,9 @@ enum SERVER_COMMAND
     SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time
     SERVER_END                  = 2008,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2009,         //通知机器人重新准备
-    SERVER_KICK                 = 2010,         //踢人离场 uid
+    SERVER_KICK                 = 2010,         //踢人离场
     SERVER_CHANGE_END           = 2011,         //因有人换桌牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
+    SERVER_TIME                 = 2012,         //定时器时间秒:time
 };
 
 enum ERROR_CODE

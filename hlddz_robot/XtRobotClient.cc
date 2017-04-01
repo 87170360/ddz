@@ -234,6 +234,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_KICK:
             handleKick(val);
             break;
+        case SERVER_TIME:
+            handleTime(val);
+            break;
     }
 
     return 0;
@@ -445,7 +448,7 @@ void XtRobotClient::handleReprepare(Json::Value& msg)
 
 void XtRobotClient::handleEnd(Json::Value& msg)
 {
-    printf("handleEnd !\n");
+    //printf("handleEnd !\n");
     m_card.clear();
     Jpacket data; 
     //data.val["cmd"]     =   (rand() % 2) > 0 ? CLIENT_CHANGE : CLIENT_PREPARE;
@@ -467,6 +470,12 @@ void XtRobotClient::handleKick(Json::Value& msg)
         data.end();
         send(data.tostring());
     }
+}
+
+void XtRobotClient::handleTime(Json::Value& msg)
+{
+    //int time = msg["time"].asInt();
+    //printf("handleTime!, time:%d\n", time);
 }
 
 void XtRobotClient::sendCall(void)

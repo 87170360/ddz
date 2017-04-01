@@ -906,7 +906,7 @@ void Table::sendTime(void)
 {
     //xt_log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$sendTime\n");
     Jpacket packet;
-    packet.val["cmd"]       = SERVER_CHANGE_END;
+    packet.val["cmd"]       = SERVER_TIME;
     packet.val["time"]      = 1998;
     packet.end();
     broadcast(NULL, packet.tostring());
