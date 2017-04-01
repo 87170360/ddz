@@ -49,6 +49,9 @@ Table::Table()
 
     m_timerKick.data = this;
     ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
+
+    //m_timerKick.data = this;
+    //ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
 }
 
 Table::~Table()
@@ -168,11 +171,19 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
     table->call();
 }
 
+void Table::call(void)
+{
+}
+
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerDouble);
     table->doubl();
+}
+
+void Table::doubl(void)
+{
 }
 
 void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -182,12 +193,22 @@ void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
     table->card();
 }
 
+void Table::card(void)
+{
+}
+
+
 void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerEnd);
     table->end();
 }
+
+void Table::end(void)
+{
+}
+
 
 void Table::kickCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
@@ -493,21 +514,6 @@ void Table::msgChange(Player* player)
     hlddz.game->change_table(player);
 }
 
-void Table::call(void)
-{
-}
-
-void Table::doubl(void)
-{
-}
-
-void Table::card(void)
-{
-}
-
-void Table::end(void)
-{
-}
 
 void Table::onKick(void)
 {
@@ -876,6 +882,15 @@ void Table::sendChangeEnd(Player* player, int doubleNum, int score)
 
     packet.end();
     broadcast(player, packet.tostring());
+}
+        
+void Table::sendTime(void)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_CHANGE_END;
+    packet.val["time"]      = 1998;
+    packet.end();
+    broadcast(NULL, packet.tostring());
 }
 
 void Table::gameStart(void)

@@ -47,14 +47,14 @@ class Table
         //定时器函数
         /////////////////////////////////////////////////////////////////////////////
         static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        static void kickCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void call(void);
+        static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void doubl(void);
+        static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void card(void);
+        static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void end(void);
+        static void kickCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onKick(void);
         /////////////////////////////////////////////////////////////////////////////
 
@@ -101,8 +101,10 @@ class Table
         void sendOutAgain(void);
         //结束
         void sendEnd(int doubleNum, int score);
-        //换桌结束
+        //换桌导致牌局结束
         void sendChangeEnd(Player* player, int doubleNum, int score);
+        //定时器时间
+        void sendTime(void);
     
         //开始发牌
         void gameStart(void);
@@ -190,6 +192,7 @@ class Table
         ev_timer                    m_timerCard;                    //出牌
         ev_timer                    m_timerEnd;                     //结算
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
+        //ev_timer                    m_timerUpdate;                  //更新倒计时
 
         vector<Player*>             m_delPlayer;
 };
