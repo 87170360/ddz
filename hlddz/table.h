@@ -181,6 +181,7 @@ class Table
         unsigned int                m_outSeat;                      //当前出牌者座位
         int                         m_topCall;                      //最高叫分
         unsigned int                m_win;                          //胜利座位
+        int                         m_time;                         //剩余倒计时秒
 
         XtShuffleDeck               m_deck;
         std::vector<XtCard>         m_bottomCard;                   //底牌

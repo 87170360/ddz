@@ -474,8 +474,8 @@ void XtRobotClient::handleKick(Json::Value& msg)
 
 void XtRobotClient::handleTime(Json::Value& msg)
 {
-    //int time = msg["time"].asInt();
-    //printf("handleTime!, time:%d\n", time);
+    int time = msg["time"].asInt();
+    printf("handleTime!, time:%d\n", time);
 }
 
 void XtRobotClient::sendCall(void)

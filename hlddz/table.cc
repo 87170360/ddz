@@ -25,7 +25,7 @@ extern Log xt_log;
 
 const int CALLTIME          = 3;
 const int DOUBLETIME        = 3;
-const int CARDTIME          = 10;
+const int OUTTIME          = 10;
 const int ENDTIME           = 10;
 const int KICKTIME          = 1;
 const int UPDATETIME        = 1;
@@ -43,7 +43,7 @@ Table::Table()
     ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(DOUBLETIME), ev_tstamp(DOUBLETIME));
 
     m_timerCard.data = this;
-    ev_timer_init(&m_timerCard, Table::cardCB, ev_tstamp(CARDTIME), ev_tstamp(CARDTIME));
+    ev_timer_init(&m_timerCard, Table::cardCB, ev_tstamp(OUTTIME), ev_tstamp(OUTTIME));
 
     m_timerKick.data = this;
     ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
@@ -96,6 +96,13 @@ void Table::reset(void)
     m_topCall = 0;
     m_win = 0;
     prepareProc();
+    m_time = 0;
+
+    ev_timer_stop(hlddz.loop, &m_timerCall);
+    ev_timer_stop(hlddz.loop, &m_timerDouble);
+    ev_timer_stop(hlddz.loop, &m_timerCard);
+    ev_timer_stop(hlddz.loop, &m_timerKick);
+    ev_timer_stop(hlddz.loop, &m_timerUpdate);
 }
 
 int Table::broadcast(Player *p, const std::string &packet)
@@ -232,6 +239,7 @@ void Table::updateCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onUpdate(void)
 {
+    --m_time;
     sendTime();
 }
 
@@ -648,6 +656,8 @@ void Table::callProc(void)
     m_state = STATE_CALL; 
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
+    m_time = CALLTIME;
+    //ev_timer_again(hlddz.loop, &m_timerCall);
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -655,6 +665,7 @@ void Table::doubleProc(void)
 {
     m_state = STATE_DOUBLE; 
     setAllSeatOp(OP_DOUBLE_NOTIFY);
+    m_time = DOUBLETIME;
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -664,6 +675,7 @@ void Table::outProc(void)
     setAllSeatOp(OP_OUT_WAIT);
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
+    m_time = OUTTIME;
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -814,7 +826,7 @@ void Table::sendDoubleResult(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_RESULT_DOUBLE;
-        packet.val["time"]          = CARDTIME;
+        packet.val["time"]          = OUTTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["count"]         = getCount();
         packet.end();
@@ -830,7 +842,7 @@ void Table::sendOutAgain(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_AGAIN_OUT;
-        packet.val["time"]          = CARDTIME;
+        packet.val["time"]          = OUTTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["out_id"]        = getSeat(m_outSeat);
@@ -894,7 +906,7 @@ void Table::sendTime(void)
     //xt_log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$sendTime\n");
     Jpacket packet;
     packet.val["cmd"]       = SERVER_TIME;
-    packet.val["time"]      = 1998;
+    packet.val["time"]      = m_time;
     packet.end();
     broadcast(NULL, packet.tostring());
 }
