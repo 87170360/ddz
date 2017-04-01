@@ -400,7 +400,7 @@ void Table::msgDouble(Player* player)
 
     if(isDoubleFinish())
     {
-        xt_log.debug("===================================== start out card, double finish!\n");
+        xt_log.debug("================================= start out card, double finish!\n");
         showGame();
         outProc();
         sendDoubleResult(); 
@@ -488,7 +488,7 @@ void Table::msgOut(Player* player)
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())
     {
-        xt_log.debug("================================================gameover\n");
+        xt_log.debug("=======================================gameover\n");
         m_win = player->m_seatid;
         endProc();
     }
@@ -928,7 +928,7 @@ void Table::gameStart(void)
 
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
     ev_timer_again(hlddz.loop, &m_timerUpdate);
-    xt_log.debug("=================================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    xt_log.debug("=======================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
     //ev_timer_again(hlddz.loop, &m_timerCall);
 }
 
@@ -964,7 +964,7 @@ void Table::gameRestart(void)
 
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
     ev_timer_again(hlddz.loop, &m_timerUpdate);
-    xt_log.debug("=================================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    xt_log.debug("=======================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
 }
 
 bool Table::getNext(void)

@@ -159,7 +159,6 @@ class Table
         //获取座位的玩家uid
         int getSeat(int seatid);
 
-
     private:
         void reset(void);
 
