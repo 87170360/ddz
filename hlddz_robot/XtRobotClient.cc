@@ -448,7 +448,8 @@ void XtRobotClient::handleEnd(Json::Value& msg)
     printf("handleEnd !\n");
     m_card.clear();
     Jpacket data; 
-    data.val["cmd"]     =   (rand() % 2) > 0 ? CLIENT_CHANGE : CLIENT_PREPARE;
+    //data.val["cmd"]     =   (rand() % 2) > 0 ? CLIENT_CHANGE : CLIENT_PREPARE;
+    data.val["cmd"]     =   CLIENT_PREPARE;
     //data.val["cmd"]     =   CLIENT_CHANGE;
     //data.val["cmd"]     =   CLIENT_LOGOUT;
     data.end();
