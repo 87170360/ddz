@@ -47,13 +47,13 @@ class Table
         //定时器函数
         /////////////////////////////////////////////////////////////////////////////
         static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void call(void);
+        void onCall(void);
         static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void doubl(void);
+        void onDouble(void);
         static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void card(void);
+        void onCard(void);
         static void endCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void end(void);
+        void onEnd(void);
         static void kickCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onKick(void);
         static void updateCB(struct ev_loop *loop, struct ev_timer *w, int revents);

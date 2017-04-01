@@ -175,10 +175,10 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerCall);
-    table->call();
+    table->onCall();
 }
 
-void Table::call(void)
+void Table::onCall(void)
 {
 }
 
@@ -186,10 +186,10 @@ void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerDouble);
-    table->doubl();
+    table->onDouble();
 }
 
-void Table::doubl(void)
+void Table::onDouble(void)
 {
 }
 
@@ -197,10 +197,10 @@ void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerCard);
-    table->card();
+    table->onCard();
 }
 
-void Table::card(void)
+void Table::onCard(void)
 {
 }
 
@@ -209,10 +209,10 @@ void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerEnd);
-    table->end();
+    table->onEnd();
 }
 
-void Table::end(void)
+void Table::onEnd(void)
 {
 }
 
