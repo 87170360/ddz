@@ -28,6 +28,7 @@ const int DOUBLETIME        = 3;
 const int CARDTIME          = 10;
 const int ENDTIME           = 10;
 const int KICKTIME          = 1;
+const int UPDATETIME        = 1;
 
 const int SHOWTIME          = 3;    //发牌动画时间
 const int ROOMSCORE         = 10;   //房间底分
@@ -50,12 +51,18 @@ Table::Table()
     m_timerKick.data = this;
     ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
 
-    //m_timerKick.data = this;
-    //ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
+    m_timerUpdate.data = this;
+    ev_timer_init(&m_timerUpdate, Table::updateCB, ev_tstamp(UPDATETIME), ev_tstamp(UPDATETIME));
 }
 
 Table::~Table()
 {
+    ev_timer_stop(hlddz.loop, &m_timerCall);
+    ev_timer_stop(hlddz.loop, &m_timerDouble);
+    ev_timer_stop(hlddz.loop, &m_timerCard);
+    ev_timer_stop(hlddz.loop, &m_timerEnd);
+    ev_timer_stop(hlddz.loop, &m_timerKick);
+    ev_timer_stop(hlddz.loop, &m_timerUpdate);
 }
 
 int Table::init(int tid)
@@ -215,6 +222,34 @@ void Table::kickCB(struct ev_loop *loop, struct ev_timer *w, int revents)
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerKick);
     table->onKick();
+}
+
+void Table::onKick(void)
+{
+    Player* pl = NULL;
+    for(vector<Player*>::iterator it = m_delPlayer.begin(); it != m_delPlayer.end(); ++it)
+    {
+        pl = *it;
+        if(pl->isRobot())
+        {
+            continue;
+        }
+        xt_log.debug("%s:%d, del player active! uid:%d \n",__FILE__, __LINE__, pl->uid); 
+        //删除后，最后流程走回这里的logout
+        hlddz.game->del_player(*it);
+    }
+    m_delPlayer.clear();
+}
+
+void Table::updateCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    table->onUpdate();
+}
+
+void Table::onUpdate(void)
+{
+    sendTime();
 }
 
 int Table::login(Player *player)
@@ -514,23 +549,6 @@ void Table::msgChange(Player* player)
     hlddz.game->change_table(player);
 }
 
-
-void Table::onKick(void)
-{
-    Player* pl = NULL;
-    for(vector<Player*>::iterator it = m_delPlayer.begin(); it != m_delPlayer.end(); ++it)
-    {
-        pl = *it;
-        if(pl->isRobot())
-        {
-            continue;
-        }
-        xt_log.debug("%s:%d, del player active! uid:%d \n",__FILE__, __LINE__, pl->uid); 
-        //删除后，最后流程走回这里的logout
-        hlddz.game->del_player(*it);
-    }
-    m_delPlayer.clear();
-}
 
 bool Table::sitdown(Player* player)
 {
@@ -886,6 +904,7 @@ void Table::sendChangeEnd(Player* player, int doubleNum, int score)
         
 void Table::sendTime(void)
 {
+    //xt_log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$sendTime\n");
     Jpacket packet;
     packet.val["cmd"]       = SERVER_CHANGE_END;
     packet.val["time"]      = 1998;
@@ -907,6 +926,8 @@ void Table::gameStart(void)
     allocateCard();
     sendCard1();
 
+    ev_timer_stop(hlddz.loop, &m_timerUpdate);
+    ev_timer_again(hlddz.loop, &m_timerUpdate);
     xt_log.debug("=================================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
     //ev_timer_again(hlddz.loop, &m_timerCall);
 }
@@ -941,6 +962,8 @@ void Table::gameRestart(void)
     allocateCard();
     sendCard1();
 
+    ev_timer_stop(hlddz.loop, &m_timerUpdate);
+    ev_timer_again(hlddz.loop, &m_timerUpdate);
     xt_log.debug("=================================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
 }
 

@@ -26,6 +26,7 @@ enum SERVER_COMMAND
     SERVER_REPREPARE            = 2009,         //通知机器人重新准备
     SERVER_KICK                 = 2010,         //踢人离场
     SERVER_CHANGE_END           = 2011,         //因有人换桌牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
+    SERVER_TIME                 = 2012,         //定时器时间秒:time
 };
 
 enum ERROR_CODE
