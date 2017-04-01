@@ -45,9 +45,6 @@ Table::Table()
     m_timerCard.data = this;
     ev_timer_init(&m_timerCard, Table::cardCB, ev_tstamp(CARDTIME), ev_tstamp(CARDTIME));
 
-    m_timerEnd.data = this;
-    ev_timer_init(&m_timerEnd, Table::endCB, ev_tstamp(ENDTIME), ev_tstamp(ENDTIME));
-
     m_timerKick.data = this;
     ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
 
@@ -60,7 +57,6 @@ Table::~Table()
     ev_timer_stop(hlddz.loop, &m_timerCall);
     ev_timer_stop(hlddz.loop, &m_timerDouble);
     ev_timer_stop(hlddz.loop, &m_timerCard);
-    ev_timer_stop(hlddz.loop, &m_timerEnd);
     ev_timer_stop(hlddz.loop, &m_timerKick);
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
 }
@@ -203,19 +199,6 @@ void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 void Table::onCard(void)
 {
 }
-
-
-void Table::endCB(struct ev_loop *loop, struct ev_timer *w, int revents)
-{
-    Table *table = (Table*) w->data;
-    ev_timer_stop(hlddz.loop, &table->m_timerEnd);
-    table->onEnd();
-}
-
-void Table::onEnd(void)
-{
-}
-
 
 void Table::kickCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
@@ -400,7 +383,7 @@ void Table::msgDouble(Player* player)
 
     if(isDoubleFinish())
     {
-        xt_log.debug("================================= start out card, double finish!\n");
+        xt_log.debug("=======================================start out card, double finish!\n");
         showGame();
         outProc();
         sendDoubleResult(); 
