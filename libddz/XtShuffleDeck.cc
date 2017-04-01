@@ -230,7 +230,18 @@ int XtShuffleDeck::getCardType(const std::vector<XtCard>& card)
 bool XtShuffleDeck::compareCard(const vector<XtCard>& card1, const vector<XtCard>& card2)
 {
     int type1 = getCardType(card1);
+
+    if(type1 == CT_ROCKET)
+    {
+        return true;
+    }
+
     int type2 = getCardType(card2);
+    if(type1 == CT_BOMB && type2 != CT_BOMB && type2 != CT_ROCKET)
+    {
+        return true;
+    }
+
     if(type1 != type2)
     {
         return false;
