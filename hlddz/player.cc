@@ -38,8 +38,8 @@ Player::~Player()
 void Player::set_client(Client *c)
 {
 	client = c;
-	uid = c->uid;
-	index = uid % hlddz.main_size;
+	m_uid = c->uid;
+	index = m_uid % hlddz.main_size;
 	client->player = this;
 }
 
@@ -47,24 +47,24 @@ int Player::init()
 {
 	// player information
 	reset();
-	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", uid);
+	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", m_uid);
 	if (ret < 0) {
-		xt_log.error("player init error 1, because get player infomation error.uid:%d\n", uid);
+		xt_log.error("player init error 1, because get player infomation error.uid:%d\n", m_uid);
 		return -1;
 	}
 	
 	if (hlddz.main_rc[index]->is_array_return_ok() < 0) {
-		xt_log.error("player init error 2, because get player infomation error.uid:%d\n", uid);
+		xt_log.error("player init error 2, because get player infomation error.uid:%d\n", m_uid);
 		return -1;
 	}
 	
-	skey = hlddz.main_rc[index]->get_value_as_string("skey");
-	name = hlddz.main_rc[index]->get_value_as_string("name");
-	sex = hlddz.main_rc[index]->get_value_as_int("sex");
-	money = hlddz.main_rc[index]->get_value_as_int("money");
-	vlevel = hlddz.main_rc[index]->get_value_as_int("vlevel");
+	m_skey = hlddz.main_rc[index]->get_value_as_string("skey");
+	m_name = hlddz.main_rc[index]->get_value_as_string("name");
+	m_sex = hlddz.main_rc[index]->get_value_as_int("sex");
+	m_money = hlddz.main_rc[index]->get_value_as_int("money");
+	m_vlevel = hlddz.main_rc[index]->get_value_as_int("vlevel");
 
-	if(uid<XT_ROBOT_UID_MAX)
+	if(m_uid<XT_ROBOT_UID_MAX)
 	{
 		set_money(rand() % 10000 + 50000);
 	}
@@ -72,17 +72,17 @@ int Player::init()
 	{
 		if (hlddz.conf["tables"]["max_money"].asInt() == 0) 
 		{
-			if (money < hlddz.conf["tables"]["min_money"].asInt()) 
+			if (m_money < hlddz.conf["tables"]["min_money"].asInt()) 
 			{
-				xt_log.error("player init uid[%d] money is not fit.\n", uid);
+				xt_log.error("player init m_uid[%d] m_money is not fit.\n", m_uid);
 				return -1;
 			}
 		} 
 		else 
 		{
-			if (money < hlddz.conf["tables"]["min_money"].asInt() || money >= hlddz.conf["tables"]["max_money"].asInt()) 
+			if (m_money < hlddz.conf["tables"]["min_money"].asInt() || m_money >= hlddz.conf["tables"]["max_money"].asInt()) 
 			{
-				xt_log.error("player init uid[%d] money is not fit.\n", uid);
+				xt_log.error("player init m_uid[%d] m_money is not fit.\n", m_uid);
 				return -1;
 			}
 		}
@@ -103,7 +103,7 @@ void Player::reset(void)
 
 int Player::update_info()
 {
-	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", uid);
+	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", m_uid);
 	if (ret < 0) {
 		xt_log.error("update info error, because get player infomation error.\n");
 		return -1;
@@ -114,7 +114,7 @@ int Player::update_info()
 		return -1;
 	}
 
-	money = hlddz.main_rc[index]->get_value_as_int("money");
+	m_money = hlddz.main_rc[index]->get_value_as_int("money");
 
 	return 0;
 }
@@ -122,14 +122,14 @@ int Player::update_info()
 int Player::set_money(int value)
 {
 	int ret=0;
-	ret=hlddz.main_rc[index]->command("hset hu:%d money %d",uid,value);
+	ret=hlddz.main_rc[index]->command("hset hu:%d money %d",m_uid,value);
 	if(ret<0)
 	{
 		xt_log.error("set money error.\n");
 		return -1;
 	}
 
-	money=value;
+	m_money=value;
 	return 0;
 }
 
@@ -158,13 +158,13 @@ void Player::changeMoney(int value)
 		return;
 	}
 
-    int ret = hlddz.main_rc[index]->command("hincrby hu:%d money %d", uid, value);
+    int ret = hlddz.main_rc[index]->command("hincrby hu:%d money %d", m_uid, value);
 	if (ret < 0) 
     {
-        xt_log.error("%s:%d, changeMoney error. uid:%d, value:%d\n", __FILE__, __LINE__, uid, value); 
+        xt_log.error("%s:%d, changeMoney error. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, value); 
 		return;
 	}
-	//xt_log.info("changeMoney uid[%d] value[%d] old[%d] new[%d].\n", uid, value, money, hlddz.main_rc[index]->reply->integer);
-    //update the money
-	money = hlddz.main_rc[index]->reply->integer; 
+	//xt_log.info("changeMoney m_uid[%d] value[%d] old[%d] new[%d].\n", m_uid, value, m_money, hlddz.main_rc[index]->reply->integer);
+    //update the m_money
+	m_money = hlddz.main_rc[index]->reply->integer; 
 }

@@ -36,7 +36,7 @@ public:
 	static void offline_timeout(struct ev_loop *loop, ev_timer *w, int revents);
 
     void changeMoney(int value);
-    bool isRobot(void) { return uid < XT_ROBOT_UID_MAX; }
+    bool isRobot(void) { return m_uid < XT_ROBOT_UID_MAX; }
 
 public:
 	int 				index;
@@ -45,12 +45,13 @@ public:
 	unsigned int		m_seatid;
 
 	// player information
-	int                 uid;
-	std::string			skey;
-	std::string			name;
-	int					sex;
-	int					money;
-	int					vlevel;
+	int                 m_uid;
+	std::string			m_skey;
+	std::string			m_name;
+	std::string			m_avatar;
+	int					m_sex;
+	int					m_money;
+	int					m_vlevel;
 
 	// connect to client
 	Client              *client;

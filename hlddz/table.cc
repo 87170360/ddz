@@ -224,7 +224,7 @@ void Table::onKick(void)
         {
             continue;
         }
-        xt_log.debug("%s:%d, del player active! uid:%d \n",__FILE__, __LINE__, pl->uid); 
+        xt_log.debug("%s:%d, del player active! m_uid:%d \n",__FILE__, __LINE__, pl->m_uid); 
         //删除后，最后流程走回这里的logout
         hlddz.game->del_player(*it);
     }
@@ -245,10 +245,10 @@ void Table::onUpdate(void)
 
 int Table::login(Player *player)
 {
-    xt_log.debug("player login uid:%d, tid:%d\n", player->uid, m_tid);
-    if(m_players.find(player->uid) != m_players.end())
+    xt_log.debug("player login m_uid:%d, tid:%d\n", player->m_uid, m_tid);
+    if(m_players.find(player->m_uid) != m_players.end())
     {
-        xt_log.error("%s:%d, login fail! player was existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
+        xt_log.error("%s:%d, login fail! player was existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         return 0;
     }
 
@@ -256,9 +256,9 @@ int Table::login(Player *player)
     addRobotMoney(player);
 
     //检查入场费
-    if(player->money < ROOMTAX)
+    if(player->m_money < ROOMTAX)
     {
-        xt_log.error("%s:%d, player was no enouth money! uid:%d\n", __FILE__, __LINE__, player->uid); 
+        xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         loginUC(player, CODE_MONEY);
         return 0; 
     }
@@ -279,11 +279,11 @@ int Table::login(Player *player)
 
 void Table::reLogin(Player* player) 
 {
-    xt_log.debug("player relogin uid:%d\n", player->uid);
+    xt_log.debug("player relogin m_uid:%d\n", player->m_uid);
     int ret_code = CODE_SUCCESS;
-    if(m_players.find(player->uid) == m_players.end())
+    if(m_players.find(player->m_uid) == m_players.end())
     {
-        xt_log.error("%s:%d, player was not existed! uid:%d\n", __FILE__, __LINE__, player->uid); 
+        xt_log.error("%s:%d, player was not existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         ret_code = CODE_RELOGIN;
     }
 
@@ -293,11 +293,11 @@ void Table::reLogin(Player* player)
 
 void Table::msgPrepare(Player* player)
 {
-    //xt_log.debug("msg prepare uid:%d, seatid:%d, size:%d\n", player->uid, player->m_seatid, m_players.size());
+    //xt_log.debug("msg prepare m_uid:%d, seatid:%d, size:%d\n", player->m_uid, player->m_seatid, m_players.size());
     //检查入场费
-    if(player->money < ROOMTAX)
+    if(player->m_money < ROOMTAX)
     {
-        xt_log.error("%s:%d, prepare fail!, player was no enouth money! uid:%d\n", __FILE__, __LINE__, player->uid); 
+        xt_log.error("%s:%d, prepare fail!, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         //loginUC(player, CODE_MONEY);
         return; 
     }
@@ -321,7 +321,7 @@ void Table::msgPrepare(Player* player)
 
 void Table::msgCall(Player* player)
 {
-    //xt_log.debug("msg Call uid:%d\n", player->uid);
+    //xt_log.debug("msg Call m_uid:%d\n", player->m_uid);
     if(m_state != STATE_CALL)
     {
         xt_log.error("%s:%d, no call state.\n", __FILE__, __LINE__); 
@@ -329,15 +329,15 @@ void Table::msgCall(Player* player)
     }
 
     //座位玩家是否匹配
-    if(player->m_seatid >= SEAT_NUM || player->m_seatid < 0 || getSeat(player->m_seatid) != player->uid)
+    if(player->m_seatid >= SEAT_NUM || player->m_seatid < 0 || getSeat(player->m_seatid) != player->m_uid)
     {
-        xt_log.error("%s:%d, seat info error. player seatid:%d, uid:%d, seatuid:%d\n", __FILE__, __LINE__, player->m_seatid, player->uid, getSeat(player->m_seatid)); 
+        xt_log.error("%s:%d, seat info error. player seatid:%d, m_uid:%d, seatuid:%d\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, getSeat(player->m_seatid)); 
         return;
     }
 
     if(m_opState[player->m_seatid] != OP_CALL_NOTIFY)
     {//座位通知过
-        xt_log.error("%s:%d, player callstate error. player seatid:%d, uid:%d, callstate:%d\n", __FILE__, __LINE__, player->m_seatid, player->uid, m_opState[player->m_seatid]); 
+        xt_log.error("%s:%d, player callstate error. player seatid:%d, m_uid:%d, callstate:%d\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, m_opState[player->m_seatid]); 
         return; 
     }
 
@@ -353,7 +353,7 @@ void Table::msgCall(Player* player)
     m_callScore[m_curSeat] = msg["score"].asInt();
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    //xt_log.debug("call score, uid:%d, seatid:%d, score :%d\n", player->uid, player->m_seatid, m_callScore[player->m_seatid]);
+    //xt_log.debug("call score, m_uid:%d, seatid:%d, score :%d\n", player->m_uid, player->m_seatid, m_callScore[player->m_seatid]);
 
     //是否已经选出地主
     if(selecLord())
@@ -381,13 +381,13 @@ void Table::msgDouble(Player* player)
     //不能重复加倍
     Json::Value &msg = player->client->packet.tojson();
     m_famerDouble[player->m_seatid] = msg["double"].asBool();
-    //xt_log.debug("msgdouble, uid:%d, seatid:%d, double:%s\n", player->uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
+    //xt_log.debug("msgdouble, m_uid:%d, seatid:%d, double:%s\n", player->m_uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
 
     //加倍不分先后
     m_opState[player->m_seatid] = OP_DOUBLE_RECEIVE;
 
     //xt_log.debug("double continue!\n");
-    sendDouble(player->uid, m_famerDouble[player->m_seatid]);
+    sendDouble(player->m_uid, m_famerDouble[player->m_seatid]);
 
     if(isDoubleFinish())
     {
@@ -410,7 +410,7 @@ void Table::msgOut(Player* player)
     bool keep = msg["keep"].asBool();
     if(keep && !curCard.empty())
     {
-        xt_log.error("%s:%d, not allow keep && not empty card. uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->uid, player->m_seatid, keep ? "true" : "false"); 
+        xt_log.error("%s:%d, not allow keep && not empty card. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
         xt_log.debug("curCard:\n");
         show(curCard);
         return;
@@ -423,7 +423,7 @@ void Table::msgOut(Player* player)
         int cardtype = m_deck.getCardType(curCard);
         if(cardtype == CT_ERROR)
         {
-            xt_log.error("%s:%d, cardtype error. uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->uid, player->m_seatid, keep ? "true" : "false"); 
+            xt_log.error("%s:%d, cardtype error. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
             xt_log.debug("curCard:\n");
             show(curCard);
             return;
@@ -438,7 +438,7 @@ void Table::msgOut(Player* player)
     //出牌次数
     m_outNum[player->m_seatid] += 1;
 
-    //xt_log.debug("msgOut, uid:%d, seatid:%d, keep:%s\n", player->uid, player->m_seatid, keep ? "true" : "false");
+    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
     //xt_log.debug("curCard:\n");
     //show(curCard);
     //xt_log.debug("lastCard:\n");
@@ -501,7 +501,7 @@ void Table::msgOut(Player* player)
 
 void Table::msgChange(Player* player)
 {
-    xt_log.debug("msgChange, uid:%d, seatid:%d\n", player->uid, player->m_seatid);
+    xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
 
     if(m_state == STATE_OUT)
     {
@@ -564,9 +564,9 @@ bool Table::sitdown(Player* player)
 
     player->m_seatid = seatid;
     player->m_tid = m_tid;
-    setSeat(player->uid, seatid);
-    m_players[player->uid] = player;
-    //xt_log.debug("sitdown uid:%d, seatid:%d\n", player->uid, seatid);
+    setSeat(player->m_uid, seatid);
+    m_players[player->m_uid] = player;
+    //xt_log.debug("sitdown uid:%d, seatid:%d\n", player->m_uid, seatid);
     return true;
 }
 
@@ -582,17 +582,17 @@ void Table::loginUC(Player* player, int code)
     //pack other player info
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
-        if(it->first == player->uid)  
+        if(it->first == player->m_uid)  
         {
             continue; 
         }
         Json::Value jval;          
         Player* pl = it->second;
-        jval["uid"]     = pl->uid;
+        jval["uid"]     = pl->m_uid;
         jval["seatid"]  = pl->m_seatid;
-        jval["name"]    = pl->name;
-        jval["money"]   = pl->money;
-        jval["vlevel"]  = pl->vlevel;
+        jval["name"]    = pl->m_name;
+        jval["money"]   = pl->m_money;
+        jval["vlevel"]  = pl->m_vlevel;
         jval["state"]   = m_opState[pl->m_seatid];
         packet.val["userinfo"].append(jval);
     }
@@ -607,11 +607,11 @@ void Table::loginBC(Player* player)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_LOGIN;
-    packet.val["uid"]       = player->uid;
+    packet.val["uid"]       = player->m_uid;
     packet.val["seatid"]    = player->m_seatid;
-    packet.val["name"]      = player->name;
-    packet.val["money"]     = player->money;
-    packet.val["vlevel"]    = player->vlevel;
+    packet.val["name"]      = player->m_name;
+    packet.val["money"]     = player->m_money;
+    packet.val["vlevel"]    = player->m_vlevel;
     packet.val["state"]     = m_state;
 
     packet.end();
@@ -681,9 +681,9 @@ void Table::outProc(void)
 
 void Table::logout(Player* player)
 {
-    xt_log.debug("player logout, uid:%d\n", player->uid);
+    xt_log.debug("player logout, uid:%d\n", player->m_uid);
     //退出发生后，牌桌内只有机器人,重新进入准备状态，方便测试
-    map<int, Player*>::iterator it = m_players.find(player->uid);
+    map<int, Player*>::iterator it = m_players.find(player->m_uid);
     if(it != m_players.end())
     {
         m_players.erase(it);
@@ -867,8 +867,8 @@ void Table::sendEnd(int doubleNum, int score)
     {
         Json::Value jval;          
         Player* pl = it->second;
-        jval["uid"]     = pl->uid;
-        jval["name"]    = pl->name;
+        jval["uid"]     = pl->m_uid;
+        jval["name"]    = pl->m_name;
         jval["money"]   = m_money[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
@@ -891,8 +891,8 @@ void Table::sendChangeEnd(Player* player, int doubleNum, int score)
     {
         Json::Value jval;          
         Player* pl = it->second;
-        jval["uid"]     = pl->uid;
-        jval["name"]    = pl->name;
+        jval["uid"]     = pl->m_uid;
+        jval["name"]    = pl->m_name;
         jval["money"]   = m_money[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
@@ -1114,7 +1114,7 @@ void Table::showGame(void)
     {
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
-        xt_log.debug("uid:%d, money:%d, name:%s\n", tmpplayer->uid, tmpplayer->money, tmpplayer->name.c_str());
+        xt_log.debug("uid:%d, money:%d, name:%s\n", tmpplayer->m_uid, tmpplayer->m_money, tmpplayer->m_name.c_str());
     }
 
     xt_log.debug("tid:%d, seat0:%d, seat1:%d, seat2:%d\n", m_tid, getSeat(0), getSeat(1), getSeat(2));
@@ -1269,11 +1269,11 @@ int Table::getMinMoney(void)
         {
             if(money == 0)
             {
-                money = pl->money;
+                money = pl->m_money;
             }
-            else if(pl->money < money)
+            else if(pl->m_money < money)
             {
-                money = pl->money;
+                money = pl->m_money;
             }
         }
     }
@@ -1360,14 +1360,14 @@ void Table::kick(void)
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
-        if(pl->money < ROOMTAX)
+        if(pl->m_money < ROOMTAX)
         {
             Jpacket packet;
             packet.val["cmd"]           = SERVER_KICK;
-            packet.val["uid"]           = pl->uid;
+            packet.val["uid"]           = pl->m_uid;
             packet.end();
             unicast(NULL, packet.tostring());
-            xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->uid, pl->m_seatid, pl->money, ROOMTAX); 
+            xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->m_uid, pl->m_seatid, pl->m_money, ROOMTAX); 
             m_delPlayer.push_back(pl);
             //不能这里删除，否则logout里有对m_players的删除操作,导致容器错误, 且要保证发送消息完毕
         }
@@ -1384,6 +1384,6 @@ void Table::addRobotMoney(Player* player)
     }
 
     int addval = ROOMTAX * (rand() % 9 + 1);
-    xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->uid, addval); 
+    xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }

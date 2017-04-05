@@ -145,23 +145,23 @@ void Game::del_client(Client *client)
         Player *player = client->player;
         if (client->position == POSITION_WAIT) {
             // todo delete this status
-            if (offline_players.find(player->uid) != offline_players.end()) {
-                offline_players.erase(player->uid);
-                //xt_log.info("del client player uid[%d] offline.\n", player->uid);
+            if (offline_players.find(player->m_uid) != offline_players.end()) {
+                offline_players.erase(player->m_uid);
+                //xt_log.info("del client player uid[%d] offline.\n", player->m_uid);
             }
-            if (online_players.find(player->uid) != online_players.end()) {
-                online_players.erase(player->uid);
-                //xt_log.info("del client player uid[%d] online.\n", player->uid);
+            if (online_players.find(player->m_uid) != online_players.end()) {
+                online_players.erase(player->m_uid);
+                //xt_log.info("del client player uid[%d] online.\n", player->m_uid);
             }
             delete player;
             player = NULL;
         } else if (client->position == POSITION_TABLE) {
-            if (online_players.find(player->uid) != online_players.end()) {
-                online_players.erase(player->uid);
-                offline_players[player->uid] = client->player;
+            if (online_players.find(player->m_uid) != online_players.end()) {
+                online_players.erase(player->m_uid);
+                offline_players[player->m_uid] = client->player;
                 player->start_offline_timer();
                 player->client = NULL;
-                xt_log.debug("del client player uid[%d] online and add this uid to offline\n", player->uid);
+                xt_log.debug("del client player uid[%d] online and add this uid to offline\n", player->m_uid);
             }
             client->player->client = NULL;
         }
@@ -206,7 +206,7 @@ int Game::dispatch(Client *client)
             ret = handler_login_table(client);
             return ret;
         }
-        xt_log.error("CLIENT_LOGIN_REQ player must be NULL. uid:%d\n", client->player->uid);
+        xt_log.error("CLIENT_LOGIN_REQ player must be NULL. uid:%d\n", client->player->m_uid);
         return -1;
     }
 
@@ -272,7 +272,7 @@ int Game::safe_check(Client *client, int cmd)
     }
     if (all_tables.find(player->m_tid) == all_tables.end())
     {
-        xt_log.error("safe_check uid[%d] is not in tid[%d]\n", player->uid, player->m_tid);
+        xt_log.error("safe_check uid[%d] is not in tid[%d]\n", player->m_uid, player->m_tid);
         return -1;
     }
 
@@ -283,7 +283,7 @@ int Game::handler_login_table(Client *client)
 {
     Player *player = client->player;
     if (client->position == POSITION_TABLE) {
-        xt_log.error("handler_login_table uid[%d] have been in table\n", player->uid);
+        xt_log.error("handler_login_table uid[%d] have been in table\n", player->m_uid);
         return -1;
     }
     int ret = 0;
@@ -322,13 +322,13 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
     for(map<int, Table*>::iterator it = a.begin(); it != a.end(); it++)
     {
         Table *table = (*it).second; 
-        if(table->m_state != STATE_PREPARE || player->m_tid == table->m_tid || table->m_players.find(player->uid) != table->m_players.end())
+        if(table->m_state != STATE_PREPARE || player->m_tid == table->m_tid || table->m_players.find(player->m_uid) != table->m_players.end())
         {
             continue;
         }
-        if(table->m_players.find(player->uid) != table->m_players.end())
+        if(table->m_players.find(player->m_uid) != table->m_players.end())
         {
-            xt_log.error("login table uid[%d] is in tid[%d]\n", player->uid, table->m_tid); 
+            xt_log.error("login table uid[%d] is in tid[%d]\n", player->m_uid, table->m_tid); 
             return -2;
         }
         target = table;
@@ -439,7 +439,7 @@ int Game::add_player(Client *client)
         Player *player = online_players[uid];
         if (all_tables.find(player->m_tid) == all_tables.end()) 
         {
-            xt_log.error("add player rebind by online uid[%d] is not in tid[%d].\n", player->uid, player->m_tid);
+            xt_log.error("add player rebind by online uid[%d] is not in tid[%d].\n", player->m_uid, player->m_tid);
             return -1;
         }
         Client *oldClient = player->client;
@@ -460,7 +460,7 @@ int Game::add_player(Client *client)
         Player *player = offline_players[uid];
         if (all_tables.find(player->m_tid) == all_tables.end())
         {
-            xt_log.error("rebind by offline uid[%d] is not in table[%d]\n", player->uid, player->m_tid);
+            xt_log.error("rebind by offline uid[%d] is not in table[%d]\n", player->m_uid, player->m_tid);
             return -1;
         }
         offline_players.erase(uid);
@@ -513,14 +513,14 @@ int Game::del_player(Player *player)
         }
     }
 
-    if (offline_players.find(player->uid) != offline_players.end()) {
-        offline_players.erase(player->uid);
-        //xt_log.info("del player uid[%d] offline.\n", player->uid);
+    if (offline_players.find(player->m_uid) != offline_players.end()) {
+        offline_players.erase(player->m_uid);
+        //xt_log.info("del player uid[%d] offline.\n", player->m_uid);
     }
 
-    if (online_players.find(player->uid) != online_players.end()) {
-        online_players.erase(player->uid);
-        xt_log.info("del player uid[%d] online.\n", player->uid);
+    if (online_players.find(player->m_uid) != online_players.end()) {
+        online_players.erase(player->m_uid);
+        xt_log.info("del player uid[%d] online.\n", player->m_uid);
     }
 
     if (player->client) {
@@ -534,7 +534,7 @@ int Game::del_player(Player *player)
         return 0;
     }
 
-    xt_log.debug("del player[%p] uid[%d]\n", player, player->uid);
+    xt_log.debug("del player[%p] uid[%d]\n", player, player->m_uid);
     delete player;
     player = NULL;
 
@@ -548,7 +548,7 @@ int Game::del_player(Player *player)
 
 int Game::change_table(Player *player)
 {
-    xt_log.info("change table uid[%d], tid[%d].\n", player->uid, player->m_tid);
+    xt_log.info("change table uid[%d], tid[%d].\n", player->m_uid, player->m_tid);
     int ret = 0;
     map<int, Table*>::iterator it = all_tables.find(player->m_tid);
     if (it != all_tables.end()) 
