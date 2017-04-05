@@ -169,3 +169,23 @@ void Player::changeMoney(int value)
     //update the m_money
 	m_money = hlddz.main_rc[index]->reply->integer; 
 }
+    
+void Player::keepTotal(bool win)
+{
+    int ret = hlddz.main_rc[index]->command("hincrby hu:%d total %d", m_uid, 1);
+	if (ret < 0) 
+    {
+        xt_log.error("%s:%d, keepTotal error1. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, 1); 
+	}
+
+    if(!win)
+    {
+        return;
+    }
+
+    ret = hlddz.main_rc[index]->command("hincrby hu:%d victory %d", m_uid, 1);
+	if (ret < 0) 
+    {
+        xt_log.error("%s:%d, keepTotal error2. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, 1); 
+	}
+}

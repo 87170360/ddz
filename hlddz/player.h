@@ -37,6 +37,8 @@ public:
 
     void changeMoney(int value);
     bool isRobot(void) { return m_uid < XT_ROBOT_UID_MAX; }
+    //统计玩家比赛次数和胜场
+    void keepTotal(bool win);
 
 public:
 	int 				index;

@@ -841,6 +841,8 @@ void Table::endProc(void)
     calculate(finalScore);
     //修改玩家金币
     payResult();
+    //统计局数和胜场
+    total();
     //通知结算
     sendEnd(doubleNum, finalScore);
     ////////////////////////////////////////////////////////////////////////
@@ -1407,6 +1409,17 @@ void Table::payTax(void)
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
         tmpplayer->changeMoney(-ROOMTAX);
+    }
+}
+        
+void Table::total(void)
+{
+    Player* tmpplayer = NULL;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        tmpplayer = it->second;
+        if(tmpplayer == NULL) continue;
+        tmpplayer->keepTotal(tmpplayer->m_seatid == m_win);
     }
 }
 

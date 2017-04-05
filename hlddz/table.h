@@ -148,6 +148,8 @@ class Table
         void payResult(void);
         //扣除入场费
         void payTax(void);
+        //统计比赛次数和胜场次数
+        void total(void);
         //计算各座位输赢
         void calculate(int finalScore);
         //检查入场费并踢出玩家
