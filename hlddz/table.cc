@@ -313,7 +313,7 @@ void Table::msgPrepare(Player* player)
     //检查状态
     if(m_state != STATE_PREPARE)
     {
-        xt_log.error("%s:%d, prepare fail!, game state not state_prepare, m_state:%d\n", __FILE__, __LINE__, m_state); 
+        xt_log.error("%s:%d, prepare fail!, game state not state_prepare, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
         sendError(player, CLIENT_PREPARE, CODE_STATE);
         return; 
     }
@@ -338,35 +338,49 @@ void Table::msgPrepare(Player* player)
 void Table::msgCall(Player* player)
 {
     //xt_log.debug("msg Call m_uid:%d\n", player->m_uid);
+    //检查状态
     if(m_state != STATE_CALL)
     {
-        xt_log.error("%s:%d, no call state.\n", __FILE__, __LINE__); 
+        xt_log.error("%s:%d, call fail!, game state not call_state, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
+        sendError(player, CLIENT_CALL, CODE_STATE);
         return;
     }
 
     //座位玩家是否匹配
     if(player->m_seatid >= SEAT_NUM || player->m_seatid < 0 || getSeat(player->m_seatid) != player->m_uid)
     {
-        xt_log.error("%s:%d, seat info error. player seatid:%d, m_uid:%d, seatuid:%d\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, getSeat(player->m_seatid)); 
+        xt_log.error("%s:%d, call fail!, seat info error. player seatid:%d, m_uid:%d, seatuid:%d\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, getSeat(player->m_seatid)); 
+        sendError(player, CLIENT_CALL, CODE_SEAT);
         return;
     }
 
     if(m_opState[player->m_seatid] != OP_CALL_NOTIFY)
     {//座位通知过
-        xt_log.error("%s:%d, player callstate error. player seatid:%d, m_uid:%d, callstate:%d\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, m_opState[player->m_seatid]); 
+        xt_log.error("%s:%d, call fail!, player callstate error. player seatid:%d, m_uid:%d, callstate:%s\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, DESC_OP[m_opState[player->m_seatid]]); 
+        sendError(player, CLIENT_CALL, CODE_NOTIFY);
         return; 
     }
 
     //是否当前操作者
     if(m_curSeat != player->m_seatid)
     {
-        xt_log.error("%s:%d, operator error. m_curSeat:%d, playerSeat:%d\n", __FILE__, __LINE__, m_curSeat, player->m_seatid); 
+        xt_log.error("%s:%d, call fail!, operator error. m_curSeat:%d, playerSeat:%d\n", __FILE__, __LINE__, m_curSeat, player->m_seatid); 
+        sendError(player, CLIENT_CALL, CODE_CURRENT);
         return; 
     }
 
+    //有效叫分
     Json::Value &msg = player->client->packet.tojson();
+    int score = msg["score"].asInt();
+    if(score < 0 || score > 3)
+    {
+        xt_log.error("%s:%d, call fail!, score error. uid:%d, score:%d\n", __FILE__, __LINE__, player->m_uid, score); 
+        sendError(player, CLIENT_CALL, CODE_SCORE);
+        return; 
+    }
+
     //保存当前叫分
-    m_callScore[m_curSeat] = msg["score"].asInt();
+    m_callScore[m_curSeat] = score;
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
     //xt_log.debug("call score, m_uid:%d, seatid:%d, score :%d\n", player->m_uid, player->m_seatid, m_callScore[player->m_seatid]);

@@ -37,6 +37,10 @@ enum ERROR_CODE
     CODE_MONEY                  = 3,            //金币不足
     CODE_PREPARE                = 4,            //重复准备
     CODE_STATE                  = 5,            //游戏状态不对
+    CODE_SEAT                   = 6,            //座位错误
+    CODE_NOTIFY                 = 7,            //未通知提前操作
+    CODE_CURRENT                = 8,            //未轮到你操作
+    CODE_SCORE                  = 9,            //叫分错误
 };  
 
 //游戏阶段
