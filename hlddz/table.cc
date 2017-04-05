@@ -406,9 +406,30 @@ void Table::msgCall(Player* player)
 
 void Table::msgDouble(Player* player)
 {
-    //check
+    //检查状态
+    if(m_state != STATE_DOUBLE)
+    {
+        xt_log.error("%s:%d, double fail!, game state not double_state, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
+        sendError(player, CLIENT_DOUBLE, CODE_STATE);
+        return;
+    }
+
     //地主不能加倍
+    if(player->m_seatid == m_lordSeat) 
+    {
+        xt_log.error("%s:%d, double fail!, lord no allow double. uid:%d\n", __FILE__, __LINE__, player->m_uid); 
+        sendError(player, CLIENT_DOUBLE, CODE_LORD);
+        return; 
+    }
+
     //不能重复加倍
+    if(m_famerDouble[player->m_seatid]) 
+    {
+        xt_log.error("%s:%d, double fail!, no allow double repeat. uid:%d\n", __FILE__, __LINE__, player->m_uid); 
+        sendError(player, CLIENT_DOUBLE, CODE_DOUBLE);
+        return; 
+    }
+
     Json::Value &msg = player->client->packet.tojson();
     m_famerDouble[player->m_seatid] = msg["double"].asBool();
     //xt_log.debug("msgdouble, m_uid:%d, seatid:%d, double:%s\n", player->m_uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");

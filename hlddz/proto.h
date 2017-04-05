@@ -41,6 +41,8 @@ enum ERROR_CODE
     CODE_NOTIFY                 = 7,            //未通知提前操作
     CODE_CURRENT                = 8,            //未轮到你操作
     CODE_SCORE                  = 9,            //叫分错误
+    CODE_LORD                   = 10,           //地主不能加倍
+    CODE_DOUBLE                 = 11,           //重复加倍
 };  
 
 //游戏阶段
