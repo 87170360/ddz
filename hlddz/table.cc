@@ -298,7 +298,23 @@ void Table::msgPrepare(Player* player)
     if(player->m_money < ROOMTAX)
     {
         xt_log.error("%s:%d, prepare fail!, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        //loginUC(player, CODE_MONEY);
+        sendError(player, CLIENT_PREPARE, CODE_MONEY);
+        return; 
+    }
+
+    //重复准备
+    if(m_opState[player->m_seatid] == OP_PREPARE_REDAY)
+    {
+        xt_log.error("%s:%d, prepare fail!, player repeat prepare! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
+        sendError(player, CLIENT_PREPARE, CODE_PREPARE);
+        return; 
+    }
+
+    //检查状态
+    if(m_state != STATE_PREPARE)
+    {
+        xt_log.error("%s:%d, prepare fail!, game state not state_prepare, m_state:%d\n", __FILE__, __LINE__, m_state); 
+        sendError(player, CLIENT_PREPARE, CODE_STATE);
         return; 
     }
 
@@ -914,6 +930,16 @@ void Table::sendTime(void)
     packet.val["time"]      = m_time;
     packet.end();
     broadcast(NULL, packet.tostring());
+}
+        
+void Table::sendError(Player* player, int msgid, int errcode)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_RESPOND;
+    packet.val["code"]      = errcode;
+    packet.val["msgid"]     = msgid;
+    packet.end();
+    unicast(player, packet.tostring());
 }
 
 void Table::gameStart(void)

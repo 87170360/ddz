@@ -105,6 +105,8 @@ class Table
         void sendChangeEnd(Player* player, int doubleNum, int score);
         //定时器时间
         void sendTime(void);
+        //发送错误反馈
+        void sendError(Player* player, int msgid, int errcode);
     
         //开始发牌
         void gameStart(void);

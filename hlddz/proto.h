@@ -33,8 +33,10 @@ enum ERROR_CODE
 {
     CODE_SUCCESS                = 0,            //成功 
     CODE_SKEY                   = 1,            //skey错误
-    CODE_RELOGIN                = 1,            //重连错误，牌桌没有这个玩家
-    CODE_MONEY                  = 2,            //金币不足
+    CODE_RELOGIN                = 2,            //重连错误，牌桌没有这个玩家
+    CODE_MONEY                  = 3,            //金币不足
+    CODE_PREPARE                = 4,            //重复准备
+    CODE_STATE                  = 5,            //游戏状态不对
 };  
 
 //游戏阶段
@@ -62,7 +64,7 @@ static const char* DESC_STATE[STATE_MAX] =
 //当前座位状态
 enum OP_STATE
 {
-    OP_NULL                     = 0,            //NULL
+    OP_NULL                        = 0,            //NULL
     OP_PREPARE_WAIT                = 1,            //等待准备
     OP_PREPARE_REDAY               = 2,            //已准备
     OP_CALL_WAIT                   = 3,            //等待叫分通知
@@ -72,7 +74,7 @@ enum OP_STATE
     OP_DOUBLE_RECEIVE              = 7,            //已经响应
     OP_OUT_WAIT                    = 8,            //等待出牌
     OP_GAME_END                    = 9,            //结算中
-    OP_MAX                      = 10,           //MAX
+    OP_MAX                         = 10,           //MAX
 };
 
 static const char* DESC_OP[OP_MAX] = 
