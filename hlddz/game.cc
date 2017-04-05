@@ -247,6 +247,11 @@ int Game::dispatch(Client *client)
                del_player(player); 
             } 
             break;
+        case CLIENT_VIEW:
+            {
+                all_tables[player->m_tid]->msgView(player);
+            } 
+            break;
         default:
             {
                xt_log.error("invalid command[%d]\n", cmd);

@@ -63,7 +63,7 @@ int Player::init()
 	m_avatar = hlddz.main_rc[index]->get_value_as_string("avatar");
 	m_sex = hlddz.main_rc[index]->get_value_as_int("sex");
 	m_money = hlddz.main_rc[index]->get_value_as_int("money");
-	m_vlevel = hlddz.main_rc[index]->get_value_as_int("vlevel");
+	m_level = hlddz.main_rc[index]->get_value_as_int("level");
 
 	if(m_uid<XT_ROBOT_UID_MAX)
 	{

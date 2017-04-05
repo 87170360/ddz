@@ -603,6 +603,41 @@ void Table::msgChange(Player* player)
     hlddz.game->change_table(player);
 }
 
+void Table::msgView(Player* player)
+{
+    Json::Value &msg = player->client->packet.tojson();
+    int uid = msg["uid"].asInt();
+	int index = uid % hlddz.main_size;
+
+	if (hlddz.main_rc[index]->command("hgetall hu:%d", uid) < 0) {
+		xt_log.error("msg view fail! 1, get player infomation error. uid:%d\n", uid);
+        sendError(player, CLIENT_VIEW, CODE_NOEXIST);
+	}
+
+	if (hlddz.main_rc[index]->is_array_return_ok() < 0) {
+		xt_log.error("msg view fail! 2, get player infomation error. uid:%d\n", uid);
+        sendError(player, CLIENT_VIEW, CODE_NOEXIST);
+	}
+
+    int money = hlddz.main_rc[index]->get_value_as_int("money");
+    double total = hlddz.main_rc[index]->get_value_as_int("total");
+    int victory = hlddz.main_rc[index]->get_value_as_int("victory");
+
+    Jpacket packet;
+    packet.val["cmd"]           = SERVER_RESPOND;
+    packet.val["msgid"]         = CLIENT_VIEW;
+    packet.val["code"]          = CODE_SUCCESS;
+    packet.val["name"]          = hlddz.main_rc[index]->get_value_as_string("name");
+    packet.val["avatar"]        = hlddz.main_rc[index]->get_value_as_string("avatar");
+    packet.val["sex"]           = hlddz.main_rc[index]->get_value_as_int("sex");
+    packet.val["money"]         = money;
+    packet.val["level"]         = hlddz.main_rc[index]->get_value_as_int("level");
+    packet.val["title"]         = getTitle(money);                                   //头衔
+    packet.val["victory_num"]   = hlddz.main_rc[index]->get_value_as_int("victory"); //胜场
+    packet.val["victory_prob"]  = static_cast<double>(victory / total);              //胜率
+    packet.end();
+    unicast(player, packet.tostring());
+}
 
 bool Table::sitdown(Player* player)
 {
@@ -651,7 +686,7 @@ void Table::loginUC(Player* player, int code)
         jval["seatid"]  = pl->m_seatid;
         jval["name"]    = pl->m_name;
         jval["money"]   = pl->m_money;
-        jval["vlevel"]  = pl->m_vlevel;
+        jval["level"]   = pl->m_level;
         jval["sex"]     = pl->m_sex;
         jval["avatar"]  = pl->m_avatar;
         jval["state"]   = m_opState[pl->m_seatid];
@@ -672,7 +707,7 @@ void Table::loginBC(Player* player)
     packet.val["seatid"]    = player->m_seatid;
     packet.val["name"]      = player->m_name;
     packet.val["money"]     = player->m_money;
-    packet.val["vlevel"]    = player->m_vlevel;
+    packet.val["level"]     = player->m_level;
     packet.val["sex"]       = player->m_sex;
     packet.val["avatar"]    = player->m_avatar;
     packet.val["state"]     = m_state;

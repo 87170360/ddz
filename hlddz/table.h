@@ -67,6 +67,7 @@ class Table
         void msgDouble(Player* player);
         void msgOut(Player* player);
         void msgChange(Player* player);
+        void msgView(Player* player);
 
         //坐下
         bool sitdown(Player* player);
@@ -158,6 +159,8 @@ class Table
         void setSeat(int uid, int seatid);
         //获取座位的玩家uid
         int getSeat(int seatid);
+        //获取头衔
+        string getTitle(int money) {return "title_test";}
 
     private:
         void reset(void);

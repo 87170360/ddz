@@ -10,6 +10,7 @@ enum CLIENT_COMMAND
     CLIENT_OUT                  = 1005,         //出牌 不出: keep: true, false, 牌: card
     CLIENT_LOGOUT               = 1006,         //退出
     CLIENT_CHANGE               = 1007,         //换桌
+    CLIENT_VIEW                 = 1008,         //查看信息 uid 
 };
 
 enum SERVER_COMMAND
@@ -44,6 +45,7 @@ enum ERROR_CODE
     CODE_LORD                   = 10,           //地主不能加倍
     CODE_DOUBLE                 = 11,           //重复加倍
     CODE_CARD                   = 12,           //牌型比较错误
+    CODE_NOEXIST                = 13,           //用户不存在
 };  
 
 //游戏阶段

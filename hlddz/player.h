@@ -51,7 +51,7 @@ public:
 	std::string			m_avatar;
 	int					m_sex;
 	int					m_money;
-	int					m_vlevel;
+	int					m_level;
 
 	// connect to client
 	Client              *client;
