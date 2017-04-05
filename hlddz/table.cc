@@ -451,7 +451,14 @@ void Table::msgDouble(Player* player)
 
 void Table::msgOut(Player* player)
 {
-    //check
+    //检查状态
+    if(m_state != STATE_OUT)
+    {
+        xt_log.error("%s:%d, out fail! game state not out_state, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
+        sendError(player, CLIENT_OUT, CODE_STATE);
+        return;
+    }
+
     Json::Value &msg = player->client->packet.tojson();
 
     vector<XtCard> curCard;
@@ -461,7 +468,7 @@ void Table::msgOut(Player* player)
     bool keep = msg["keep"].asBool();
     if(keep && !curCard.empty())
     {
-        xt_log.error("%s:%d, not allow keep && not empty card. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
+        xt_log.error("%s:%d, out fail! not allow keep && not empty card. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
         xt_log.debug("curCard:\n");
         show(curCard);
         return;
@@ -474,9 +481,10 @@ void Table::msgOut(Player* player)
         int cardtype = m_deck.getCardType(curCard);
         if(cardtype == CT_ERROR)
         {
-            xt_log.error("%s:%d, cardtype error. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
+            xt_log.error("%s:%d,out fail! cardtype error. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
             xt_log.debug("curCard:\n");
             show(curCard);
+            sendError(player, CLIENT_OUT, CODE_CARD);
             return;
         }
         //记录炸弹

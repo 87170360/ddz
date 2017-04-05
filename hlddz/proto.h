@@ -43,6 +43,7 @@ enum ERROR_CODE
     CODE_SCORE                  = 9,            //叫分错误
     CODE_LORD                   = 10,           //地主不能加倍
     CODE_DOUBLE                 = 11,           //重复加倍
+    CODE_CARD                   = 12,           //牌型比较错误
 };  
 
 //游戏阶段
