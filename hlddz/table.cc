@@ -593,6 +593,8 @@ void Table::loginUC(Player* player, int code)
         jval["name"]    = pl->m_name;
         jval["money"]   = pl->m_money;
         jval["vlevel"]  = pl->m_vlevel;
+        jval["sex"]     = pl->m_sex;
+        jval["avatar"]  = pl->m_avatar;
         jval["state"]   = m_opState[pl->m_seatid];
         packet.val["userinfo"].append(jval);
     }
@@ -612,6 +614,8 @@ void Table::loginBC(Player* player)
     packet.val["name"]      = player->m_name;
     packet.val["money"]     = player->m_money;
     packet.val["vlevel"]    = player->m_vlevel;
+    packet.val["sex"]       = player->m_sex;
+    packet.val["avatar"]    = player->m_avatar;
     packet.val["state"]     = m_state;
 
     packet.end();

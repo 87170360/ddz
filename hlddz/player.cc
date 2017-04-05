@@ -60,6 +60,7 @@ int Player::init()
 	
 	m_skey = hlddz.main_rc[index]->get_value_as_string("skey");
 	m_name = hlddz.main_rc[index]->get_value_as_string("name");
+	m_avatar = hlddz.main_rc[index]->get_value_as_string("avatar");
 	m_sex = hlddz.main_rc[index]->get_value_as_int("sex");
 	m_money = hlddz.main_rc[index]->get_value_as_int("money");
 	m_vlevel = hlddz.main_rc[index]->get_value_as_int("vlevel");
