@@ -612,6 +612,8 @@ void Table::loginBC(Player* player)
     packet.val["name"]      = player->name;
     packet.val["money"]     = player->money;
     packet.val["vlevel"]    = player->vlevel;
+    packet.val["state"]     = m_state;
+
     packet.end();
     broadcast(player, packet.tostring());
 }
@@ -845,6 +847,7 @@ void Table::sendOutAgain(void)
         packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["out_id"]        = getSeat(m_outSeat);
         packet.val["keep"]          = (m_preSeat != m_outSeat);
+        packet.val["num"]           = static_cast<int>(m_seatCard[m_curSeat].m_cards.size());
         vector_to_json_array(m_lastCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
