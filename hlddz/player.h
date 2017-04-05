@@ -49,19 +49,8 @@ public:
 	std::string			skey;
 	std::string			name;
 	int					sex;
-	std::string			avatar;
-	std::string			birthday;
-	std::string			zone;
-	int					exp;
-	int					rmb;
 	int					money;
-	int					coin;
-	int					total_board;
-	int					total_win;
-	int					pcount;
-	int					vtime;
 	int					vlevel;
-	std::string			ps;
 
 	// connect to client
 	Client              *client;

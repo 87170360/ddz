@@ -124,7 +124,7 @@ int Table::broadcast(Player *p, const std::string &packet)
 
 int Table::unicast(Player *p, const std::string &packet)
 {
-    if (p->client)
+    if (p && p->client)
     {
         return p->client->send(packet);
     }
@@ -593,7 +593,6 @@ void Table::loginUC(Player* player, int code)
         jval["name"]    = pl->name;
         jval["money"]   = pl->money;
         jval["vlevel"]  = pl->vlevel;
-        jval["avatar"]  = pl->avatar;
         jval["state"]   = m_opState[pl->m_seatid];
         packet.val["userinfo"].append(jval);
     }
@@ -613,7 +612,6 @@ void Table::loginBC(Player* player)
     packet.val["name"]      = player->name;
     packet.val["money"]     = player->money;
     packet.val["vlevel"]    = player->vlevel;
-    packet.val["avatar"]    = player->avatar;
     packet.end();
     broadcast(player, packet.tostring());
 }

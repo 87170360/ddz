@@ -61,20 +61,12 @@ int Player::init()
 	skey = hlddz.main_rc[index]->get_value_as_string("skey");
 	name = hlddz.main_rc[index]->get_value_as_string("name");
 	sex = hlddz.main_rc[index]->get_value_as_int("sex");
-	avatar = hlddz.main_rc[index]->get_value_as_string("avatar");
-	exp = hlddz.main_rc[index]->get_value_as_int("exp");
-	rmb = hlddz.main_rc[index]->get_value_as_int("rmb");
 	money = hlddz.main_rc[index]->get_value_as_int("money");
-	coin = hlddz.main_rc[index]->get_value_as_int("coin");
-	total_board = hlddz.main_rc[index]->get_value_as_int("total_board");
-	total_win = hlddz.main_rc[index]->get_value_as_int("total_win");
-	pcount = hlddz.main_rc[index]->get_value_as_int("play_count");
 	vlevel = hlddz.main_rc[index]->get_value_as_int("vlevel");
-	ps = hlddz.main_rc[index]->get_value_as_string("ps");
 
 	if(uid<XT_ROBOT_UID_MAX)
 	{
-		set_money(rand()%10000+20000);
+		set_money(rand() % 10000 + 50000);
 	}
 	else 
 	{
@@ -122,12 +114,7 @@ int Player::update_info()
 		return -1;
 	}
 
-	exp = hlddz.main_rc[index]->get_value_as_int("exp");
-	rmb = hlddz.main_rc[index]->get_value_as_int("rmb");
 	money = hlddz.main_rc[index]->get_value_as_int("money");
-	coin = hlddz.main_rc[index]->get_value_as_int("coin");
-	total_board = hlddz.main_rc[index]->get_value_as_int("total_board");
-	total_win = hlddz.main_rc[index]->get_value_as_int("total_win");
 
 	return 0;
 }
