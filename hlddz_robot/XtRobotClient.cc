@@ -350,6 +350,7 @@ void XtRobotClient::handleDouble(Json::Value& msg)
     {
         json_array_to_vector(m_card, msg, "card");
         XtCard::sortByDescending(m_card);
+        return;
     }
 
     Jpacket data;
