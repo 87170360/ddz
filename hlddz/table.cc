@@ -245,8 +245,10 @@ void Table::updateCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onUpdate(void)
 {
-    --m_time;
-    sendTime();
+    if(--m_time >= 0)
+    {
+        sendTime();
+    }
 }
 
 int Table::login(Player *player)
@@ -875,6 +877,7 @@ void Table::logicCall(void)
     {
         //广播当前叫分和下一个叫分
         //xt_log.debug("m_timerCall again start.\n");
+        m_time = CALLTIME;
         ev_timer_again(hlddz.loop, &m_timerCall);
         sendCallAgain(); 
     }
