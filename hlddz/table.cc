@@ -23,7 +23,7 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
-const int CALLTIME          = 5;
+const int CALLTIME          = 300;
 const int DOUBLETIME        = 3;
 const int OUTTIME           = 10;
 const int ENDTIME           = 10;
@@ -178,12 +178,17 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerCall);
-    xt_log.debug("stop m_timerCall for timerup.\n");
+    //xt_log.debug("stop m_timerCall for timerup.\n");
     table->onCall();
 }
 
 void Table::onCall(void)
 {
+    //xt_log.debug("autoCall\n");
+    m_callScore[m_curSeat] = rand() % 4;
+    //记录状态
+    m_opState[m_curSeat] = OP_CALL_RECEIVE;
+    logicCall();
 }
 
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -393,7 +398,7 @@ void Table::msgCall(Player* player)
     }
 
     //停止叫分定时器
-    xt_log.debug("stop m_timerCall for msg.\n");
+    //xt_log.debug("stop m_timerCall for msg.\n");
     ev_timer_stop(hlddz.loop, &m_timerCall);
 
     //保存当前叫分
@@ -757,7 +762,7 @@ void Table::callProc(void)
     m_time = CALLTIME;
 
     ev_timer_again(hlddz.loop, &m_timerCall);
-    xt_log.debug("m_timerCall first start \n");
+    //xt_log.debug("m_timerCall first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -869,7 +874,8 @@ void Table::logicCall(void)
     else if(getNext())
     {
         //广播当前叫分和下一个叫分
-        xt_log.debug("m_timerCall again start.\n");
+        //xt_log.debug("m_timerCall again start.\n");
+        ev_timer_again(hlddz.loop, &m_timerCall);
         sendCallAgain(); 
     }
     else
@@ -877,28 +883,6 @@ void Table::logicCall(void)
         xt_log.debug("nobody call, need send card again.\n");
         gameRestart();
     }
-}
-
-//自动叫分
-void Table::autoCall(void)
-{
-    xt_log.debug("^^^^^^^^^^^^^autoCall\n");
-    m_callScore[m_curSeat] = rand() % 4;
-    //记录状态
-    m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    logicCall();
-}
-
-//自动加倍
-void Table::autoDouble(void)
-{
-
-}
-
-//自动出牌
-void Table::autoOut(void)
-{
-
 }
 
 void Table::sendCard1(void)

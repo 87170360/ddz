@@ -88,12 +88,6 @@ class Table
 
         //叫分逻辑
         void logicCall(void);
-        //自动叫分
-        void autoCall(void);
-        //自动加倍
-        void autoDouble(void);
-        //自动出牌
-        void autoOut(void);
         
 
         // send msg
