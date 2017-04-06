@@ -23,14 +23,14 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
-const int CALLTIME          = 3;
+const int CALLTIME          = 5;
 const int DOUBLETIME        = 3;
-const int OUTTIME          = 10;
+const int OUTTIME           = 10;
 const int ENDTIME           = 10;
 const int KICKTIME          = 1;
 const int UPDATETIME        = 1;
 
-const int SHOWTIME          = 3;    //发牌动画时间
+const int SHOWTIME          = 3;    //发牌动画时间, 机器人根据这个延时叫分
 const int ROOMSCORE         = 10;   //房间底分
 const int ROOMTAX           = 10;   //房间抽水
 
@@ -178,12 +178,12 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerCall);
+    xt_log.debug("stop m_timerCall for timerup.\n");
     table->onCall();
 }
 
 void Table::onCall(void)
 {
-    xt_log.debug("^^^^^^^^^^^^^^^^^^ m_timerCall timeup \n");
 }
 
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -391,6 +391,10 @@ void Table::msgCall(Player* player)
         sendError(player, CLIENT_CALL, CODE_SCORE);
         return; 
     }
+
+    //停止叫分定时器
+    xt_log.debug("stop m_timerCall for msg.\n");
+    ev_timer_stop(hlddz.loop, &m_timerCall);
 
     //保存当前叫分
     m_callScore[m_curSeat] = score;
@@ -751,8 +755,9 @@ void Table::callProc(void)
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = CALLTIME;
-    //ev_timer_again(hlddz.loop, &m_timerCall);
-    //xt_log.debug("^^^^^^^^^^^^^^^^^^ m_timerCall start \n");
+
+    ev_timer_again(hlddz.loop, &m_timerCall);
+    xt_log.debug("m_timerCall first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -864,6 +869,7 @@ void Table::logicCall(void)
     else if(getNext())
     {
         //广播当前叫分和下一个叫分
+        xt_log.debug("m_timerCall again start.\n");
         sendCallAgain(); 
     }
     else
@@ -1140,7 +1146,7 @@ bool Table::getNext(void)
             break;
     }
 
-    xt_log.debug("get next finish, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+    //xt_log.debug("get next finish, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
     return false;
 }
 

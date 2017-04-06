@@ -528,7 +528,7 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 
     ev_io_init(&m_evWrite,XtRobotClient::onWriteData,m_serverfd,EV_WRITE);
 
-    ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 3, 0);
+    ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 2, 0);
 
     doLogin();
 
