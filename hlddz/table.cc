@@ -205,10 +205,11 @@ void Table::onDouble(void)
     //农民随机加倍
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        if(i != m_lordSeat) 
+        if(i != m_lordSeat && m_opState[i] == OP_DOUBLE_NOTIFY) 
         {
             m_famerDouble[i] = ((rand() % 2) > 0) ? true : false;
             m_opState[i] = OP_DOUBLE_RECEIVE;
+            sendDouble(m_seats[i], m_famerDouble[i]);
         }
     }
     logicDouble(false);
