@@ -90,6 +90,8 @@ class Table
         void logicCall(void);
         //加倍逻辑
         void logicDouble(bool isMsg);
+        //出牌逻辑
+        void logicOut(Player* player, vector<XtCard>& curCard, bool keep);
 
         // send msg
         void loginUC(Player* player, int code);

@@ -493,91 +493,11 @@ void Table::msgOut(Player* player)
         xt_log.error("%s:%d, out fail! not allow keep && not empty card. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
         xt_log.debug("curCard:\n");
         show(curCard);
+        sendError(player, CLIENT_OUT, CODE_KEEP);
         return;
     }
 
-    if(!curCard.empty())
-    {
-        //牌型校验
-        XtCard::sortByDescending(curCard);
-        int cardtype = m_deck.getCardType(curCard);
-        if(cardtype == CT_ERROR)
-        {
-            xt_log.error("%s:%d,out fail! cardtype error. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
-            xt_log.debug("curCard:\n");
-            show(curCard);
-            sendError(player, CLIENT_OUT, CODE_CARD);
-            return;
-        }
-        //记录炸弹
-        if(cardtype == CT_BOMB || cardtype == CT_ROCKET)
-        {
-            m_bomb[player->m_seatid]++; 
-        }
-    }
-
-    //出牌次数
-    m_outNum[player->m_seatid] += 1;
-
-    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
-    //xt_log.debug("curCard:\n");
-    //show(curCard);
-    //xt_log.debug("lastCard:\n");
-    //show(m_lastCard);
-
-    if(m_lastCard.empty())
-    {//首轮出牌
-        //xt_log.debug("first round\n");
-        m_lastCard = curCard;
-        m_outSeat = player->m_seatid;
-    }
-    else if(keep && curCard.empty())
-    {//不出
-        //xt_log.debug("keep\n");
-    }
-    else if(m_outSeat == player->m_seatid)
-    {//自己的牌
-        //xt_log.debug("self card, new start\n");
-    }
-    else if(!curCard.empty())
-    {//出牌
-        //xt_log.debug("compare\n");
-        if(!m_deck.compareCard(curCard, m_lastCard))
-        {
-            xt_log.error("%s:%d, compare fail.", __FILE__, __LINE__); 
-            xt_log.error("curCard:\n");
-            show(curCard);
-            xt_log.error("lastCard:\n");
-            show(m_lastCard);
-            return;
-        }
-        m_lastCard = curCard;
-        m_outSeat = player->m_seatid;
-    }
-
-    //扣除手牌
-    if(!curCard.empty())
-    {
-        m_seatCard[player->m_seatid].popCard(curCard);
-    }
-
-    //判定结束
-    if(m_seatCard[player->m_seatid].m_cards.empty())
-    {
-        xt_log.debug("=======================================gameover\n");
-        m_win = player->m_seatid;
-        endProc();
-    }
-    else if(getNext())
-    {
-        //如果没人接出牌者的牌
-        if(m_curSeat == m_outSeat)
-        {
-            //xt_log.debug("无人接牌， 新一轮\n");
-            m_lastCard.clear(); 
-        }
-        sendOutAgain();    
-    }
+    logicOut(player, curCard, keep);
 }
 
 void Table::msgChange(Player* player)
@@ -919,6 +839,93 @@ void Table::logicDouble(bool isMsg)
             //xt_log.debug("stop m_timerDouble for msg.\n");
             ev_timer_stop(hlddz.loop, &m_timerDouble);
         }
+    }
+}
+        
+void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
+{
+    if(!curCard.empty())
+    {
+        //牌型校验
+        XtCard::sortByDescending(curCard);
+        int cardtype = m_deck.getCardType(curCard);
+        if(cardtype == CT_ERROR)
+        {
+            xt_log.error("%s:%d,out fail! cardtype error. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
+            xt_log.debug("curCard:\n");
+            show(curCard);
+            sendError(player, CLIENT_OUT, CODE_CARD);
+            return;
+        }
+        //记录炸弹
+        if(cardtype == CT_BOMB || cardtype == CT_ROCKET)
+        {
+            m_bomb[player->m_seatid]++; 
+        }
+    }
+
+    //出牌次数
+    m_outNum[player->m_seatid] += 1;
+
+    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
+    //xt_log.debug("curCard:\n");
+    //show(curCard);
+    //xt_log.debug("lastCard:\n");
+    //show(m_lastCard);
+
+    if(m_lastCard.empty())
+    {//首轮出牌
+        //xt_log.debug("first round\n");
+        m_lastCard = curCard;
+        m_outSeat = player->m_seatid;
+    }
+    else if(keep && curCard.empty())
+    {//不出
+        //xt_log.debug("keep\n");
+    }
+    else if(m_outSeat == player->m_seatid)
+    {//自己的牌
+        //xt_log.debug("self card, new start\n");
+    }
+    else if(!curCard.empty())
+    {//出牌
+        //xt_log.debug("compare\n");
+        if(!m_deck.compareCard(curCard, m_lastCard))
+        {
+            xt_log.error("%s:%d, compare fail.", __FILE__, __LINE__); 
+            xt_log.error("curCard:\n");
+            show(curCard);
+            xt_log.error("lastCard:\n");
+            show(m_lastCard);
+            sendError(player, CLIENT_OUT, CODE_COMPARE);
+            return;
+        }
+        m_lastCard = curCard;
+        m_outSeat = player->m_seatid;
+    }
+
+    //扣除手牌
+    if(!curCard.empty())
+    {
+        m_seatCard[player->m_seatid].popCard(curCard);
+    }
+
+    //判定结束
+    if(m_seatCard[player->m_seatid].m_cards.empty())
+    {
+        xt_log.debug("=======================================gameover\n");
+        m_win = player->m_seatid;
+        endProc();
+    }
+    else if(getNext())
+    {
+        //如果没人接出牌者的牌
+        if(m_curSeat == m_outSeat)
+        {
+            //xt_log.debug("无人接牌， 新一轮\n");
+            m_lastCard.clear(); 
+        }
+        sendOutAgain();    
     }
 }
 
