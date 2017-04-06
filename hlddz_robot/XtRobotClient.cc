@@ -310,6 +310,11 @@ void XtRobotClient::handleRespond(Json::Value& msg)
             }
             break;
     }
+
+    if(code != CODE_SUCCESS)
+    {
+        printf("msgid:%d, code:%d\n", msgid, code);
+    }
 }
 
 void XtRobotClient::handleCall(Json::Value& msg) 
@@ -478,7 +483,7 @@ void XtRobotClient::handleKick(Json::Value& msg)
 void XtRobotClient::handleTime(Json::Value& msg)
 {
     int time = msg["time"].asInt();
-    printf("handleTime!, time:%d\n", time);
+    //printf("handleTime!, time:%d\n", time);
 }
 
 void XtRobotClient::sendCall(void)

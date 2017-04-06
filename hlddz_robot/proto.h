@@ -3,13 +3,14 @@
 
 enum CLIENT_COMMAND
 {
-    CLIENT_LOGIN                = 1001,         //登录   
+    CLIENT_LOGIN                = 1001,         //登录 uid, zid
     CLIENT_PREPARE              = 1002,         //准备 
     CLIENT_CALL                 = 1003,         //叫分 score = 0,1,2,3
     CLIENT_DOUBLE               = 1004,         //农民加倍 double: true, false
     CLIENT_OUT                  = 1005,         //出牌 不出: keep: true, false, 牌: card
     CLIENT_LOGOUT               = 1006,         //退出
     CLIENT_CHANGE               = 1007,         //换桌
+    CLIENT_VIEW                 = 1008,         //查看信息 uid 
 };
 
 enum SERVER_COMMAND
@@ -21,7 +22,7 @@ enum SERVER_COMMAND
     SERVER_RESULT_CALL          = 2004,         //叫分结果,开始加倍： 最终分数:score, 地主id:lord, 加倍倒计时:time, 3底牌:card, 
     SERVER_DOUBLE               = 2005,         //通知加倍情况: 总加倍情况:count, 操作者id:pre_id, 是否加倍: double
     SERVER_RESULT_DOUBLE        = 2006,         //加倍结果,发底牌,通知地主出牌: 总倍数:count, 当前操作者(地主)id:cur_id,出牌倒计时:time
-    SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time
+    SERVER_AGAIN_OUT            = 2007,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time,牌数:num
     SERVER_END                  = 2008,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2009,         //通知机器人重新准备
     SERVER_KICK                 = 2010,         //踢人离场
@@ -33,8 +34,20 @@ enum ERROR_CODE
 {
     CODE_SUCCESS                = 0,            //成功 
     CODE_SKEY                   = 1,            //skey错误
-    CODE_RELOGIN                = 1,            //重连错误，牌桌没有这个玩家
-    CODE_MONEY                  = 2,            //金币不足
+    CODE_RELOGIN                = 2,            //重连错误，牌桌没有这个玩家
+    CODE_MONEY                  = 3,            //金币不足
+    CODE_PREPARE                = 4,            //重复准备
+    CODE_STATE                  = 5,            //游戏状态不对
+    CODE_SEAT                   = 6,            //座位错误
+    CODE_NOTIFY                 = 7,            //未通知提前操作,或者已经自动处理
+    CODE_CURRENT                = 8,            //未轮到你操作
+    CODE_SCORE                  = 9,            //叫分错误
+    CODE_LORD                   = 10,           //地主不能加倍
+    CODE_DOUBLE                 = 11,           //重复加倍
+    CODE_CARD                   = 12,           //牌型错误
+    CODE_NOEXIST                = 13,           //用户不存在
+    CODE_KEEP                   = 14,           //不出牌，但有牌
+    CODE_COMPARE                = 15,           //比较牌型错误
 };  
 
 //游戏阶段
@@ -62,7 +75,7 @@ static const char* DESC_STATE[STATE_MAX] =
 //当前座位状态
 enum OP_STATE
 {
-    OP_NULL                     = 0,            //NULL
+    OP_NULL                        = 0,            //NULL
     OP_PREPARE_WAIT                = 1,            //等待准备
     OP_PREPARE_REDAY               = 2,            //已准备
     OP_CALL_WAIT                   = 3,            //等待叫分通知
@@ -72,7 +85,7 @@ enum OP_STATE
     OP_DOUBLE_RECEIVE              = 7,            //已经响应
     OP_OUT_WAIT                    = 8,            //等待出牌
     OP_GAME_END                    = 9,            //结算中
-    OP_MAX                      = 10,           //MAX
+    OP_MAX                         = 10,           //MAX
 };
 
 static const char* DESC_OP[OP_MAX] = 
