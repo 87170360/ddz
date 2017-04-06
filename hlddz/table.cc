@@ -481,6 +481,14 @@ void Table::msgOut(Player* player)
         return;
     }
 
+    //是否当前操作者
+    if(m_curSeat != player->m_seatid)
+    {
+        xt_log.error("%s:%d, out fail!, operator error. m_curSeat:%d, playerSeat:%d\n", __FILE__, __LINE__, m_curSeat, player->m_seatid); 
+        sendError(player, CLIENT_OUT, CODE_CURRENT);
+        return; 
+    }
+
     Json::Value &msg = player->client->packet.tojson();
 
     vector<XtCard> curCard;
