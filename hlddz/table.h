@@ -88,7 +88,8 @@ class Table
 
         //叫分逻辑
         void logicCall(void);
-        
+        //加倍逻辑
+        void logicDouble(bool isMsg);
 
         // send msg
         void loginUC(Player* player, int code);

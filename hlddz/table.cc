@@ -24,7 +24,7 @@ extern HLDDZ hlddz;
 extern Log xt_log;
 
 const int CALLTIME          = 300;
-const int DOUBLETIME        = 3;
+const int DOUBLETIME        = 300;
 const int OUTTIME           = 10;
 const int ENDTIME           = 10;
 const int KICKTIME          = 1;
@@ -184,7 +184,7 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onCall(void)
 {
-    //xt_log.debug("autoCall\n");
+    //xt_log.debug("onCall\n");
     m_callScore[m_curSeat] = rand() % 4;
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
@@ -195,11 +195,23 @@ void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerDouble);
+    //xt_log.debug("stop m_timerDouble for timerup.\n");
     table->onDouble();
 }
 
 void Table::onDouble(void)
 {
+    //xt_log.debug("onDouble\n");
+    //农民随机加倍
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(i != m_lordSeat) 
+        {
+            m_famerDouble[i] = ((rand() % 2) > 0) ? true : false;
+            m_opState[i] = OP_DOUBLE_RECEIVE;
+        }
+    }
+    logicDouble(false);
 }
 
 void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -429,6 +441,14 @@ void Table::msgDouble(Player* player)
         return; 
     }
 
+    //处于等待加倍
+    if(m_opState[player->m_seatid] != OP_DOUBLE_NOTIFY) 
+    {
+        xt_log.error("%s:%d, double fail!, not in double_notify uid:%d, opstate:%s\n", __FILE__, __LINE__, player->m_uid, DESC_OP[m_opState[player->m_seatid]]); 
+        sendError(player, CLIENT_DOUBLE, CODE_NOTIFY);
+        return; 
+    }
+
     //不能重复加倍
     if(m_famerDouble[player->m_seatid]) 
     {
@@ -447,13 +467,7 @@ void Table::msgDouble(Player* player)
     //xt_log.debug("double continue!\n");
     sendDouble(player->m_uid, m_famerDouble[player->m_seatid]);
 
-    if(isDoubleFinish())
-    {
-        xt_log.debug("=======================================start out card, double finish!\n");
-        //showGame();
-        outProc();
-        sendDoubleResult(); 
-    }
+    logicDouble(true);
 }
 
 void Table::msgOut(Player* player)
@@ -762,7 +776,6 @@ void Table::callProc(void)
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = CALLTIME;
-
     ev_timer_again(hlddz.loop, &m_timerCall);
     //xt_log.debug("m_timerCall first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
@@ -773,6 +786,8 @@ void Table::doubleProc(void)
     m_state = STATE_DOUBLE; 
     setAllSeatOp(OP_DOUBLE_NOTIFY);
     m_time = DOUBLETIME;
+    ev_timer_again(hlddz.loop, &m_timerDouble);
+    //xt_log.debug("m_timerDouble first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -885,6 +900,24 @@ void Table::logicCall(void)
     {//重新发牌
         xt_log.debug("nobody call, need send card again.\n");
         gameRestart();
+    }
+}
+
+void Table::logicDouble(bool isMsg)
+{
+    if(isDoubleFinish())
+    {
+        xt_log.debug("=======================================start out card, double finish!\n");
+        //showGame();
+        outProc();
+        sendDoubleResult(); 
+
+        if(isMsg)
+        {
+            //停止加倍定时器
+            //xt_log.debug("stop m_timerDouble for msg.\n");
+            ev_timer_stop(hlddz.loop, &m_timerDouble);
+        }
     }
 }
 
