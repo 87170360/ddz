@@ -183,6 +183,7 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onCall(void)
 {
+    xt_log.debug("^^^^^^^^^^^^^^^^^^ m_timerCall timeup \n");
 }
 
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -365,8 +366,9 @@ void Table::msgCall(Player* player)
         return;
     }
 
+    //座位通知过或者已经已经自动叫分
     if(m_opState[player->m_seatid] != OP_CALL_NOTIFY)
-    {//座位通知过
+    {        
         xt_log.error("%s:%d, call fail!, player callstate error. player seatid:%d, m_uid:%d, callstate:%s\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, DESC_OP[m_opState[player->m_seatid]]); 
         sendError(player, CLIENT_CALL, CODE_NOTIFY);
         return; 
@@ -395,24 +397,7 @@ void Table::msgCall(Player* player)
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
     //xt_log.debug("call score, m_uid:%d, seatid:%d, score :%d\n", player->m_uid, player->m_seatid, m_callScore[player->m_seatid]);
-
-    //是否已经选出地主
-    if(selecLord())
-    {
-        //选地主，进入加倍环节
-        doubleProc();
-        sendCallResult(); 
-    }
-    else if(getNext())
-    {
-        //广播当前叫分和下一个叫分
-        sendCallAgain(); 
-    }
-    else
-    {//重新发牌
-        xt_log.debug("nobody call, need send card again.\n");
-        gameRestart();
-    }
+    logicCall();
 }
 
 void Table::msgDouble(Player* player)
@@ -454,7 +439,7 @@ void Table::msgDouble(Player* player)
     if(isDoubleFinish())
     {
         xt_log.debug("=======================================start out card, double finish!\n");
-        showGame();
+        //showGame();
         outProc();
         sendDoubleResult(); 
     }
@@ -736,8 +721,8 @@ bool Table::allocateCard(void)
         return false;
     }
 
-    xt_log.debug("allocateCard, bottonCard:\n");
-    show(m_bottomCard);
+    //xt_log.debug("allocateCard, bottonCard:\n");
+    //show(m_bottomCard);
 
     //手牌
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
@@ -747,8 +732,8 @@ bool Table::allocateCard(void)
             xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
             return false;
         }
-        xt_log.debug("uid:%d\n", getSeat(i));
-        show(m_seatCard[i].m_cards);
+        //xt_log.debug("uid:%d\n", getSeat(i));
+        //show(m_seatCard[i].m_cards);
     }
 
     return true;
@@ -767,6 +752,7 @@ void Table::callProc(void)
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = CALLTIME;
     //ev_timer_again(hlddz.loop, &m_timerCall);
+    //xt_log.debug("^^^^^^^^^^^^^^^^^^ m_timerCall start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -864,6 +850,49 @@ void Table::endProc(void)
 
     //检查入场费, 踢出不够的
     kick();
+}
+        
+void Table::logicCall(void)
+{
+    //是否已经选出地主
+    if(selecLord())
+    {
+        //选地主，进入加倍环节
+        doubleProc();
+        sendCallResult(); 
+    }//设置下一个操作人
+    else if(getNext())
+    {
+        //广播当前叫分和下一个叫分
+        sendCallAgain(); 
+    }
+    else
+    {//重新发牌
+        xt_log.debug("nobody call, need send card again.\n");
+        gameRestart();
+    }
+}
+
+//自动叫分
+void Table::autoCall(void)
+{
+    xt_log.debug("^^^^^^^^^^^^^autoCall\n");
+    m_callScore[m_curSeat] = rand() % 4;
+    //记录状态
+    m_opState[m_curSeat] = OP_CALL_RECEIVE;
+    logicCall();
+}
+
+//自动加倍
+void Table::autoDouble(void)
+{
+
+}
+
+//自动出牌
+void Table::autoOut(void)
+{
+
 }
 
 void Table::sendCard1(void)
@@ -1039,9 +1068,6 @@ void Table::gameStart(void)
 
     m_curSeat = rand() % SEAT_NUM;
 
-    //for test
-    //m_curSeat = 2;
-
     callProc();
 
     allocateCard();
@@ -1050,7 +1076,6 @@ void Table::gameStart(void)
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
     ev_timer_again(hlddz.loop, &m_timerUpdate);
     xt_log.debug("=======================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
-    //ev_timer_again(hlddz.loop, &m_timerCall);
 }
 
 void Table::gameRestart(void)

@@ -86,17 +86,28 @@ class Table
         //结算处理
         void endProc(void);
 
+        //叫分逻辑
+        void logicCall(void);
+        //自动叫分
+        void autoCall(void);
+        //自动加倍
+        void autoDouble(void);
+        //自动出牌
+        void autoOut(void);
+        
+
         // send msg
         void loginUC(Player* player, int code);
         void loginBC(Player* player);
-        //第一次发牌
+        //第一次发牌和叫分
         void sendCard1(void);
         //继续叫分
         void sendCallAgain(void); 
-        //叫分结果
+        //叫分结果和加倍
         void sendCallResult(void);
         //加倍广播
-        void sendDouble(int uid, bool isDouble); //加倍结果
+        void sendDouble(int uid, bool isDouble); 
+        //加倍结果和出牌
         void sendDoubleResult(void);
         //继续出牌
         void sendOutAgain(void);
