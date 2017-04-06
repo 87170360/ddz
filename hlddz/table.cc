@@ -25,7 +25,7 @@ extern Log xt_log;
 
 const int CALLTIME          = 300;
 const int DOUBLETIME        = 300;
-const int OUTTIME           = 10;
+const int OUTTIME           = 300;
 const int ENDTIME           = 10;
 const int KICKTIME          = 1;
 const int UPDATETIME        = 1;
@@ -75,6 +75,7 @@ int Table::init(int tid)
 
 void Table::reset(void)
 {
+    //xt_log.debug("reset.\n");
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         //重新下一局， 座位信息不能删除
@@ -219,11 +220,33 @@ void Table::OutCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerOut);
+    //xt_log.debug("stop m_timerOut for timerup.\n");
     table->onOut();
 }
 
 void Table::onOut(void)
 {
+    //xt_log.debug("onOut.\n");
+    Player* player = getSeatPlayer(m_curSeat);
+    bool keep = false;
+    vector<XtCard> curCard;
+    //首轮出牌,最尾的牌
+    if(m_lastCard.empty())
+    {
+        curCard.push_back(m_seatCard[m_curSeat].m_cards.back()); 
+    }
+    //没人跟自己的牌,最尾的牌
+    else if(m_curSeat == m_outSeat)
+    {
+        curCard.push_back(m_seatCard[m_curSeat].m_cards.back()); 
+    }
+    //别人的牌，pass
+    else
+    {
+        keep = true; 
+    }
+
+    logicOut(player, curCard, keep);
 }
 
 void Table::kickCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -494,14 +517,15 @@ void Table::msgOut(Player* player)
     vector<XtCard> curCard;
     json_array_to_vector(curCard, player->client->packet, "card");
 
+    //不出校验
+    bool keep = msg["keep"].asBool();
+
     //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
     //xt_log.debug("curCard:\n");
     //show(curCard);
     //xt_log.debug("lastCard:\n");
     //show(m_lastCard);
-
-    //不出校验
-    bool keep = msg["keep"].asBool();
+    //
     if(keep && !curCard.empty())
     {
         xt_log.error("%s:%d, out fail! not allow keep && not empty card. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
@@ -510,6 +534,10 @@ void Table::msgOut(Player* player)
         sendError(player, CLIENT_OUT, CODE_KEEP);
         return;
     }
+
+    //停止出牌定时器
+    //xt_log.debug("stop m_timerOut for msg.\n");
+    ev_timer_stop(hlddz.loop, &m_timerOut);
 
     logicOut(player, curCard, keep);
 }
@@ -734,7 +762,7 @@ void Table::outProc(void)
     m_preSeat = m_curSeat;
     m_time = OUTTIME;
     ev_timer_again(hlddz.loop, &m_timerOut);
-    xt_log.debug("m_timerOut first start \n");
+    //xt_log.debug("m_timerOut first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -935,6 +963,11 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
             //xt_log.debug("无人接牌， 新一轮\n");
             m_lastCard.clear(); 
         }
+
+        //开启出牌定时器
+        m_time = OUTTIME;
+        ev_timer_again(hlddz.loop, &m_timerOut);
+        //xt_log.debug("m_timerOut again start \n");
         sendOutAgain();    
     }
 }
