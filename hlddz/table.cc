@@ -287,6 +287,17 @@ void Table::reLogin(Player* player)
         ret_code = CODE_RELOGIN;
     }
 
+    //给机器人加钱
+    addRobotMoney(player);
+
+    //检查入场费
+    if(player->m_money < ROOMTAX)
+    {
+        xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
+        ret_code = CODE_MONEY;
+        return; 
+    }
+
     //准备阶段
     loginUC(player, ret_code);
 }
@@ -1504,7 +1515,7 @@ void Table::addRobotMoney(Player* player)
         return;
     }
 
-    int addval = ROOMTAX * (rand() % 9 + 1);
+    int addval = ROOMTAX * (rand() % 9 + 1) + 100000;
     xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }
