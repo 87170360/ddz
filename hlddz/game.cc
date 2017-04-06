@@ -426,6 +426,7 @@ int Game::add_player(Client *client)
     client->skey = val["skey"].asString();
     client->vid = val["vid"].asInt();
     client->zid = val["zid"].asInt();
+    //xt_log.debug("uid:%d, skey:%s, vid:%d, zid:%d\n", client->uid, client->skey.c_str(), client->vid, client->zid);
 
     if (check_skey(client) < 0) 
     {

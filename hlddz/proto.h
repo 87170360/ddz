@@ -3,7 +3,7 @@
 
 enum CLIENT_COMMAND
 {
-    CLIENT_LOGIN                = 1001,         //登录   
+    CLIENT_LOGIN                = 1001,         //登录 uid, zid
     CLIENT_PREPARE              = 1002,         //准备 
     CLIENT_CALL                 = 1003,         //叫分 score = 0,1,2,3
     CLIENT_DOUBLE               = 1004,         //农民加倍 double: true, false

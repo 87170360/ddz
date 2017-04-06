@@ -84,7 +84,43 @@ int Jpacket::safe_check()
 			{
 				if (!val["uid"].isNumeric() || !val["skey"].isString())
 				{
-					//xt_log.error("command[login] error\n");
+					xt_log.error("command client_login error\n");
+					return -1;
+				}
+			}
+            break;
+		case CLIENT_CALL:
+			{
+				if (!val["score"].isNumeric())
+				{
+					xt_log.error("command client_call error\n");
+					return -1;
+				}
+			}
+            break;
+		case CLIENT_DOUBLE:
+			{
+				if (!val["double"].isBool())
+				{
+					xt_log.error("command client_double error\n");
+					return -1;
+				}
+			}
+            break;
+		case CLIENT_OUT:
+			{
+				if (!val["keep"].isBool() || !val["card"].isArray())
+				{
+					xt_log.error("command client_out error\n");
+					return -1;
+				}
+			}
+            break;
+		case CLIENT_VIEW:
+			{
+				if (!val["uid"].isNumeric())
+				{
+					xt_log.error("command client_view error\n");
 					return -1;
 				}
 			}
