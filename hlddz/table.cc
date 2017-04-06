@@ -42,8 +42,8 @@ Table::Table()
     m_timerDouble.data = this;
     ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(DOUBLETIME), ev_tstamp(DOUBLETIME));
 
-    m_timerCard.data = this;
-    ev_timer_init(&m_timerCard, Table::cardCB, ev_tstamp(OUTTIME), ev_tstamp(OUTTIME));
+    m_timerOut.data = this;
+    ev_timer_init(&m_timerOut, Table::OutCB, ev_tstamp(OUTTIME), ev_tstamp(OUTTIME));
 
     m_timerKick.data = this;
     ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
@@ -56,7 +56,7 @@ Table::~Table()
 {
     ev_timer_stop(hlddz.loop, &m_timerCall);
     ev_timer_stop(hlddz.loop, &m_timerDouble);
-    ev_timer_stop(hlddz.loop, &m_timerCard);
+    ev_timer_stop(hlddz.loop, &m_timerOut);
     ev_timer_stop(hlddz.loop, &m_timerKick);
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
 }
@@ -100,7 +100,7 @@ void Table::reset(void)
 
     ev_timer_stop(hlddz.loop, &m_timerCall);
     ev_timer_stop(hlddz.loop, &m_timerDouble);
-    ev_timer_stop(hlddz.loop, &m_timerCard);
+    ev_timer_stop(hlddz.loop, &m_timerOut);
     ev_timer_stop(hlddz.loop, &m_timerKick);
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
 }
@@ -215,14 +215,14 @@ void Table::onDouble(void)
     logicDouble(false);
 }
 
-void Table::cardCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+void Table::OutCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
-    ev_timer_stop(hlddz.loop, &table->m_timerCard);
-    table->onCard();
+    ev_timer_stop(hlddz.loop, &table->m_timerOut);
+    table->onOut();
 }
 
-void Table::onCard(void)
+void Table::onOut(void)
 {
 }
 
@@ -494,6 +494,12 @@ void Table::msgOut(Player* player)
     vector<XtCard> curCard;
     json_array_to_vector(curCard, player->client->packet, "card");
 
+    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
+    //xt_log.debug("curCard:\n");
+    //show(curCard);
+    //xt_log.debug("lastCard:\n");
+    //show(m_lastCard);
+
     //不出校验
     bool keep = msg["keep"].asBool();
     if(keep && !curCard.empty())
@@ -727,6 +733,8 @@ void Table::outProc(void)
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
     m_time = OUTTIME;
+    ev_timer_again(hlddz.loop, &m_timerOut);
+    xt_log.debug("m_timerOut first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -874,12 +882,6 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
 
     //出牌次数
     m_outNum[player->m_seatid] += 1;
-
-    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
-    //xt_log.debug("curCard:\n");
-    //show(curCard);
-    //xt_log.debug("lastCard:\n");
-    //show(m_lastCard);
 
     if(m_lastCard.empty())
     {//首轮出牌

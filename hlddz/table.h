@@ -50,8 +50,8 @@ class Table
         void onCall(void);
         static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onDouble(void);
-        static void cardCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void onCard(void);
+        static void OutCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+        void onOut(void);
         static void kickCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onKick(void);
         static void updateCB(struct ev_loop *loop, struct ev_timer *w, int revents);
@@ -204,7 +204,7 @@ class Table
 
         ev_timer                    m_timerCall;                    //叫分
         ev_timer                    m_timerDouble;                  //加倍
-        ev_timer                    m_timerCard;                    //出牌
+        ev_timer                    m_timerOut;                     //出牌
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
         ev_timer                    m_timerUpdate;                  //更新倒计时
 
