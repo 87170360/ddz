@@ -231,21 +231,20 @@ void Table::onOut(void)
     Player* player = getSeatPlayer(m_curSeat);
     bool keep = false;
     vector<XtCard> curCard;
-    //首轮出牌,最尾的牌
-    if(m_lastCard.empty())
+    vector<XtCard> &myCard = m_seatCard[m_curSeat].m_cards;
+
+    //首轮出牌
+    //没人跟自己的牌
+    if(m_lastCard.empty() || m_curSeat == m_outSeat)
     {
-        curCard.push_back(m_seatCard[m_curSeat].m_cards.back()); 
+        m_deck.getFirst(myCard, curCard);
     }
-    //没人跟自己的牌,最尾的牌
-    else if(m_curSeat == m_outSeat)
-    {
-        curCard.push_back(m_seatCard[m_curSeat].m_cards.back()); 
-    }
-    //别人的牌，pass
+    //别人的牌
     else
     {
-        keep = true; 
+        m_deck.getOut(myCard, m_lastCard, curCard);
     }
+    keep = curCard.empty() ? true : false; 
 
     logicOut(player, curCard, keep);
 }

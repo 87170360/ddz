@@ -378,7 +378,7 @@ void XtRobotClient::handleOut(Json::Value& msg)
     data.val["cmd"]     =   CLIENT_OUT;
 
     vector<XtCard> outCard;
-    outCard.push_back(m_card.back());
+    m_deck.getFirst(m_card, outCard);
     vector_to_json_array(outCard, data, "card");
     data.val["keep"]     =   outCard.empty();
     data.end();
@@ -424,7 +424,7 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
         Jpacket data;
         data.val["cmd"]     =   CLIENT_OUT;
         vector<XtCard> outCard;
-        outCard.push_back(m_card.back());
+        m_deck.getFirst(m_card, outCard);
         vector_to_json_array(outCard, data, "card");
         data.val["keep"]     =   outCard.empty();
         data.end();
