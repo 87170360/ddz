@@ -654,6 +654,11 @@ void Table::msgEntrust(Player* player)
     }
 
     m_entrust[player->m_seatid] = entrust;
+    if(entrust && player->m_seatid == m_curSeat)
+    {
+        ev_timer_stop(hlddz.loop, &m_timerOut);
+        onOut();
+    }
 }
 
 bool Table::sitdown(Player* player)
