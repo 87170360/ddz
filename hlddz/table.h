@@ -68,6 +68,7 @@ class Table
         void msgOut(Player* player);
         void msgChange(Player* player);
         void msgView(Player* player);
+        void msgEntrust(Player* player);
 
         //坐下
         bool sitdown(Player* player);
@@ -185,7 +186,8 @@ class Table
         int                         m_seats[SEAT_NUM];              //各座位玩家id
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
         int                         m_callScore[SEAT_NUM];          //各座位叫分
-        bool                        m_famerDouble[SEAT_NUM];        //农民加倍 0:不加倍 1:加倍
+        bool                        m_famerDouble[SEAT_NUM];        //农民加倍
+        bool                        m_entrust[SEAT_NUM];            //托管状态
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
         int                         m_money[SEAT_NUM];              //各座位输赢

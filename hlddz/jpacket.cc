@@ -125,6 +125,15 @@ int Jpacket::safe_check()
 				}
 			}
             break;
+		case CLIENT_ENTRUST:
+			{
+				if (!val["active"].isBool())
+				{
+					xt_log.error("command client_entrust error\n");
+					return -1;
+				}
+			}
+            break;
 	}
 
 	return cmd;

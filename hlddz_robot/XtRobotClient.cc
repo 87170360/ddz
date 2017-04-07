@@ -372,6 +372,8 @@ void XtRobotClient::handleOut(Json::Value& msg)
         return;
     }
 
+    //return;
+
     Jpacket data;
     data.val["cmd"]     =   CLIENT_OUT;
 

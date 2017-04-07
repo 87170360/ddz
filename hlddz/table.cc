@@ -85,6 +85,7 @@ void Table::reset(void)
         m_bomb[i] = 0;
         m_outNum[i] = 0;
         m_money[i] = 0;
+        m_entrust[i] = false;
     }
     m_bottomCard.clear();
     m_lastCard.clear();
@@ -512,6 +513,14 @@ void Table::msgOut(Player* player)
         return; 
     }
 
+    //托管中
+    if(m_entrust[player->m_seatid])
+    {
+        xt_log.error("%s:%d, out fail!, entrusting. playerSeat:%d\n", __FILE__, __LINE__, player->m_seatid); 
+        sendError(player, CLIENT_OUT, CODE_ENTRUST);
+        return; 
+    }
+
     Json::Value &msg = player->client->packet.tojson();
 
     vector<XtCard> curCard;
@@ -621,6 +630,30 @@ void Table::msgView(Player* player)
     packet.val["victory_prob"]  = static_cast<double>(victory / total);              //胜率
     packet.end();
     unicast(player, packet.tostring());
+}
+        
+void Table::msgEntrust(Player* player)
+{
+    //检查状态
+    if(m_state != STATE_OUT)
+    {
+        xt_log.error("%s:%d, entrust fail! game state not out_state, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
+        sendError(player, CLIENT_ENTRUST, CODE_OUT_ENTRUST);
+        return;
+    }
+
+    Json::Value &msg = player->client->packet.tojson();
+    bool entrust = msg["double"].asBool();
+
+    //重复
+    if(m_entrust[player->m_seatid] == entrust)
+    {
+        xt_log.error("%s:%d, entrust fail! op repeat, entrust:%s\n", __FILE__, __LINE__, entrust ? "true" : "false"); 
+        sendError(player, CLIENT_ENTRUST, CODE_REPEAT_ENTRUST);
+        return;
+    }
+
+    m_entrust[player->m_seatid] = entrust;
 }
 
 bool Table::sitdown(Player* player)
@@ -741,7 +774,7 @@ void Table::callProc(void)
     m_time = CALLTIME;
     ev_timer_again(hlddz.loop, &m_timerCall);
     //xt_log.debug("m_timerCall first start \n");
-    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::doubleProc(void)
@@ -751,7 +784,7 @@ void Table::doubleProc(void)
     m_time = DOUBLETIME;
     ev_timer_again(hlddz.loop, &m_timerDouble);
     //xt_log.debug("m_timerDouble first start \n");
-    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::outProc(void)
@@ -761,9 +794,17 @@ void Table::outProc(void)
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
     m_time = OUTTIME;
-    ev_timer_again(hlddz.loop, &m_timerOut);
-    //xt_log.debug("m_timerOut first start \n");
-    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //如果托管直接自动处理
+    if(m_entrust[m_curSeat])
+    {
+        onOut(); 
+    }
+    else
+    {
+        ev_timer_again(hlddz.loop, &m_timerOut);
+        //xt_log.debug("m_timerOut first start \n");
+    }
+    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::logout(Player* player)
@@ -964,10 +1005,17 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
             m_lastCard.clear(); 
         }
 
-        //开启出牌定时器
         m_time = OUTTIME;
-        ev_timer_again(hlddz.loop, &m_timerOut);
-        //xt_log.debug("m_timerOut again start \n");
+        if(m_entrust[m_curSeat])
+        {
+            onOut(); 
+        }
+        else
+        {
+            //开启出牌定时器
+            ev_timer_again(hlddz.loop, &m_timerOut);
+            //xt_log.debug("m_timerOut again start \n");
+        }
         sendOutAgain();    
     }
 }
@@ -1137,6 +1185,7 @@ void Table::sendError(Player* player, int msgid, int errcode)
     packet.val["msgid"]     = msgid;
     packet.end();
     unicast(player, packet.tostring());
+    xt_log.error("error msg, msgid:%d, code:%d\n", msgid, errcode);
 }
 
 void Table::gameStart(void)

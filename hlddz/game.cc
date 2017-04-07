@@ -252,6 +252,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgView(player);
             } 
             break;
+        case CLIENT_ENTRUST:
+            {
+                all_tables[player->m_tid]->msgEntrust(player);
+            } 
+            break;
         default:
             {
                xt_log.error("invalid command[%d]\n", cmd);
