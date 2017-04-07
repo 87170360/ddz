@@ -26,6 +26,8 @@ class XtShuffleDeck
         void delCard(const vector<XtCard>& card, int seed);
         //获取可出的牌, 降序
         bool getOut(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& result);
+        //获取首轮出牌, 降序
+        bool getFirst(const vector<XtCard>& mine, vector<XtCard>& result);
 
 	//private:
 		bool pop(XtCard& card);

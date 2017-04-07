@@ -1148,11 +1148,39 @@ bool testCreateCard(void)
 
     if(settest.size() != 54)
     {
-        printf("size:%d\n", settest.size());
+        printf("size:%d\n", static_cast<int>(settest.size()));
         return false;
     }
 
     return true;
+}
+
+bool testGetFirst(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    deck.getHoleCards(cards1, 17);
+
+    XtCard::sortByDescending(cards1);
+
+    vector<XtCard> result;
+    deck.getFirst(cards1, result);
+    XtCard::sortByDescending(result);
+
+    if(deck.getCardType(result) == CT_ERROR)
+    {
+        show(cards1);
+        show(result);
+        printf("card type error\n");
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 /*
@@ -1190,6 +1218,7 @@ int main()
     //testBigThree0();
     //testGetOut();
     //testGetBottomDouble();
+    //testGetFirst();
     while(1)
     {
         //if(testBigStraight()) { break; };
@@ -1204,7 +1233,8 @@ int main()
         //if(testBigShuttle0()) { break; }
         //if(testBigBomb()) { break; }
         //if(testGetOut()) { break; }
-        if(!testCreateCard()) { break; }
+        //if(!testCreateCard()) { break; }
+        if(!testGetFirst()) { break; }
     }
     return 0;
 }
