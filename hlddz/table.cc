@@ -871,6 +871,8 @@ void Table::endProc(void)
     //最终数值
     int finalScore = min(score, minMoney);
     //xt_log.debug("endProc, befor score:%d, min money:%d, finalScore:%d\n", score, minMoney, finalScore);
+    //扣除入场费
+    payTax();
     //计算各座位输赢
     calculate(finalScore);
     //修改玩家金币
@@ -1194,7 +1196,6 @@ void Table::sendError(Player* player, int msgid, int errcode)
 
 void Table::gameStart(void)
 {
-    payTax();
 
     m_curSeat = rand() % SEAT_NUM;
 
