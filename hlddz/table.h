@@ -110,7 +110,7 @@ class Table
         //继续出牌
         void sendOutAgain(void);
         //结束
-        void sendEnd(int doubleNum, int score);
+        void sendEnd(int doubleNum);
         //换桌导致牌局结束
         void sendChangeEnd(Player* player, int doubleNum, int score);
         //定时器时间
@@ -160,7 +160,7 @@ class Table
         //统计比赛次数和胜场次数
         void total(void);
         //计算各座位输赢
-        void calculate(int finalScore);
+        void calculate(int doubleNum);
         //检查入场费并踢出玩家
         void kick(void);
         //增加robot money

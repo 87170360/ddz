@@ -553,6 +553,7 @@ void Table::msgOut(Player* player)
 void Table::msgChange(Player* player)
 {
     xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
+    /*
 
     if(m_state == STATE_OUT)
     {
@@ -569,21 +570,6 @@ void Table::msgChange(Player* player)
         m_state = STATE_END;
         setAllSeatOp(OP_GAME_END);
 
-        //计算各座位输赢
-        ////////////////////////////////////////////////////////////////////////
-        int doubleNum = max(getAllDouble(), 1);
-        int score = ROOMSCORE * doubleNum;
-        //获取最小本钱
-        int minMoney = getMinMoney(); 
-        //最终数值
-        int finalScore = min(score, minMoney);
-        //xt_log.debug("endProc, befor score:%d, min money:%d, finalScore:%d\n", score, minMoney, finalScore);
-        //计算各座位输赢
-        calculate(finalScore);
-        //修改玩家金币
-        payResult();
-        //通知结算
-        sendChangeEnd(player, doubleNum, finalScore);
         ////////////////////////////////////////////////////////////////////////
     }
 
@@ -593,6 +579,7 @@ void Table::msgChange(Player* player)
     setSeat(0, player->m_seatid);
 
     hlddz.game->change_table(player);
+    */
 }
 
 void Table::msgView(Player* player)
@@ -862,31 +849,20 @@ void Table::endProc(void)
     setAllSeatOp(OP_GAME_END);
     xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 
+    //总倍数
+    int doubleNum = getAllDouble();
     //计算各座位输赢
-    ////////////////////////////////////////////////////////////////////////
-    int doubleNum = max(getAllDouble(), 1);
-    int score = ROOMSCORE * doubleNum;
-    //获取最小本钱
-    int minMoney = getMinMoney(); 
-    //最终数值
-    int finalScore = min(score, minMoney);
-    //xt_log.debug("endProc, befor score:%d, min money:%d, finalScore:%d\n", score, minMoney, finalScore);
-    //扣除入场费
-    payTax();
-    //计算各座位输赢
-    calculate(finalScore);
+    calculate(doubleNum);
     //修改玩家金币
     payResult();
     //统计局数和胜场
     total();
     //通知结算
-    sendEnd(doubleNum, finalScore);
-    ////////////////////////////////////////////////////////////////////////
+    sendEnd(doubleNum);
 
     //重置游戏
     reset();
     xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-
     //检查入场费, 踢出不够的
     kick();
 }
@@ -1125,14 +1101,14 @@ void Table::sendOutAgain(void)
     }
 }
 
-void Table::sendEnd(int doubleNum, int score)
+void Table::sendEnd(int doubleNum)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_END;
     packet.val["code"]      = CODE_SUCCESS;
     packet.val["double"]    = doubleNum;
     packet.val["bomb"]      = getBombNum();
-    packet.val["score"]     = score;
+    packet.val["score"]     = ROOMSCORE;
 
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
@@ -1434,7 +1410,7 @@ int Table::getAllDouble(void)
     }
     //xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble);
     ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble;
-    return ret;
+    return max(ret, 1);
 }
 
 int Table::getBottomDouble(void)
@@ -1590,36 +1566,88 @@ void Table::total(void)
     }
 }
 
-void Table::calculate(int finalScore)
+void Table::calculate(int doubleNum)
 {
-    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    //台面额度
+    int score = ROOMSCORE * doubleNum;
+    Player* lord = getSeatPlayer(m_lordSeat); 
+    Player* big = getSeatPlayer((m_lordSeat + 1) % 3); 
+    Player* small = getSeatPlayer((m_lordSeat + 2) % 3); 
+    if(big->m_money < small->m_money)
     {
-        //地主赢
-        if(m_win == m_lordSeat)    
+        std::swap(big, small);
+    }
+
+    //地主钱, 农民大，农民小
+    double lordmoney = static_cast<double>(lord->m_money);
+    double bigmoney = static_cast<double>(big->m_money);
+    double smallmoney = static_cast<double>(small->m_money);
+
+    double lordchange = 0;
+    double bigchange = 0;
+    double smallchange = 0;
+
+    if(m_win == m_lordSeat)
+    {
+        if(score * 2 <= lordmoney)
         {
-            if(i == m_lordSeat)
+            if(lordmoney / 2 <= smallmoney)     
             {
-                m_money[i] = finalScore; 
+                lordchange = score * 2;
+                smallchange = -score;
+                bigchange = -score;
             }
             else
             {
-                m_money[i] = -finalScore / 2; 
+                lordchange = lordmoney;
+                smallchange = -smallmoney;
+                bigchange = -(lordmoney-smallmoney);
             }
-            continue;
         }
         else
-        {//农民赢
-            if(i == m_lordSeat)
+        {
+            lordchange = lordmoney; 
+            smallchange = -lordmoney * (smallmoney/(smallmoney + bigmoney));
+            bigchange = -lordmoney * (bigmoney/(smallmoney + bigmoney));
+        }
+    }
+    else
+    {
+        if(score * 2 <= lordmoney)
+        {
+            if(smallmoney <= score)
             {
-                m_money[i] = -finalScore; 
+                if(bigmoney <= score) 
+                {
+                    lordchange = -(smallmoney + bigmoney); 
+                    smallchange = smallmoney;
+                    bigchange = bigmoney;
+                }
+                else
+                {
+                    lordchange = -(smallmoney + score); 
+                    smallchange = smallmoney;
+                    bigchange = score;
+                }
             }
             else
             {
-                m_money[i] = finalScore / 2; 
+                lordchange = -(score * 2); 
+                smallchange = score;
+                bigchange = score;
             }
-            continue;
+        }
+        else
+        {
+            lordchange = -lordmoney; 
+            smallchange = lordmoney * (smallmoney/(smallmoney + bigmoney));
+            bigchange = lordmoney * (bigmoney/(smallmoney + bigmoney));
         }
     }
+
+    m_money[m_lordSeat] = lordchange;
+    m_money[big->m_seatid] = bigchange;
+    m_money[small->m_seatid] = smallchange;
 }
 
 void Table::setSeat(int uid, int seatid)
