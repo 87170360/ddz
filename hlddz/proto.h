@@ -27,9 +27,8 @@ enum SERVER_COMMAND
     SERVER_END                  = 2008,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2009,         //通知机器人重新准备
     SERVER_KICK                 = 2010,         //踢人离场
-    SERVER_CHANGE_END           = 2011,         //因有人换桌牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
-    SERVER_TIME                 = 2012,         //定时器时间秒:time
-    SERVER_ENTRUST              = 2013,         //托管 玩家uid, 开始或者关闭active: true, false
+    SERVER_TIME                 = 2011,         //定时器时间秒:time
+    SERVER_ENTRUST              = 2012,         //托管 玩家uid, 开始或者关闭active: true, false
 };
 
 enum ERROR_CODE

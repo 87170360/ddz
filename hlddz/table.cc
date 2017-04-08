@@ -553,24 +553,11 @@ void Table::msgOut(Player* player)
 void Table::msgChange(Player* player)
 {
     xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
-    /*
 
-    if(m_state == STATE_OUT)
+    if(m_state != STATE_PREPARE)
     {
-        //地主退，农民赢，反之亦然 
-        if(player->m_seatid == m_lordSeat)  
-        {
-            m_win = (m_lordSeat + 1) % SEAT_NUM;
-        }
-        else
-        {
-            m_win = m_lordSeat;
-        }
-
-        m_state = STATE_END;
-        setAllSeatOp(OP_GAME_END);
-
-        ////////////////////////////////////////////////////////////////////////
+        sendError(player, CLIENT_CHANGE, CODE_STATE);
+        return;
     }
 
     //重置游戏
@@ -579,7 +566,6 @@ void Table::msgChange(Player* player)
     setSeat(0, player->m_seatid);
 
     hlddz.game->change_table(player);
-    */
 }
 
 void Table::msgView(Player* player)
@@ -1123,30 +1109,6 @@ void Table::sendEnd(int doubleNum)
 
     packet.end();
     broadcast(NULL, packet.tostring());
-}
-
-void Table::sendChangeEnd(Player* player, int doubleNum, int score)
-{
-    Jpacket packet;
-    packet.val["cmd"]       = SERVER_CHANGE_END;
-    packet.val["code"]      = CODE_SUCCESS;
-    packet.val["double"]    = doubleNum;
-    packet.val["bomb"]      = getBombNum();
-    packet.val["score"]     = score;
-
-    for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
-    {
-        Json::Value jval;          
-        Player* pl = it->second;
-        jval["uid"]     = pl->m_uid;
-        jval["name"]    = pl->m_name;
-        jval["money"]   = m_money[pl->m_seatid];
-        jval["isLord"]  = (pl->m_seatid == m_lordSeat);
-        packet.val["info"].append(jval);
-    }
-
-    packet.end();
-    broadcast(player, packet.tostring());
 }
         
 void Table::sendTime(void)

@@ -111,8 +111,6 @@ class Table
         void sendOutAgain(void);
         //结束
         void sendEnd(int doubleNum);
-        //换桌导致牌局结束
-        void sendChangeEnd(Player* player, int doubleNum, int score);
         //定时器时间
         void sendTime(void);
         //发送错误反馈
