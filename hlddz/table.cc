@@ -204,12 +204,12 @@ void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 void Table::onDouble(void)
 {
     //xt_log.debug("onDouble\n");
-    //农民随机加倍
+    //农民加倍
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         if(i != m_lordSeat && m_opState[i] == OP_DOUBLE_NOTIFY) 
         {
-            m_famerDouble[i] = ((rand() % 2) > 0) ? true : false;
+            m_famerDouble[i] = true;
             m_opState[i] = OP_DOUBLE_RECEIVE;
             sendDouble(m_seats[i], m_famerDouble[i]);
         }
@@ -227,7 +227,7 @@ void Table::OutCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onOut(void)
 {
-    //xt_log.debug("onOut.\n");
+    //xt_log.debug("onOut. m_curSeat:%d\n", m_curSeat);
     Player* player = getSeatPlayer(m_curSeat);
     bool keep = false;
     vector<XtCard> curCard;
@@ -235,6 +235,8 @@ void Table::onOut(void)
 
     //首轮出牌
     //没人跟自己的牌
+    XtCard::sortByDescending(myCard);
+    XtCard::sortByDescending(m_lastCard);
     if(m_lastCard.empty() || m_curSeat == m_outSeat)
     {
         m_deck.getFirst(myCard, curCard);
@@ -243,6 +245,17 @@ void Table::onOut(void)
     else
     {
         m_deck.getOut(myCard, m_lastCard, curCard);
+        /*
+        if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
+        {
+            xt_log.debug("my card\n");
+            show(myCard);
+            xt_log.debug("last card\n");
+            show(m_lastCard);
+            xt_log.debug("select card\n");
+            show(curCard);
+        }
+        */
     }
     keep = curCard.empty() ? true : false; 
 
@@ -425,6 +438,14 @@ void Table::msgCall(Player* player)
         return; 
     }
 
+    //托管中
+    if(m_entrust[player->m_seatid])
+    {
+        xt_log.error("%s:%d, call fail!, entrusting. playerSeat:%d\n", __FILE__, __LINE__, player->m_seatid); 
+        sendError(player, CLIENT_CALL, CODE_ENTRUST);
+        return; 
+    }
+
     //有效叫分
     Json::Value &msg = player->client->packet.tojson();
     int score = msg["score"].asInt();
@@ -478,6 +499,14 @@ void Table::msgDouble(Player* player)
     {
         xt_log.error("%s:%d, double fail!, no allow double repeat. uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         sendError(player, CLIENT_DOUBLE, CODE_DOUBLE);
+        return; 
+    }
+
+    //托管中
+    if(m_entrust[player->m_seatid])
+    {
+        xt_log.error("%s:%d, double fail!, entrusting. playerSeat:%d\n", __FILE__, __LINE__, player->m_seatid); 
+        sendError(player, CLIENT_CALL, CODE_ENTRUST);
         return; 
     }
 
@@ -572,17 +601,17 @@ void Table::msgView(Player* player)
 {
     Json::Value &msg = player->client->packet.tojson();
     int uid = msg["uid"].asInt();
-	int index = uid % hlddz.main_size;
+    int index = uid % hlddz.main_size;
 
-	if (hlddz.main_rc[index]->command("hgetall hu:%d", uid) < 0) {
-		xt_log.error("msg view fail! 1, get player infomation error. uid:%d\n", uid);
+    if (hlddz.main_rc[index]->command("hgetall hu:%d", uid) < 0) {
+        xt_log.error("msg view fail! 1, get player infomation error. uid:%d\n", uid);
         sendError(player, CLIENT_VIEW, CODE_NOEXIST);
-	}
+    }
 
-	if (hlddz.main_rc[index]->is_array_return_ok() < 0) {
-		xt_log.error("msg view fail! 2, get player infomation error. uid:%d\n", uid);
+    if (hlddz.main_rc[index]->is_array_return_ok() < 0) {
+        xt_log.error("msg view fail! 2, get player infomation error. uid:%d\n", uid);
         sendError(player, CLIENT_VIEW, CODE_NOEXIST);
-	}
+    }
 
     int money = hlddz.main_rc[index]->get_value_as_int("money");
     double total = hlddz.main_rc[index]->get_value_as_int("total");
@@ -603,11 +632,11 @@ void Table::msgView(Player* player)
     packet.end();
     unicast(player, packet.tostring());
 }
-        
+
 void Table::msgEntrust(Player* player)
 {
     //检查状态
-    if(m_state != STATE_OUT)
+    if(m_state == STATE_PREPARE || m_state == STATE_END)
     {
         xt_log.error("%s:%d, entrust fail! game state not out_state, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
         sendError(player, CLIENT_ENTRUST, CODE_OUT_ENTRUST);
@@ -625,14 +654,14 @@ void Table::msgEntrust(Player* player)
         return;
     }
 
+    //当前操作人正好是托管人
     m_entrust[player->m_seatid] = entrust;
     if(entrust && player->m_seatid == m_curSeat)
     {
-        ev_timer_stop(hlddz.loop, &m_timerOut);
-        onOut();
+        entrustProc(true, m_curSeat);
     }
 }
-        
+
 void Table::msgChat(Player* player)
 {
     Json::Value &msg = player->client->packet.tojson();
@@ -761,17 +790,19 @@ void Table::callProc(void)
     m_time = CALLTIME;
     ev_timer_again(hlddz.loop, &m_timerCall);
     //xt_log.debug("m_timerCall first start \n");
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::doubleProc(void)
 {
+    //xt_log.debug("doubleProc \n");
     m_state = STATE_DOUBLE; 
     setAllSeatOp(OP_DOUBLE_NOTIFY);
     m_time = DOUBLETIME;
+
     ev_timer_again(hlddz.loop, &m_timerDouble);
     //xt_log.debug("m_timerDouble first start \n");
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::outProc(void)
@@ -781,17 +812,9 @@ void Table::outProc(void)
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
     m_time = OUTTIME;
-    //如果托管直接自动处理
-    if(m_entrust[m_curSeat])
-    {
-        onOut(); 
-    }
-    else
-    {
-        ev_timer_again(hlddz.loop, &m_timerOut);
-        //xt_log.debug("m_timerOut first start \n");
-    }
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    ev_timer_again(hlddz.loop, &m_timerOut);
+    //xt_log.debug("m_timerOut first start \n");
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
 void Table::logout(Player* player)
@@ -824,7 +847,7 @@ void Table::logout(Player* player)
     if(!findHuman)
     {
         reset();
-        xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+        //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
         for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
         {
             Jpacket packet;
@@ -843,7 +866,7 @@ void Table::endProc(void)
 {
     m_state = STATE_END;
     setAllSeatOp(OP_GAME_END);
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 
     //总倍数
     int doubleNum = getAllDouble();
@@ -858,11 +881,48 @@ void Table::endProc(void)
 
     //重置游戏
     reset();
-    xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     //检查入场费, 踢出不够的
     kick();
 }
-        
+
+void Table::entrustProc(bool killtimer, int entrustSeat)
+{
+    switch(m_state)
+    {
+        case STATE_CALL:
+            {
+                if(killtimer)
+                {
+                    ev_timer_stop(hlddz.loop, &m_timerCall);
+                }
+                onCall();
+            }
+            break;
+        case STATE_DOUBLE:
+            {
+                if(killtimer)
+                {
+                    ev_timer_stop(hlddz.loop, &m_timerDouble);
+                }
+                m_famerDouble[entrustSeat] = true;
+                m_opState[entrustSeat] = OP_DOUBLE_RECEIVE;
+                sendDouble(m_seats[entrustSeat], m_famerDouble[entrustSeat]);
+                logicDouble(false);
+            }
+            break;
+        case STATE_OUT:
+            {
+                if(killtimer)
+                {
+                    ev_timer_stop(hlddz.loop, &m_timerOut);
+                }
+                onOut();
+            }
+            break;
+    }
+}
+
 void Table::logicCall(void)
 {
     //是否已经选出地主
@@ -871,14 +931,34 @@ void Table::logicCall(void)
         //选地主，进入加倍环节
         doubleProc();
         sendCallResult(); 
+
+        //任意一个农民是托管，都要进行处理
+        int famer1 = (m_lordSeat + 1) % 3;
+        int famer2 = (m_lordSeat + 2) % 3;
+        if(m_entrust[famer1])
+        {
+            entrustProc(true, famer1);
+        }
+
+        if(m_entrust[famer2])
+        {
+            entrustProc(true, famer2);
+        }
     }//设置下一个操作人
     else if(getNext())
     {
         //广播当前叫分和下一个叫分
         //xt_log.debug("m_timerCall again start.\n");
         m_time = CALLTIME;
-        ev_timer_again(hlddz.loop, &m_timerCall);
         sendCallAgain(); 
+        if(m_entrust[m_curSeat])
+        {
+            entrustProc(false, m_curSeat);
+        }
+        else
+        {
+            ev_timer_again(hlddz.loop, &m_timerCall);
+        }
     }
     else
     {//重新发牌
@@ -889,12 +969,19 @@ void Table::logicCall(void)
 
 void Table::logicDouble(bool isMsg)
 {
+    //xt_log.debug("logicDouble\n");
     if(isDoubleFinish())
     {
         xt_log.debug("=======================================start out card, double finish!\n");
         //showGame();
         outProc();
         sendDoubleResult(); 
+
+        //如果托管直接自动处理
+        if(m_entrust[m_curSeat])
+        {
+            entrustProc(true, m_curSeat);
+        }
 
         if(isMsg)
         {
@@ -904,7 +991,7 @@ void Table::logicDouble(bool isMsg)
         }
     }
 }
-        
+
 void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
 {
     if(!curCard.empty())
@@ -984,17 +1071,18 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         }
 
         m_time = OUTTIME;
+        //xt_log.debug("m_timerOut again start \n");
+        sendOutAgain();    
+
         if(m_entrust[m_curSeat])
         {
-            onOut(); 
+            entrustProc(false, m_curSeat);
         }
         else
         {
             //开启出牌定时器
             ev_timer_again(hlddz.loop, &m_timerOut);
-            //xt_log.debug("m_timerOut again start \n");
         }
-        sendOutAgain();    
     }
 }
 
@@ -1120,7 +1208,7 @@ void Table::sendEnd(int doubleNum)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
-        
+
 void Table::sendTime(void)
 {
     //xt_log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$sendTime\n");
@@ -1130,7 +1218,7 @@ void Table::sendTime(void)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
-        
+
 void Table::sendError(Player* player, int msgid, int errcode)
 {
     Jpacket packet;
@@ -1144,17 +1232,22 @@ void Table::sendError(Player* player, int msgid, int errcode)
 
 void Table::gameStart(void)
 {
-
     m_curSeat = rand() % SEAT_NUM;
+    xt_log.debug("=======================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
 
     callProc();
-
     allocateCard();
+
     sendCard1();
 
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
     ev_timer_again(hlddz.loop, &m_timerUpdate);
-    xt_log.debug("=======================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+
+    //如果托管直接自动处理
+    if(m_entrust[m_curSeat])
+    {
+        entrustProc(true, m_curSeat);
+    }
 }
 
 void Table::gameRestart(void)
@@ -1181,6 +1274,7 @@ void Table::gameRestart(void)
     m_win = 0;
 
     m_curSeat = rand() % SEAT_NUM;
+    xt_log.debug("=======================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
 
     callProc();
 
@@ -1189,7 +1283,11 @@ void Table::gameRestart(void)
 
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
     ev_timer_again(hlddz.loop, &m_timerUpdate);
-    xt_log.debug("=======================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    //如果托管直接自动处理
+    if(m_entrust[m_curSeat])
+    {
+        entrustProc(true, m_curSeat);
+    }
 }
 
 bool Table::getNext(void)
@@ -1526,7 +1624,7 @@ void Table::payTax(void)
         tmpplayer->changeMoney(-ROOMTAX);
     }
 }
-        
+
 void Table::total(void)
 {
     Player* tmpplayer = NULL;
@@ -1663,7 +1761,7 @@ void Table::kick(void)
 
     ev_timer_again(hlddz.loop, &m_timerKick);
 }
-        
+
 void Table::addRobotMoney(Player* player)
 {
     if(!player->isRobot())

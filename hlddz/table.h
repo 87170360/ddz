@@ -87,6 +87,8 @@ class Table
         void logout(Player* player);
         //结算处理
         void endProc(void);
+        //托管处理
+        void entrustProc(bool killtimer, int entrustSeat);
 
         //叫分逻辑
         void logicCall(void);
