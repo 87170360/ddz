@@ -134,6 +134,15 @@ int Jpacket::safe_check()
 				}
 			}
             break;
+		case CLIENT_CHAT:
+			{
+				if (!val["content"].isString())
+				{
+					xt_log.error("command client_chat error\n");
+					return -1;
+				}
+			}
+            break;
 	}
 
 	return cmd;

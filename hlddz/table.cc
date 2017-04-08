@@ -632,6 +632,16 @@ void Table::msgEntrust(Player* player)
         onOut();
     }
 }
+        
+void Table::msgChat(Player* player)
+{
+    Json::Value &msg = player->client->packet.tojson();
+    Jpacket packet;
+    packet.val["cmd"]         = SERVER_CHAT;
+    packet.val["content"]     = msg["content"].asString();
+    packet.end();
+    broadcast(NULL, packet.tostring());
+}
 
 bool Table::sitdown(Player* player)
 {

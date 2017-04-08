@@ -12,6 +12,7 @@ enum CLIENT_COMMAND
     CLIENT_CHANGE               = 1007,         //换桌
     CLIENT_VIEW                 = 1008,         //查看信息 uid 
     CLIENT_ENTRUST              = 1009,         //托管 开启或者关闭 active: true, false
+    CLIENT_CHAT                 = 1010,         //聊天 字符串content
 };
 
 enum SERVER_COMMAND
@@ -29,6 +30,7 @@ enum SERVER_COMMAND
     SERVER_KICK                 = 2010,         //踢人离场
     SERVER_TIME                 = 2011,         //定时器时间秒:time
     SERVER_ENTRUST              = 2012,         //托管 玩家uid, 开始或者关闭active: true, false
+    SERVER_CHAT                 = 2013,         //聊天 字符串content
 };
 
 enum ERROR_CODE
