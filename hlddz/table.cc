@@ -622,6 +622,7 @@ void Table::msgView(Player* player)
     int money = hlddz.main_rc[index]->get_value_as_int("money");
     double total = hlddz.main_rc[index]->get_value_as_int("total");
     int victory = hlddz.main_rc[index]->get_value_as_int("victory");
+    double victory_prob = (total > 0) ? (victory / total) : 0; 
 
     Jpacket packet;
     packet.val["cmd"]           = SERVER_RESPOND;
@@ -634,8 +635,8 @@ void Table::msgView(Player* player)
     packet.val["money"]         = money;
     packet.val["level"]         = hlddz.main_rc[index]->get_value_as_int("level");
     packet.val["title"]         = getTitle(money);                                   //头衔
-    packet.val["victory_num"]   = hlddz.main_rc[index]->get_value_as_int("victory"); //胜场
-    packet.val["victory_prob"]  = static_cast<double>(victory / total);              //胜率
+    packet.val["victory_num"]   = victory;                                           //胜场
+    packet.val["victory_prob"]  = victory_prob;                                      //胜率
     packet.end();
     unicast(player, packet.tostring());
 }
