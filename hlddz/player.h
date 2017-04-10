@@ -59,7 +59,7 @@ public:
     //补助领取剩余次数
     int                 m_allowance_num;
     //补助领取时间戳
-    int                 m_allowance_stamp;
+    time_t                 m_allowance_stamp;
 
 	// connect to client
 	Client              *client;
