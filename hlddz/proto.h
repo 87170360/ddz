@@ -31,6 +31,7 @@ enum SERVER_COMMAND
     SERVER_TIME                 = 2011,         //定时器时间秒:time
     SERVER_ENTRUST              = 2012,         //托管 玩家uid, 开始或者关闭active: true, false
     SERVER_CHAT                 = 2013,         //聊天 字符串content
+    SERVER_ALLOWANCE            = 2014,         //破产补助, 增加金币数量 money
 };
 
 enum ERROR_CODE
