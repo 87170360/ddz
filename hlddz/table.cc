@@ -626,6 +626,7 @@ void Table::msgView(Player* player)
     Jpacket packet;
     packet.val["cmd"]           = SERVER_RESPOND;
     packet.val["msgid"]         = CLIENT_VIEW;
+    packet.val["uid"]           = uid;
     packet.val["code"]          = CODE_SUCCESS;
     packet.val["name"]          = hlddz.main_rc[index]->get_value_as_string("name");
     packet.val["avatar"]        = hlddz.main_rc[index]->get_value_as_string("avatar");
