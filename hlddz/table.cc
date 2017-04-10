@@ -337,11 +337,18 @@ int Table::login(Player *player)
 void Table::reLogin(Player* player) 
 {
     xt_log.debug("player relogin m_uid:%d\n", player->m_uid);
-    int ret_code = CODE_SUCCESS;
     if(m_players.find(player->m_uid) == m_players.end())
     {
         xt_log.error("%s:%d, player was not existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        ret_code = CODE_RELOGIN;
+        sendError(player, CLIENT_LOGIN, CODE_RELOGIN);
+        return;
+    }
+
+    if(player->m_seatid < 0 || player->m_seatid > SEAT_NUM)
+    {
+        xt_log.error("%s:%d, player seat error! uid:%d, seatid:%d\n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
+        sendError(player, CLIENT_LOGIN, CODE_SEAT);
+        return;
     }
 
     //给机器人加钱
@@ -351,12 +358,11 @@ void Table::reLogin(Player* player)
     if(player->m_money < ROOMTAX)
     {
         xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        ret_code = CODE_MONEY;
+        sendError(player, CLIENT_LOGIN, CODE_MONEY);
         return; 
     }
 
-    //准备阶段
-    loginUC(player, ret_code);
+    loginUC(player, CODE_SUCCESS);
 }
 
 void Table::msgPrepare(Player* player)
@@ -728,6 +734,60 @@ void Table::loginUC(Player* player, int code)
 
     vector_to_json_array(m_seatCard[player->m_seatid].m_cards, packet, "card");
 
+    //重登处理
+    packet.val["state"]       = m_state;
+
+    switch(m_state)
+    {
+        case STATE_PREPARE:
+            {
+                for(unsigned int i = 0; i < SEAT_NUM; ++i)
+                {
+                    packet.val["prepare"].append(m_opState[i] == OP_PREPARE_REDAY); 
+                }
+            }
+            break;
+        case STATE_CALL:
+            {
+                //叫分
+                for(unsigned int i = 0; i < SEAT_NUM; ++i)
+                {
+                    packet.val["callScore"].append(m_callScore[i]);
+                }
+                //剩余时间
+                packet.val["time"] = m_time;
+            }
+            break;
+        case STATE_DOUBLE:
+            {
+                //加倍
+                for(unsigned int i = 0; i < SEAT_NUM; ++i)
+                {
+                    packet.val["famerDouble"].append(m_famerDouble[i]);
+                }
+                //剩余时间
+                packet.val["time"] = m_time;
+            }
+            break;
+        case STATE_OUT:
+            {
+                //发牌
+                //自己的手牌 
+                vector_to_json_array(m_seatCard[player->m_seatid].m_cards, packet, "myCard");
+                //上轮出的牌
+                vector_to_json_array(m_lastCard, packet, "lastCard");
+                //底牌
+                vector_to_json_array(m_bottomCard, packet, "bottomCard");
+                //上轮出牌者座位
+                packet.val["outSeat"] = m_outSeat;
+                //当前操作者座位
+                packet.val["currentSeat"] = m_curSeat;
+                //剩余时间
+                packet.val["time"] = m_time;
+            }
+            break;
+    }
+
     packet.end();
     unicast(player, packet.tostring());
 }
@@ -813,6 +873,7 @@ void Table::outProc(void)
     m_preSeat = m_curSeat;
     m_time = OUTTIME;
     ev_timer_again(hlddz.loop, &m_timerOut);
+    payTax();
     //xt_log.debug("m_timerOut first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
