@@ -873,6 +873,7 @@ void Table::outProc(void)
     m_preSeat = m_curSeat;
     m_time = OUTTIME;
     ev_timer_again(hlddz.loop, &m_timerOut);
+    payTax();
     //xt_log.debug("m_timerOut first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
