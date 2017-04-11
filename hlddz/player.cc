@@ -21,6 +21,9 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
+static const int DAY_SECOND = 86400;
+static const int ALLOWANCE_NUM = 3;
+
 Player::Player() :
 _offline_timeout(1 * 1)
 {
@@ -195,4 +198,9 @@ void Player::keepTotal(bool win)
 void Player::allowance(void)
 {
     time_t curstamp = time(NULL);
+    //不同一天
+    if(m_allowance_stamp / DAY_SECOND == curstamp / DAY_SECOND)
+    {
+        //重置剩余次数         
+    }
 }
