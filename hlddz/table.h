@@ -70,6 +70,7 @@ class Table
         void msgView(Player* player);
         void msgEntrust(Player* player);
         void msgChat(Player* player);
+        void msgMotion(Player* player);
 
         //坐下
         bool sitdown(Player* player);

@@ -679,6 +679,18 @@ void Table::msgChat(Player* player)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
+        
+void Table::msgMotion(Player* player)
+{
+    Json::Value &msg = player->client->packet.tojson();
+    Jpacket packet;
+    packet.val["cmd"]         = SERVER_MOTION;
+    packet.val["info"]        = msg["info"].asString();
+    packet.val["target_id"]   = msg["target_id"].asInt();
+    packet.val["src_id"]      = msg["src_id"].asInt();
+    packet.end();
+    broadcast(NULL, packet.tostring());
+}
 
 bool Table::sitdown(Player* player)
 {

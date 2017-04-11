@@ -262,6 +262,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgChat(player);
             } 
             break;
+        case CLIENT_MOTION:
+            {
+                all_tables[player->m_tid]->msgMotion(player);
+            } 
+            break;
         default:
             {
                xt_log.error("invalid command[%d]\n", cmd);
