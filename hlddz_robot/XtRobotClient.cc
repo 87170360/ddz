@@ -419,6 +419,11 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
        return; 
     }
 
+    if(m_card.empty())
+    {
+        return;
+    }
+
     //自己上轮的牌没人顶
     if(msg["cur_id"].asInt() == m_uid && msg["out_id"].asInt() == m_uid) 
     {
