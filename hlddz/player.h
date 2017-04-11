@@ -40,7 +40,7 @@ public:
     //统计玩家比赛次数和胜场
     void keepTotal(bool win);
     //破产补助
-    void allowance(void);
+    bool allowance(int money);
 
 public:
 	int 				index;

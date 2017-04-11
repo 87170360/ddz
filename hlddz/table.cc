@@ -33,6 +33,7 @@ const int UPDATETIME        = 1;
 const int SHOWTIME          = 3;    //发牌动画时间, 机器人根据这个延时叫分
 const int ROOMSCORE         = 10;   //房间底分
 const int ROOMTAX           = 10;   //房间抽水
+const int ALLOWANCEMONEY    = 3000; //破产补助
 
 Table::Table()
 {
@@ -962,6 +963,8 @@ void Table::endProc(void)
     //重置游戏
     reset();
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    //破产补助
+    allowanceProc();
     //检查入场费, 踢出不够的
     kick();
 }
@@ -1840,6 +1843,22 @@ int Table::getSeat(int seatid)
         return 0; 
     }
     return m_seats[seatid];
+}
+        
+void Table::allowanceProc(void) 
+{
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        if(pl->m_money < ROOMTAX && pl->allowance(ALLOWANCEMONEY))
+        {
+            Jpacket packet;
+            packet.val["cmd"]           = SERVER_ALLOWANCE;
+            packet.val["money"]         = ALLOWANCEMONEY;
+            packet.end();
+            unicast(NULL, packet.tostring());
+        }
+    }
 }
 
 void Table::kick(void)
