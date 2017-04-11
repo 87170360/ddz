@@ -233,15 +233,19 @@ void Table::onOut(void)
     vector<XtCard> curCard;
     vector<XtCard> &myCard = m_seatCard[m_curSeat].m_cards;
 
-    //首轮出牌
-    //没人跟自己的牌
     XtCard::sortByDescending(myCard);
     XtCard::sortByDescending(m_lastCard);
-    if(m_lastCard.empty() || m_curSeat == m_outSeat)
+    //首轮出牌
+    if(m_lastCard.empty())
     {
         m_deck.getFirst(myCard, curCard);
     }
-    //别人的牌
+    //没人跟自己的牌
+    else if(m_curSeat == m_outSeat)
+    {
+        m_deck.getFirst(myCard, curCard);
+    }
+    //跟别人的牌
     else
     {
         m_deck.getOut(myCard, m_lastCard, curCard);
@@ -259,6 +263,7 @@ void Table::onOut(void)
     }
     keep = curCard.empty() ? true : false; 
 
+    //判断是否结束和通知下一个出牌人，本轮出牌
     logicOut(player, curCard, keep);
 }
 
@@ -1050,6 +1055,7 @@ void Table::logicDouble(bool isMsg)
         xt_log.debug("=======================================start out card, double finish!\n");
         //showGame();
         outProc();
+        //发送加倍结果，开始出牌
         sendDoubleResult(); 
 
         //如果托管直接自动处理
@@ -1123,6 +1129,12 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         m_outSeat = player->m_seatid;
     }
 
+    //如果当前操作者是托管的，额外通知他该出的牌
+    if(m_entrust[player->m_seatid])
+    {
+        sendEntrustOut(player, curCard, keep); 
+    }
+
     //扣除手牌
     if(!curCard.empty())
     {
@@ -1132,10 +1144,12 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())
     {
+        sendOutAgain(true);    
         xt_log.debug("=======================================gameover\n");
         m_win = player->m_seatid;
         endProc();
     }
+    //挑选下一个操作者
     else if(getNext())
     {
         //如果没人接出牌者的牌
@@ -1146,9 +1160,9 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         }
 
         m_time = OUTTIME;
-        //xt_log.debug("m_timerOut again start \n");
-        sendOutAgain();    
+        sendOutAgain(false);    
 
+        //如果下一个出牌人托管
         if(m_entrust[m_curSeat])
         {
             entrustProc(false, m_curSeat);
@@ -1156,6 +1170,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         else
         {
             //开启出牌定时器
+            //xt_log.debug("m_timerOut again start \n");
             ev_timer_again(hlddz.loop, &m_timerOut);
         }
     }
@@ -1241,7 +1256,7 @@ void Table::sendDoubleResult(void)
     }
 }
 
-void Table::sendOutAgain(void)
+void Table::sendOutAgain(bool last)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -1249,6 +1264,7 @@ void Table::sendOutAgain(void)
         Jpacket packet;
         packet.val["cmd"]           = SERVER_AGAIN_OUT;
         packet.val["time"]          = OUTTIME;
+        packet.val["last"]          = last;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["out_id"]        = getSeat(m_outSeat);
@@ -1303,6 +1319,17 @@ void Table::sendError(Player* player, int msgid, int errcode)
     packet.end();
     unicast(player, packet.tostring());
     xt_log.error("error msg, msgid:%d, code:%d\n", msgid, errcode);
+}
+        
+void Table::sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep)
+{
+    Player* pl = player;
+    Jpacket packet;
+    packet.val["cmd"]           = SERVER_ENTRUST_OUT;
+    packet.val["keep"]          = keep;
+    vector_to_json_array(curCard, packet, "card");
+    packet.end();
+    unicast(pl, packet.tostring());
 }
 
 void Table::gameStart(void)

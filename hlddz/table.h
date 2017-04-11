@@ -112,13 +112,15 @@ class Table
         //加倍结果和出牌
         void sendDoubleResult(void);
         //继续出牌
-        void sendOutAgain(void);
+        void sendOutAgain(bool last);
         //结束
         void sendEnd(int doubleNum);
         //定时器时间
         void sendTime(void);
         //发送错误反馈
         void sendError(Player* player, int msgid, int errcode);
+        //发送托管玩家出牌
+        void sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep);
     
         //开始发牌
         void gameStart(void);

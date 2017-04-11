@@ -34,6 +34,7 @@ enum SERVER_COMMAND
     SERVER_CHAT                 = 2013,         //聊天 字符串content
     SERVER_ALLOWANCE            = 2014,         //破产补助, 增加金币数量 money
     SERVER_MOTION               = 2015,         //玩家互动, 发起人id: src_id, 目标id: target_id, 互动信息: info
+    SERVER_ENTRUST_OUT          = 2016,         //托管出牌 牌型: card, 不出: keep
 };
 
 enum ERROR_CODE
