@@ -134,6 +134,7 @@ void Game::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 
 void Game::del_client(Client *client)
 {
+    //xt_log.debug("del_client.\n");
     if (fd_client.find(client->fd) == fd_client.end()) {
         xt_log.error("del client free client err[miss].\n");
         return;

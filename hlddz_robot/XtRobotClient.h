@@ -45,6 +45,7 @@ class XtRobotClient
 		static void onWriteData(struct ev_loop *loop, struct ev_io *w, int revents);
         //showTimer 定时器回调函数
 		static void tfShow(struct ev_loop* loop, struct ev_timer* w, int events);
+		static void tfOut(struct ev_loop* loop, struct ev_timer* w, int events);
 
 	public:
 		int send(const char *buf, unsigned int len);
@@ -72,6 +73,7 @@ class XtRobotClient
         void handleTime(Json::Value& msg);
 
         void sendCall(void);
+        void sendCard(void);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
@@ -90,7 +92,11 @@ class XtRobotClient
         ///////////////////////////////////////
         std::vector<XtCard>         m_card;                   //底牌
 		ev_timer                    m_showTimer;              //第一次出牌延时定时器
+        ev_timer                    m_outTimer;               //出牌定时
         XtShuffleDeck               m_deck;                   //牌库
+
+        vector<XtCard>              m_lastCard;               //上轮牌
+        int                         m_outid;                  //上轮出牌者id
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
 

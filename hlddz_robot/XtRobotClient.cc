@@ -21,6 +21,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
     m_evWrite.data=this;
     m_evRead.data=this;
     m_showTimer.data = this;
+    m_outTimer.data = this;
 
     m_evloop=evloop;
 
@@ -39,6 +40,7 @@ XtRobotClient::~XtRobotClient()
         ev_io_stop(m_evloop,&m_evWrite);
         ev_io_stop(m_evloop,&m_evRead);
         ev_timer_stop(m_evloop, &m_showTimer);
+        ev_timer_stop(m_evloop, &m_outTimer);
         close(m_serverfd);
     }
 
@@ -174,10 +176,18 @@ void XtRobotClient::onWriteData(struct ev_loop *loop, struct ev_io *w, int reven
 
 void XtRobotClient::tfShow(struct ev_loop* loop, struct ev_timer* w, int events)
 {
-    printf("showtimer active.\n");
+    //printf("showtimer active.\n");
     ev_timer_stop(loop,w);
     XtRobotClient* self = (XtRobotClient*) w->data;
     self->sendCall();
+}
+
+void XtRobotClient::tfOut(struct ev_loop* loop, struct ev_timer* w, int events)
+{
+    printf("outtimer active.\n");
+    ev_timer_stop(loop,w);
+    XtRobotClient* self = (XtRobotClient*) w->data;
+    self->sendCard();
 }
 
 int XtRobotClient::closeConnect()
@@ -187,6 +197,7 @@ int XtRobotClient::closeConnect()
         ev_io_stop(m_evloop,&m_evWrite);
         ev_io_stop(m_evloop,&m_evRead);
         ev_timer_stop(m_evloop, &m_showTimer);
+        ev_timer_stop(m_evloop, &m_outTimer);
         close(m_serverfd);
     }
     m_serverfd=-1;
@@ -331,7 +342,7 @@ void XtRobotClient::handleCall(Json::Value& msg)
     ev_timer_stop(m_evloop, &m_showTimer);
     ev_timer_set(&m_showTimer, show_time, 0);
     ev_timer_start(m_evloop, &m_showTimer);
-    printf("handle call, showtimer active after %d second.\n", show_time);
+    //printf("handle call, showtimer active after %d second.\n", show_time);
 }
 
 void XtRobotClient::handleAgainCall(Json::Value& msg) 
@@ -372,16 +383,12 @@ void XtRobotClient::handleOut(Json::Value& msg)
         return;
     }
 
-    Jpacket data;
-    data.val["cmd"]     =   CLIENT_OUT;
-
-    vector<XtCard> outCard;
-    m_deck.getFirst(m_card, outCard);
-    vector_to_json_array(outCard, data, "card");
-    data.val["keep"]     =   outCard.empty();
-    data.end();
-
-    send(data.tostring());
+    float ot = ((rand() % 3) + 15) / 10.0;
+    ev_timer_stop(m_evloop, &m_outTimer);
+    ev_timer_set(&m_outTimer, ot, 0);
+    ev_timer_start(m_evloop, &m_outTimer);
+    printf("outtimer active after %f second.\n", ot);
+    //sendCard();
 }
 
 void XtRobotClient::handleAgainOut(Json::Value& msg)
@@ -419,38 +426,20 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
        return; 
     }
 
-    if(m_card.empty())
+    if(m_card.empty() || msg["cur_id"].asInt() != m_uid)
     {
         return;
     }
 
-    //自己上轮的牌没人顶
-    if(msg["cur_id"].asInt() == m_uid && msg["out_id"].asInt() == m_uid) 
-    {
-        Jpacket data;
-        data.val["cmd"]     =   CLIENT_OUT;
-        vector<XtCard> outCard;
-        m_deck.getFirst(m_card, outCard);
-        vector_to_json_array(outCard, data, "card");
-        data.val["keep"]     =   outCard.empty();
-        data.end();
-        send(data.tostring());
-    }
-    else if(msg["cur_id"].asInt() == m_uid && msg["out_id"].asInt() != m_uid) 
-    {//别人出牌
-        vector<XtCard> outCard;
-        outCard.clear();
+    m_lastCard = preCard;
+    m_outid = msg["out_id"].asInt();
 
-        XtCard::sortByDescending(m_card);
-        XtCard::sortByDescending(preCard);
-        bool isOut = m_deck.getOut(m_card, preCard, outCard);
-        Jpacket data;
-        data.val["cmd"]     =   CLIENT_OUT;
-        data.val["keep"]    =   !isOut;
-        vector_to_json_array(outCard, data, "card");
-        data.end();
-        send(data.tostring());
-    }
+    float ot = ((rand() % 3) + 15) / 10.0;
+    ev_timer_stop(m_evloop, &m_outTimer);
+    ev_timer_set(&m_outTimer, ot, 0);
+    ev_timer_start(m_evloop, &m_outTimer);
+    printf("outtimer active after %f second.\n", ot);
+    //sendCard();
 }
 
 void XtRobotClient::handleReprepare(Json::Value& msg)
@@ -490,7 +479,7 @@ void XtRobotClient::handleKick(Json::Value& msg)
 
 void XtRobotClient::handleTime(Json::Value& msg)
 {
-    int time = msg["time"].asInt();
+    //int time = msg["time"].asInt();
     //printf("handleTime!, time:%d\n", time);
 }
 
@@ -501,6 +490,29 @@ void XtRobotClient::sendCall(void)
     data.val["score"]   =   rand() % 2;
     data.end();
 
+    send(data.tostring());
+}
+        
+void XtRobotClient::sendCard(void)
+{
+    XtCard::sortByDescending(m_card);
+    vector<XtCard> outCard;
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_OUT;
+    //首轮出牌，自己的牌
+    if(m_lastCard.empty() || m_outid == m_uid)
+    {
+        m_deck.getFirst(m_card, outCard);
+        vector_to_json_array(outCard, data, "card");
+    }
+    //跟牌
+    else
+    {
+        XtCard::sortByDescending(m_lastCard);
+        m_deck.getOut(m_card, m_lastCard, outCard);
+    }
+    data.val["keep"]     =   outCard.empty();
+    data.end();
     send(data.tostring());
 }
 
@@ -544,6 +556,7 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
     ev_io_init(&m_evWrite,XtRobotClient::onWriteData,m_serverfd,EV_WRITE);
 
     ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 2, 0);
+    ev_timer_init(&m_outTimer, XtRobotClient::tfOut, 2, 0);
 
     doLogin();
 
