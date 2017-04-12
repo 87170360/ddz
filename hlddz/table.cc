@@ -815,7 +815,22 @@ void Table::loginUC(Player* player, int code)
 void Table::loginBC(Player* player)
 {
     Jpacket packet;
+    Json::Value jval;          
+    Player* pl = player;
+    jval["uid"]     = pl->m_uid;
+    jval["seatid"]  = pl->m_seatid;
+    jval["name"]    = pl->m_name;
+    jval["money"]   = pl->m_money;
+    jval["level"]   = pl->m_level;
+    jval["sex"]     = pl->m_sex;
+    jval["avatar"]  = pl->m_avatar;
+    jval["state"]   = m_state;
+
+    packet.val["userinfo"].append(jval);
     packet.val["cmd"]       = SERVER_LOGIN;
+
+    /* //直接这样发，客户端解析有错误
+    Jpacket packet;
     packet.val["uid"]       = player->m_uid;
     packet.val["seatid"]    = player->m_seatid;
     packet.val["name"]      = player->m_name;
@@ -824,6 +839,7 @@ void Table::loginBC(Player* player)
     packet.val["sex"]       = player->m_sex;
     packet.val["avatar"]    = player->m_avatar;
     packet.val["state"]     = m_state;
+    */
 
     packet.end();
     broadcast(player, packet.tostring());
