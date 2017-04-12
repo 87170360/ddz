@@ -975,14 +975,16 @@ void Table::endProc(void)
     total();
     //通知结算
     sendEnd(doubleNum);
-
-    //重置游戏
-    reset();
+    //增加经验
+    addPlayersExp(); 
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     //破产补助
     allowanceProc();
     //检查入场费, 踢出不够的
     kick();
+
+    //重置游戏
+    reset();
 }
 
 void Table::entrustProc(bool killtimer, int entrustSeat)
@@ -1909,4 +1911,48 @@ void Table::addRobotMoney(Player* player)
     int addval = ROOMTAX * (rand() % 9 + 1) + 100000;
     xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
+}
+        
+void Table::addPlayersExp(void)
+{
+    int exp = 0;
+    Player* player = NULL;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        player = it->second;
+        exp = money2exp(m_money[player->m_seatid]); 
+        player->addExp(exp);
+    }
+}
+        
+int Table::money2exp(int money)
+{
+    if(money <= 0)
+    {
+       return 0; 
+    }
+    else if(money <= 1000)
+    {
+        return 1;
+    }
+    else if(money >= 1001 && money <= 10000)
+    {
+        return 2;
+    }
+    else if(money >= 10001 && money <= 100000)
+    {
+        return 3;
+    }
+    else if(money >= 100001 && money <= 1000000)
+    {
+        return 4;
+    }
+    else if(money >= 1000001)
+    {
+        return 5;
+    }
+    else
+    {
+        return 0;
+    }
 }

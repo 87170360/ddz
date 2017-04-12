@@ -8,7 +8,7 @@ INCPATH = -I/data/download/jsoncpp-src-0.5.0/include -I../libddz -I/usr/local/in
 
 LD = gcc
 LFLAGS = #-static
-LIBS = /usr/local/lib/libjsoncpp.a /usr/local/lib/libhiredis.a -L. -L../libddz -L/usr/local/lib -lddz -lstdc++ -lev 
+LIBS = /usr/local/lib/libjsoncpp.a /usr/local/lib/libhiredis.a -L. -L../libddz -L/usr/local/lib -lddz -lstdc++ -lev -lm
 #LIBS = -L. -L../libddz -L/usr/local/lib -lzjh -lstdc++ -lev -ljsoncpp -lhiredis
 
 DESTDIR_TARGET = hlddz

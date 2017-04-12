@@ -41,6 +41,12 @@ public:
     void keepTotal(bool win);
     //破产补助
     bool allowance(int money);
+    //添加经验
+    void addExp(int exp);
+    //升级
+    bool levelUp(void);
+    //获取升级奖励
+    int upMoney(void);
 
 public:
 	int 				index;
@@ -56,6 +62,7 @@ public:
 	int					m_sex;
 	int					m_money;
 	int					m_level;
+    int                 m_exp;
     //补助领取剩余次数
     int                 m_allowance_num;
     //补助领取时间戳

@@ -171,6 +171,8 @@ class Table
         void kick(void);
         //增加robot money
         void addRobotMoney(Player* player);
+        //累计经验，升级，奖励
+        void addPlayersExp(void);
 
         //设置座位的玩家
         void setSeat(int uid, int seatid);
@@ -178,6 +180,8 @@ class Table
         int getSeat(int seatid);
         //获取头衔
         string getTitle(int money) {return "title_test";}
+        //金币转经验
+        int money2exp(int money);
 
     private:
         void reset(void);

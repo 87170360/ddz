@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <errno.h>
+#include <math.h>
 
 #include "hlddz.h"
 #include "log.h"
@@ -69,6 +70,7 @@ int Player::init()
 	m_level = hlddz.main_rc[index]->get_value_as_int("level");
 	m_allowance_num = hlddz.main_rc[index]->get_value_as_int("allowance_num");
 	m_allowance_stamp = static_cast<time_t>(hlddz.main_rc[index]->get_value_as_int("allowance_stamp"));
+    m_exp = hlddz.main_rc[index]->get_value_as_int("exp");
 
 	if(m_uid<XT_ROBOT_UID_MAX)
 	{
@@ -227,4 +229,101 @@ bool Player::allowance(int money)
     }
             
     return false;
+}
+    
+void Player::addExp(int exp)
+{
+    if(exp <= 0)
+    {
+        return;
+    }
+
+    m_exp += exp;
+    if(levelUp())
+    {
+        xt_log.debug("levelup, uid:%d, level:%d\n", m_uid, m_level);
+        //保存level 
+        if(hlddz.main_rc[index]->command("hset hu:%d level %d", m_uid, m_level) < 0)
+        {
+            xt_log.error("set level error.level:%d\n", m_level);
+        }
+
+        //升级奖励
+        int money = upMoney();
+        xt_log.debug("levelup add money uid:%d, level:%d, money:%d\n", m_uid, m_level, money);
+        changeMoney(money);
+    }
+
+    //xt_log.debug("add exp, uid:%d, addexp:%d, exp:%d\n", m_uid, exp, m_exp);
+    //保存exp
+    if(hlddz.main_rc[index]->command("hset hu:%d exp %d", m_uid, m_exp) < 0)
+    {
+        xt_log.error("set exp error.exp:%d\n", m_exp);
+    }
+}
+    
+bool Player::levelUp(void)
+{
+    //计算下一等级要多少经验
+    int nextLevel = m_level + 1;
+    int nextExp = 0;
+    if(nextLevel <= 4)
+    {
+        switch(nextLevel) 
+        {
+            case 1: nextExp = 10; break;
+            case 2: nextExp = 30; break;
+            case 3: nextExp = 60; break;
+            case 4: nextExp = 120; break;
+        }
+    }
+    else
+    {
+        nextExp = 200 * pow(1.1, nextLevel - 2); 
+    }
+    
+    //个位数保持是0
+    nextExp = (nextExp / 10) * 10;
+
+    if(m_exp >= nextExp)
+    {
+        m_level++;
+        return true;
+    }
+
+    return false;
+}
+    
+int Player::upMoney(void)
+{
+    int money = 0;
+    if(m_level <= 10)
+    {
+        switch(m_level) 
+        {
+            case 1: money = 200; break;
+            case 2: money = 400; break;
+            case 3: money = 600; break;
+            case 4: money = 800; break;
+            case 5: money = 1000; break;
+            case 6: money = 1200; break;
+            case 7: money = 1400; break;
+            case 8: money = 1600; break;
+            case 9: money = 2000; break;
+            case 10: money = 2100; break;
+        }
+    }
+    else
+    {
+        money = 2100;
+        for(int i = 0; i < m_level - 10; ++i)
+        {
+            money = money * 1.07; 
+        }
+    }
+
+    //最后两位保持0
+    money = (money / 100) * 100;
+
+    return money;
 }
