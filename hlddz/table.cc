@@ -34,7 +34,7 @@ const int SHOWTIME          = 3;    //发牌动画时间, 机器人根据这个�
 const int ROOMSCORE         = 10;   //房间底分
 const int ROOMTAX           = 10;   //房间抽水
 const int ALLOWANCEMONEY    = 3000; //破产补助
-const int MOTIONMONEY       = 200;  //互动价格
+const int MOTIONMONEY       = 500;  //互动价格
 
 Table::Table()
 {
