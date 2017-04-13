@@ -13,7 +13,7 @@ enum CLIENT_COMMAND
     CLIENT_VIEW                 = 1008,         //查看信息 uid 
     CLIENT_ENTRUST              = 1009,         //托管 开启或者关闭 active: true, false
     CLIENT_CHAT                 = 1010,         //聊天 字符串content
-    CLIENT_MOTION               = 1011,         //玩家互动 目标id：target_id, 互动信息: info
+    CLIENT_MOTION               = 1011,         //玩家互动 目标id：target_id, 互动id: type, 
 };
 
 enum SERVER_COMMAND
@@ -33,7 +33,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST              = 2012,         //托管 玩家uid, 开始或者关闭active: true, false
     SERVER_CHAT                 = 2013,         //聊天 字符串content
     SERVER_ALLOWANCE            = 2014,         //破产补助, 增加金币数量 money
-    SERVER_MOTION               = 2015,         //玩家互动, 发起人id: src_id, 目标id: target_id, 互动信息: info
+    SERVER_MOTION               = 2015,         //玩家互动, 发起人id: src_id, 目标id: target_id, 互动id: type, 价格:price
     SERVER_ENTRUST_OUT          = 2016,         //托管出牌 牌型: card, 不出: keep
 };
 

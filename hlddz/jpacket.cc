@@ -145,7 +145,7 @@ int Jpacket::safe_check()
             break;
 		case CLIENT_MOTION:
 			{
-				if (!val["info"].isString() && !val["target_id"].isNumeric())
+				if (!val["type"].isNumeric() && !val["target_id"].isNumeric())
 				{
 					xt_log.error("command client_motion error\n");
 					return -1;

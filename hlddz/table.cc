@@ -34,6 +34,7 @@ const int SHOWTIME          = 3;    //发牌动画时间, 机器人根据这个�
 const int ROOMSCORE         = 10;   //房间底分
 const int ROOMTAX           = 10;   //房间抽水
 const int ALLOWANCEMONEY    = 3000; //破产补助
+const int MOTIONMONEY       = 200;  //互动价格
 
 Table::Table()
 {
@@ -688,12 +689,19 @@ void Table::msgChat(Player* player)
         
 void Table::msgMotion(Player* player)
 {
+    if(player->m_money < MOTIONMONEY)
+    {
+        sendError(player, CLIENT_MOTION, CODE_MONEY);
+        return;
+    }
+
     Json::Value &msg = player->client->packet.tojson();
     Jpacket packet;
     packet.val["cmd"]         = SERVER_MOTION;
-    packet.val["info"]        = msg["info"].asString();
     packet.val["target_id"]   = msg["target_id"].asInt();
     packet.val["src_id"]      = msg["src_id"].asInt();
+    packet.val["type"]        = msg["type"].asInt();
+    packet.val["price"]       = MOTIONMONEY;
     packet.end();
     broadcast(NULL, packet.tostring());
 }
