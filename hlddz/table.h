@@ -121,6 +121,8 @@ class Table
         void sendError(Player* player, int msgid, int errcode);
         //发送托管玩家出牌
         void sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep);
+        //通知托管
+        void sendEntrust(int uid, bool active);
     
         //开始发牌
         void gameStart(void);
@@ -167,7 +169,7 @@ class Table
         void calculate(int doubleNum);
         //检查入场费并进行破产补助
         void allowanceProc(void); 
-        //检查入场费并踢出玩家
+        //检查入场费, 检查托管并踢出玩家
         void kick(void);
         //增加robot money
         void addRobotMoney(Player* player);
@@ -182,6 +184,8 @@ class Table
         string getTitle(int money) {return "title_test";}
         //金币转经验
         int money2exp(int money);
+        //托管出牌处理
+        void entrustOut(void);
 
     private:
         void reset(void);
@@ -197,7 +201,8 @@ class Table
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
         int                         m_callScore[SEAT_NUM];          //各座位叫分
         bool                        m_famerDouble[SEAT_NUM];        //农民加倍
-        bool                        m_entrust[SEAT_NUM];            //托管状态
+        bool                        m_entrust[SEAT_NUM];            //托管状态 true false
+        bool                        m_timeout[SEAT_NUM];           //出牌超时 true false
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
         int                         m_money[SEAT_NUM];              //各座位输赢

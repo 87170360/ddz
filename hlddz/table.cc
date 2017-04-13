@@ -26,6 +26,7 @@ extern Log xt_log;
 const int CALLTIME          = 300;
 const int DOUBLETIME        = 300;
 const int OUTTIME           = 300;
+const int SECOND_OUTTIME    = 5;    //第二次出牌超时
 const int ENDTIME           = 10;
 const int KICKTIME          = 1;
 const int UPDATETIME        = 1;
@@ -89,6 +90,7 @@ void Table::reset(void)
         m_outNum[i] = 0;
         m_money[i] = 0;
         m_entrust[i] = false;
+        m_timeout[i] = false;
     }
     m_bottomCard.clear();
     m_lastCard.clear();
@@ -190,7 +192,7 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 void Table::onCall(void)
 {
     //xt_log.debug("onCall\n");
-    m_callScore[m_curSeat] = rand() % 4;
+    m_callScore[m_curSeat] = 0;
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
     logicCall();
@@ -212,7 +214,7 @@ void Table::onDouble(void)
     {
         if(i != m_lordSeat && m_opState[i] == OP_DOUBLE_NOTIFY) 
         {
-            m_famerDouble[i] = true;
+            m_famerDouble[i] = false;
             m_opState[i] = OP_DOUBLE_RECEIVE;
             sendDouble(m_seats[i], m_famerDouble[i]);
         }
@@ -238,32 +240,47 @@ void Table::onOut(void)
 
     XtCard::sortByDescending(myCard);
     XtCard::sortByDescending(m_lastCard);
-    //首轮出牌
-    if(m_lastCard.empty())
+
+    if(m_entrust[m_curSeat])
     {
-        m_deck.getFirst(myCard, curCard);
+        xt_log.error("%s:%d, entrust player shall not timerout. seatid:%d\n", __FILE__, __LINE__, m_curSeat); 
     }
-    //没人跟自己的牌
-    else if(m_curSeat == m_outSeat)
+
+    //前一次已经超时
+    if(m_timeout[m_curSeat])
     {
-        m_deck.getFirst(myCard, curCard);
+        //首轮出牌
+        //没人跟自己的牌
+        if(m_lastCard.empty() || m_curSeat == m_outSeat)
+        {
+            m_deck.getFirst(myCard, curCard);
+        }
+        //跟别人的牌
+        else
+        {
+            m_deck.getOut(myCard, m_lastCard, curCard);
+        }
+        m_entrust[m_curSeat] = true;
     }
-    //跟别人的牌
+    //第一次超时
     else
     {
-        m_deck.getOut(myCard, m_lastCard, curCard);
-        /*
-        if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
+        //记录超时
+        m_timeout[m_curSeat] = true;
+        //首轮出牌
+        //没人跟自己的牌
+        if(m_lastCard.empty() || m_curSeat == m_outSeat)
         {
-            xt_log.debug("my card\n");
-            show(myCard);
-            xt_log.debug("last card\n");
-            show(m_lastCard);
-            xt_log.debug("select card\n");
-            show(curCard);
+            m_deck.getFirst(myCard, curCard);
+            m_entrust[m_curSeat] = true;
         }
-        */
+        //跟别人的牌
+        else
+        {
+            curCard.clear();
+        }
     }
+
     keep = curCard.empty() ? true : false; 
 
     //判断是否结束和通知下一个出牌人，本轮出牌
@@ -586,6 +603,9 @@ void Table::msgOut(Player* player)
         return;
     }
 
+    //清除超时用户
+    m_timeout[player->m_seatid] = false;
+
     //停止出牌定时器
     //xt_log.debug("stop m_timerOut for msg.\n");
     ev_timer_stop(hlddz.loop, &m_timerOut);
@@ -660,7 +680,7 @@ void Table::msgEntrust(Player* player)
     }
 
     Json::Value &msg = player->client->packet.tojson();
-    bool entrust = msg["double"].asBool();
+    bool entrust = msg["active"].asBool();
 
     //重复
     if(m_entrust[player->m_seatid] == entrust)
@@ -676,6 +696,7 @@ void Table::msgEntrust(Player* player)
     {
         entrustProc(true, m_curSeat);
     }
+    sendEntrust(player->m_uid, entrust);
 }
 
 void Table::msgChat(Player* player)
@@ -1029,7 +1050,7 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                 {
                     ev_timer_stop(hlddz.loop, &m_timerOut);
                 }
-                onOut();
+                entrustOut();
             }
             break;
     }
@@ -1201,6 +1222,14 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         }
         else
         {
+            if(m_timeout[m_curSeat])
+            {//上次有超时过，缩短计时
+                ev_timer_set(&m_timerOut, ev_tstamp(SECOND_OUTTIME), ev_tstamp(SECOND_OUTTIME));
+            }
+            else
+            {
+                ev_timer_set(&m_timerOut, ev_tstamp(OUTTIME), ev_tstamp(OUTTIME));
+            }
             //开启出牌定时器
             //xt_log.debug("m_timerOut again start \n");
             ev_timer_again(hlddz.loop, &m_timerOut);
@@ -1362,6 +1391,16 @@ void Table::sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep)
     vector_to_json_array(curCard, packet, "card");
     packet.end();
     unicast(pl, packet.tostring());
+}
+        
+void Table::sendEntrust(int uid, bool active)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_ENTRUST;
+    packet.val["uid"]       = uid;
+    packet.val["active"]    = active;
+    packet.end();
+    broadcast(NULL, packet.tostring());
 }
 
 void Table::gameStart(void)
@@ -1896,7 +1935,7 @@ void Table::kick(void)
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
-        if(pl->m_money < ROOMTAX)
+        if(pl->m_money < ROOMTAX || m_entrust[pl->m_seatid])
         {
             Jpacket packet;
             packet.val["cmd"]           = SERVER_KICK;
@@ -1966,4 +2005,46 @@ int Table::money2exp(int money)
     {
         return 0;
     }
+}
+        
+void Table::entrustOut(void)
+{
+    //xt_log.debug("entrustOut. m_curSeat:%d\n", m_curSeat);
+    Player* player = getSeatPlayer(m_curSeat);
+    bool keep = false;
+    vector<XtCard> curCard;
+    vector<XtCard> &myCard = m_seatCard[m_curSeat].m_cards;
+
+    XtCard::sortByDescending(myCard);
+    XtCard::sortByDescending(m_lastCard);
+    //首轮出牌
+    if(m_lastCard.empty())
+    {
+        m_deck.getFirst(myCard, curCard);
+    }
+    //没人跟自己的牌
+    else if(m_curSeat == m_outSeat)
+    {
+        m_deck.getFirst(myCard, curCard);
+    }
+    //跟别人的牌
+    else
+    {
+        m_deck.getOut(myCard, m_lastCard, curCard);
+        /*
+        if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
+        {
+            xt_log.debug("my card\n");
+            show(myCard);
+            xt_log.debug("last card\n");
+            show(m_lastCard);
+            xt_log.debug("select card\n");
+            show(curCard);
+        }
+        */
+    }
+    keep = curCard.empty() ? true : false; 
+
+    //判断是否结束和通知下一个出牌人，本轮出牌
+    logicOut(player, curCard, keep);
 }
