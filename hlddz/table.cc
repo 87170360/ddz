@@ -701,7 +701,7 @@ void Table::msgMotion(Player* player)
     Jpacket packet;
     packet.val["cmd"]         = SERVER_MOTION;
     packet.val["target_id"]   = msg["target_id"].asInt();
-    packet.val["src_id"]      = msg["src_id"].asInt();
+    packet.val["src_id"]      = player->m_uid;
     packet.val["type"]        = msg["type"].asInt();
     packet.val["price"]       = MOTIONMONEY;
     packet.end();
