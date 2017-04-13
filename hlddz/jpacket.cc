@@ -136,7 +136,7 @@ int Jpacket::safe_check()
             break;
 		case CLIENT_CHAT:
 			{
-				if (!val["content"].isString())
+				if (!val["content"].isString() && !val["chatid"].isNumeric())
 				{
 					xt_log.error("command client_chat error\n");
 					return -1;

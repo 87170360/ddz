@@ -704,6 +704,8 @@ void Table::msgChat(Player* player)
     Json::Value &msg = player->client->packet.tojson();
     Jpacket packet;
     packet.val["cmd"]         = SERVER_CHAT;
+    packet.val["uid"]         = player->m_uid;
+    packet.val["chatid"]      = msg["chatid"].asInt();
     packet.val["content"]     = msg["content"].asString();
     packet.end();
     broadcast(NULL, packet.tostring());
