@@ -35,6 +35,7 @@ const int ROOMSCORE         = 10;   //房间底分
 const int ROOMTAX           = 10;   //房间抽水
 const int ALLOWANCEMONEY    = 3000; //破产补助
 const int MOTIONMONEY       = 500;  //互动价格
+const int ROOMLIMIT         = 5000; //房间最低携带
 
 Table::Table()
 {
@@ -689,7 +690,7 @@ void Table::msgChat(Player* player)
         
 void Table::msgMotion(Player* player)
 {
-    if(player->m_money < MOTIONMONEY)
+    if(player->m_money < MOTIONMONEY || player->m_money < ROOMLIMIT)
     {
         sendError(player, CLIENT_MOTION, CODE_MONEY);
         return;
