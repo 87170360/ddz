@@ -695,6 +695,8 @@ void Table::msgMotion(Player* player)
         return;
     }
 
+    player->changeMoney(-MOTIONMONEY);
+
     Json::Value &msg = player->client->packet.tojson();
     Jpacket packet;
     packet.val["cmd"]         = SERVER_MOTION;
