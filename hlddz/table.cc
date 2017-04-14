@@ -1333,6 +1333,8 @@ void Table::sendEnd(int doubleNum)
     packet.val["bomb"]      = getBombNum();
     packet.val["score"]     = hlddz.game->ROOMSCORE;
 
+    xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
+
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
         Json::Value jval;          
@@ -1342,10 +1344,12 @@ void Table::sendEnd(int doubleNum)
         jval["money"]   = m_money[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
+        xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
     }
 
     packet.end();
     broadcast(NULL, packet.tostring());
+
 }
 
 void Table::sendTime(void)
