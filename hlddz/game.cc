@@ -22,6 +22,18 @@ extern Log xt_log;
 
 Game::Game()
 {
+    CALLTIME          = 300;
+    DOUBLETIME        = 300;
+    OUTTIME           = 300;
+    SECOND_OUTTIME    = 5;    //第二次出牌超时
+    KICKTIME          = 1;
+    UPDATETIME        = 1;
+    SHOWTIME          = 3;    //发牌动画时间, 机器人根据这个延时叫分
+    ROOMSCORE         = 10;   //房间底分
+    ROOMTAX           = 10;   //房间抽水
+    ALLOWANCEMONEY    = 3000; //破产补助
+    MOTIONMONEY       = 500;  //互动价格
+    ROOMLIMIT         = 5000; //房间最低携带
 }
 
 Game::~Game()
@@ -38,6 +50,7 @@ int Game::start()
     init_table();
 
     init_accept();
+    initConf();
 
     return 0;
 }
@@ -105,6 +118,35 @@ int Game::init_accept()
     xt_log.info("listen ok\n");
 
     return 0;
+}
+    
+void Game::initConf(void)
+{
+    //xt_log.debug("initConf\n");
+    CALLTIME          = hlddz.conf["tables"]["calltime"].asInt();
+    //xt_log.debug("CALLTIME:%d\n",CALLTIME);
+    DOUBLETIME        = hlddz.conf["tables"]["doubletime"].asInt();
+    //xt_log.debug("DOUBLETIME:%d\n",DOUBLETIME);
+    OUTTIME           = hlddz.conf["tables"]["outtime"].asInt();
+    //xt_log.debug("OUTTIME:%d\n",OUTTIME);
+    SECOND_OUTTIME    = hlddz.conf["tables"]["second_outtime"].asInt();  //第二次出牌超时
+    //xt_log.debug("SECOND_OUTTIME:%d\n",SECOND_OUTTIME);
+    KICKTIME          = hlddz.conf["tables"]["kicktime"].asInt();
+    //xt_log.debug("KICKTIME:%d\n",KICKTIME);
+    UPDATETIME        = hlddz.conf["tables"]["updatetime"].asInt();
+    //xt_log.debug("UPDATETIME:%d\n",UPDATETIME);
+    SHOWTIME          = hlddz.conf["tables"]["showtime"].asInt();  //发牌动画时间, 机器人根据这个延时叫分
+    //xt_log.debug("SHOWTIME:%d\n",SHOWTIME);
+    ROOMSCORE         = hlddz.conf["tables"]["roomscore"].asInt();  //房间底分
+    //xt_log.debug("ROOMSCORE:%d\n",ROOMSCORE);
+    ROOMTAX           = hlddz.conf["tables"]["roomtax"].asInt();  //房间抽水
+    //xt_log.debug("ROOMTAX:%d\n",ROOMTAX);
+    ALLOWANCEMONEY    = hlddz.conf["tables"]["allowancemoney"].asInt();  //破产补助
+    //xt_log.debug("ALLOWANCEMONEY:%d\n",ALLOWANCEMONEY);
+    MOTIONMONEY       = hlddz.conf["tables"]["motionmoney"].asInt();  //互动价格
+    //xt_log.debug("MOTIONMONEY:%d\n",MOTIONMONEY);
+    ROOMLIMIT         = hlddz.conf["tables"]["roomlimit"].asInt();  //房间最低携带
+    //xt_log.debug("ROOMLIMIT:%d\n",ROOMLIMIT);
 }
 
 void Game::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)

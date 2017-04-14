@@ -25,6 +25,8 @@ class HLDDZ
         RedisClient         *eventlog_rc;   
         RedisClient 		*cache_rc;
         int					main_size;
+
+
 };
 
 #endif    /* _LANDLORD_H_ */

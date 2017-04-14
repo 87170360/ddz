@@ -23,37 +23,22 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
-const int CALLTIME          = 300;
-const int DOUBLETIME        = 300;
-const int OUTTIME           = 300;
-const int SECOND_OUTTIME    = 5;    //第二次出牌超时
-const int ENDTIME           = 10;
-const int KICKTIME          = 1;
-const int UPDATETIME        = 1;
-
-const int SHOWTIME          = 3;    //发牌动画时间, 机器人根据这个延时叫分
-const int ROOMSCORE         = 10;   //房间底分
-const int ROOMTAX           = 10;   //房间抽水
-const int ALLOWANCEMONEY    = 3000; //破产补助
-const int MOTIONMONEY       = 500;  //互动价格
-const int ROOMLIMIT         = 5000; //房间最低携带
-
 Table::Table()
 {
     m_timerCall.data = this;
-    ev_timer_init(&m_timerCall, Table::callCB, ev_tstamp(CALLTIME), ev_tstamp(CALLTIME));
+    ev_timer_init(&m_timerCall, Table::callCB, ev_tstamp(hlddz.game->CALLTIME), ev_tstamp(hlddz.game->CALLTIME));
 
     m_timerDouble.data = this;
-    ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(DOUBLETIME), ev_tstamp(DOUBLETIME));
+    ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(hlddz.game->DOUBLETIME), ev_tstamp(hlddz.game->DOUBLETIME));
 
     m_timerOut.data = this;
-    ev_timer_init(&m_timerOut, Table::OutCB, ev_tstamp(OUTTIME), ev_tstamp(OUTTIME));
+    ev_timer_init(&m_timerOut, Table::OutCB, ev_tstamp(hlddz.game->OUTTIME), ev_tstamp(hlddz.game->OUTTIME));
 
     m_timerKick.data = this;
-    ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(KICKTIME), ev_tstamp(KICKTIME));
+    ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(hlddz.game->KICKTIME), ev_tstamp(hlddz.game->KICKTIME));
 
     m_timerUpdate.data = this;
-    ev_timer_init(&m_timerUpdate, Table::updateCB, ev_tstamp(UPDATETIME), ev_tstamp(UPDATETIME));
+    ev_timer_init(&m_timerUpdate, Table::updateCB, ev_tstamp(hlddz.game->UPDATETIME), ev_tstamp(hlddz.game->UPDATETIME));
 }
 
 Table::~Table()
@@ -338,7 +323,7 @@ int Table::login(Player *player)
     addRobotMoney(player);
 
     //检查入场费
-    if(player->m_money < ROOMTAX)
+    if(player->m_money < hlddz.game->ROOMTAX)
     {
         xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         loginUC(player, CODE_MONEY);
@@ -380,7 +365,7 @@ void Table::reLogin(Player* player)
     addRobotMoney(player);
 
     //检查入场费
-    if(player->m_money < ROOMTAX)
+    if(player->m_money < hlddz.game->ROOMTAX)
     {
         xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         sendError(player, CLIENT_LOGIN, CODE_MONEY);
@@ -394,7 +379,7 @@ void Table::msgPrepare(Player* player)
 {
     //xt_log.debug("msg prepare m_uid:%d, seatid:%d, size:%d\n", player->m_uid, player->m_seatid, m_players.size());
     //检查入场费
-    if(player->m_money < ROOMTAX)
+    if(player->m_money < hlddz.game->ROOMTAX)
     {
         xt_log.error("%s:%d, prepare fail!, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         sendError(player, CLIENT_PREPARE, CODE_MONEY);
@@ -713,13 +698,13 @@ void Table::msgChat(Player* player)
         
 void Table::msgMotion(Player* player)
 {
-    if(player->m_money < MOTIONMONEY || player->m_money < ROOMLIMIT)
+    if(player->m_money < hlddz.game->MOTIONMONEY || player->m_money < hlddz.game->ROOMLIMIT)
     {
         sendError(player, CLIENT_MOTION, CODE_MONEY);
         return;
     }
 
-    player->changeMoney(-MOTIONMONEY);
+    player->changeMoney(-hlddz.game->MOTIONMONEY);
 
     Json::Value &msg = player->client->packet.tojson();
     Jpacket packet;
@@ -727,7 +712,7 @@ void Table::msgMotion(Player* player)
     packet.val["target_id"]   = msg["target_id"].asInt();
     packet.val["src_id"]      = player->m_uid;
     packet.val["type"]        = msg["type"].asInt();
-    packet.val["price"]       = MOTIONMONEY;
+    packet.val["price"]       = hlddz.game->MOTIONMONEY;
     packet.end();
     broadcast(NULL, packet.tostring());
 }
@@ -917,7 +902,7 @@ void Table::callProc(void)
     m_state = STATE_CALL; 
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
-    m_time = CALLTIME;
+    m_time = hlddz.game->CALLTIME;
     ev_timer_again(hlddz.loop, &m_timerCall);
     //xt_log.debug("m_timerCall first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
@@ -928,7 +913,7 @@ void Table::doubleProc(void)
     //xt_log.debug("doubleProc \n");
     m_state = STATE_DOUBLE; 
     setAllSeatOp(OP_DOUBLE_NOTIFY);
-    m_time = DOUBLETIME;
+    m_time = hlddz.game->DOUBLETIME;
 
     ev_timer_again(hlddz.loop, &m_timerDouble);
     //xt_log.debug("m_timerDouble first start \n");
@@ -941,7 +926,7 @@ void Table::outProc(void)
     setAllSeatOp(OP_OUT_WAIT);
     m_curSeat = m_lordSeat;
     m_preSeat = m_curSeat;
-    m_time = OUTTIME;
+    m_time = hlddz.game->OUTTIME;
     ev_timer_again(hlddz.loop, &m_timerOut);
     payTax();
     //xt_log.debug("m_timerOut first start \n");
@@ -1084,7 +1069,7 @@ void Table::logicCall(void)
     {
         //广播当前叫分和下一个叫分
         //xt_log.debug("m_timerCall again start.\n");
-        m_time = CALLTIME;
+        m_time = hlddz.game->CALLTIME;
         sendCallAgain(); 
         if(m_entrust[m_curSeat])
         {
@@ -1214,7 +1199,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
             m_lastCard.clear(); 
         }
 
-        m_time = OUTTIME;
+        m_time = hlddz.game->OUTTIME;
         sendOutAgain(false);    
 
         //如果下一个出牌人托管
@@ -1226,11 +1211,11 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         {
             if(m_timeout[m_curSeat])
             {//上次有超时过，缩短计时
-                ev_timer_set(&m_timerOut, ev_tstamp(SECOND_OUTTIME), ev_tstamp(SECOND_OUTTIME));
+                ev_timer_set(&m_timerOut, ev_tstamp(hlddz.game->SECOND_OUTTIME), ev_tstamp(hlddz.game->SECOND_OUTTIME));
             }
             else
             {
-                ev_timer_set(&m_timerOut, ev_tstamp(OUTTIME), ev_tstamp(OUTTIME));
+                ev_timer_set(&m_timerOut, ev_tstamp(hlddz.game->OUTTIME), ev_tstamp(hlddz.game->OUTTIME));
             }
             //开启出牌定时器
             //xt_log.debug("m_timerOut again start \n");
@@ -1247,8 +1232,8 @@ void Table::sendCard1(void)
         Jpacket packet;
         packet.val["cmd"]           = SERVER_CARD_1;
         vector_to_json_array(m_seatCard[pl->m_seatid].m_cards, packet, "card");
-        packet.val["time"]          = CALLTIME;
-        packet.val["show_time"]     = SHOWTIME;
+        packet.val["time"]          = hlddz.game->CALLTIME;
+        packet.val["show_time"]     = hlddz.game->SHOWTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.end();
         unicast(pl, packet.tostring());
@@ -1262,7 +1247,7 @@ void Table::sendCallAgain(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_AGAIN_CALL;
-        packet.val["time"]          = CALLTIME;
+        packet.val["time"]          = hlddz.game->CALLTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["score"]         = m_callScore[m_preSeat];
@@ -1278,7 +1263,7 @@ void Table::sendCallResult(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_RESULT_CALL;
-        packet.val["time"]          = DOUBLETIME;
+        packet.val["time"]          = hlddz.game->DOUBLETIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeat(m_lordSeat);
         vector_to_json_array(m_bottomCard, packet, "card");
@@ -1310,7 +1295,7 @@ void Table::sendDoubleResult(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_RESULT_DOUBLE;
-        packet.val["time"]          = OUTTIME;
+        packet.val["time"]          = hlddz.game->OUTTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["count"]         = getCount();
         packet.end();
@@ -1326,7 +1311,7 @@ void Table::sendOutAgain(bool last)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_AGAIN_OUT;
-        packet.val["time"]          = OUTTIME;
+        packet.val["time"]          = hlddz.game->OUTTIME;
         packet.val["last"]          = last;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
@@ -1346,7 +1331,7 @@ void Table::sendEnd(int doubleNum)
     packet.val["code"]      = CODE_SUCCESS;
     packet.val["double"]    = doubleNum;
     packet.val["bomb"]      = getBombNum();
-    packet.val["score"]     = ROOMSCORE;
+    packet.val["score"]     = hlddz.game->ROOMSCORE;
 
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
@@ -1796,7 +1781,7 @@ void Table::payTax(void)
     {
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
-        tmpplayer->changeMoney(-ROOMTAX);
+        tmpplayer->changeMoney(-hlddz.game->ROOMTAX);
     }
 }
 
@@ -1814,7 +1799,7 @@ void Table::total(void)
 void Table::calculate(int doubleNum)
 {
     //台面额度
-    int score = ROOMSCORE * doubleNum;
+    int score = hlddz.game->ROOMSCORE * doubleNum;
     Player* lord = getSeatPlayer(m_lordSeat); 
     Player* big = getSeatPlayer((m_lordSeat + 1) % 3); 
     Player* small = getSeatPlayer((m_lordSeat + 2) % 3); 
@@ -1920,11 +1905,11 @@ void Table::allowanceProc(void)
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
-        if(pl->m_money < ROOMTAX && pl->allowance(ALLOWANCEMONEY))
+        if(pl->m_money < hlddz.game->ROOMTAX && pl->allowance(hlddz.game->ALLOWANCEMONEY))
         {
             Jpacket packet;
             packet.val["cmd"]           = SERVER_ALLOWANCE;
-            packet.val["money"]         = ALLOWANCEMONEY;
+            packet.val["money"]         = hlddz.game->ALLOWANCEMONEY;
             packet.end();
             unicast(NULL, packet.tostring());
         }
@@ -1937,14 +1922,14 @@ void Table::kick(void)
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
-        if(pl->m_money < ROOMTAX || m_entrust[pl->m_seatid])
+        if(pl->m_money < hlddz.game->ROOMTAX || m_entrust[pl->m_seatid])
         {
             Jpacket packet;
             packet.val["cmd"]           = SERVER_KICK;
             packet.val["uid"]           = pl->m_uid;
             packet.end();
             unicast(NULL, packet.tostring());
-            xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->m_uid, pl->m_seatid, pl->m_money, ROOMTAX); 
+            xt_log.debug("%s:%d, kick player for not enough money, uid:%d, seatid:%d, money:%d, roomtax:%d\n",__FILE__, __LINE__, pl->m_uid, pl->m_seatid, pl->m_money, hlddz.game->ROOMTAX); 
             m_delPlayer.push_back(pl);
             //不能这里删除，否则logout里有对m_players的删除操作,导致容器错误, 且要保证发送消息完毕
         }
@@ -1960,7 +1945,7 @@ void Table::addRobotMoney(Player* player)
         return;
     }
 
-    int addval = ROOMTAX * (rand() % 9 + 1) + 100000;
+    int addval = hlddz.game->ROOMTAX * (rand() % 9 + 1) + 100000;
     xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }

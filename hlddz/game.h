@@ -32,6 +32,19 @@ public:
 	std::map<int, Player*>      offline_players;
 	std::map<int, Player*>      online_players;
 
+    int CALLTIME;
+    int DOUBLETIME;
+    int OUTTIME;
+    int SECOND_OUTTIME;    //第二次出牌超时
+    int KICKTIME;
+    int UPDATETIME;
+    int SHOWTIME;    //发牌动画时间, 机器人根据这个延时叫分
+    int ROOMSCORE;   //房间底分
+    int ROOMTAX;   //房间抽水
+    int ALLOWANCEMONEY; //破产补助
+    int MOTIONMONEY;  //互动价格
+    int ROOMLIMIT; //房间最低携带
+
 private:
     ev_io _ev_accept;
 	int _fd;
@@ -59,6 +72,7 @@ public:
 private:
 	int     init_table();
     int     init_accept();
+    void     initConf(void);
 
 };
 
