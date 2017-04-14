@@ -219,6 +219,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_RESPOND:
             handleRespond(val);
             break;
+        case SERVER_LOGIN:
+            handleLogin(val);
+            break;
         case SERVER_CARD_1:
             handleCall(val);
             break;
@@ -481,6 +484,11 @@ void XtRobotClient::handleTime(Json::Value& msg)
 {
     //int time = msg["time"].asInt();
     //printf("handleTime!, time:%d\n", time);
+}
+        
+void XtRobotClient::handleLogin(Json::Value& msg)
+{
+
 }
 
 void XtRobotClient::sendCall(void)

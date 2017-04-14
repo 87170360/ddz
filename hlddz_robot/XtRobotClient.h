@@ -12,6 +12,7 @@
 #include <time.h>
 #include <errno.h>
 #include <list>
+#include <set>
 
 #include <ev.h>
 #include <json/json.h>
@@ -71,6 +72,7 @@ class XtRobotClient
         void handleEnd(Json::Value& msg);
         void handleKick(Json::Value& msg);
         void handleTime(Json::Value& msg);
+        void handleLogin(Json::Value& msg);
 
         void sendCall(void);
         void sendCard(void);
@@ -97,6 +99,7 @@ class XtRobotClient
 
         vector<XtCard>              m_lastCard;               //上轮牌
         int                         m_outid;                  //上轮出牌者id
+        std::set<int>               m_playerlist;             //玩家id队列
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
 
