@@ -459,8 +459,8 @@ void XtRobotClient::handleEnd(Json::Value& msg)
     //printf("handleEnd !\n");
     m_card.clear();
     Jpacket data; 
-    data.val["cmd"]     =   (rand() % 2) > 0 ? CLIENT_CHANGE : CLIENT_PREPARE;
-    //data.val["cmd"]     =   CLIENT_PREPARE;
+    //data.val["cmd"]     =   (rand() % 2) > 0 ? CLIENT_CHANGE : CLIENT_PREPARE;
+    data.val["cmd"]     =   CLIENT_PREPARE;
     //data.val["cmd"]     =   CLIENT_CHANGE;
     //data.val["cmd"]     =   CLIENT_LOGOUT;
     data.end();
@@ -511,7 +511,6 @@ void XtRobotClient::sendCard(void)
     if(m_lastCard.empty() || m_outid == m_uid)
     {
         m_deck.getFirst(m_card, outCard);
-        vector_to_json_array(outCard, data, "card");
     }
     //跟牌
     else
@@ -519,9 +518,11 @@ void XtRobotClient::sendCard(void)
         XtCard::sortByDescending(m_lastCard);
         m_deck.getOut(m_card, m_lastCard, outCard);
     }
+    vector_to_json_array(outCard, data, "card");
     data.val["keep"]     =   outCard.empty();
     data.end();
     send(data.tostring());
+    //show()
 }
 
 void XtRobotClient::doLogin()
