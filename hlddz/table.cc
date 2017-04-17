@@ -1173,6 +1173,8 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
     if(m_entrust[player->m_seatid])
     {
         sendEntrustOut(player, curCard, keep); 
+        //xt_log.debug("entrust out, uid:%d, keep:%s\n", player->m_uid, keep ? "true" : "false");
+        //show(curCard);
     }
 
     //扣除手牌
