@@ -121,6 +121,10 @@ class Table
         void sendError(Player* player, int msgid, int errcode);
         //发送托管玩家出牌
         void sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep);
+        //发送托管玩家叫分
+        void sendEntrustCall(Player* player, int score);
+        //发送托管玩家加倍
+        void sendEntrustDouble(Player* player, bool dou);
         //通知托管
         void sendEntrust(int uid, bool active);
     

@@ -1017,6 +1017,7 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                     ev_timer_stop(hlddz.loop, &m_timerCall);
                 }
                 onCall();
+                sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
             }
             break;
         case STATE_DOUBLE:
@@ -1027,6 +1028,9 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                 }
                 m_famerDouble[entrustSeat] = true;
                 m_opState[entrustSeat] = OP_DOUBLE_RECEIVE;
+
+                sendEntrustDouble(getSeatPlayer(entrustSeat), true);
+
                 sendDouble(m_seats[entrustSeat], m_famerDouble[entrustSeat]);
                 logicDouble(false);
             }
@@ -1169,13 +1173,6 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         m_outSeat = player->m_seatid;
     }
 
-    //如果当前操作者是托管的，额外通知他该出的牌
-    if(m_entrust[player->m_seatid])
-    {
-        sendEntrustOut(player, curCard, keep); 
-        //xt_log.debug("entrust out, uid:%d, keep:%s\n", player->m_uid, keep ? "true" : "false");
-        //show(curCard);
-    }
 
     //扣除手牌
     if(!curCard.empty())
@@ -1377,13 +1374,30 @@ void Table::sendError(Player* player, int msgid, int errcode)
         
 void Table::sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep)
 {
-    Player* pl = player;
     Jpacket packet;
     packet.val["cmd"]           = SERVER_ENTRUST_OUT;
     packet.val["keep"]          = keep;
     vector_to_json_array(curCard, packet, "card");
     packet.end();
-    unicast(pl, packet.tostring());
+    unicast(player, packet.tostring());
+}
+
+void Table::sendEntrustCall(Player* player, int score)
+{
+    Jpacket packet;
+    packet.val["cmd"]           = SERVER_ENTRUST_CALL;
+    packet.val["score"]         = score;
+    packet.end();
+    unicast(player, packet.tostring());
+}
+
+void Table::sendEntrustDouble(Player* player, bool dou)
+{
+    Jpacket packet;
+    packet.val["cmd"]           = SERVER_ENTRUST_DOUBLE;
+    packet.val["double"]        = dou;
+    packet.end();
+    unicast(player, packet.tostring());
 }
         
 void Table::sendEntrust(int uid, bool active)
@@ -2037,6 +2051,10 @@ void Table::entrustOut(void)
         */
     }
     keep = curCard.empty() ? true : false; 
+
+    sendEntrustOut(player, curCard, keep); 
+    //xt_log.debug("entrust out, uid:%d, keep:%s\n", player->m_uid, keep ? "true" : "false");
+        //show(curCard);
 
     //判断是否结束和通知下一个出牌人，本轮出牌
     logicOut(player, curCard, keep);

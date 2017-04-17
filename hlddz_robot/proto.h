@@ -35,6 +35,8 @@ enum SERVER_COMMAND
     SERVER_ALLOWANCE            = 2014,         //破产补助, 增加金币数量 money
     SERVER_MOTION               = 2015,         //玩家互动, 发起人id: src_id, 目标id: target_id, 互动id: type, 价格:price
     SERVER_ENTRUST_OUT          = 2016,         //托管出牌 牌型: card, 不出: keep
+    SERVER_ENTRUST_CALL         = 2017,         //托管叫分 score
+    SERVER_ENTRUST_DOUBLE       = 2018,         //托管加倍 double 
 };
 
 enum ERROR_CODE
