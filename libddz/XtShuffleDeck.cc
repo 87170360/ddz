@@ -916,7 +916,7 @@ bool XtShuffleDeck::comparePair(const vector<XtCard>& card1, const vector<XtCard
 
 bool XtShuffleDeck::compareSingle(const vector<XtCard>& card1, const vector<XtCard>& card2)        
 {
-    if(card1[0].m_face == 16 && card1[1].m_face == 16)
+    if(card1[0].m_face == 16 && card2[0].m_face == 16)
     {
         return card1[0].m_value > card2[0].m_value;
     }
