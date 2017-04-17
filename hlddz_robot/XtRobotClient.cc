@@ -500,7 +500,7 @@ void XtRobotClient::sendCall(void)
     data.end();
 
     send(data.tostring());
-    printf("sendcall uid:%d score:%d\n", m_uid, score);
+    //printf("sendcall uid:%d score:%d\n", m_uid, score);
 }
         
 void XtRobotClient::sendCard(void)
