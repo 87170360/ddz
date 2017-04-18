@@ -345,6 +345,7 @@ int Game::safe_check(Client *client, int cmd)
 int Game::handler_login_table(Client *client)
 {
     Player *player = client->player;
+    int old_tid = player->m_tid;
     if (client->position == POSITION_TABLE) {
         xt_log.error("handler_login_table uid[%d] have been in table\n", player->m_uid);
         return -1;
@@ -353,19 +354,28 @@ int Game::handler_login_table(Client *client)
 
     ret = login_table(client, two_tables, three_tables);
     if (ret == 0)
+    {
+        xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
         return 0;
+    }
     else if (ret == -2)
         return -2;
 
     ret = login_table(client, one_tables, two_tables);
     if (ret == 0)
+    {
+        xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
         return 0;
+    }
     else if (ret == -2)
         return -2;
 
     ret = login_table(client, zero_tables, one_tables);
     if (ret == 0)
+    {
+        xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
         return 0;
+    }
     else if (ret == -2)
         return -2;
 
@@ -377,7 +387,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
 {
     if(a.empty())
     {
-        xt_log.error("login table, table empty.\n"); 
+        //xt_log.error("login table, table empty.\n"); 
         return -1;
     }
 
@@ -396,7 +406,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
 
     if(target == NULL)
     {
-        xt_log.error("login table, not found table, uid:%d\n", player->m_uid); 
+        //xt_log.error("login table, not found table, uid:%d\n", player->m_uid); 
         return -3;
     }
 
@@ -609,7 +619,7 @@ int Game::del_player(Player *player)
 
 int Game::change_table(Player *player)
 {
-    xt_log.info("change table uid[%d], tid[%d].\n", player->m_uid, player->m_tid);
+    //xt_log.info("change table uid[%d], tid[%d].\n", player->m_uid, player->m_tid);
     int ret = 0;
     map<int, Table*>::iterator it = all_tables.find(player->m_tid);
     if (it != all_tables.end()) 

@@ -1418,7 +1418,8 @@ void Table::sendEntrust(int uid, bool active)
 void Table::gameStart(void)
 {
     m_curSeat = rand() % SEAT_NUM;
-    xt_log.debug("=======================================start send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    xt_log.debug("=======================================start send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
+            getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
     callProc();
     allocateCard();
@@ -1965,13 +1966,13 @@ void Table::kick(void)
 
 void Table::addRobotMoney(Player* player)
 {
-    if(!player->isRobot())
+    if(!player->isRobot() || player->m_money > hlddz.game->ROOMTAX)
     {
         return;
     }
 
     int addval = hlddz.game->ROOMTAX * (rand() % 9 + 1) + 100000;
-    xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
+    //xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }
         
