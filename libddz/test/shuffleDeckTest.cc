@@ -201,6 +201,41 @@ void testPair(void)
     }
 }
 
+void testCompareSingle(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    XtCard initCard1[] = { XtCard(0x10)};
+    vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
+    XtCard::sortByDescending(cards1);
+    for(vector<XtCard>::const_iterator it = cards1.begin(); it != cards1.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+
+    XtCard initCard2[] = { XtCard(0x00)};
+    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    XtCard::sortByDescending(cards2);
+    for(vector<XtCard>::const_iterator it = cards2.begin(); it != cards2.end(); ++it)
+    {
+        cout << it->getCardDescription() << " ";
+    }
+    cout << endl;
+
+
+    if(deck.compareSingle(cards1, cards2))
+    {
+        printf("true!\n");
+    }
+    else
+    {
+        printf("false!\n");
+    }
+}
+
 void testCompareBomb(void)
 {
     XtShuffleDeck deck;
@@ -1212,6 +1247,7 @@ int main()
     //testCompareBomb();
     //testCompareShuttle();
     //testCompareAircraft();
+    testCompareSingle();
     //testBigPair();
     //testBigThree2s();
     //testBigThree1();
@@ -1219,7 +1255,7 @@ int main()
     //testGetOut();
     //testGetBottomDouble();
     //testGetFirst();
-    while(1)
+    //while(1)
     {
         //if(testBigStraight()) { break; };
         //if(testBigDoubleStraight()) { break; }
@@ -1234,7 +1270,7 @@ int main()
         //if(testBigBomb()) { break; }
         //if(testGetOut()) { break; }
         //if(!testCreateCard()) { break; }
-        if(!testGetFirst()) { break; }
+        //if(!testGetFirst()) { break; }
     }
     return 0;
 }

@@ -50,7 +50,7 @@ class XtShuffleDeck
         bool isPair(const vector<XtCard>& card);
         bool isSingle(const vector<XtCard>& card) const;
 
-        //须降序队列, 不判断牌型
+        //须降序队列, 不判断牌型, card1 比 card2 大 return true
         bool compareBomb(const vector<XtCard>& card1, const vector<XtCard>& card2);        
         bool compareShuttle(const vector<XtCard>& card1, const vector<XtCard>& card2);        
         bool compareAircraft(const vector<XtCard>& card1, const vector<XtCard>& card2);        
