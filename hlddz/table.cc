@@ -1337,7 +1337,7 @@ void Table::sendEnd(int doubleNum)
     packet.val["bomb"]      = getBombNum();
     packet.val["score"]     = hlddz.game->ROOMSCORE;
 
-    xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
+    //xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
 
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
@@ -1348,7 +1348,7 @@ void Table::sendEnd(int doubleNum)
         jval["money"]   = m_money[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
-        xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
+        //xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
     }
 
     packet.end();
@@ -1460,7 +1460,8 @@ void Table::gameRestart(void)
     m_win = 0;
 
     m_curSeat = rand() % SEAT_NUM;
-    xt_log.debug("=======================================restart send card, cur_id:%d, seateid:%d\n", getSeat(m_curSeat), m_curSeat);
+    xt_log.debug("=======================================restart send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
+            getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
     callProc();
 
