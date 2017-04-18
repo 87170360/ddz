@@ -67,7 +67,7 @@ void Table::reset(void)
     //xt_log.debug("reset.\n");
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        //重新下一局， 座位信息不能删除
+        m_seats[i] = 0;
         m_callScore[i] = 0;
         m_famerDouble[i] = false;
         m_seatCard[i].reset();
@@ -76,9 +76,11 @@ void Table::reset(void)
         m_money[i] = 0;
         m_entrust[i] = false;
         m_timeout[i] = false;
+        m_opState[i] = OP_PREPARE_WAIT; 
     }
     m_bottomCard.clear();
     m_lastCard.clear();
+    m_players.clear();
     m_deck.fill();
     m_deck.shuffle(m_tid);
     m_curSeat = 0;
@@ -87,8 +89,8 @@ void Table::reset(void)
     m_outSeat = 0;
     m_topCall = 0;
     m_win = 0;
-    prepareProc();
     m_time = 0;
+    m_state = STATE_PREPARE; 
 
     ev_timer_stop(hlddz.loop, &m_timerCall);
     ev_timer_stop(hlddz.loop, &m_timerDouble);
@@ -608,8 +610,6 @@ void Table::msgChange(Player* player)
         return;
     }
 
-    //重置游戏
-    reset();
     //清理座位信息
     setSeat(0, player->m_seatid);
 
@@ -999,8 +999,11 @@ void Table::endProc(void)
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     //破产补助
     allowanceProc();
-    //检查入场费, 踢出不够的
-    kick();
+    //清空seatid
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        it->second->m_seatid = 0;
+    }
 
     //重置游戏
     reset();
@@ -1183,6 +1186,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())
     {
+        //发送最后一轮出牌
         sendOutAgain(true);    
         xt_log.debug("=======================================gameover\n");
         m_win = player->m_seatid;
@@ -1199,6 +1203,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         }
 
         m_time = hlddz.game->OUTTIME;
+        //发送出牌
         sendOutAgain(false);    
 
         //如果下一个出牌人托管

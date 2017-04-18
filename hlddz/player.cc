@@ -104,8 +104,6 @@ int Player::init()
 
 void Player::reset(void)
 {
-	logout_type = 0;
-	time_cnt = 0;
 	stop_offline_timer();
 }
 

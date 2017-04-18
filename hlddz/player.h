@@ -73,13 +73,9 @@ public:
 	
 	int					idle_count;
 	
-	int 				logout_type;
-	int					time_cnt;
-	
 private:
     ev_timer			_offline_timer;
     ev_tstamp			_offline_timeout;
-
 };
 
 #endif

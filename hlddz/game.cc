@@ -377,6 +377,7 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
 {
     if(a.empty())
     {
+        xt_log.error("login table, table empty.\n"); 
         return -1;
     }
 
@@ -389,17 +390,13 @@ int Game::login_table(Client *client, std::map<int, Table*> &a, std::map<int, Ta
         {
             continue;
         }
-        if(table->m_players.find(player->m_uid) != table->m_players.end())
-        {
-            xt_log.error("login table uid[%d] is in tid[%d]\n", player->m_uid, table->m_tid); 
-            return -2;
-        }
         target = table;
         break;
     }
 
     if(target == NULL)
     {
+        xt_log.error("login table, not found table, uid:%d\n", player->m_uid); 
         return -3;
     }
 
