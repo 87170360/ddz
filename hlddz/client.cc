@@ -58,7 +58,7 @@ Client::~Client()
 
 void Client::destroy(Client *client)
 {
-    //xt_log.info("client destroy fd[%d] uid[%d] destroy\n", client->fd, client->uid);
+    xt_log.info("client destroy fd[%d] uid[%d] destroy\n", client->fd, client->uid);
     hlddz.game->del_client(client);
 }
 

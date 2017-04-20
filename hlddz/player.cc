@@ -154,6 +154,7 @@ void Player::offline_timeout(struct ev_loop *loop, ev_timer *w, int revents)
 	/* player logout
 	 * remove from offline table */
 	Player* self = (Player*)w->data;
+    xt_log.error("%s:%d, offline_timeout. m_uid:%d\n", __FILE__, __LINE__, self->m_uid); 
 	hlddz.game->del_player(self);
 }
     
