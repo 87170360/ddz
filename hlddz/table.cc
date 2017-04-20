@@ -1187,6 +1187,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
     if(m_seatCard[player->m_seatid].m_cards.empty())
     {
         //发送最后一轮出牌
+        getNext(); 
         sendOutAgain(true);    
         xt_log.debug("=======================================gameover\n");
         m_win = player->m_seatid;
