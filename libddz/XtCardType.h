@@ -23,6 +23,20 @@ enum XtCardType
 	CT_SINGLE               = 17,			// 单牌
 };
 
+enum DivideType
+{
+    DT_4                    = 0,            
+    DT_3                    = 1,            
+    DT_2                    = 2,            
+    DT_1                    = 3,            
+    DT_ROCKET               = 4,            
+    DT_BIG                  = 5,            //big joker
+    DT_LITTLE               = 6,            //little joker 
+    DT_STRAITHT             = 7,            //单顺
+    DT_DS                   = 8,            //双顺 
+    DT_AIRCRAFT             = 9,            //三顺
+};
+
 #endif /* _CARD_TYPE_H_ */
 
 

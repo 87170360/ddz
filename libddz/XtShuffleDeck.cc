@@ -1621,3 +1621,62 @@ void XtShuffleDeck::delSame(const vector<XtCard>& card, vector<XtCard>& result) 
         }
     }
 }
+
+void XtShuffleDeck::divideCard(const vector<XtCard>& card, map<int, vector<XtCard> >& result)
+{
+    vector<XtCard> vec4;
+    keepN(vec4, card, 4);
+    result[DT_4] = vec4;
+
+    vector<XtCard> vec3;
+    keepN(vec3, card, 3);
+
+    vector<XtCard> vec2;
+    keepN(vec2, card, 2);
+
+    vector<XtCard> vec1;
+    keepN(vec1, card, 1);
+
+    //三张组里，区分飞机和其他三张
+    //两张组里，区分火箭, 纯对子和双顺
+    //单张组里，区分纯单张和单顺和大小王
+}
+
+void XtShuffleDeck::getAircraftFrom3(const vector<XtCard>& card3, vector<XtCard>& pure3, vector<XtCard>& aircraft)
+{
+    if(card3.size() < 6)
+    {
+        pure3 = card3;
+        return;
+    }
+
+    vector<XtCard> vec1; 
+    delSame(card3, vec1);
+    if(vec1.size() < 2)
+    {
+        pure3 = card3;
+        return;
+    }
+
+    set<int> tmpface;
+    for(size_t i = 1; i < vec1.size(); ++i)
+    {
+        if(vec1[i - 1].m_face == vec1[i].m_face + 1) 
+        {
+            tmpface.insert(vec1[i - 1].m_face);    
+            tmpface.insert(vec1[i].m_face);    
+        }
+    }
+
+    for(vector<XtCard>::const_iterator it = card3.begin(); it != card3.end(); ++it)
+    {
+        if(tmpface.find((*it).m_face) == tmpface.end()) 
+        {
+            pure3.push_back(*it); 
+        }
+        else
+        {
+            aircraft.push_back(*it); 
+        }
+    }
+}

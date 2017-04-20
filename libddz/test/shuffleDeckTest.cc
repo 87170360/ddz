@@ -1218,6 +1218,34 @@ bool testGetFirst(void)
     }
 }
 
+void testGetAircraftFrom3(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    cards1.push_back(XtCard(0x08));
+    cards1.push_back(XtCard(0x18));
+    cards1.push_back(XtCard(0x28));
+
+    XtCard::sortByDescending(cards1);
+
+    vector<XtCard> pure3;
+    vector<XtCard> aircraft;
+    deck.getAircraftFrom3(cards1, pure3, aircraft);
+
+    //show(cards1);
+    show(pure3);
+    show(aircraft);
+}
+
 /*
    static int card_arr[] = {
    0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -1247,7 +1275,7 @@ int main()
     //testCompareBomb();
     //testCompareShuttle();
     //testCompareAircraft();
-    testCompareSingle();
+    //testCompareSingle();
     //testBigPair();
     //testBigThree2s();
     //testBigThree1();
@@ -1255,6 +1283,7 @@ int main()
     //testGetOut();
     //testGetBottomDouble();
     //testGetFirst();
+    testGetAircraftFrom3();
     //while(1)
     {
         //if(testBigStraight()) { break; };

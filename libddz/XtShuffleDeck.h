@@ -90,6 +90,10 @@ class XtShuffleDeck
         bool compareMN(const vector<XtCard>& card, const vector<XtCard>& card1, int m);
         //整合所有相同的牌
         void delSame(const vector<XtCard>& card, vector<XtCard>& result) const;
+        //按牌型划分, 传入card需降序, key = DivideType
+        void divideCard(const vector<XtCard>& card, map<int, vector<XtCard> >& result);
+        //从三张相同的组合里区分飞机
+        void getAircraftFrom3(const vector<XtCard>& card3, vector<XtCard>& pure3, vector<XtCard>& aircraft);
 
 	private:
 		vector<XtCard> m_cards;
