@@ -1223,6 +1223,8 @@ bool testGetFirst(void)
     }
     else
     {
+        //show(cards1);
+        //show(result);
         return true;
     }
 }
@@ -1365,7 +1367,7 @@ void testDivideCard(void)
     deck.divideCard(cards1, result);
 
     show(cards1);
-    printf("size:%d\n", cards1.size());
+    printf("size:%d\n", (int)cards1.size());
 
     int size = 0;
     for(map<int, vector<XtCard> >::const_iterator it = result.begin(); it != result.end(); ++it)
@@ -1375,6 +1377,16 @@ void testDivideCard(void)
         size += it->second.size();
     }
     printf("size:%d\n", size);
+}
+
+void testVector(void)
+{
+    vector<int> vec1;
+    int data[] = {1,2,3,4,5,6};
+    vec1.assign(data, data + sizeof(vec1) / sizeof(int));
+
+    vector<int> vec2;
+    vec2.assign(vec1.rbegin(), vec1.rbegin() + 1);
 }
 
 /*
@@ -1417,9 +1429,10 @@ int main()
     //testDivideCard3();
     //testDivideCard2();
     //testDivideCard1();
-    testDivideCard();
+    //testDivideCard();
     //testGetNContinue();
-    //while(1)
+    //testVector();
+    while(1)
     {
         //if(testBigStraight()) { break; };
         //if(testBigDoubleStraight()) { break; }
@@ -1434,7 +1447,7 @@ int main()
         //if(testBigBomb()) { break; }
         //if(testGetOut()) { break; }
         //if(!testCreateCard()) { break; }
-        //if(!testGetFirst()) { break; }
+        if(!testGetFirst()) { break; }
     }
     return 0;
 }

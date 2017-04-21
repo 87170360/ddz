@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "XtShuffleDeck.h"
 
-static int card_arr[] = {
+static const int card_arr[] = {
     0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
     0x01, 0x11, 0x21, 0x31,		//A 14 
     0x02, 0x12, 0x22, 0x32,		//2 15
@@ -17,6 +17,19 @@ static int card_arr[] = {
     0x0C, 0x1C, 0x2C, 0x3C,		//Q 12
     0x0D, 0x1D, 0x2D, 0x3D,		//K 13
 };
+
+static const int dt_weight[] = 
+{
+    10,          //DT_4
+    100,         //DT_3
+    100,         //DT_2
+    100,         //DT_1
+    2,           //DT_ROCKET
+    100,         //DT_STRAITHT
+    100,         //DT_DS
+    50,          //DT_AIRCRAFT
+};
+
 
 XtShuffleDeck::XtShuffleDeck()
 {
@@ -323,99 +336,87 @@ bool XtShuffleDeck::getOut(const vector<XtCard>& mine, const vector<XtCard>& oth
 
 bool XtShuffleDeck::getFirst(const vector<XtCard>& mine, vector<XtCard>& result)
 {
-    //按点分类 
-    vector<XtCard> vKing;
-    vector< vector<XtCard> > vFour;
-    vector< vector<XtCard> > vThree;
-    vector< vector<XtCard> > vPair;
-    vector<XtCard> vSingle;
+    //划分手牌
+    map<int, vector<XtCard> > dvec;
+    divideCard(mine, dvec);
 
-    map<int, vector<XtCard> > data;
-    map<int, vector<XtCard> >::iterator datait;
-    map<int, vector<XtCard> >::const_iterator datacit;
-    for(vector<XtCard>::const_iterator it = mine.begin(); it != mine.end(); ++it)
+    //计算概率
+    int totalweight = 0;
+    for(map<int, vector<XtCard> >::const_iterator it = dvec.begin(); it != dvec.end(); ++it)
     {
-        if((*it).isJoker())
+        if(!it->second.empty())    
         {
-            vKing.push_back(*it);
+            totalweight += dt_weight[it->first]; 
+        }
+    }
+    int randseed = rand() % totalweight;
+    int count = 0;
+    int select = DT_1;
+    for(map<int, vector<XtCard> >::const_iterator it = dvec.begin(); it != dvec.end(); ++it)
+    {
+        if(it->second.empty())
+        {
             continue;
         }
-
-        datait = data.find((*it).m_face);
-        if(datait == data.end()) 
+        count += dt_weight[it->first];
+        if(count >= randseed) 
         {
-            vector<XtCard> tmpvec;
-            tmpvec.push_back(*it);
-            data[(*it).m_face] = tmpvec;
-        }
-        else
-        {
-            datait->second.push_back(*it); 
+            select = it->first;
+            break;
         }
     }
 
-    for(datacit = data.begin(); datacit != data.end(); ++datacit)
+    switch(select)
     {
-        switch(datacit->second.size())
-        {
-            case 1:
-                {
-                    vSingle.push_back(datacit->second.back());
-                }
-                break;
-            case 2:
-                {
-                    vPair.push_back(datacit->second);
-                }
-                break;
-            case 3:
-                {
-                    vThree.push_back(datacit->second);
-                }
-                break;
-            case 4:
-                {
-                    vFour.push_back(datacit->second);
-                }
-                break;
-            default:
-                printf("error card num:%d\n", static_cast<int>(datacit->second.size()));
-        }
+        case DT_4: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 4);
+            }
+            break;
+        case DT_3: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 3);
+            }
+            break;
+        case DT_2: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 2);
+            }
+            break;
+        case DT_1: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 1);
+            }
+            break;
+        case DT_ROCKET: 
+            {
+                result = dvec[select];
+            }
+            break;
+        case DT_STRAITHT:
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 5);
+            }
+            break;
+        case DT_DS: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 6);
+            }
+            break;
+        case DT_AIRCRAFT: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 6);
+            }
+            break;
     }
 
-    if(!vThree.empty())
+    /*
+    if(getCardType(result) == CT_ERROR)
     {
-        result.assign(vThree.back().begin(), vThree.back().end()); 
-        if(!vPair.empty())
-        {
-            result.push_back(vPair.back()[0]); 
-            result.push_back(vPair.back()[1]); 
-        }
-        else if(!vSingle.empty())
-        {
-            result.push_back(vSingle.back()); 
-        }
-    }
-    else if(!vPair.empty())
-    {
-        result.assign(vPair.back().begin(), vPair.back().end()); 
-    }
-    else if(!vFour.empty())
-    {
-        result.assign(vFour.back().begin(), vFour.back().end()); 
-    }
-    else if(!vSingle.empty())
-    {
-        result.push_back(vSingle.back()); 
-    }
-    else if(!vKing.empty())
-    {
-        result.push_back(vKing.back()); 
-    }
-    else
-    {
+        result.clear();
         result.push_back(mine.back());
     }
+    */
 
     return true;
 }
@@ -1606,7 +1607,7 @@ void XtShuffleDeck::divideCard3(const vector<XtCard>& card3, vector<XtCard>& pur
         }
     }
 }
-        
+
 void XtShuffleDeck::divideCard2(const vector<XtCard>& card2, vector<XtCard>& rocket, vector<XtCard>& pure2, vector<XtCard>& ds)
 {
     vector<XtCard> tmpcard;
@@ -1649,7 +1650,7 @@ void XtShuffleDeck::divideCard2(const vector<XtCard>& card2, vector<XtCard>& roc
         }
     }
 }
-        
+
 void XtShuffleDeck::divideCard1(const vector<XtCard>& card1, vector<XtCard>& pure1, vector<XtCard>& straight) 
 {
     vector<XtCard> vec1; 
@@ -1664,7 +1665,7 @@ void XtShuffleDeck::divideCard1(const vector<XtCard>& card1, vector<XtCard>& pur
     //获取连续>5张部分
     set<int> tmpface;
     getNcontinue(vec1, 5, tmpface);
-    
+
     for(vector<XtCard>::const_iterator it = card1.begin(); it != card1.end(); ++it)
     {
         if(tmpface.find((*it).m_face) == tmpface.end()) 
@@ -1761,7 +1762,7 @@ void XtShuffleDeck::delSame(const vector<XtCard>& card, vector<XtCard>& result) 
         }
     }
 }
-        
+
 void XtShuffleDeck::getNcontinue(const vector<XtCard>& card1, unsigned int n, std::set<int>& result)
 {
     if(card1.empty() || n < 2)
@@ -1784,7 +1785,7 @@ void XtShuffleDeck::getNcontinue(const vector<XtCard>& card1, unsigned int n, st
             {
                 for(set<int>::iterator it = tmpface.begin(); it != tmpface.end(); ++it)
                 {
-                   tmpds.insert(*it);  
+                    tmpds.insert(*it);  
                 }
             }
             tmpface.clear();
@@ -1794,15 +1795,15 @@ void XtShuffleDeck::getNcontinue(const vector<XtCard>& card1, unsigned int n, st
     {
         for(set<int>::iterator it = tmpface.begin(); it != tmpface.end(); ++it)
         {
-           tmpds.insert(*it);  
+            tmpds.insert(*it);  
         }
     }
 
     for(vector<XtCard>::const_iterator it = card1.begin(); it != card1.end(); ++it)
     {
-       if(tmpds.find((*it).m_face) != tmpds.end()) 
-       {
+        if(tmpds.find((*it).m_face) != tmpds.end()) 
+        {
             result.insert((*it).m_face);
-       }
+        }
     }
 }
