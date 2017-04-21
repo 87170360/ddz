@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <set>
 #include "XtShuffleDeck.h"
 
 static int card_arr[] = {
@@ -1538,6 +1537,163 @@ bool XtShuffleDeck::bigError(const vector<XtCard>& mine, const vector<XtCard>& o
     return false;
 }
 
+void XtShuffleDeck::divideCard(const vector<XtCard>& card, map<int, vector<XtCard> >& result)
+{
+    vector<XtCard> vec4;
+    keepN(vec4, card, 4);
+    result[DT_4] = vec4;
+
+    //三张组里，区分飞机和其他三张
+    vector<XtCard> vec3;
+    keepN(vec3, card, 3);
+    vector<XtCard> pure3;
+    vector<XtCard> aircraft;
+    divideCard3(vec3, pure3, aircraft);
+    result[DT_3] = pure3;
+    result[DT_AIRCRAFT] = aircraft;
+
+    //两张组里，区分火箭, 纯对子和双顺
+    vector<XtCard> vec2;
+    keepN(vec2, card, 2);
+    vector<XtCard> rocket;
+    vector<XtCard> ds;
+    vector<XtCard> pure2;
+    divideCard2(vec2, rocket, pure2, ds);
+    result[DT_2] = pure2;
+    result[DT_ROCKET] = rocket;
+    result[DT_DS] = ds;
+
+    //单张组里，区分纯单张和单顺和大小王
+    vector<XtCard> vec1;
+    keepN(vec1, card, 1);
+    vector<XtCard> jocker;
+    vector<XtCard> straight;
+    vector<XtCard> pure1;
+    divideCard1(vec1, jocker, pure1, straight);
+    result[DT_1] = pure1;
+    result[DT_STRAITHT] = straight;
+    result[DT_JOCKER] = jocker;
+}
+
+
+void XtShuffleDeck::divideCard3(const vector<XtCard>& card3, vector<XtCard>& pure3, vector<XtCard>& aircraft)
+{
+    if(card3.size() < 6)
+    {
+        pure3 = card3;
+        return;
+    }
+
+    vector<XtCard> vec1; 
+    delSame(card3, vec1);
+    if(vec1.size() < 2)
+    {
+        pure3 = card3;
+        return;
+    }
+
+    //获取连续部分
+    set<int> tmpface;
+    getNcontinue(vec1, 2, tmpface);
+
+    for(vector<XtCard>::const_iterator it = card3.begin(); it != card3.end(); ++it)
+    {
+        if(tmpface.find((*it).m_face) == tmpface.end()) 
+        {
+            pure3.push_back(*it); 
+        }
+        else
+        {
+            aircraft.push_back(*it); 
+        }
+    }
+}
+        
+void XtShuffleDeck::divideCard2(const vector<XtCard>& card2, vector<XtCard>& rocket, vector<XtCard>& pure2, vector<XtCard>& ds)
+{
+    vector<XtCard> tmpcard;
+    //获取火箭
+    for(vector<XtCard>::const_iterator it = card2.begin(); it != card2.end(); ++it)
+    {
+        if((*it).isJoker())     
+        {
+            rocket.push_back(*it);
+        }
+        else
+        {
+            tmpcard.push_back(*it);
+        }
+    }
+
+    //双顺
+    //保留单张 
+    vector<XtCard> vec1; 
+    delSame(tmpcard, vec1);
+    if(vec1.size() < 3)
+    {//数量不够, 没有双顺
+        pure2 = tmpcard;
+        return;
+    }
+
+    //获取连续3张部分
+    set<int> tmpface;
+    getNcontinue(vec1, 3, tmpface);
+
+    for(vector<XtCard>::const_iterator it = tmpcard.begin(); it != tmpcard.end(); ++it)
+    {
+        if(tmpface.find((*it).m_face) == tmpface.end()) 
+        {
+            pure2.push_back(*it); 
+        }
+        else
+        {
+            ds.push_back(*it); 
+        }
+    }
+}
+        
+void XtShuffleDeck::divideCard1(const vector<XtCard>& card1, vector<XtCard>& joker, vector<XtCard>& pure1, vector<XtCard>& straight) 
+{
+    vector<XtCard> tmpcard;
+    //获取joker
+    for(vector<XtCard>::const_iterator it = card1.begin(); it != card1.end(); ++it)
+    {
+        if((*it).isJoker())     
+        {
+            joker.push_back(*it);
+        }
+        else
+        {
+            tmpcard.push_back(*it);
+        }
+    }
+
+    vector<XtCard> vec1; 
+    delSame(tmpcard, vec1);
+    //没有单顺
+    if(vec1.size() < 5)
+    {
+        pure1 = tmpcard;
+        return;
+    }
+
+    //获取连续>5张部分
+    set<int> tmpface;
+    getNcontinue(vec1, 5, tmpface);
+    
+    for(vector<XtCard>::const_iterator it = tmpcard.begin(); it != tmpcard.end(); ++it)
+    {
+        if(tmpface.find((*it).m_face) == tmpface.end()) 
+        {
+            pure1.push_back(*it); 
+        }
+        else
+        {
+            straight.push_back(*it); 
+        }
+    }
+}
+
 void XtShuffleDeck::keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu)
 {
     result.clear();
@@ -1621,62 +1777,48 @@ void XtShuffleDeck::delSame(const vector<XtCard>& card, vector<XtCard>& result) 
         }
     }
 }
-
-void XtShuffleDeck::divideCard(const vector<XtCard>& card, map<int, vector<XtCard> >& result)
+        
+void XtShuffleDeck::getNcontinue(const vector<XtCard>& card1, unsigned int n, std::set<int>& result)
 {
-    vector<XtCard> vec4;
-    keepN(vec4, card, 4);
-    result[DT_4] = vec4;
-
-    vector<XtCard> vec3;
-    keepN(vec3, card, 3);
-
-    vector<XtCard> vec2;
-    keepN(vec2, card, 2);
-
-    vector<XtCard> vec1;
-    keepN(vec1, card, 1);
-
-    //三张组里，区分飞机和其他三张
-    //两张组里，区分火箭, 纯对子和双顺
-    //单张组里，区分纯单张和单顺和大小王
-}
-
-void XtShuffleDeck::getAircraftFrom3(const vector<XtCard>& card3, vector<XtCard>& pure3, vector<XtCard>& aircraft)
-{
-    if(card3.size() < 6)
+    if(card1.empty() || n < 2)
     {
-        pure3 = card3;
         return;
     }
-
-    vector<XtCard> vec1; 
-    delSame(card3, vec1);
-    if(vec1.size() < 2)
-    {
-        pure3 = card3;
-        return;
-    }
-
+    set<int> tmpds;
     set<int> tmpface;
-    for(size_t i = 1; i < vec1.size(); ++i)
+    for(size_t i = 1; i < card1.size(); ++i)
     {
-        if(vec1[i - 1].m_face == vec1[i].m_face + 1) 
+        if((card1[i - 1].m_face == card1[i].m_face + 1) && card1[i - 1].isContinuCard() && card1[i].isContinuCard()) 
         {
-            tmpface.insert(vec1[i - 1].m_face);    
-            tmpface.insert(vec1[i].m_face);    
-        }
-    }
-
-    for(vector<XtCard>::const_iterator it = card3.begin(); it != card3.end(); ++it)
-    {
-        if(tmpface.find((*it).m_face) == tmpface.end()) 
-        {
-            pure3.push_back(*it); 
+            tmpface.insert(card1[i - 1].m_face);    
+            tmpface.insert(card1[i].m_face);    
         }
         else
         {
-            aircraft.push_back(*it); 
+            //检查前面部分数量是否够n张 
+            if(tmpface.size() >= n)
+            {
+                for(set<int>::iterator it = tmpface.begin(); it != tmpface.end(); ++it)
+                {
+                   tmpds.insert(*it);  
+                }
+            }
+            tmpface.clear();
         }
+    }
+    if(tmpface.size() >= n)
+    {
+        for(set<int>::iterator it = tmpface.begin(); it != tmpface.end(); ++it)
+        {
+           tmpds.insert(*it);  
+        }
+    }
+
+    for(vector<XtCard>::const_iterator it = card1.begin(); it != card1.end(); ++it)
+    {
+       if(tmpds.find((*it).m_face) != tmpds.end()) 
+       {
+            result.insert((*it).m_face);
+       }
     }
 }

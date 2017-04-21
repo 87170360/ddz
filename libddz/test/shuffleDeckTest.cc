@@ -354,6 +354,15 @@ void show(const vector<XtCard>& card)
     printf("%s\n", printStr.c_str());
 }
 
+void show(const set<int> card)
+{
+    for(set<int>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        printf("%d ", *it); 
+    }
+    printf("\n");
+}
+
 void testBigPair(void)
 {
     XtShuffleDeck deck;
@@ -1218,7 +1227,7 @@ bool testGetFirst(void)
     }
 }
 
-void testGetAircraftFrom3(void)
+void testDivideCard3(void)
 {
     XtShuffleDeck deck;
     deck.fill();
@@ -1234,16 +1243,141 @@ void testGetAircraftFrom3(void)
     cards1.push_back(XtCard(0x08));
     cards1.push_back(XtCard(0x18));
     cards1.push_back(XtCard(0x28));
+    cards1.push_back(XtCard(0x0B));
+    cards1.push_back(XtCard(0x1B));
+    cards1.push_back(XtCard(0x2B));
+    cards1.push_back(XtCard(0x0A));
+    cards1.push_back(XtCard(0x1A));
+    cards1.push_back(XtCard(0x2A));
 
     XtCard::sortByDescending(cards1);
 
     vector<XtCard> pure3;
     vector<XtCard> aircraft;
-    deck.getAircraftFrom3(cards1, pure3, aircraft);
+    deck.divideCard3(cards1, pure3, aircraft);
 
-    //show(cards1);
+    show(cards1);
     show(pure3);
     show(aircraft);
+}
+
+void testDivideCard2(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x17));
+    cards1.push_back(XtCard(0x37));
+    cards1.push_back(XtCard(0x19));
+    cards1.push_back(XtCard(0x39));
+    cards1.push_back(XtCard(0x00));
+    cards1.push_back(XtCard(0x10));
+
+    XtCard::sortByDescending(cards1);
+
+    vector<XtCard> rocket;
+    vector<XtCard> ds;
+    vector<XtCard> pure2;
+
+    deck.divideCard2(cards1, rocket, pure2, ds);
+    show(cards1);
+    show(rocket);
+    show(pure2);
+    show(ds);
+}
+
+void testDivideCard1(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x17));
+    cards1.push_back(XtCard(0x18));
+    cards1.push_back(XtCard(0x19));
+    cards1.push_back(XtCard(0x1B));
+    cards1.push_back(XtCard(0x00));
+
+    XtCard::sortByDescending(cards1);
+
+    vector<XtCard> jocker;
+    vector<XtCard> straight;
+    vector<XtCard> pure1;
+
+    deck.divideCard1(cards1, jocker, pure1, straight);
+    show(cards1);
+    show(jocker);
+    show(pure1);
+    show(straight);
+}
+
+void testGetNContinue(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x02));
+    cards1.push_back(XtCard(0x03));
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x0A));
+
+    XtCard::sortByDescending(cards1);
+
+    set<int> result;
+    deck.getNcontinue(cards1, 2, result);
+
+    show(cards1);
+    show(result);
+}
+
+const char* g_ctDesc[] = 
+{ 
+    "DT_4",            
+    "DT_3",            
+    "DT_2",            
+    "DT_1",            
+    "DT_ROCKET",            
+    "DT_JOCKER",
+    "DT_STRAITHT",
+    "DT_DS",
+    "DT_AIRCRAFT",
+};
+void testDivideCard(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    deck.getHoleCards(cards1, 17);
+    XtCard::sortByDescending(cards1);
+
+    map<int, vector<XtCard> > result;
+    deck.divideCard(cards1, result);
+
+    show(cards1);
+    printf("size:%d\n", cards1.size());
+
+    int size = 0;
+    for(map<int, vector<XtCard> >::const_iterator it = result.begin(); it != result.end(); ++it)
+    {
+        printf("%s\n", g_ctDesc[it->first]);
+        show(it->second);
+        size += it->second.size();
+    }
+    printf("size:%d\n", size);
 }
 
 /*
@@ -1283,7 +1417,11 @@ int main()
     //testGetOut();
     //testGetBottomDouble();
     //testGetFirst();
-    testGetAircraftFrom3();
+    //testDivideCard3();
+    //testDivideCard2();
+    //testDivideCard1();
+    testDivideCard();
+    //testGetNContinue();
     //while(1)
     {
         //if(testBigStraight()) { break; };

@@ -3,6 +3,7 @@
 
 #include "XtCard.h"
 #include "XtHoleCards.h"
+#include <set>
 
 class XtShuffleDeck
 {
@@ -80,20 +81,26 @@ class XtShuffleDeck
         bool bigBomb(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
         bool bigRocket(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
         bool bigError(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out);
-        
+
+        //按牌型划分, 传入card需降序, key = DivideType
+        void divideCard(const vector<XtCard>& card, map<int, vector<XtCard> >& result);
+        //三张组里，区分飞机和其他三张, card3降序, aircraft 是可以组成飞机的牌，比如333444777888 333444555
+        void divideCard3(const vector<XtCard>& card3, vector<XtCard>& pure3, vector<XtCard>& aircraft);
+        //两张组里，区分火箭, 纯对子和双顺, card2降序, ds是可以组成双顺的牌，比如 334455778899 33445566
+        void divideCard2(const vector<XtCard>& card2, vector<XtCard>& rocket, vector<XtCard>& pure2, vector<XtCard>& ds);
+        //单张组里，区分纯单张和单顺和大小王 card1降序
+        void divideCard1(const vector<XtCard>& card1, vector<XtCard>& joker, vector<XtCard>& pure1, vector<XtCard>& straight); 
 
         //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
-        //是否是连续, 需要降序队列, 不判断n之间是否相同, n是连续相隔的数量，比如777888,n=2,  789,n=1
+        //是否是连续, 需要降序队列, 不判断n之间是否相同, n是连续相隔的数量, 不包括大小王和2, 比如777888,n=2,  789,n=1
         bool isNContinue(const vector<XtCard>& card, int n) const;
         //比较M带N牌型
         bool compareMN(const vector<XtCard>& card, const vector<XtCard>& card1, int m);
         //整合所有相同的牌
         void delSame(const vector<XtCard>& card, vector<XtCard>& result) const;
-        //按牌型划分, 传入card需降序, key = DivideType
-        void divideCard(const vector<XtCard>& card, map<int, vector<XtCard> >& result);
-        //从三张相同的组合里区分飞机
-        void getAircraftFrom3(const vector<XtCard>& card3, vector<XtCard>& pure3, vector<XtCard>& aircraft);
+        //从单张的牌组中取至少连续N张的部分, n>=2, 各部分不一定连续，card降序且单牌队列, 不包括大小王和2, 比如n=3 345 789 , n=2 34 78
+        void getNcontinue(const vector<XtCard>& card1, unsigned int n, std::set<int>& result);
 
 	private:
 		vector<XtCard> m_cards;
