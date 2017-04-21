@@ -1309,13 +1309,11 @@ void testDivideCard1(void)
 
     XtCard::sortByDescending(cards1);
 
-    vector<XtCard> jocker;
     vector<XtCard> straight;
     vector<XtCard> pure1;
 
-    deck.divideCard1(cards1, jocker, pure1, straight);
+    deck.divideCard1(cards1, pure1, straight);
     show(cards1);
-    show(jocker);
     show(pure1);
     show(straight);
 }
@@ -1349,7 +1347,6 @@ const char* g_ctDesc[] =
     "DT_2",            
     "DT_1",            
     "DT_ROCKET",            
-    "DT_JOCKER",
     "DT_STRAITHT",
     "DT_DS",
     "DT_AIRCRAFT",

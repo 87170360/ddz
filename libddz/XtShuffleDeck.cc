@@ -1563,16 +1563,14 @@ void XtShuffleDeck::divideCard(const vector<XtCard>& card, map<int, vector<XtCar
     result[DT_ROCKET] = rocket;
     result[DT_DS] = ds;
 
-    //单张组里，区分纯单张和单顺和大小王
+    //单张组里，区分纯单张和单顺
     vector<XtCard> vec1;
     keepN(vec1, card, 1);
-    vector<XtCard> jocker;
     vector<XtCard> straight;
     vector<XtCard> pure1;
-    divideCard1(vec1, jocker, pure1, straight);
+    divideCard1(vec1, pure1, straight);
     result[DT_1] = pure1;
     result[DT_STRAITHT] = straight;
-    result[DT_JOCKER] = jocker;
 }
 
 
@@ -1652,28 +1650,14 @@ void XtShuffleDeck::divideCard2(const vector<XtCard>& card2, vector<XtCard>& roc
     }
 }
         
-void XtShuffleDeck::divideCard1(const vector<XtCard>& card1, vector<XtCard>& joker, vector<XtCard>& pure1, vector<XtCard>& straight) 
+void XtShuffleDeck::divideCard1(const vector<XtCard>& card1, vector<XtCard>& pure1, vector<XtCard>& straight) 
 {
-    vector<XtCard> tmpcard;
-    //获取joker
-    for(vector<XtCard>::const_iterator it = card1.begin(); it != card1.end(); ++it)
-    {
-        if((*it).isJoker())     
-        {
-            joker.push_back(*it);
-        }
-        else
-        {
-            tmpcard.push_back(*it);
-        }
-    }
-
     vector<XtCard> vec1; 
-    delSame(tmpcard, vec1);
+    delSame(card1, vec1);
     //没有单顺
     if(vec1.size() < 5)
     {
-        pure1 = tmpcard;
+        pure1 = card1;
         return;
     }
 
@@ -1681,7 +1665,7 @@ void XtShuffleDeck::divideCard1(const vector<XtCard>& card1, vector<XtCard>& jok
     set<int> tmpface;
     getNcontinue(vec1, 5, tmpface);
     
-    for(vector<XtCard>::const_iterator it = tmpcard.begin(); it != tmpcard.end(); ++it)
+    for(vector<XtCard>::const_iterator it = card1.begin(); it != card1.end(); ++it)
     {
         if(tmpface.find((*it).m_face) == tmpface.end()) 
         {

@@ -88,8 +88,8 @@ class XtShuffleDeck
         void divideCard3(const vector<XtCard>& card3, vector<XtCard>& pure3, vector<XtCard>& aircraft);
         //两张组里，区分火箭, 纯对子和双顺, card2降序, ds是可以组成双顺的牌，比如 334455778899 33445566
         void divideCard2(const vector<XtCard>& card2, vector<XtCard>& rocket, vector<XtCard>& pure2, vector<XtCard>& ds);
-        //单张组里，区分纯单张和单顺和大小王 card1降序
-        void divideCard1(const vector<XtCard>& card1, vector<XtCard>& joker, vector<XtCard>& pure1, vector<XtCard>& straight); 
+        //单张组里，区分纯单张和单顺 card1降序
+        void divideCard1(const vector<XtCard>& card1, vector<XtCard>& pure1, vector<XtCard>& straight); 
 
         //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);

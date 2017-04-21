@@ -30,10 +30,9 @@ enum DivideType
     DT_2                    = 2,            
     DT_1                    = 3,            
     DT_ROCKET               = 4,            
-    DT_JOCKER               = 5,            //joker
-    DT_STRAITHT             = 6,            //单顺
-    DT_DS                   = 7,            //双顺 
-    DT_AIRCRAFT             = 8,            //三顺
+    DT_STRAITHT             = 5,            //单顺
+    DT_DS                   = 6,            //双顺 
+    DT_AIRCRAFT             = 7,            //三顺
 };
 
 #endif /* _CARD_TYPE_H_ */
