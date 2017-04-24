@@ -331,7 +331,43 @@ bool XtShuffleDeck::getOut(const vector<XtCard>& mine, const vector<XtCard>& oth
         return false;
     }
 
-    return (this->*(it->second))(mine, other, result);
+    //找到更大牌型
+    bool findbig = (this->*(it->second))(mine, other, result);
+
+    //对方出的是特殊牌
+    if(cardtype == CT_BOMB || cardtype == CT_ROCKET)
+    {
+        return findbig; 
+    }
+
+    //找特殊牌型
+    map<int, vector<XtCard> > divide;
+    divideCard(mine, divide); 
+    bool findbomb = !divide[DT_4].empty(); 
+    bool findrocket = !divide[DT_ROCKET].empty(); 
+    bool findSingle = divide[DT_1].size() > 3;
+
+    if((findbomb && findbig && rand() % 2 > 0) || (!findbig && findbomb))
+    {
+       if(!findSingle)  
+       {
+           result.clear();
+           result.assign(divide[DT_4].rbegin(), divide[DT_4].rbegin() + 4); 
+           return true;
+       }
+    }
+
+    if((findrocket && findbig && rand() % 2 > 0) || (!findbig && findrocket))
+    {
+       if(!findSingle)  
+       {
+           result.clear();
+           result.assign(divide[DT_ROCKET].begin(), divide[DT_ROCKET].end()); 
+           return true;
+       }
+    }
+            
+    return findbig;
 }
 
 bool XtShuffleDeck::getFirst(const vector<XtCard>& mine, vector<XtCard>& result)

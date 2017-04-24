@@ -342,8 +342,9 @@ void testCompareAircraft(void)
 }
 
 static string printStr;
-void show(const vector<XtCard>& card)
+void show(const vector<XtCard>& card, const char* desc = NULL)
 {
+    printf("%s\n", desc);
     printStr.clear();
     for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
@@ -351,11 +352,12 @@ void show(const vector<XtCard>& card)
         printStr.append(it->getCardDescriptionString());
         printStr.append(" ");
     }
-    printf("%s\n", printStr.c_str());
+    printf("   %s\n", printStr.c_str());
 }
 
-void show(const set<int> card)
+void show(const set<int> card, const char* desc = NULL)
 {
+    printf("%s\n", desc);
     for(set<int>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
         printf("%d ", *it); 
@@ -1009,36 +1011,68 @@ bool testGetOut(void)
     deck.shuffle(timeindex++);
 
     vector<XtCard> cards1;
-    cards1.push_back(XtCard(0x10));
-    deck.delCard(cards1, timeindex);
+    //cards1.push_back(XtCard(0x03));
+    //cards1.push_back(XtCard(0x13));
+    //cards1.push_back(XtCard(0x23));
+    //cards1.push_back(XtCard(0x33));
+    //deck.delCard(cards1, timeindex);
+    deck.getHoleCards(cards1, 17 - cards1.size());
 
-    XtCard initCard2[] = { 
-        XtCard(0x00), 
-    };
-    vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
-
+    vector<XtCard> cards2;
+    /*
+    cards2.push_back(XtCard(0x04));
+    cards2.push_back(XtCard(0x14));
+    cards2.push_back(XtCard(0x24));
+    cards2.push_back(XtCard(0x34));
     deck.delCard(cards2, timeindex);
-
-    //deck.getHoleCards(cards1, 17 - cards1.size());
+    */
+    deck.getHoleCards(cards2, 20 - cards2.size());
 
     XtCard::sortByDescending(cards1);
     XtCard::sortByDescending(cards2);
 
-    show(cards1);
-    show(cards2);
+    vector<XtCard> firstcard;
+    deck.getFirst(cards2, firstcard);
+    XtCard::sortByDescending(firstcard);
+
+    show(cards1, "cards1");
+    show(cards2, "cards2");
+    show(firstcard, "firstcard");
+
     vector<XtCard> result;
-    if(deck.getOut(cards1, cards2, result))
+    if(deck.getOut(cards1, firstcard, result))
     {
-        printf("true!\n");
-        show(result);
-        return true;
+        printf("follow!\n");
+        if(result.empty())
+        {
+            printf("error!\n");
+            show(result, "result");
+            return false;
+        }
     }
     else
     {
-        printf("false!\n");
-        show(result);
+        printf("unfollow!\n");
+        if(!result.empty())
+        {
+            printf("error!\n");
+            show(result, "result");
+            return false;
+        }
+    }
+
+    if(!result.empty())
+    {
+        show(result, "result");
+    }
+
+    if(!result.empty() && deck.getCardType(result) == CT_ERROR)
+    {
+        printf("error type!\n");
         return false;
     }
+    
+    return true;
 }
 
 int testGetBottomDouble(void)
@@ -1386,7 +1420,12 @@ void testVector(void)
     vec1.assign(data, data + sizeof(vec1) / sizeof(int));
 
     vector<int> vec2;
-    vec2.assign(vec1.rbegin(), vec1.rbegin() + 1);
+    vec2.push_back(999);
+    vec2.assign(vec1.rbegin(), vec1.rbegin() + 3);
+    for(size_t i = 0; i < vec2.size(); ++i)
+    {
+        printf("%d", vec2[i]);
+    }
 }
 
 /*
@@ -1445,9 +1484,9 @@ int main()
         //if(testBigShuttle2()) { break; }
         //if(testBigShuttle0()) { break; }
         //if(testBigBomb()) { break; }
-        //if(testGetOut()) { break; }
+        if(!testGetOut()) { break; }
         //if(!testCreateCard()) { break; }
-        if(!testGetFirst()) { break; }
+        //if(!testGetFirst()) { break; }
     }
     return 0;
 }
