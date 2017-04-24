@@ -23,9 +23,11 @@
 #include "XtHoleCards.h"
 #include "jpacket.h"
 
-const unsigned int SEAT_NUM          = 3;
-const unsigned int HAND_CARD_NUM     = 17;
-const unsigned int BOTTON_CARD_NUM     = 3;
+static const unsigned int SEAT_NUM          = 3;
+static const unsigned int HAND_CARD_NUM     = 17;
+static const unsigned int BOTTON_CARD_NUM   = 3;
+//托管出牌定时
+static const unsigned int ENTRUST_OUT_TIME  = 2;
 
 class Player;
 class Client;
@@ -56,6 +58,8 @@ class Table
         void onKick(void);
         static void updateCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onUpdate(void);
+        static void entrustOutCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+        void onEntrustOut(void);
         /////////////////////////////////////////////////////////////////////////////
 
         //receive msg
@@ -228,6 +232,7 @@ class Table
         ev_timer                    m_timerOut;                     //出牌
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
         ev_timer                    m_timerUpdate;                  //更新倒计时
+        ev_timer                    m_timerEntrustOut;              //托管出牌定时器
 
         vector<Player*>             m_delPlayer;
 };

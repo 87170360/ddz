@@ -39,6 +39,9 @@ Table::Table()
 
     m_timerUpdate.data = this;
     ev_timer_init(&m_timerUpdate, Table::updateCB, ev_tstamp(hlddz.game->UPDATETIME), ev_tstamp(hlddz.game->UPDATETIME));
+
+    m_timerEntrustOut.data = this;
+    ev_timer_init(&m_timerEntrustOut, Table::entrustOutCB, ev_tstamp(ENTRUST_OUT_TIME), ev_tstamp(ENTRUST_OUT_TIME));
 }
 
 Table::~Table()
@@ -48,6 +51,7 @@ Table::~Table()
     ev_timer_stop(hlddz.loop, &m_timerOut);
     ev_timer_stop(hlddz.loop, &m_timerKick);
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
+    ev_timer_stop(hlddz.loop, &m_timerEntrustOut);
 }
 
 int Table::init(int tid)
@@ -97,6 +101,7 @@ void Table::reset(void)
     ev_timer_stop(hlddz.loop, &m_timerOut);
     ev_timer_stop(hlddz.loop, &m_timerKick);
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
+    ev_timer_stop(hlddz.loop, &m_timerEntrustOut);
 }
 
 int Table::broadcast(Player *p, const std::string &packet)
@@ -310,6 +315,18 @@ void Table::onUpdate(void)
     {
         sendTime();
     }
+}
+
+void Table::entrustOutCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(hlddz.loop, &table->m_timerEntrustOut);
+    table->onEntrustOut();
+}
+
+void Table::onEntrustOut(void)
+{
+    entrustOut();
 }
 
 int Table::login(Player *player)
@@ -1044,7 +1061,7 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                 {
                     ev_timer_stop(hlddz.loop, &m_timerOut);
                 }
-                entrustOut();
+                ev_timer_again(hlddz.loop, &m_timerEntrustOut);
             }
             break;
     }
