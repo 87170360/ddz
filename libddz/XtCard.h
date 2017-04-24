@@ -97,6 +97,11 @@ class XtCard
         {
             return m_face == 16; 
         }
+
+        bool isBigJoker(void) const
+        {
+            return (m_value == 0x10);
+        }
 };
 
 #endif /* _CARD_H_ */

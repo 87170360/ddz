@@ -927,6 +927,12 @@ bool XtShuffleDeck::bigSingle(const vector<XtCard>& mine, const vector<XtCard>& 
 {
     for(vector<XtCard>::const_reverse_iterator it = mine.rbegin(); it != mine.rend(); ++it)
     {
+        //大小王比较
+        if((*it).isBigJoker())
+        {
+            out.push_back(*it);
+            return true;
+        }
         if((*it).m_face > other[0].m_face) 
         {
             out.push_back(*it);
