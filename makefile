@@ -5,6 +5,7 @@ build:
 	make -C libbull  
 	make -C libzjh  
 	make -C libddz  
+	make -C liblzddz  
 	make -C normal_bull 
 	make -C normal_robot
 	make -C grab_bull
@@ -21,6 +22,7 @@ clean :
 	make -C grab_robot clean
 	make -C libzjh  clean
 	make -C libddz  clean
+	make -C liblzddz  clean
 	make -C zjhsvr clean 
 	make -C hlddz clean 
 	make -C hlddz_robot clean 

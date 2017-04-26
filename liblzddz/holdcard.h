@@ -2,6 +2,7 @@
 #define _HOLDCARD_H_
 
 #include <vector>
+#include <map>
 #include <algorithm>
 
 #include "card.h"
@@ -14,8 +15,9 @@ class Holdcard
 		Holdcard(void);
 		~Holdcard(void);
 	public:
-        //key : Card value
-		std::map<int, Card> m_cards;
+		vector<Card> m_cards;
+        //分组牌, key : DT_TYPE
+		std::map<int, Card> m_divide;
 };
 
 #endif /* _HOLDCARDS_H_ */
