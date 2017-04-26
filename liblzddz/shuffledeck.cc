@@ -22,6 +22,7 @@ static const int CARD_NUM = 54;
 
 Shuffledeck::Shuffledeck(void) : m_lz(-1)
 {
+    initCompare();
 }
 
 Shuffledeck::~Shuffledeck(void)
@@ -120,6 +121,644 @@ void Shuffledeck::divide(const vector<Card>& card, map<int, vector<Card> >& resu
     divideCard1(vec1, pure1, straight);
     result[DT_1] = pure1;
     result[DT_STRAITHT] = straight;
+}
+        
+int Shuffledeck::getCardType(const vector<Card>& card)
+{
+    if(isRocket(card))
+    {
+        return CT_ROCKET;
+    }
+
+    if(isBomb(card))
+    {
+        return CT_BOMB;
+    }
+
+    if(isShuttle0(card))
+    {
+        return CT_SHUTTLE_0;
+    }
+
+    if(isShuttle2(card))
+    {
+        return CT_SHUTTLE_2;
+    }
+
+    if(isAircraft0(card))
+    {
+        return CT_AIRCRAFT_0;
+    }
+
+    if(isAircraft1(card))
+    {
+        return CT_AIRCRAFT_1;
+    }
+
+    if(isAircraft2s(card))
+    {
+        return CT_AIRCRAFT_2S;
+    }
+
+    if(is4and22s(card))
+    {
+        return CT_4AND2_2S;
+    }
+
+    if(is4and22d(card))
+    {
+        return CT_4AND2_2D;
+    }
+
+    if(is4and24(card))
+    {
+        return CT_4AND2_4;
+    }
+
+    if(isDoubleStraight(card))
+    {
+        return CT_DOUBLE_STRAIGHT;
+    }
+
+    if(isStraight(card))
+    {
+        return CT_STRAIGHT;
+    }
+
+    if(isThree0(card))
+    {
+        return CT_THREE_0;
+    }
+
+    if(isThree1(card))
+    {
+        return CT_THREE_1;
+    }
+
+    if(isThree2s(card))
+    {
+        return CT_THREE_2S;
+    }
+
+    if(isPair(card))
+    {
+        return CT_PAIR;
+    }
+
+    if(isSingle(card))
+    {
+        return CT_SINGLE;
+    }
+
+    return CT_ERROR;
+}
+        
+bool Shuffledeck::compare(const vector<Card>& card1, const vector<Card>& card2)
+{
+    //跨类型比较
+    int type1 = getCardType(card1);
+    if(type1 == CT_ROCKET)
+    {
+        return true;
+    }
+
+    int type2 = getCardType(card2);
+    if(type1 == CT_BOMB && type2 != CT_BOMB && type2 != CT_ROCKET)
+    {
+        return true;
+    }
+
+    if(type1 != type2)
+    {
+        return false;
+    }
+
+    //同类型比较
+    map<int, pComparefun>::const_iterator it = m_fun_compare.find(type1);
+    if(it == m_fun_compare.end())
+    {
+        printf("not found compare function!, cardtype:%d", type1);
+        return false;
+    }
+
+    return (this->*(it->second))(card1, card2);
+}
+
+bool Shuffledeck::isRocket(const vector<Card>& card) const
+{
+    if(card.size() != 2)
+    {
+        return false;
+    }
+
+    if(card[0].m_face == card[1].m_face && card[0].m_face == 16)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool Shuffledeck::isBomb(const vector<Card>& card) const
+{
+    if(card.size() != 4)
+    {
+        return false;
+    }
+
+    if(card[0].m_face == card[1].m_face && card[1].m_face == card[2].m_face && card[2].m_face == card[3].m_face)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool Shuffledeck::isShuttle0(const vector<Card>& card)
+{
+    if(card.size() < 8 || card.size() > 20)
+    {
+        return false;
+    }
+
+    if((card.size() % 4 != 0))
+    {
+        return false;
+    }
+
+    //取出全4的组合
+    vector<Card> vecFour;
+    keepN(vecFour, card, 4);
+
+    if(vecFour.empty())
+    {
+        return false;
+    }
+
+    //翼数量
+    unsigned int wingNu = card.size() - vecFour.size(); 
+    if(wingNu != 0)
+    {
+        return false;
+    }
+
+    //是否连续
+    if(!isNContinue(vecFour, 4))
+    {
+        return false;  
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isShuttle2(const vector<Card>& card)
+{
+    if(card.size() < 12 || card.size() > 20)
+    {
+        return false;
+    }
+
+    if((card.size() % 6 != 0))
+    {
+        return false;
+    }
+
+    //取出全4的组合
+    vector<Card> vecFour;
+    keepN(vecFour, card, 4);
+
+    if(vecFour.empty())
+    {
+        return false;
+    }
+
+    //翼数量
+    unsigned int wingNu = card.size() - vecFour.size(); 
+    if(wingNu * 2 != vecFour.size())
+    {
+        return false;
+    }
+
+    //是否连续
+    if(!isNContinue(vecFour, 4))
+    {
+        return false;  
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isAircraft0(const vector<Card>& card)
+{
+    if(card.size() < 6 || card.size() > 18)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<Card> vecThree;
+    keepN(vecThree, card, 3);
+
+    if(vecThree.empty())
+    {
+        return false;
+    }
+
+    //翼数量 0 
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if(wingNu != 0)
+    {
+        return false;
+    }
+
+    //是否连续
+    if(!isNContinue(vecThree, 3))
+    {
+        return false;  
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isAircraft1(const vector<Card>& card)
+{
+    if(card.size() < 8 || card.size() > 20)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<Card> vecThree;
+    keepN(vecThree, card, 3);
+
+    if(vecThree.empty())
+    {
+        return false;
+    }
+
+    //翼数量 1 
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if(wingNu * 3 != vecThree.size())
+    {
+        return false;
+    }
+
+    //是否连续
+    if(!isNContinue(vecThree, 3))
+    {
+        return false;  
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isAircraft2s(const vector<Card>& card)
+{
+    if(card.size() < 10 || card.size() > 20)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<Card> vecThree;
+    keepN(vecThree, card, 3);
+
+    if(vecThree.empty())
+    {
+        return false;
+    }
+
+    //是否连续
+    if(!isNContinue(vecThree, 3))
+    {
+        return false;  
+    }
+
+    //翼和飞机比例
+    vector<Card> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    if(vecTwo.size() + vecThree.size() != card.size())
+    {
+        return false;
+    }
+
+    if(vecTwo.size() * 3 == vecThree.size() * 2)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool Shuffledeck::is4and22s(const vector<Card>& card)
+{
+    if(card.size() != 6)
+    {
+        return false;
+    }
+
+    //取出全4的组合
+    vector<Card> vecFour;
+    keepN(vecFour, card, 4);
+
+    //取出全2的组合
+    vector<Card> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    if(vecFour.empty() || vecTwo.empty())
+    {
+        return false;
+    }
+
+    //翼比例
+    if(vecFour.size() == vecTwo.size() * 2)
+    {
+        return true; 
+    }
+
+    return false;
+}
+
+bool Shuffledeck::is4and22d(const vector<Card>& card)
+{
+    if(card.size() != 6)
+    {
+        return false;
+    }
+
+    //取出全4的组合
+    vector<Card> vecFour;
+    keepN(vecFour, card, 4);
+
+    //取出全1的组合
+    vector<Card> vecOne;
+    keepN(vecOne, card, 1);
+
+    if(vecFour.empty() || vecOne.size() < 2)
+    {
+        return false;
+    }
+
+    //翼比例
+    if(vecFour.size() == vecOne.size() * 2)
+    {
+        return true; 
+    }
+
+    return false;
+}
+
+bool Shuffledeck::is4and24(const vector<Card>& card)
+{
+    if(card.size() != 8)
+    {
+        return false;
+    }
+
+    //取出全4的组合
+    vector<Card> vecFour;
+    keepN(vecFour, card, 4);
+
+    //取出全2的组合
+    vector<Card> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    if(vecFour.empty() || vecTwo.empty())
+    {
+        return false;
+    }
+
+    //翼比例
+    if(vecFour.size() == vecTwo.size())
+    {
+        return true; 
+    }
+
+    return false;
+}
+
+bool Shuffledeck::isDoubleStraight(const vector<Card>& card) 
+{
+    if(card.size() < 6 || card.size() > 20)
+    {
+        return false;
+    }
+
+    //取出全2的组合
+    vector<Card> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    if(vecTwo.size() != card.size())
+    {
+        return false; 
+    }
+
+    //连续
+    if(isNContinue(vecTwo, 2))
+    {
+        return true; 
+    }
+
+    return false;
+}
+
+bool Shuffledeck::isStraight(const vector<Card>& card)
+{
+    if(card.size() < 5 || card.size() > 12)
+    {
+        return false;
+    }
+
+    //取出全1的组合
+    vector<Card> vecOne;
+    keepN(vecOne, card, 1);
+
+    if(vecOne.size() != card.size())
+    {
+        return false; 
+    }
+
+    //连续
+    if(isNContinue(vecOne, 1))
+    {
+        return true; 
+    }
+
+    return false;
+}
+
+bool Shuffledeck::isThree0(const vector<Card>& card)
+{
+    if(card.size() != 3)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<Card> vecThree;
+    keepN(vecThree, card, 3);
+
+    if(vecThree.empty())
+    {
+        return false;
+    }
+
+    //翼数量 0
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if(wingNu != 0)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isThree1(const vector<Card>& card)
+{
+    if(card.size() != 4)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<Card> vecThree;
+    keepN(vecThree, card, 3);
+
+    if(vecThree.empty())
+    {
+        return false;
+    }
+
+    //翼数量 0
+    unsigned int wingNu = card.size() - vecThree.size(); 
+    if(wingNu != 1)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isThree2s(const vector<Card>& card)
+{
+    if(card.size() != 5)
+    {
+        return false;
+    }
+
+    //取出全3的组合
+    vector<Card> vecThree;
+    keepN(vecThree, card, 3);
+    //取出全2的组合
+    vector<Card> vecTwo;
+    keepN(vecTwo, card, 2);
+
+    if(vecThree.empty())
+    {
+        return false;
+    }
+
+    if(vecThree.size() + vecTwo.size() != card.size())
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isPair(const vector<Card>& card)
+{
+    if(card.size() != 2)
+    {
+        return false;
+    }
+
+    if(card[0].m_face != card[1].m_face)
+    {
+        return false;
+    }
+
+    if(card[0].isJoker())
+    {
+        return false; 
+    }
+
+    return true;
+}
+
+bool Shuffledeck::isSingle(const vector<Card>& card) const
+{
+    return card.size() == 1;
+}
+
+bool Shuffledeck::compareBomb(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    //各为软硬
+    bool soft1 = isLZ(card1);
+    bool soft2 = isLZ(card2);
+
+    if(soft1 && !soft2)
+    {
+        return false;
+    }
+
+    if(!soft1 && soft2)
+    {
+        return true;
+    }
+
+    //同时为软或硬
+    return card1[0].m_face > card2[0].m_face;
+}
+
+bool Shuffledeck::compareShuttle(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    return compareMN(card1, card2, 4);
+}
+
+bool Shuffledeck::compareAircraft(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    return compareMN(card1, card2, 3);
+}
+
+bool Shuffledeck::compare4and2(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    return compareMN(card1, card2, 4);
+}
+
+bool Shuffledeck::compareDoubleStraight(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    return compareMN(card1, card2, 2);
+}
+
+bool Shuffledeck::compareStraight(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    if(card1.size() != card2.size())
+    {
+        return false;
+    }
+
+    return card1[0].m_face > card2[0].m_face;
+}
+
+bool Shuffledeck::compareThree(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    return compareMN(card1, card2, 3);
+}
+
+bool Shuffledeck::comparePair(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    return card1[0].m_face > card2[0].m_face;
+}
+
+bool Shuffledeck::compareSingle(const vector<Card>& card1, const vector<Card>& card2)        
+{
+    if(card1[0].m_face == 16 && card2[0].m_face == 16)
+    {
+        return card1[0].m_value > card2[0].m_value;
+    }
+    return card1[0].m_face > card2[0].m_face;
 }
 
 void Shuffledeck::keepN(vector<Card>& result, const vector<Card>& card, int nu)
@@ -248,7 +887,7 @@ void Shuffledeck::divideCard1(const vector<Card>& card1, vector<Card>& pure1, ve
 
 void Shuffledeck::delSame(const vector<Card>& card, vector<Card>& result) const
 {
-    std::set<int> setdata;
+    set<int> setdata;
     for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
         if(setdata.find(it->m_face) == setdata.end())
@@ -259,7 +898,7 @@ void Shuffledeck::delSame(const vector<Card>& card, vector<Card>& result) const
     }
 }
 
-void Shuffledeck::getNcontinue(const vector<Card>& card1, unsigned int n, std::set<int>& result)
+void Shuffledeck::getNcontinue(const vector<Card>& card1, unsigned int n, set<int>& result)
 {
     if(card1.empty() || n < 2)
     {
@@ -302,4 +941,87 @@ void Shuffledeck::getNcontinue(const vector<Card>& card1, unsigned int n, std::s
             result.insert((*it).m_face);
         }
     }
+}
+
+bool Shuffledeck::isNContinue(const vector<Card>& card, int n) const
+{
+    if(card.size() % n != 0)
+    {
+        return false;
+    }
+
+    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        //大小王和2不能算
+        if(!it->isContinuCard())
+        {
+            return false;
+        }
+    }
+
+    for(size_t i = 0; i + n < card.size(); i += n)
+    {
+        if(card[i].m_face != card[i + n].m_face + 1)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Shuffledeck::compareMN(const vector<Card>& card1, const vector<Card>& card2, int m) 
+{
+    if(card1.size() != card2.size())
+    {
+        return false;
+    }
+
+    vector<Card> card1keep;
+    vector<Card> card2keep;
+    keepN(card1keep, card1, m);
+    keepN(card2keep, card2, m);
+
+    if(card1keep.size() != card2keep.size())
+    {
+        return false;
+    }
+
+    if(card1keep[0].m_face > card2keep[0].m_face)
+    {
+        return true; 
+    }
+
+    return false;
+}
+        
+void Shuffledeck::initCompare(void)
+{
+    m_fun_compare[CT_BOMB]               = &Shuffledeck::compareBomb;
+    m_fun_compare[CT_SHUTTLE_0]          = &Shuffledeck::compareShuttle;
+    m_fun_compare[CT_SHUTTLE_2]          = &Shuffledeck::compareShuttle;
+    m_fun_compare[CT_AIRCRAFT_0]         = &Shuffledeck::compareAircraft;
+    m_fun_compare[CT_AIRCRAFT_1]         = &Shuffledeck::compareAircraft;
+    m_fun_compare[CT_AIRCRAFT_2S]        = &Shuffledeck::compareAircraft;
+    m_fun_compare[CT_4AND2_2S]           = &Shuffledeck::compare4and2;
+    m_fun_compare[CT_4AND2_2D]           = &Shuffledeck::compare4and2;
+    m_fun_compare[CT_4AND2_4]            = &Shuffledeck::compare4and2;
+    m_fun_compare[CT_DOUBLE_STRAIGHT]    = &Shuffledeck::compareDoubleStraight;
+    m_fun_compare[CT_STRAIGHT]           = &Shuffledeck::compareStraight;
+    m_fun_compare[CT_THREE_0]            = &Shuffledeck::compareThree;
+    m_fun_compare[CT_THREE_1]            = &Shuffledeck::compareThree;
+    m_fun_compare[CT_THREE_2S]           = &Shuffledeck::compareThree;
+    m_fun_compare[CT_PAIR]               = &Shuffledeck::comparePair;
+    m_fun_compare[CT_SINGLE]             = &Shuffledeck::compareSingle;
+}
+        
+bool Shuffledeck::isLZ(const vector<Card>& card)
+{
+    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        if(it->isLZ()) 
+        {
+            return true;
+        }
+    }
+    return false;
 }

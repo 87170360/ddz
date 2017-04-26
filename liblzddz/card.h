@@ -52,10 +52,15 @@ class Card
 			return 0;
 		}
 
+        bool isLZ(void) const;
+
 	public:
+        //有效量
 		int m_face;
 		int m_suit;
 		int m_value;
+        //原有量, 表示癞子牌原来的数值
+        int m_oldface;
 
 	public:
 		static bool lesserCallback(const Card &a, const Card &b)

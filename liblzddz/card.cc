@@ -28,6 +28,7 @@ static string m_suit_symbols[] = {
 Card::Card()
 {
 	m_face = m_suit = m_value = 0;
+    m_oldface = m_face;
 }
 
 Card::Card(int val)
@@ -45,6 +46,7 @@ Card::Card(int val)
 	{
 		m_face += 13;
 	}
+    m_oldface = m_face;
 }
 
 void Card::setValue(int val)
@@ -62,7 +64,7 @@ void Card::setValue(int val)
 	{
 		m_face += 13;
 	}
-
+    m_oldface = m_face;
 	// printf("Face[%d] Suit[%d]\n", m_face, m_suit);	
 }
 
@@ -110,4 +112,9 @@ void Card::dumpCards(std::map<int, Card> &m, string str)
 	}
 
 	fprintf(stdout, "]]\n");
+}
+        
+bool Card::isLZ(void) const
+{
+    return m_oldface != m_face;
 }
