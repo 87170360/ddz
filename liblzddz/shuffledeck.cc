@@ -18,11 +18,25 @@ static const int CARD_ARR[] = {
     0x0D, 0x1D, 0x2D, 0x3D,		//K 13
 };
 
+//出牌权重
+static const int DT_WEIGHT[] = 
+{
+    10,          //DT_4
+    100,         //DT_3
+    100,         //DT_2
+    100,         //DT_1
+    2,           //DT_ROCKET
+    100,         //DT_STRAITHT
+    100,         //DT_DS
+    50,          //DT_AIRCRAFT
+};
+
 static const int CARD_NUM = 54;
 
 Shuffledeck::Shuffledeck(void) : m_lz(-1)
 {
     initCompare();
+    initBig();
 }
 
 Shuffledeck::~Shuffledeck(void)
@@ -224,6 +238,134 @@ bool Shuffledeck::compare(const vector<Card>& card1, const vector<Card>& card2)
     }
 
     return (this->*(it->second))(card1, card2);
+}
+
+bool Shuffledeck::getFirst(const vector<Card>& mine, vector<Card>& result)
+{
+    //划分手牌
+    map<int, vector<Card> > dvec;
+    divide(mine, dvec);
+
+    //计算概率
+    int totalweight = 0;
+    for(map<int, vector<Card> >::const_iterator it = dvec.begin(); it != dvec.end(); ++it)
+    {
+        if(!it->second.empty())    
+        {
+            totalweight += DT_WEIGHT[it->first]; 
+        }
+    }
+    int randseed = rand() % totalweight;
+    int count = 0;
+    int select = DT_1;
+    for(map<int, vector<Card> >::const_iterator it = dvec.begin(); it != dvec.end(); ++it)
+    {
+        if(it->second.empty())
+        {
+            continue;
+        }
+        count += DT_WEIGHT[it->first];
+        if(count >= randseed) 
+        {
+            select = it->first;
+            break;
+        }
+    }
+
+    switch(select)
+    {
+        case DT_4: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 4);
+            }
+            break;
+        case DT_3: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 3);
+            }
+            break;
+        case DT_2: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 2);
+            }
+            break;
+        case DT_1: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 1);
+            }
+            break;
+        case DT_ROCKET: 
+            {
+                result = dvec[select];
+            }
+            break;
+        case DT_STRAITHT:
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 5);
+            }
+            break;
+        case DT_DS: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 6);
+            }
+            break;
+        case DT_AIRCRAFT: 
+            {
+                result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 6);
+            }
+            break;
+    }
+
+    return true;
+}
+        
+bool Shuffledeck::getFollow(const vector<Card>& mine, const vector<Card>& other, vector<Card>& result)
+{
+    int cardtype = getCardType(other); 
+    map<int, pBigfun>::const_iterator it = m_fun_big.find(cardtype);
+    if(it == m_fun_big.end())
+    {
+        printf("not found big function!, cardtype:%d", cardtype);
+        return false;
+    }
+
+    //找到更大牌型
+    bool findbig = (this->*(it->second))(mine, other, result);
+
+    //对方出的是特殊牌
+    if(cardtype == CT_BOMB || cardtype == CT_ROCKET)
+    {
+        return findbig; 
+    }
+
+    //找特殊牌型
+    map<int, vector<Card> > dividevec;
+    divide(mine, dividevec); 
+    bool findbomb = !dividevec[DT_4].empty(); 
+    bool findrocket = !dividevec[DT_ROCKET].empty(); 
+    bool findSingle = dividevec[DT_1].size() > 3;
+
+    if((findbomb && findbig && rand() % 2 > 0) || (!findbig && findbomb))
+    {
+       if(!findSingle)  
+       {
+           result.clear();
+           result.assign(dividevec[DT_4].rbegin(), dividevec[DT_4].rbegin() + 4); 
+           return true;
+       }
+    }
+
+    if((findrocket && findbig && rand() % 2 > 0) || (!findbig && findrocket))
+    {
+       if(!findSingle)  
+       {
+           result.clear();
+           result.assign(dividevec[DT_ROCKET].begin(), dividevec[DT_ROCKET].end()); 
+           return true;
+       }
+    }
+            
+    return findbig;
 }
 
 bool Shuffledeck::isRocket(const vector<Card>& card) const
@@ -743,6 +885,627 @@ bool Shuffledeck::compareSingle(const vector<Card>& card1, const vector<Card>& c
     return card1[0].m_face > card2[0].m_face;
 }
 
+bool Shuffledeck::bigSingle(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)        
+{
+    for(vector<Card>::const_reverse_iterator it = mine.rbegin(); it != mine.rend(); ++it)
+    {
+        //大小王比较
+        if((*it).isBigJoker())
+        {
+            out.push_back(*it);
+            return true;
+        }
+        if((*it).m_face > other[0].m_face) 
+        {
+            out.push_back(*it);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Shuffledeck::bigPair(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)        
+{
+    if(mine.size() < 2)
+    {
+        return false;
+    }
+    vector<Card> vecTwo;
+    keepN(vecTwo, mine, 2);
+    if(vecTwo.size() < out.size())
+    {
+        return false;
+    }
+
+    for(int i = static_cast<int>(vecTwo.size() - 1); i > 2; i -= 2)
+    {
+        if(vecTwo[i].m_face > other[0].m_face) 
+        {
+            out.push_back(vecTwo[i]);
+            out.push_back(vecTwo[i-1]);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Shuffledeck::bigThree2s(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)        
+{
+    if(mine.size() < 5)
+    {
+        return false;
+    }
+
+    vector<Card> v3;
+    keepN(v3, mine, 3);
+
+    vector<Card> v2;
+    keepN(v2, mine, 2);
+
+    if(v3.empty() || v2.empty())
+    {
+        return false;
+    }
+
+    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
+    {
+        if(v3[i].m_face > other[0].m_face) 
+        {
+            out.push_back(v3[i]); 
+            out.push_back(v3[i - 1]); 
+            out.push_back(v3[i - 2]); 
+            out.push_back(v2[v2.size() - 1]); 
+            out.push_back(v2[v2.size() - 2]); 
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Shuffledeck::bigThree1(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)        
+{
+    if(mine.size() < 4)
+    {
+        return false;
+    }
+
+    vector<Card> v3;
+    keepN(v3, mine, 3);
+
+    vector<Card> v1;
+    keepN(v1, mine, 1);
+
+    if(v3.empty() || v1.empty())
+    {
+        return false;
+    }
+
+    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
+    {
+        if(v3[i].m_face > other[0].m_face) 
+        {
+            out.push_back(v3[i]); 
+            out.push_back(v3[i - 1]); 
+            out.push_back(v3[i - 2]); 
+            out.push_back(v1.back()); 
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Shuffledeck::bigThree0(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)        
+{
+    if(mine.size() < 3)
+    {
+        return false;
+    }
+
+    vector<Card> v3;
+    keepN(v3, mine, 3);
+
+    if(v3.empty())
+    {
+        return false;
+    }
+
+    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
+    {
+        if(v3[i].m_face > other[0].m_face) 
+        {
+            out.push_back(v3[i]); 
+            out.push_back(v3[i - 1]); 
+            out.push_back(v3[i - 2]); 
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Shuffledeck::bigStraight(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    //会拆牌
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    //遍历所有该数量的顺子，然后分别比较
+
+    vector<Card> vecdiff;
+    delSame(mine, vecdiff);
+
+    if(vecdiff.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(vecdiff.size() - other.size()); i >= 0; --i)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < other.size(); ++j) 
+        {
+            vectmp.push_back(vecdiff[j + i]); 
+        }
+        if(isStraight(vectmp) && compareStraight(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Shuffledeck::bigDoubleStraight(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    //不拆牌
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    //遍历所有该数量的双顺，然后分别比较
+
+    vector<Card> v2;
+    keepN(v2, mine, 2);
+
+    if(v2.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v2.size() - other.size()); i >= 0; i -= 2)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < other.size(); ++j) 
+        {
+            vectmp.push_back(v2[j + i]); 
+        }
+        if(isDoubleStraight(vectmp) && compareDoubleStraight(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Shuffledeck::big4and24(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v2;
+    keepN(v2, mine, 2);
+
+    vector<Card> v4;
+    keepN(v4, mine, 4);
+
+
+    vector<Card> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<Card> v2o;
+    keepN(v2o, other, 2);
+    if(v4.size() < v2o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v4.size() - v4o.size()); i >= 0; i -= 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+            vectmp.push_back(v4[j + i]); 
+        }
+
+        vectmp.push_back(v2.back()); 
+        vectmp.push_back(v2[v2.size() - 2]); 
+        vectmp.push_back(v2[v2.size() - 3]); 
+        vectmp.push_back(v2[v2.size() - 4]); 
+        if(is4and24(vectmp) && compare4and2(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::big4and22d(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v1;
+    keepN(v1, mine, 1);
+
+    vector<Card> v4;
+    keepN(v4, mine, 4);
+
+
+    vector<Card> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<Card> v1o;
+    keepN(v1o, other, 1);
+    if(v1.size() < v1o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v4.size() - v4o.size()); i >= 0; i -= 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+            vectmp.push_back(v4[j + i]); 
+        }
+
+        vectmp.push_back(v1.back()); 
+        vectmp.push_back(v1[v1.size() - 2]); 
+        if(is4and22d(vectmp) && compare4and2(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::big4and22s(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v2;
+    keepN(v2, mine, 2);
+
+    vector<Card> v4;
+    keepN(v4, mine, 4);
+
+
+    vector<Card> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<Card> v2o;
+    keepN(v2o, other, 2);
+    if(v2.size() < v2o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v4.size() - v4o.size()); i >= 0; i -= 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+            vectmp.push_back(v4[j + i]); 
+        }
+
+        vectmp.push_back(v2.back()); 
+        vectmp.push_back(v2[v2.size() - 2]); 
+        if(is4and22s(vectmp) && compare4and2(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::bigAircraft2s(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v2;
+    keepN(v2, mine, 2);
+
+    vector<Card> v3;
+    keepN(v3, mine, 3);
+
+
+    vector<Card> v3o;
+    keepN(v3o, other, 3);
+    if(v3.size() < v3o.size())
+    {
+        return false;
+    }
+
+    vector<Card> v2o;
+    keepN(v2o, other, 2);
+    if(v2.size() < v2o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v3.size() - v3o.size()); i >= 0; i -= 3)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v3o.size(); ++j) 
+        {
+            vectmp.push_back(v3[j + i]); 
+        }
+
+        for(size_t k = 0; k < v2o.size(); ++k) 
+        {
+            vectmp.push_back(v2[v2.size() - 1 - k]); 
+        }
+
+        if(isAircraft2s(vectmp) && compareAircraft(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::bigAircraft1(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    //带的翅膀，只选单牌的
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v1;
+    keepN(v1, mine, 1);
+
+    vector<Card> v3;
+    keepN(v3, mine, 3);
+
+
+    vector<Card> v3o;
+    keepN(v3o, other, 3);
+    if(v3.size() < v3o.size())
+    {
+        return false;
+    }
+
+    vector<Card> v1o;
+    keepN(v1o, other, 1);
+    if(v1.size() < v1o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v3.size() - v3o.size()); i >= 0; i -= 3)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v3o.size(); ++j) 
+        {
+            vectmp.push_back(v3[j + i]); 
+        }
+
+        for(size_t k = 0; k < v1o.size(); ++k) 
+        {
+            vectmp.push_back(v1[v1.size() - 1 - k]); 
+        }
+
+        if(isAircraft1(vectmp) && compareAircraft(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::bigAircraft0(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v3;
+    keepN(v3, mine, 3);
+
+    vector<Card> v3o;
+    keepN(v3o, other, 3);
+    if(v3.size() < v3o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v3.size() - v3o.size()); i >= 0; i -= 3)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v3o.size(); ++j) 
+        {
+            vectmp.push_back(v3[j + i]); 
+        }
+
+        if(isAircraft0(vectmp) && compareAircraft(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::bigShuttle2(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    //翅膀只单牌
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v4;
+    keepN(v4, mine, 4);
+
+    vector<Card> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<Card> v1;
+    keepN(v1, mine, 1);
+
+    if(v1.size() < other.size() - v4o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+            vectmp.push_back(v4[j + i]); 
+        }
+
+        for(size_t k = 0; k < other.size() - v4o.size(); ++k) 
+        {
+            vectmp.push_back(v1[v1.size() - 1 - k]); 
+        }
+
+        if(isShuttle2(vectmp) && compareShuttle(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::bigShuttle0(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v4;
+    keepN(v4, mine, 4);
+
+    vector<Card> v4o;
+    keepN(v4o, other, 4);
+    if(v4.size() < v4o.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(size_t i = 0; i <= v4.size() - v4o.size(); i += 4)
+    {
+        vectmp.clear();
+        for(size_t j = 0; j < v4o.size(); ++j) 
+        {
+            vectmp.push_back(v4[j + i]); 
+        }
+
+        if(isShuttle0(vectmp) && compareShuttle(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+}
+
+bool Shuffledeck::bigBomb(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    if(mine.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> v4;
+    keepN(v4, mine, 4);
+
+    if(v4.size() < other.size())
+    {
+        return false;
+    }
+
+    vector<Card> vectmp;
+    for(int i = static_cast<int>(v4.size() - 1); i > 4 ; i -= 4)
+    {
+        vectmp.clear();
+        for(int j = 0; j < static_cast<int>(other.size()) && j <= i; ++j) 
+        {
+            vectmp.push_back(v4[i - j]); 
+        }
+
+        if(isBomb(vectmp) && compareBomb(vectmp, other))
+        {
+            out = vectmp;
+            return true;
+        }
+    }
+    return false; 
+
+}
+
+bool Shuffledeck::bigRocket(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    return false;
+}
+
+bool Shuffledeck::bigError(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out)
+{
+    return false;
+}
+
 void Shuffledeck::keepN(vector<Card>& result, const vector<Card>& card, int nu)
 {
     result.clear();
@@ -994,6 +1757,28 @@ void Shuffledeck::initCompare(void)
     m_fun_compare[CT_THREE_2S]           = &Shuffledeck::compareThree;
     m_fun_compare[CT_PAIR]               = &Shuffledeck::comparePair;
     m_fun_compare[CT_SINGLE]             = &Shuffledeck::compareSingle;
+}
+        
+void Shuffledeck::initBig(void)
+{
+    m_fun_big[CT_ERROR]              = &Shuffledeck::bigError;
+    m_fun_big[CT_ROCKET]             = &Shuffledeck::bigRocket;
+    m_fun_big[CT_BOMB]               = &Shuffledeck::bigBomb;
+    m_fun_big[CT_SHUTTLE_0]          = &Shuffledeck::bigShuttle0;
+    m_fun_big[CT_SHUTTLE_2]          = &Shuffledeck::bigShuttle2;
+    m_fun_big[CT_AIRCRAFT_0]         = &Shuffledeck::bigAircraft0;
+    m_fun_big[CT_AIRCRAFT_1]         = &Shuffledeck::bigAircraft1;
+    m_fun_big[CT_AIRCRAFT_2S]        = &Shuffledeck::bigAircraft2s;
+    m_fun_big[CT_4AND2_2S]           = &Shuffledeck::big4and22s;
+    m_fun_big[CT_4AND2_2D]           = &Shuffledeck::big4and22d;
+    m_fun_big[CT_4AND2_4]            = &Shuffledeck::big4and24;
+    m_fun_big[CT_DOUBLE_STRAIGHT]    = &Shuffledeck::bigDoubleStraight;
+    m_fun_big[CT_STRAIGHT]           = &Shuffledeck::bigStraight;
+    m_fun_big[CT_THREE_0]            = &Shuffledeck::bigThree0;
+    m_fun_big[CT_THREE_1]            = &Shuffledeck::bigThree1;
+    m_fun_big[CT_THREE_2S]           = &Shuffledeck::bigThree2s;
+    m_fun_big[CT_PAIR]               = &Shuffledeck::bigPair;
+    m_fun_big[CT_SINGLE]             = &Shuffledeck::bigSingle;
 }
         
 bool Shuffledeck::isLZ(const vector<Card>& card)

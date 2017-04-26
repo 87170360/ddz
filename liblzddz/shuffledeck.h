@@ -22,6 +22,10 @@ class Shuffledeck
         int getCardType(const vector<Card>& card);
         //须降序队列, 不判断牌型, card1 比 card2 大 return true
         bool compare(const vector<Card>& card1, const vector<Card>& card2);
+        //获取首轮出牌, 降序
+        bool getFirst(const vector<Card>& mine, vector<Card>& result);
+        //获取跟牌, 降序
+        bool getFollow(const vector<Card>& mine, const vector<Card>& other, vector<Card>& result);
 
         const vector<Card>& getCard(void) { return m_card; }
 
@@ -55,6 +59,26 @@ class Shuffledeck
         bool comparePair(const vector<Card>& card1, const vector<Card>& card2);
         bool compareSingle(const vector<Card>& card1, const vector<Card>& card2);
 
+        //获取更大的牌, mine, other要降序, 不对other的牌型校验
+        bool bigSingle(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);        
+        bool bigPair(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);        
+        bool bigThree2s(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);        
+        bool bigThree1(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);        
+        bool bigThree0(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);        
+        bool bigStraight(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigDoubleStraight(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool big4and24(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool big4and22d(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool big4and22s(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigAircraft2s(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigAircraft1(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigAircraft0(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigShuttle2(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigShuttle0(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigBomb(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigRocket(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+        bool bigError(const vector<Card>& mine, const vector<Card>& other, vector<Card>& out);
+
         //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
         void keepN(vector<Card>& result, const vector<Card>& card, int nu);
         //三张组里，区分飞机和其他三张, card3降序, aircraft 是可以组成飞机的牌，比如333444777888 333444555
@@ -73,6 +97,8 @@ class Shuffledeck
         bool compareMN(const vector<Card>& card, const vector<Card>& card1, int m);
         //初始化比较函数
         void initCompare(void);
+        //初始化跟牌函数
+        void initBig(void);
         //是否有癞子
         bool isLZ(const vector<Card>& card);
 
@@ -84,6 +110,9 @@ class Shuffledeck
 
         typedef bool (Shuffledeck::*pComparefun) (const vector<Card>&, const vector<Card>&);
         map<int, pComparefun> m_fun_compare;
+
+        typedef bool (Shuffledeck::*pBigfun) (const vector<Card>&, const vector<Card>&, vector<Card>&);
+        map<int, pBigfun> m_fun_big;
 };
 
 #endif /*_XT_SHULLE_DECK_H_*/ 
