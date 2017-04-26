@@ -70,32 +70,14 @@ bool Shuffledeck::getHoldCard(vector<Card>& card, unsigned int num)
         
 void Shuffledeck::divide(const vector<Card>& card, map<int, vector<Card> >& result)
 {
-    //不包含lz
-    vector<Card> vectmp;
-    //癞子组
-    vector<Card> veclz;
-    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
-    {
-        if(it->m_face == m_lz) 
-        {
-            veclz.push_back(*it);
-        }
-        else
-        {
-            vectmp.push_back(*it);
-        }
-    }
-    result[DT_LZ] = veclz;
-    
-    
     //四张组
     vector<Card> vec4;
-    keepN(vec4, vectmp, 4);
+    keepN(vec4, card, 4);
     result[DT_4] = vec4;
 
     //三张组里，区分飞机和其他三张
     vector<Card> vec3;
-    keepN(vec3, vectmp, 3);
+    keepN(vec3, card, 3);
     vector<Card> pure3;
     vector<Card> aircraft;
     divideCard3(vec3, pure3, aircraft);
@@ -104,7 +86,7 @@ void Shuffledeck::divide(const vector<Card>& card, map<int, vector<Card> >& resu
 
     //两张组里，区分火箭, 纯对子和双顺
     vector<Card> vec2;
-    keepN(vec2, vectmp, 2);
+    keepN(vec2, card, 2);
     vector<Card> rocket;
     vector<Card> ds;
     vector<Card> pure2;
@@ -115,7 +97,7 @@ void Shuffledeck::divide(const vector<Card>& card, map<int, vector<Card> >& resu
 
     //单张组里，区分纯单张和单顺
     vector<Card> vec1;
-    keepN(vec1, vectmp, 1);
+    keepN(vec1, card, 1);
     vector<Card> straight;
     vector<Card> pure1;
     divideCard1(vec1, pure1, straight);

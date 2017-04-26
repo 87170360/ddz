@@ -33,7 +33,6 @@ enum DivideType
     DT_STRAITHT             = 5,            //单顺
     DT_DS                   = 6,            //双顺 
     DT_AIRCRAFT             = 7,            //三顺
-    DT_LZ                   = 8,            //癞子
 };
 
 #endif /* _CARD_TYPE_H_ */

@@ -42,7 +42,6 @@ const char* g_dtDesc[] =
     "DT_STRAITHT",
     "DT_DS",
     "DT_AIRCRAFT",
-    "DT_LZ",
 };
 
 void testDivide(void)
