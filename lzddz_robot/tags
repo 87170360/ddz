@@ -1,0 +1,186 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CC	makefile	/^CC = gcc$/;"	m
+CFLAGS	makefile	/^CFLAGS = -O0 -Wall$/;"	m
+CLIENT_CALL	proto.h	/^    CLIENT_CALL                 = 1003,         \/\/叫分 score = 0,1,2,3$/;"	e	enum:CLIENT_COMMAND
+CLIENT_CHANGE	proto.h	/^    CLIENT_CHANGE               = 1007,         \/\/换桌$/;"	e	enum:CLIENT_COMMAND
+CLIENT_CHAT	proto.h	/^    CLIENT_CHAT                 = 1010,         \/\/聊天 字符串content, 表情id: chatid$/;"	e	enum:CLIENT_COMMAND
+CLIENT_COMMAND	proto.h	/^enum CLIENT_COMMAND$/;"	g
+CLIENT_DOUBLE	proto.h	/^    CLIENT_DOUBLE               = 1004,         \/\/农民加倍 double: true, false$/;"	e	enum:CLIENT_COMMAND
+CLIENT_ENTRUST	proto.h	/^    CLIENT_ENTRUST              = 1009,         \/\/托管 开启或者关闭 active: true, false$/;"	e	enum:CLIENT_COMMAND
+CLIENT_LOGIN	proto.h	/^    CLIENT_LOGIN                = 1001,         \/\/登录 uid, zid$/;"	e	enum:CLIENT_COMMAND
+CLIENT_LOGOUT	proto.h	/^    CLIENT_LOGOUT               = 1006,         \/\/退出$/;"	e	enum:CLIENT_COMMAND
+CLIENT_MOTION	proto.h	/^    CLIENT_MOTION               = 1011,         \/\/玩家互动 目标id：target_id, 互动id: type, $/;"	e	enum:CLIENT_COMMAND
+CLIENT_OUT	proto.h	/^    CLIENT_OUT                  = 1005,         \/\/出牌 不出: keep: true, false, 牌: card$/;"	e	enum:CLIENT_COMMAND
+CLIENT_PREPARE	proto.h	/^    CLIENT_PREPARE              = 1002,         \/\/准备 $/;"	e	enum:CLIENT_COMMAND
+CLIENT_VIEW	proto.h	/^    CLIENT_VIEW                 = 1008,         \/\/查看信息 uid $/;"	e	enum:CLIENT_COMMAND
+CODE_CARD	proto.h	/^    CODE_CARD                   = 12,           \/\/牌型错误$/;"	e	enum:ERROR_CODE
+CODE_COMPARE	proto.h	/^    CODE_COMPARE                = 15,           \/\/比较牌型错误$/;"	e	enum:ERROR_CODE
+CODE_CURRENT	proto.h	/^    CODE_CURRENT                = 8,            \/\/未轮到你操作$/;"	e	enum:ERROR_CODE
+CODE_DOUBLE	proto.h	/^    CODE_DOUBLE                 = 11,           \/\/重复加倍$/;"	e	enum:ERROR_CODE
+CODE_ENTRUST	proto.h	/^    CODE_ENTRUST                = 16,           \/\/已经托管$/;"	e	enum:ERROR_CODE
+CODE_KEEP	proto.h	/^    CODE_KEEP                   = 14,           \/\/不出牌，但有牌$/;"	e	enum:ERROR_CODE
+CODE_LORD	proto.h	/^    CODE_LORD                   = 10,           \/\/地主不能加倍$/;"	e	enum:ERROR_CODE
+CODE_MONEY	proto.h	/^    CODE_MONEY                  = 3,            \/\/金币不足$/;"	e	enum:ERROR_CODE
+CODE_NOEXIST	proto.h	/^    CODE_NOEXIST                = 13,           \/\/用户不存在$/;"	e	enum:ERROR_CODE
+CODE_NOTIFY	proto.h	/^    CODE_NOTIFY                 = 7,            \/\/未通知提前操作,或者已经自动处理$/;"	e	enum:ERROR_CODE
+CODE_OUT_ENTRUST	proto.h	/^    CODE_OUT_ENTRUST            = 17,           \/\/出牌阶段才可以托管$/;"	e	enum:ERROR_CODE
+CODE_PREPARE	proto.h	/^    CODE_PREPARE                = 4,            \/\/重复准备$/;"	e	enum:ERROR_CODE
+CODE_RELOGIN	proto.h	/^    CODE_RELOGIN                = 2,            \/\/重连错误，牌桌没有这个玩家$/;"	e	enum:ERROR_CODE
+CODE_REPEAT_ENTRUST	proto.h	/^    CODE_REPEAT_ENTRUST         = 18,           \/\/重复开启或者关闭托管$/;"	e	enum:ERROR_CODE
+CODE_SCORE	proto.h	/^    CODE_SCORE                  = 9,            \/\/叫分错误$/;"	e	enum:ERROR_CODE
+CODE_SEAT	proto.h	/^    CODE_SEAT                   = 6,            \/\/座位错误$/;"	e	enum:ERROR_CODE
+CODE_SKEY	proto.h	/^    CODE_SKEY                   = 1,            \/\/skey错误$/;"	e	enum:ERROR_CODE
+CODE_STATE	proto.h	/^    CODE_STATE                  = 5,            \/\/游戏状态不对$/;"	e	enum:ERROR_CODE
+CODE_SUCCESS	proto.h	/^    CODE_SUCCESS                = 0,            \/\/成功 $/;"	e	enum:ERROR_CODE
+CXX	makefile	/^CXX = g++$/;"	m
+CXXFLAGS	makefile	/^CXXFLAGS = -g -O0 -fno-strict-aliasing -Wno-write-strings -frtti -fexceptions -Wall -DDEBUG$/;"	m
+DESC_OP	proto.h	/^static const char* DESC_OP[OP_MAX] = $/;"	v
+DESC_STATE	proto.h	/^static const char* DESC_STATE[STATE_MAX] = $/;"	v
+DESTDIR_TARGET	makefile	/^DESTDIR_TARGET = lzddz_robot$/;"	m
+ERROR_CODE	proto.h	/^enum ERROR_CODE$/;"	g
+Header	jpacket.h	/^struct Header $/;"	s
+INCPATH	makefile	/^INCPATH = -I\/download\/jsoncpp-src-0.5.0\/include -I..\/libddz -I\/usr\/local\/include$/;"	m
+Jpacket	jpacket.cc	/^Jpacket::Jpacket()$/;"	f	class:Jpacket
+Jpacket	jpacket.h	/^class Jpacket$/;"	c
+LD	makefile	/^LD = gcc$/;"	m
+LFLAGS	makefile	/^LFLAGS = #-static$/;"	m
+LIBS	makefile	/^LIBS =\/usr\/local\/lib\/libjsoncpp.a \/usr\/local\/lib\/libhiredis.a -L. -L..\/libddz -lddz -L\/usr\/local\/lib -lstdc++ -lev $/;"	m
+OBJECTS	makefile	/^OBJECTS = main.o XtRobotClient.o jpacket.o Robots.o$/;"	m
+OP_CALL_NOTIFY	proto.h	/^    OP_CALL_NOTIFY                 = 4,            \/\/已通知$/;"	e	enum:OP_STATE
+OP_CALL_RECEIVE	proto.h	/^    OP_CALL_RECEIVE                = 5,            \/\/已经叫分$/;"	e	enum:OP_STATE
+OP_CALL_WAIT	proto.h	/^    OP_CALL_WAIT                   = 3,            \/\/等待叫分通知$/;"	e	enum:OP_STATE
+OP_DOUBLE_NOTIFY	proto.h	/^    OP_DOUBLE_NOTIFY               = 6,            \/\/已经通知$/;"	e	enum:OP_STATE
+OP_DOUBLE_RECEIVE	proto.h	/^    OP_DOUBLE_RECEIVE              = 7,            \/\/已经响应$/;"	e	enum:OP_STATE
+OP_GAME_END	proto.h	/^    OP_GAME_END                    = 9,            \/\/结算中$/;"	e	enum:OP_STATE
+OP_MAX	proto.h	/^    OP_MAX                         = 10,           \/\/MAX$/;"	e	enum:OP_STATE
+OP_NULL	proto.h	/^    OP_NULL                        = 0,            \/\/NULL$/;"	e	enum:OP_STATE
+OP_OUT_WAIT	proto.h	/^    OP_OUT_WAIT                    = 8,            \/\/等待出牌$/;"	e	enum:OP_STATE
+OP_PREPARE_REDAY	proto.h	/^    OP_PREPARE_REDAY               = 2,            \/\/已准备$/;"	e	enum:OP_STATE
+OP_PREPARE_WAIT	proto.h	/^    OP_PREPARE_WAIT                = 1,            \/\/等待准备$/;"	e	enum:OP_STATE
+OP_STATE	proto.h	/^enum OP_STATE$/;"	g
+Robots	Robots.h	/^class Robots $/;"	c
+SERVER_AGAIN_CALL	proto.h	/^    SERVER_AGAIN_CALL           = 2003,         \/\/通知下一个叫分: 上次叫分:score, 当前操作者id:cur_id,上一个操作者id:pre_id, 叫分倒计时:time$/;"	e	enum:SERVER_COMMAND
+SERVER_AGAIN_OUT	proto.h	/^    SERVER_AGAIN_OUT            = 2007,         \/\/通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time,牌数:num$/;"	e	enum:SERVER_COMMAND
+SERVER_ALLOWANCE	proto.h	/^    SERVER_ALLOWANCE            = 2014,         \/\/破产补助, 增加金币数量 money$/;"	e	enum:SERVER_COMMAND
+SERVER_CARD_1	proto.h	/^    SERVER_CARD_1               = 2002,         \/\/第一次发牌17张,开始叫分:当前操作者id:cur_id, 叫分倒计时:time, 发牌时间:show_time, 17张牌:card$/;"	e	enum:SERVER_COMMAND
+SERVER_CHAT	proto.h	/^    SERVER_CHAT                 = 2013,         \/\/聊天 字符串content, uid, chatid$/;"	e	enum:SERVER_COMMAND
+SERVER_COMMAND	proto.h	/^enum SERVER_COMMAND$/;"	g
+SERVER_DOUBLE	proto.h	/^    SERVER_DOUBLE               = 2005,         \/\/通知加倍情况: 总加倍情况:count, 操作者id:pre_id, 是否加倍: double$/;"	e	enum:SERVER_COMMAND
+SERVER_END	proto.h	/^    SERVER_END                  = 2008,         \/\/牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}$/;"	e	enum:SERVER_COMMAND
+SERVER_ENTRUST	proto.h	/^    SERVER_ENTRUST              = 2012,         \/\/托管 玩家uid, 开始或者关闭active: true, false$/;"	e	enum:SERVER_COMMAND
+SERVER_ENTRUST_CALL	proto.h	/^    SERVER_ENTRUST_CALL         = 2017,         \/\/托管叫分 score$/;"	e	enum:SERVER_COMMAND
+SERVER_ENTRUST_DOUBLE	proto.h	/^    SERVER_ENTRUST_DOUBLE       = 2018,         \/\/托管加倍 double $/;"	e	enum:SERVER_COMMAND
+SERVER_ENTRUST_OUT	proto.h	/^    SERVER_ENTRUST_OUT          = 2016,         \/\/托管出牌 牌型: card, 不出: keep$/;"	e	enum:SERVER_COMMAND
+SERVER_KICK	proto.h	/^    SERVER_KICK                 = 2010,         \/\/踢人离场$/;"	e	enum:SERVER_COMMAND
+SERVER_LOGIN	proto.h	/^    SERVER_LOGIN                = 2001,         \/\/其他玩家登录  $/;"	e	enum:SERVER_COMMAND
+SERVER_MOTION	proto.h	/^    SERVER_MOTION               = 2015,         \/\/玩家互动, 发起人id: src_id, 目标id: target_id, 互动id: type, 价格:price$/;"	e	enum:SERVER_COMMAND
+SERVER_REPREPARE	proto.h	/^    SERVER_REPREPARE            = 2009,         \/\/通知机器人重新准备$/;"	e	enum:SERVER_COMMAND
+SERVER_RESPOND	proto.h	/^    SERVER_RESPOND              = 2000,         \/\/其他回复, 消息id:msgid, code:错误码$/;"	e	enum:SERVER_COMMAND
+SERVER_RESULT_CALL	proto.h	/^    SERVER_RESULT_CALL          = 2004,         \/\/叫分结果,开始加倍： 最终分数:score, 地主id:lord, 加倍倒计时:time, 3底牌:card, $/;"	e	enum:SERVER_COMMAND
+SERVER_RESULT_DOUBLE	proto.h	/^    SERVER_RESULT_DOUBLE        = 2006,         \/\/加倍结果,发底牌,通知地主出牌: 总倍数:count, 当前操作者(地主)id:cur_id,出牌倒计时:time$/;"	e	enum:SERVER_COMMAND
+SERVER_TIME	proto.h	/^    SERVER_TIME                 = 2011,         \/\/定时器时间秒:time$/;"	e	enum:SERVER_COMMAND
+STATE	proto.h	/^enum STATE$/;"	g
+STATE_CALL	proto.h	/^    STATE_CALL                  = 2,            \/\/叫分$/;"	e	enum:STATE
+STATE_DOUBLE	proto.h	/^    STATE_DOUBLE                = 3,            \/\/加倍$/;"	e	enum:STATE
+STATE_END	proto.h	/^    STATE_END                   = 5,            \/\/结算$/;"	e	enum:STATE
+STATE_MAX	proto.h	/^    STATE_MAX                   = 6,            \/\/$/;"	e	enum:STATE
+STATE_NULL	proto.h	/^    STATE_NULL                  = 0,$/;"	e	enum:STATE
+STATE_OUT	proto.h	/^    STATE_OUT                   = 4,            \/\/出牌$/;"	e	enum:STATE
+STATE_PREPARE	proto.h	/^    STATE_PREPARE               = 1,            \/\/准备$/;"	e	enum:STATE
+XT_DEF_BUF_LEN	XtRobotClient.h	39;"	d
+XT_MAX_BUF_LEN	XtRobotClient.h	35;"	d
+XT_PARSE_BODY	XtRobotClient.h	/^    XT_PARSE_BODY      	= 1,$/;"	e	enum:XtParseState
+XT_PARSE_CROSS_DOMAIN	XtRobotClient.h	/^    XT_PARSE_CROSS_DOMAIN	= 3,$/;"	e	enum:XtParseState
+XT_PARSE_ERR	XtRobotClient.h	/^    XT_PARSE_ERR       	= 2,$/;"	e	enum:XtParseState
+XT_PARSE_HEADER	XtRobotClient.h	/^    XT_PARSE_HEADER    	= 0,$/;"	e	enum:XtParseState
+XtBuffer	XtBuffer.h	/^    XtBuffer(const char *bytes, ssize_t nbytes)$/;"	f	struct:XtBuffer
+XtBuffer	XtBuffer.h	/^struct XtBuffer $/;"	s
+XtParseState	XtRobotClient.h	/^enum XtParseState$/;"	g
+XtProtocol	XtProtocol.h	/^class XtProtocol $/;"	c
+XtRobotClient	XtRobotClient.cc	/^XtRobotClient::XtRobotClient(struct ev_loop* evloop)$/;"	f	class:XtRobotClient
+XtRobotClient	XtRobotClient.h	/^class XtRobotClient $/;"	c
+_XT_BUFFER_H_	XtBuffer.h	2;"	d
+_XT_PROTOCOL_H_	XtProtocol.h	2;"	d
+_XT_ROBOTS_H_	Robots.h	2;"	d
+_XT_ROBOT_CLIENT_H_	XtRobotClient.h	2;"	d
+__JPACKET_H__	jpacket.h	2;"	d
+__PROTO_H__	proto.h	2;"	d
+appendData	XtProtocol.cc	/^void XtProtocol::appendData(uint8_t* data,int length)$/;"	f	class:XtProtocol
+closeConnect	XtRobotClient.cc	/^int XtRobotClient::closeConnect()$/;"	f	class:XtRobotClient
+connectToServer	XtRobotClient.cc	/^int XtRobotClient::connectToServer(const char* ip,int port,int uid)$/;"	f	class:XtRobotClient
+doLogin	XtRobotClient.cc	/^void XtRobotClient::doLogin()$/;"	f	class:XtRobotClient
+end	jpacket.cc	/^void Jpacket::end()$/;"	f	class:Jpacket
+handleAgainCall	XtRobotClient.cc	/^void XtRobotClient::handleAgainCall(Json::Value& msg) $/;"	f	class:XtRobotClient
+handleAgainOut	XtRobotClient.cc	/^void XtRobotClient::handleAgainOut(Json::Value& msg)$/;"	f	class:XtRobotClient
+handleCall	XtRobotClient.cc	/^void XtRobotClient::handleCall(Json::Value& msg) $/;"	f	class:XtRobotClient
+handleDouble	XtRobotClient.cc	/^void XtRobotClient::handleDouble(Json::Value& msg) $/;"	f	class:XtRobotClient
+handleEnd	XtRobotClient.cc	/^void XtRobotClient::handleEnd(Json::Value& msg)$/;"	f	class:XtRobotClient
+handleKick	XtRobotClient.cc	/^void XtRobotClient::handleKick(Json::Value& msg)$/;"	f	class:XtRobotClient
+handleLogin	XtRobotClient.cc	/^void XtRobotClient::handleLogin(Json::Value& msg)$/;"	f	class:XtRobotClient
+handleOut	XtRobotClient.cc	/^void XtRobotClient::handleOut(Json::Value& msg) $/;"	f	class:XtRobotClient
+handleReprepare	XtRobotClient.cc	/^void XtRobotClient::handleReprepare(Json::Value& msg)$/;"	f	class:XtRobotClient
+handleRespond	XtRobotClient.cc	/^void XtRobotClient::handleRespond(Json::Value& msg) $/;"	f	class:XtRobotClient
+handleTime	XtRobotClient.cc	/^void XtRobotClient::handleTime(Json::Value& msg)$/;"	f	class:XtRobotClient
+header	jpacket.h	/^    struct Header           header;$/;"	m	class:Jpacket	typeref:struct:Jpacket::Header
+json_array_to_vector	XtRobotClient.cc	/^void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value &val, string key)$/;"	f	class:XtRobotClient
+len	jpacket.h	/^    int                     len;$/;"	m	class:Jpacket
+m_body	XtRobotClient.h	/^		std::string m_body;$/;"	m	class:XtRobotClient
+m_card	XtRobotClient.h	/^        std::vector<XtCard>         m_card;                   \/\/底牌$/;"	m	class:XtRobotClient
+m_conf	Robots.h	/^		Json::Value m_conf;$/;"	m	class:Robots
+m_configFileName	Robots.h	/^		std::string m_configFileName;$/;"	m	class:Robots
+m_curHeaderLen	XtRobotClient.h	/^		int m_curHeaderLen;$/;"	m	class:XtRobotClient
+m_data	XtBuffer.h	/^    char* m_data;$/;"	m	struct:XtBuffer
+m_datas	XtProtocol.h	/^		std::queue<XtBuffer*> m_datas;$/;"	m	class:XtProtocol
+m_deck	XtRobotClient.h	/^        XtShuffleDeck               m_deck;                   \/\/牌库$/;"	m	class:XtRobotClient
+m_evRead	XtRobotClient.h	/^		ev_io m_evRead;$/;"	m	class:XtRobotClient
+m_evWrite	XtRobotClient.h	/^		ev_io m_evWrite;$/;"	m	class:XtRobotClient
+m_evloop	Robots.h	/^		struct ev_loop* m_evloop;$/;"	m	class:Robots	typeref:struct:Robots::ev_loop
+m_evloop	XtRobotClient.h	/^		struct ev_loop* m_evloop;$/;"	m	class:XtRobotClient	typeref:struct:XtRobotClient::ev_loop
+m_header	XtRobotClient.h	/^		Header* m_header;$/;"	m	class:XtRobotClient
+m_headerBuf	XtRobotClient.h	/^		char m_headerBuf[sizeof(struct Header)];$/;"	m	class:XtRobotClient
+m_headerLength	XtProtocol.h	/^		int m_headerLength;$/;"	m	class:XtProtocol
+m_lastCard	XtRobotClient.h	/^        vector<XtCard>              m_lastCard;               \/\/上轮牌$/;"	m	class:XtRobotClient
+m_len	XtBuffer.h	/^    ssize_t m_len;$/;"	m	struct:XtBuffer
+m_length	jpacket.h	/^	unsigned int    m_length;$/;"	m	struct:Header
+m_outTimer	XtRobotClient.h	/^        ev_timer                    m_outTimer;               \/\/出牌定时$/;"	m	class:XtRobotClient
+m_outid	XtRobotClient.h	/^        int                         m_outid;                  \/\/上轮出牌者id$/;"	m	class:XtRobotClient
+m_packet	XtRobotClient.h	/^		Jpacket m_packet;$/;"	m	class:XtRobotClient
+m_playerlist	XtRobotClient.h	/^        std::set<int>               m_playerlist;             \/\/玩家id队列$/;"	m	class:XtRobotClient
+m_reciveData	XtProtocol.h	/^		std::vector<uint8_t> m_reciveData;$/;"	m	class:XtProtocol
+m_robotClient	Robots.h	/^		std::vector<XtRobotClient*> m_robotClient;$/;"	m	class:Robots
+m_serverfd	XtRobotClient.h	/^		int m_serverfd;$/;"	m	class:XtRobotClient
+m_showTimer	XtRobotClient.h	/^		ev_timer                    m_showTimer;              \/\/第一次出牌延时定时器$/;"	m	class:XtRobotClient
+m_state	XtProtocol.h	/^		int m_state;$/;"	m	class:XtProtocol
+m_state	XtRobotClient.h	/^		int m_state;$/;"	m	class:XtRobotClient
+m_uid	XtRobotClient.h	/^		int m_uid;$/;"	m	class:XtRobotClient
+m_writeQueue	XtRobotClient.h	/^		std::list<XtBuffer*> m_writeQueue;$/;"	m	class:XtRobotClient
+main	main.cc	/^int main(int argc,char** argv)$/;"	f
+mainLoop	Robots.cc	/^void Robots::mainLoop()$/;"	f	class:Robots
+map_to_json_array	XtRobotClient.cc	/^void XtRobotClient::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key)$/;"	f	class:XtRobotClient
+onReadData	XtRobotClient.cc	/^void XtRobotClient::onReadData( struct ev_loop* loop, struct ev_io* w, int revents)$/;"	f	class:XtRobotClient
+onReciveCmd	XtRobotClient.cc	/^int XtRobotClient::onReciveCmd(Jpacket& data)$/;"	f	class:XtRobotClient
+onWriteData	XtRobotClient.cc	/^void XtRobotClient::onWriteData(struct ev_loop *loop, struct ev_io *w, int revents)$/;"	f	class:XtRobotClient
+parse	jpacket.cc	/^int Jpacket::parse(std::string &str)$/;"	f	class:Jpacket
+parseArg	Robots.cc	/^int Robots::parseArg(int argc,char** argv)$/;"	f	class:Robots
+reader	jpacket.h	/^    Json::Reader            reader;$/;"	m	class:Jpacket
+send	XtRobotClient.cc	/^int XtRobotClient::send(const char *buf, unsigned int len)$/;"	f	class:XtRobotClient
+send	XtRobotClient.cc	/^int XtRobotClient::send(const std::string &res)$/;"	f	class:XtRobotClient
+sendCall	XtRobotClient.cc	/^void XtRobotClient::sendCall(void)$/;"	f	class:XtRobotClient
+sendCard	XtRobotClient.cc	/^void XtRobotClient::sendCard(void)$/;"	f	class:XtRobotClient
+sendLoginPackage	XtRobotClient.cc	/^void XtRobotClient::sendLoginPackage()$/;"	f	class:XtRobotClient
+str	jpacket.h	/^    std::string             str;$/;"	m	class:Jpacket
+tfOut	XtRobotClient.cc	/^void XtRobotClient::tfOut(struct ev_loop* loop, struct ev_timer* w, int events)$/;"	f	class:XtRobotClient
+tfShow	XtRobotClient.cc	/^void XtRobotClient::tfShow(struct ev_loop* loop, struct ev_timer* w, int events)$/;"	f	class:XtRobotClient
+tojson	jpacket.cc	/^Json::Value& Jpacket::tojson()$/;"	f	class:Jpacket
+tostring	jpacket.cc	/^std::string& Jpacket::tostring()$/;"	f	class:Jpacket
+val	jpacket.h	/^    Json::Value             val;$/;"	m	class:Jpacket
+vector_to_json_array	XtRobotClient.cc	/^void XtRobotClient::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)$/;"	f	class:XtRobotClient
+xorfunc	jpacket.cc	/^void xorfunc(std::string &nString)$/;"	f
+~Jpacket	jpacket.cc	/^Jpacket::~Jpacket()$/;"	f	class:Jpacket
+~XtBuffer	XtBuffer.h	/^    virtual ~XtBuffer()$/;"	f	struct:XtBuffer
+~XtRobotClient	XtRobotClient.cc	/^XtRobotClient::~XtRobotClient()$/;"	f	class:XtRobotClient
