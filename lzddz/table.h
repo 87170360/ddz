@@ -82,8 +82,9 @@ class Table
         bool allocateCard(void);
         //准备处理
         void prepareProc(void);
-        //叫分处理
+        //叫地主
         void callProc(void);
+        //抢地主
         //加倍处理
         void doubleProc(void);
         //出牌处理
@@ -105,8 +106,10 @@ class Table
         // send msg
         void loginUC(Player* player, int code);
         void loginBC(Player* player);
-        //第一次发牌和叫分
+        //发牌
         void sendCard1(void);
+        //通知叫地主
+        void sendCall(void);
         //继续叫分
         void sendCallAgain(void); 
         //叫分结果和加倍

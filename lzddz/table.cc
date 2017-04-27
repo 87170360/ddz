@@ -920,7 +920,7 @@ void Table::callProc(void)
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = lzddz.game->CALLTIME;
-    ev_timer_again(lzddz.loop, &m_timerCall);
+    //ev_timer_again(lzddz.loop, &m_timerCall);
     //xt_log.debug("m_timerCall first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
@@ -1261,6 +1261,11 @@ void Table::sendCard1(void)
         unicast(pl, packet.tostring());
     }
 }
+        
+void Table::sendCall(void)
+{
+
+}
 
 void Table::sendCallAgain(void) 
 {
@@ -1268,7 +1273,7 @@ void Table::sendCallAgain(void)
     {
         Player* pl = it->second;
         Jpacket packet;
-        packet.val["cmd"]           = SERVER_AGAIN_CALL;
+        //packet.val["cmd"]           = SERVER_AGAIN_CALL;
         packet.val["time"]          = lzddz.game->CALLTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
@@ -1284,7 +1289,7 @@ void Table::sendCallResult(void)
     {
         Player* pl = it->second;
         Jpacket packet;
-        packet.val["cmd"]           = SERVER_RESULT_CALL;
+        //packet.val["cmd"]           = SERVER_RESULT_CALL;
         packet.val["time"]          = lzddz.game->DOUBLETIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeat(m_lordSeat);
@@ -1477,22 +1482,8 @@ void Table::gameRestart(void)
     m_topCall = 0;
     m_win = 0;
 
-    m_curSeat = rand() % SEAT_NUM;
-    xt_log.debug("=======================================restart send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
-            getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
-
-    callProc();
-
-    allocateCard();
-    sendCard1();
-
-    ev_timer_stop(lzddz.loop, &m_timerUpdate);
-    ev_timer_again(lzddz.loop, &m_timerUpdate);
-    //如果托管直接自动处理
-    if(m_entrust[m_curSeat])
-    {
-        entrustProc(true, m_curSeat);
-    }
+    xt_log.debug("restart.\n");
+    gameStart();
 }
 
 bool Table::getNext(void)
