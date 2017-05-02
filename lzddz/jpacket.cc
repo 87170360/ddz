@@ -91,7 +91,16 @@ int Jpacket::safe_check()
             break;
 		case CLIENT_CALL:
 			{
-				if (!val["score"].isNumeric())
+				if (!val["act"].isBool())
+				{
+					xt_log.error("command client_call error\n");
+					return -1;
+				}
+			}
+            break;
+		case CLIENT_GRAB:
+			{
+				if (!val["act"].isBool())
 				{
 					xt_log.error("command client_call error\n");
 					return -1;

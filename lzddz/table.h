@@ -68,6 +68,7 @@ class Table
         void reLogin(Player* player); 
         void msgPrepare(Player* player);
         void msgCall(Player* player);
+        void msgGrab(Player* player);
         void msgDouble(Player* player);
         void msgOut(Player* player);
         void msgChange(Player* player);
@@ -96,8 +97,10 @@ class Table
         //托管处理
         void entrustProc(bool killtimer, int entrustSeat);
 
-        //叫分逻辑
-        void logicCall(void);
+        //叫地主逻辑
+        void logicCall(bool act);
+        //抢地主逻辑
+        void logicGrab(bool act);
         //加倍逻辑
         void logicDouble(bool isMsg);
         //出牌逻辑
@@ -110,8 +113,12 @@ class Table
         void sendCard1(void);
         //通知叫地主
         void sendCall(void);
-        //继续叫分
-        void sendCallAgain(void); 
+        //通知叫地主响应
+        void sendCallRsp(bool act);
+        //通知抢地主
+        void sendGrab(void);
+        //通知抢地主响应
+        void sendGrabRsp(bool act);
         //叫分结果和加倍
         void sendCallResult(void);
         //加倍广播
@@ -210,7 +217,6 @@ class Table
     private:
         int                         m_seats[SEAT_NUM];              //各座位玩家id
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
-        int                         m_callScore[SEAT_NUM];          //各座位叫分
         bool                        m_famerDouble[SEAT_NUM];        //农民加倍
         bool                        m_entrust[SEAT_NUM];            //托管状态 true false
         bool                        m_timeout[SEAT_NUM];           //出牌超时 true false

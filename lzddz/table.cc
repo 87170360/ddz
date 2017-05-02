@@ -72,7 +72,6 @@ void Table::reset(void)
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         m_seats[i] = 0;
-        m_callScore[i] = 0;
         m_famerDouble[i] = false;
         m_seatCard[i].reset();
         m_bomb[i] = 0;
@@ -184,10 +183,9 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 void Table::onCall(void)
 {
     //xt_log.debug("onCall\n");
-    m_callScore[m_curSeat] = 0;
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    logicCall();
+    logicCall(true);
 }
 
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -481,26 +479,28 @@ void Table::msgCall(Player* player)
         return; 
     }
 
-    //有效叫分
+    //有效叫地主
     Json::Value &msg = player->client->packet.tojson();
-    int score = msg["score"].asInt();
-    if(score < 0 || score > 3)
-    {
-        xt_log.error("%s:%d, call fail!, score error. uid:%d, score:%d\n", __FILE__, __LINE__, player->m_uid, score); 
-        sendError(player, CLIENT_CALL, CODE_SCORE);
-        return; 
-    }
+    bool act = msg["act"].asBool();
 
     //停止叫分定时器
     //xt_log.debug("stop m_timerCall for msg.\n");
-    ev_timer_stop(lzddz.loop, &m_timerCall);
+    //ev_timer_stop(lzddz.loop, &m_timerCall);
 
-    //保存当前叫分
-    m_callScore[m_curSeat] = score;
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
     //xt_log.debug("call score, m_uid:%d, seatid:%d, score :%d\n", player->m_uid, player->m_seatid, m_callScore[player->m_seatid]);
-    logicCall();
+    logicCall(act);
+}
+        
+void Table::msgGrab(Player* player)
+{
+    Json::Value &msg = player->client->packet.tojson();
+    bool act = msg["act"].asBool();
+    //检查状态
+    //记录状态
+    m_opState[m_curSeat] = OP_GARB_RECEIVE;
+    logicGrab(act);
 }
 
 void Table::msgDouble(Player* player)
@@ -808,7 +808,7 @@ void Table::loginUC(Player* player, int code)
                 //叫分
                 for(unsigned int i = 0; i < SEAT_NUM; ++i)
                 {
-                    packet.val["callScore"].append(m_callScore[i]);
+                    //packet.val["callScore"].append(m_callScore[i]);
                 }
                 //剩余时间
                 packet.val["time"] = m_time;
@@ -1037,7 +1037,7 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                     ev_timer_stop(lzddz.loop, &m_timerCall);
                 }
                 onCall();
-                sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
+                //sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
             }
             break;
         case STATE_DOUBLE:
@@ -1067,8 +1067,37 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
     }
 }
 
-void Table::logicCall(void)
+void Table::logicCall(bool act)
 {
+    if(act)
+    {
+        m_state = STATE_GRAB; 
+    }
+
+    //广播叫地主响应
+    sendCallRsp(act);
+    
+    //不叫地主，选择下一个叫地主
+    if(getNext())
+    {
+        //叫地主，进入抢地主
+        if(act)
+        {
+            sendGrab();  
+        }
+        else
+        {
+            sendCall();
+        }
+    }
+    else
+    {
+        xt_log.debug("nobody call, need send card again.\n");
+        //无人叫地主，重现发牌
+        gameRestart(); 
+    }
+   
+    /*
     //是否已经选出地主
     if(selecLord())
     {
@@ -1094,7 +1123,6 @@ void Table::logicCall(void)
         //广播当前叫分和下一个叫分
         //xt_log.debug("m_timerCall again start.\n");
         m_time = lzddz.game->CALLTIME;
-        sendCallAgain(); 
         if(m_entrust[m_curSeat])
         {
             entrustProc(false, m_curSeat);
@@ -1109,6 +1137,12 @@ void Table::logicCall(void)
         xt_log.debug("nobody call, need send card again.\n");
         gameRestart();
     }
+    */
+}
+        
+void Table::logicGrab(bool act)
+{
+
 }
 
 void Table::logicDouble(bool isMsg)
@@ -1264,20 +1298,55 @@ void Table::sendCard1(void)
         
 void Table::sendCall(void)
 {
-
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        Jpacket packet;
+        packet.val["cmd"]           = SERVER_CALL;
+        packet.val["time"]          = lzddz.game->CALLTIME;
+        packet.val["cur_id"]        = getSeat(m_curSeat);
+        packet.end();
+        unicast(pl, packet.tostring());
+    }
 }
-
-void Table::sendCallAgain(void) 
+        
+void Table::sendCallRsp(bool act)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
         Jpacket packet;
-        //packet.val["cmd"]           = SERVER_AGAIN_CALL;
+        packet.val["cmd"]           = SERVER_CALL_RSP;
+        packet.val["cur_id"]        = getSeat(m_curSeat);
+        packet.val["act"]           = act;
+        packet.end();
+        unicast(pl, packet.tostring());
+    }
+}
+
+void Table::sendGrab(void)
+{
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        Jpacket packet;
+        packet.val["cmd"]           = SERVER_GRAB;
         packet.val["time"]          = lzddz.game->CALLTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
-        packet.val["pre_id"]        = getSeat(m_preSeat);
-        packet.val["score"]         = m_callScore[m_preSeat];
+        packet.end();
+        unicast(pl, packet.tostring());
+    }
+}
+        
+void Table::sendGrabRsp(bool act)
+{
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        Jpacket packet;
+        packet.val["cmd"]           = SERVER_GRAB_RSP;
+        packet.val["cur_id"]        = getSeat(m_curSeat);
+        packet.val["act"]           = act;
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -1449,6 +1518,8 @@ void Table::gameStart(void)
 
     sendCard1();
 
+    sendCall();
+
     ev_timer_stop(lzddz.loop, &m_timerUpdate);
     ev_timer_again(lzddz.loop, &m_timerUpdate);
 
@@ -1464,7 +1535,6 @@ void Table::gameRestart(void)
     //重置部分数据
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        m_callScore[i] = 0;
         m_famerDouble[i] = false;
         m_seatCard[i].reset();
         m_bomb[i] = 0;
@@ -1498,7 +1568,19 @@ bool Table::getNext(void)
                     m_preSeat = m_curSeat;
                     m_curSeat = nextSeat;
                     m_opState[m_curSeat] = OP_CALL_NOTIFY;
-                    //xt_log.debug("get next success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                    xt_log.debug("get next call success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                    return true; 
+                }
+            }
+            break;
+        case STATE_GRAB:
+            {
+                if(m_opState[nextSeat] == OP_CALL_WAIT) 
+                {
+                    m_preSeat = m_curSeat;
+                    m_curSeat = nextSeat;
+                    m_opState[m_curSeat] = OP_GRAB_NOTIFY;
+                    xt_log.debug("get next grab, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
                     return true; 
                 }
             }
@@ -1553,49 +1635,6 @@ bool Table::allSeatFit(int state)
 
 bool Table::selecLord(void)
 {
-    //如果有3分直接地主, 
-    if(m_callScore[m_curSeat] == 3)
-    {
-        m_topCall = m_callScore[m_curSeat];
-        m_lordSeat = m_curSeat;
-        //xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
-        return true;
-    }
-
-    //如果3人都已经叫过分，选择最高分地主
-    bool isAll = true;
-    unsigned int seatid = 0;
-    int score = 0;
-    for(unsigned int i = 0; i < SEAT_NUM; ++i) 
-    {
-        if(m_callScore[i] > score) 
-        {
-            score = m_callScore[i]; 
-            seatid = i;
-        }
-
-        if(m_opState[i] != OP_CALL_RECEIVE)
-        {
-            isAll = false;
-        }
-    }
-    //not all respond
-    if(!isAll)
-    {
-        //xt_log.debug("selectLord fail, no all respond.\n");
-        return false;
-    }
-    // no one give score
-    if(score == 0)
-    {
-        //xt_log.debug("selectLord fail, no one give score.\n");
-        return false;
-    }
-
-    m_topCall = score;
-    m_lordSeat = seatid;
-
-    //xt_log.debug("selectLord success, score:%d, seatid:%d, uid:%d\n", m_topCall, m_lordSeat, getSeat(m_lordSeat));
     return true;
 }
 
@@ -1669,10 +1708,6 @@ int Table::getAllDouble(void)
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         bombDouble += m_bomb[i];
-        if(m_callScore[i] > callDouble)
-        {
-            callDouble = m_callScore[i];
-        }
     }
     //xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble);
     ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble;

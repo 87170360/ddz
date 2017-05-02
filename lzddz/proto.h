@@ -99,7 +99,6 @@ enum OP_STATE
     OP_CALL_WAIT                   = 3,            //等待叫地主通知
     OP_CALL_NOTIFY                 = 4,            //已通知叫地主
     OP_CALL_RECEIVE                = 5,            //已经响应叫地主
-    OP_GRAB_WAIT                   = 6,            //等待抢地主通知
     OP_GRAB_NOTIFY                 = 7,            //已通知抢地主
     OP_GARB_RECEIVE                = 8,            //已经响应抢地主
     OP_DOUBLE_NOTIFY               = 9,            //已经通知
