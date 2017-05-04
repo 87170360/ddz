@@ -119,8 +119,8 @@ class Table
         void sendGrab(void);
         //通知抢地主响应
         void sendGrabRsp(bool act);
-        //叫分结果和加倍
-        void sendCallResult(void);
+        //抢地主结果和加倍
+        void sendGrabResult(void);
         //加倍广播
         void sendDouble(int uid, bool isDouble); 
         //加倍结果和出牌
@@ -218,8 +218,9 @@ class Table
         int                         m_seats[SEAT_NUM];              //各座位玩家id
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
         bool                        m_famerDouble[SEAT_NUM];        //农民加倍
+        int                         m_grabDoulbe;                   //抢地主加倍数, 无加倍时候默认值1
         bool                        m_entrust[SEAT_NUM];            //托管状态 true false
-        bool                        m_timeout[SEAT_NUM];           //出牌超时 true false
+        bool                        m_timeout[SEAT_NUM];            //出牌超时 true false
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
         int                         m_money[SEAT_NUM];              //各座位输赢

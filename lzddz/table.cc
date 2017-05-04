@@ -94,6 +94,7 @@ void Table::reset(void)
     m_win = 0;
     m_time = 0;
     m_state = STATE_PREPARE; 
+    m_grabDoulbe = 1;
 
     ev_timer_stop(lzddz.loop, &m_timerCall);
     ev_timer_stop(lzddz.loop, &m_timerDouble);
@@ -492,7 +493,7 @@ void Table::msgCall(Player* player)
     //xt_log.debug("call score, m_uid:%d, seatid:%d, score :%d\n", player->m_uid, player->m_seatid, m_callScore[player->m_seatid]);
     logicCall(act);
 }
-        
+
 void Table::msgGrab(Player* player)
 {
     Json::Value &msg = player->client->packet.tojson();
@@ -712,7 +713,7 @@ void Table::msgChat(Player* player)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
-        
+
 void Table::msgMotion(Player* player)
 {
     if(player->m_money < lzddz.game->MOTIONMONEY || player->m_money < lzddz.game->ROOMLIMIT)
@@ -866,16 +867,16 @@ void Table::loginBC(Player* player)
     packet.val["cmd"]       = SERVER_LOGIN;
 
     /* //直接这样发，客户端解析有错误
-    Jpacket packet;
-    packet.val["uid"]       = player->m_uid;
-    packet.val["seatid"]    = player->m_seatid;
-    packet.val["name"]      = player->m_name;
-    packet.val["money"]     = player->m_money;
-    packet.val["level"]     = player->m_level;
-    packet.val["sex"]       = player->m_sex;
-    packet.val["avatar"]    = player->m_avatar;
-    packet.val["state"]     = m_state;
-    */
+       Jpacket packet;
+       packet.val["uid"]       = player->m_uid;
+       packet.val["seatid"]    = player->m_seatid;
+       packet.val["name"]      = player->m_name;
+       packet.val["money"]     = player->m_money;
+       packet.val["level"]     = player->m_level;
+       packet.val["sex"]       = player->m_sex;
+       packet.val["avatar"]    = player->m_avatar;
+       packet.val["state"]     = m_state;
+       */
 
     packet.end();
     broadcast(player, packet.tostring());
@@ -1076,7 +1077,7 @@ void Table::logicCall(bool act)
 
     //广播叫地主响应
     sendCallRsp(act);
-    
+
     //不叫地主，选择下一个叫地主
     if(getNext())
     {
@@ -1096,53 +1097,83 @@ void Table::logicCall(bool act)
         //无人叫地主，重现发牌
         gameRestart(); 
     }
-   
+
     /*
     //是否已经选出地主
     if(selecLord())
     {
-        //选地主，进入加倍环节
-        doubleProc();
-        sendCallResult(); 
+    //选地主，进入加倍环节
+    doubleProc();
+    sendCallResult(); 
 
-        //任意一个农民是托管，都要进行处理
-        int famer1 = (m_lordSeat + 1) % 3;
-        int famer2 = (m_lordSeat + 2) % 3;
-        if(m_entrust[famer1])
-        {
-            entrustProc(true, famer1);
-        }
+    //任意一个农民是托管，都要进行处理
+    int famer1 = (m_lordSeat + 1) % 3;
+    int famer2 = (m_lordSeat + 2) % 3;
+    if(m_entrust[famer1])
+    {
+    entrustProc(true, famer1);
+    }
 
-        if(m_entrust[famer2])
-        {
-            entrustProc(true, famer2);
-        }
+    if(m_entrust[famer2])
+    {
+    entrustProc(true, famer2);
+    }
     }//设置下一个操作人
     else if(getNext())
     {
-        //广播当前叫分和下一个叫分
-        //xt_log.debug("m_timerCall again start.\n");
-        m_time = lzddz.game->CALLTIME;
-        if(m_entrust[m_curSeat])
-        {
-            entrustProc(false, m_curSeat);
-        }
-        else
-        {
-            ev_timer_again(lzddz.loop, &m_timerCall);
-        }
+    //广播当前叫分和下一个叫分
+    //xt_log.debug("m_timerCall again start.\n");
+    m_time = lzddz.game->CALLTIME;
+    if(m_entrust[m_curSeat])
+    {
+    entrustProc(false, m_curSeat);
+    }
+    else
+    {
+    ev_timer_again(lzddz.loop, &m_timerCall);
+    }
     }
     else
     {//重新发牌
-        xt_log.debug("nobody call, need send card again.\n");
-        gameRestart();
+    xt_log.debug("nobody call, need send card again.\n");
+    gameRestart();
     }
     */
 }
-        
+
 void Table::logicGrab(bool act)
 {
+    //保存抢地主倍数
+    if(act)
+    {
+        m_grabDoulbe += 1;
+        //地主保存
+        m_lordSeat = m_curSeat;
+    }
 
+    //广播抢地主响应
+    sendGrabRsp(act);
+
+    bool allRsp = true;
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)   
+    {
+        if(m_opState[i] != OP_CALL_RECEIVE && m_opState[i] != OP_GARB_RECEIVE)
+        {
+            allRsp = false;
+        }
+    }
+    //全部响应过，开始农民加倍, 发底牌
+    if(allRsp)
+    {
+        doubleProc();
+        sendGrabResult();
+    }
+    else
+    {
+    //通知下一个人抢地主
+        getNext();
+        sendGrab();
+    }
 }
 
 void Table::logicDouble(bool isMsg)
@@ -1295,7 +1326,7 @@ void Table::sendCard1(void)
         unicast(pl, packet.tostring());
     }
 }
-        
+
 void Table::sendCall(void)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -1309,7 +1340,7 @@ void Table::sendCall(void)
         unicast(pl, packet.tostring());
     }
 }
-        
+
 void Table::sendCallRsp(bool act)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -1337,7 +1368,7 @@ void Table::sendGrab(void)
         unicast(pl, packet.tostring());
     }
 }
-        
+
 void Table::sendGrabRsp(bool act)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -1352,15 +1383,14 @@ void Table::sendGrabRsp(bool act)
     }
 }
 
-void Table::sendCallResult(void)
+void Table::sendGrabResult(void)
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
         Jpacket packet;
-        //packet.val["cmd"]           = SERVER_RESULT_CALL;
+        packet.val["cmd"]           = SERVER_RESULT_GRAB;
         packet.val["time"]          = lzddz.game->DOUBLETIME;
-        packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeat(m_lordSeat);
         vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
@@ -1468,7 +1498,7 @@ void Table::sendError(Player* player, int msgid, int errcode)
     unicast(player, packet.tostring());
     xt_log.error("error msg, msgid:%d, code:%d\n", msgid, errcode);
 }
-        
+
 void Table::sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep)
 {
     Jpacket packet;
@@ -1496,7 +1526,7 @@ void Table::sendEntrustDouble(Player* player, bool dou)
     packet.end();
     unicast(player, packet.tostring());
 }
-        
+
 void Table::sendEntrust(int uid, bool active)
 {
     Jpacket packet;
@@ -1970,7 +2000,7 @@ int Table::getSeat(int seatid)
     }
     return m_seats[seatid];
 }
-        
+
 void Table::allowanceProc(void) 
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -2020,7 +2050,7 @@ void Table::addRobotMoney(Player* player)
     //xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }
-        
+
 void Table::addPlayersExp(void)
 {
     int exp = 0;
@@ -2032,12 +2062,12 @@ void Table::addPlayersExp(void)
         player->addExp(exp);
     }
 }
-        
+
 int Table::money2exp(int money)
 {
     if(money <= 0)
     {
-       return 0; 
+        return 0; 
     }
     else if(money <= 1000)
     {
@@ -2064,7 +2094,7 @@ int Table::money2exp(int money)
         return 0;
     }
 }
-        
+
 void Table::entrustOut(void)
 {
     //xt_log.debug("entrustOut. m_curSeat:%d\n", m_curSeat);
@@ -2090,22 +2120,22 @@ void Table::entrustOut(void)
     {
         m_deck.getOut(myCard, m_lastCard, curCard);
         /*
-        if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
-        {
-            xt_log.debug("my card\n");
-            show(myCard);
-            xt_log.debug("last card\n");
-            show(m_lastCard);
-            xt_log.debug("select card\n");
-            show(curCard);
-        }
-        */
+           if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
+           {
+           xt_log.debug("my card\n");
+           show(myCard);
+           xt_log.debug("last card\n");
+           show(m_lastCard);
+           xt_log.debug("select card\n");
+           show(curCard);
+           }
+           */
     }
     keep = curCard.empty() ? true : false; 
 
     sendEntrustOut(player, curCard, keep); 
     //xt_log.debug("entrust out, uid:%d, keep:%s\n", player->m_uid, keep ? "true" : "false");
-        //show(curCard);
+    //show(curCard);
 
     //判断是否结束和通知下一个出牌人，本轮出牌
     logicOut(player, curCard, keep);
