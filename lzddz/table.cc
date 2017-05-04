@@ -25,8 +25,8 @@ extern Log xt_log;
 
 Table::Table()
 {
-    m_timerCall.data = this;
-    ev_timer_init(&m_timerCall, Table::callCB, ev_tstamp(lzddz.game->CALLTIME), ev_tstamp(lzddz.game->CALLTIME));
+    m_timerLord.data = this;
+    ev_timer_init(&m_timerLord, Table::lordCB, ev_tstamp(lzddz.game->CALLTIME), ev_tstamp(lzddz.game->CALLTIME));
 
     m_timerDouble.data = this;
     ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(lzddz.game->DOUBLETIME), ev_tstamp(lzddz.game->DOUBLETIME));
@@ -42,16 +42,18 @@ Table::Table()
 
     m_timerEntrustOut.data = this;
     ev_timer_init(&m_timerEntrustOut, Table::entrustOutCB, ev_tstamp(ENTRUST_OUT_TIME), ev_tstamp(ENTRUST_OUT_TIME));
+
 }
 
 Table::~Table()
 {
-    ev_timer_stop(lzddz.loop, &m_timerCall);
+    xt_log.debug("~Table \n");
     ev_timer_stop(lzddz.loop, &m_timerDouble);
     ev_timer_stop(lzddz.loop, &m_timerOut);
     ev_timer_stop(lzddz.loop, &m_timerKick);
     ev_timer_stop(lzddz.loop, &m_timerUpdate);
     ev_timer_stop(lzddz.loop, &m_timerEntrustOut);
+    ev_timer_stop(lzddz.loop, &m_timerLord);
 }
 
 int Table::init(int tid)
@@ -96,12 +98,12 @@ void Table::reset(void)
     m_state = STATE_PREPARE; 
     m_grabDoulbe = 0;
 
-    ev_timer_stop(lzddz.loop, &m_timerCall);
     ev_timer_stop(lzddz.loop, &m_timerDouble);
     ev_timer_stop(lzddz.loop, &m_timerOut);
     ev_timer_stop(lzddz.loop, &m_timerKick);
     ev_timer_stop(lzddz.loop, &m_timerUpdate);
     ev_timer_stop(lzddz.loop, &m_timerEntrustOut);
+    ev_timer_stop(lzddz.loop, &m_timerLord);
 }
 
 int Table::broadcast(Player *p, const std::string &packet)
@@ -171,22 +173,6 @@ void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, st
         XtCard card(val[key][i].asInt());
         cards.push_back(card);
     }
-}
-
-void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
-{
-    Table *table = (Table*) w->data;
-    //ev_timer_stop(lzddz.loop, &table->m_timerCall);
-    //xt_log.debug("stop m_timerCall for timerup.\n");
-    table->onCall();
-}
-
-void Table::onCall(void)
-{
-    //xt_log.debug("onCall\n");
-    //记录状态
-    m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    logicCall(true);
 }
 
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -310,6 +296,7 @@ void Table::updateCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onUpdate(void)
 {
+    //xt_log.debug("onUpdate.\n");
     if(--m_time >= 0)
     {
         sendTime();
@@ -326,6 +313,22 @@ void Table::entrustOutCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 void Table::onEntrustOut(void)
 {
     entrustOut();
+}
+
+void Table::lordCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    //xt_log.debug("lordCB.\n");
+    Table *table = (Table*) w->data;
+    ev_timer_stop(lzddz.loop, &table->m_timerLord);
+    table->onLord();
+}
+
+void Table::onLord(void)
+{
+    //xt_log.debug("onLord.\n");
+    //记录状态
+    m_opState[m_curSeat] = OP_CALL_RECEIVE;
+    logicCall(false);
 }
 
 int Table::login(Player *player)
@@ -484,8 +487,8 @@ void Table::msgCall(Player* player)
     bool act = msg["act"].asBool();
 
     //停止定时器
-    //xt_log.debug("stop m_timerCall for msg.\n");
-    ev_timer_stop(lzddz.loop, &m_timerCall);
+    xt_log.debug("stop m_timerLord for msg.\n");
+    ev_timer_stop(lzddz.loop, &m_timerLord);
 
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
@@ -593,9 +596,9 @@ void Table::msgOut(Player* player)
     //不出校验
     bool keep = msg["keep"].asBool();
 
-    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
+    xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
     //xt_log.debug("curCard:\n");
-    //show(curCard);
+    show(curCard);
     //xt_log.debug("lastCard:\n");
     //show(m_lastCard);
     //
@@ -921,8 +924,8 @@ void Table::callProc(void)
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = lzddz.game->CALLTIME;
-    ev_timer_again(lzddz.loop, &m_timerCall);
-    //xt_log.debug("m_timerCall first start \n");
+    ev_timer_again(lzddz.loop, &m_timerLord);
+    xt_log.debug("m_timerLord first start, time:%d \n", m_time);
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -1035,9 +1038,10 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
             {
                 if(killtimer)
                 {
-                    ev_timer_stop(lzddz.loop, &m_timerCall);
+                    ev_timer_stop(lzddz.loop, &m_timerLord);
+                    xt_log.debug("stop m_timerLord for entrust. \n");
                 }
-                onCall();
+                logicCall(false);
                 //sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
             }
             break;
@@ -1088,7 +1092,8 @@ void Table::logicCall(bool act)
         }
         else
         {
-            //ev_timer_again(lzddz.loop, &m_timerCall);
+            ev_timer_again(lzddz.loop, &m_timerLord);
+            //xt_log.debug("logicCall m_timerLord again.\n");
             sendCall();
         }
     }
@@ -1552,6 +1557,7 @@ void Table::gameStart(void)
 
     ev_timer_stop(lzddz.loop, &m_timerUpdate);
     ev_timer_again(lzddz.loop, &m_timerUpdate);
+
 
     //如果托管直接自动处理
     if(m_entrust[m_curSeat])

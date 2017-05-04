@@ -48,8 +48,6 @@ class Table
 
         //定时器函数
         /////////////////////////////////////////////////////////////////////////////
-        static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void onCall(void);
         static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onDouble(void);
         static void OutCB(struct ev_loop *loop, struct ev_timer *w, int revents);
@@ -60,6 +58,8 @@ class Table
         void onUpdate(void);
         static void entrustOutCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onEntrustOut(void);
+        static void lordCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+        void onLord(void);
         /////////////////////////////////////////////////////////////////////////////
 
         //receive msg
@@ -242,6 +242,7 @@ class Table
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
         ev_timer                    m_timerUpdate;                  //更新倒计时
         ev_timer                    m_timerEntrustOut;              //托管出牌定时器
+        ev_timer                    m_timerLord;
 
         vector<Player*>             m_delPlayer;
 };

@@ -505,7 +505,7 @@ void XtRobotClient::sendCall(void)
     data.end();
 
     send(data.tostring());
-    printf("sendcall true uid:%d. \n", m_uid);
+    printf("sendcall uid:%d. \n", m_uid);
 }
         
 void XtRobotClient::sendCard(void)
