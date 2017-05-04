@@ -1,2 +1,2 @@
 # /bin/sh
-cp -f /data/src/bull/hlddz/proto.h /data/src/bull/hlddz_robot/
+cp -f /data/src/bull/lzddz/proto.h /data/src/bull/lzddz_robot/

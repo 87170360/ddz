@@ -94,7 +94,7 @@ void Table::reset(void)
     m_win = 0;
     m_time = 0;
     m_state = STATE_PREPARE; 
-    m_grabDoulbe = 1;
+    m_grabDoulbe = 0;
 
     ev_timer_stop(lzddz.loop, &m_timerCall);
     ev_timer_stop(lzddz.loop, &m_timerDouble);
@@ -501,6 +501,7 @@ void Table::msgGrab(Player* player)
     //检查状态
     //记录状态
     m_opState[m_curSeat] = OP_GARB_RECEIVE;
+    //xt_log.debug("msg grab, m_uid:%d, seatid:%d, act:%s\n", player->m_uid, player->m_seatid, act ? "true" : "false");
     logicGrab(act);
 }
 
@@ -1174,6 +1175,7 @@ void Table::logicGrab(bool act)
         getNext();
         sendGrab();
     }
+    //xt_log.debug("logicGrab, allRsp:%s!\n", allRsp ? "true": "false");
 }
 
 void Table::logicDouble(bool isMsg)
@@ -1319,9 +1321,6 @@ void Table::sendCard1(void)
         Jpacket packet;
         packet.val["cmd"]           = SERVER_CARD_1;
         vector_to_json_array(m_seatCard[pl->m_seatid].m_cards, packet, "card");
-        packet.val["time"]          = lzddz.game->CALLTIME;
-        packet.val["show_time"]     = lzddz.game->SHOWTIME;
-        packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -1336,6 +1335,7 @@ void Table::sendCall(void)
         packet.val["cmd"]           = SERVER_CALL;
         packet.val["time"]          = lzddz.game->CALLTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
+        packet.val["show_time"]     = lzddz.game->SHOWTIME;
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -1598,7 +1598,7 @@ bool Table::getNext(void)
                     m_preSeat = m_curSeat;
                     m_curSeat = nextSeat;
                     m_opState[m_curSeat] = OP_CALL_NOTIFY;
-                    xt_log.debug("get next call success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                    //xt_log.debug("get next call success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
                     return true; 
                 }
             }
@@ -1610,7 +1610,7 @@ bool Table::getNext(void)
                     m_preSeat = m_curSeat;
                     m_curSeat = nextSeat;
                     m_opState[m_curSeat] = OP_GRAB_NOTIFY;
-                    xt_log.debug("get next grab, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                    //xt_log.debug("get next grab, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
                     return true; 
                 }
             }
@@ -1725,8 +1725,8 @@ int Table::getAllDouble(void)
 {
     int ret = 0;
 
-    //叫分加倍
-    int callDouble = 0;
+    //抢地主加倍
+    int callDouble = m_grabDoulbe;
     //炸弹加倍
     int bombDouble = 0;
     //底牌加倍

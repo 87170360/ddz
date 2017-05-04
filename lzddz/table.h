@@ -85,7 +85,6 @@ class Table
         void prepareProc(void);
         //叫地主
         void callProc(void);
-        //抢地主
         //加倍处理
         void doubleProc(void);
         //出牌处理
@@ -218,7 +217,7 @@ class Table
         int                         m_seats[SEAT_NUM];              //各座位玩家id
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
         bool                        m_famerDouble[SEAT_NUM];        //农民加倍
-        int                         m_grabDoulbe;                   //抢地主加倍数, 无加倍时候默认值1
+        int                         m_grabDoulbe;                   //抢地主加倍数
         bool                        m_entrust[SEAT_NUM];            //托管状态 true false
         bool                        m_timeout[SEAT_NUM];            //出牌超时 true false
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
