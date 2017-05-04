@@ -236,7 +236,7 @@ class Table
         std::vector<XtCard>         m_bottomCard;                   //底牌
         std::vector<XtCard>         m_lastCard;                     //上一轮牌
 
-        ev_timer                    m_timerCall;                    //叫分
+        ev_timer                    m_timerCall;                    //叫地主抢地主定时器
         ev_timer                    m_timerDouble;                  //加倍
         ev_timer                    m_timerOut;                     //出牌
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时

@@ -501,7 +501,7 @@ void XtRobotClient::sendCall(void)
 {
     Jpacket data;
     data.val["cmd"]     =   CLIENT_CALL;
-    data.val["act"]     =   true;
+    data.val["act"]     =   (rand() % 2) > 0;
     data.end();
 
     send(data.tostring());

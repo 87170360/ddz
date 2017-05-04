@@ -176,7 +176,7 @@ void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, st
 void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
-    ev_timer_stop(lzddz.loop, &table->m_timerCall);
+    //ev_timer_stop(lzddz.loop, &table->m_timerCall);
     //xt_log.debug("stop m_timerCall for timerup.\n");
     table->onCall();
 }
@@ -456,7 +456,6 @@ void Table::msgCall(Player* player)
         return;
     }
 
-    //座位通知过或者已经已经自动叫分
     if(m_opState[player->m_seatid] != OP_CALL_NOTIFY)
     {        
         xt_log.error("%s:%d, call fail!, player callstate error. player seatid:%d, m_uid:%d, callstate:%s\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, DESC_OP[m_opState[player->m_seatid]]); 
@@ -484,9 +483,9 @@ void Table::msgCall(Player* player)
     Json::Value &msg = player->client->packet.tojson();
     bool act = msg["act"].asBool();
 
-    //停止叫分定时器
+    //停止定时器
     //xt_log.debug("stop m_timerCall for msg.\n");
-    //ev_timer_stop(lzddz.loop, &m_timerCall);
+    ev_timer_stop(lzddz.loop, &m_timerCall);
 
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
@@ -922,7 +921,7 @@ void Table::callProc(void)
     setAllSeatOp(OP_CALL_WAIT);
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = lzddz.game->CALLTIME;
-    //ev_timer_again(lzddz.loop, &m_timerCall);
+    ev_timer_again(lzddz.loop, &m_timerCall);
     //xt_log.debug("m_timerCall first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
@@ -1089,12 +1088,13 @@ void Table::logicCall(bool act)
         }
         else
         {
+            //ev_timer_again(lzddz.loop, &m_timerCall);
             sendCall();
         }
     }
     else
     {
-        xt_log.debug("nobody call, need send card again.\n");
+        xt_log.debug("nobody call, send card again.\n");
         //无人叫地主，重现发牌
         gameRestart(); 
     }
