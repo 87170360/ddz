@@ -359,11 +359,10 @@ void XtRobotClient::handleGrab(Json::Value& msg)
     }
     Jpacket data;
     data.val["cmd"]     =   CLIENT_GRAB;
-    data.val["act"]     =   true;
+    data.val["act"]     =   rand() % 2 > 1;
     data.end();
-
     send(data.tostring());
-    printf("handle grab true. uid:%d\n", m_uid);
+    //printf("handle grab true. uid:%d\n", m_uid);
 }
 
 void XtRobotClient::handleResultGrab(Json::Value& msg) 

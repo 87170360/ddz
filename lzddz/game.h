@@ -33,6 +33,7 @@ public:
 	std::map<int, Player*>      online_players;
 
     int CALLTIME;
+    int GRABTIME;
     int DOUBLETIME;
     int OUTTIME;
     int SECOND_OUTTIME;    //第二次出牌超时

@@ -23,6 +23,7 @@ extern Log xt_log;
 Game::Game()
 {
     CALLTIME          = 300;
+    GRABTIME          = 300;
     DOUBLETIME        = 300;
     OUTTIME           = 300;
     SECOND_OUTTIME    = 5;    //第二次出牌超时
@@ -46,11 +47,9 @@ void dump_game_info(char *tag)
 
 int Game::start()
 {
-    /* first init table */
-    init_table();
-
-    init_accept();
     initConf();
+    init_table();
+    init_accept();
 
     return 0;
 }
@@ -124,6 +123,7 @@ void Game::initConf(void)
 {
     //xt_log.debug("initConf\n");
     CALLTIME          = lzddz.conf["tables"]["calltime"].asInt();
+    GRABTIME          = lzddz.conf["tables"]["grabtime"].asInt();
     //xt_log.debug("CALLTIME:%d\n",CALLTIME);
     DOUBLETIME        = lzddz.conf["tables"]["doubletime"].asInt();
     //xt_log.debug("DOUBLETIME:%d\n",DOUBLETIME);

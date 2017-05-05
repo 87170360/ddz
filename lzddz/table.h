@@ -60,6 +60,8 @@ class Table
         void onEntrustOut(void);
         static void lordCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onLord(void);
+        static void grabCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+        void onGrab(void);
         /////////////////////////////////////////////////////////////////////////////
 
         //receive msg
@@ -85,6 +87,8 @@ class Table
         void prepareProc(void);
         //叫地主
         void callProc(void);
+        //抢地主
+        void grabProc(void);
         //加倍处理
         void doubleProc(void);
         //出牌处理
@@ -236,13 +240,13 @@ class Table
         std::vector<XtCard>         m_bottomCard;                   //底牌
         std::vector<XtCard>         m_lastCard;                     //上一轮牌
 
-        ev_timer                    m_timerCall;                    //叫地主抢地主定时器
         ev_timer                    m_timerDouble;                  //加倍
         ev_timer                    m_timerOut;                     //出牌
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
         ev_timer                    m_timerUpdate;                  //更新倒计时
         ev_timer                    m_timerEntrustOut;              //托管出牌定时器
-        ev_timer                    m_timerLord;
+        ev_timer                    m_timerLord;                    //叫地主定时器
+        ev_timer                    m_timerGrab;                    //抢地主定时器
 
         vector<Player*>             m_delPlayer;
 };

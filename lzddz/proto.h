@@ -100,7 +100,7 @@ enum OP_STATE
     OP_CALL_NOTIFY                 = 4,            //已通知叫地主
     OP_CALL_RECEIVE                = 5,            //已经响应叫地主
     OP_GRAB_NOTIFY                 = 7,            //已通知抢地主
-    OP_GARB_RECEIVE                = 8,            //已经响应抢地主
+    OP_GRAB_RECEIVE                = 8,            //已经响应抢地主
     OP_DOUBLE_NOTIFY               = 9,            //已经通知
     OP_DOUBLE_RECEIVE              = 10,           //已经响应
     OP_OUT_WAIT                    = 11,           //等待出牌
@@ -118,7 +118,7 @@ static const char* DESC_OP[OP_MAX] =
     "OP_CALL_RECEIVE",
     "OP_GRAB_WAIT",
     "OP_GRAB_NOTIFY",
-    "OP_GARB_RECEIVE",
+    "OP_GRAB_RECEIVE",
     "OP_DOUBLE_NOTIFY",
     "OP_DOUBLE_RECEIVE",
     "OP_OUT_WAIT",

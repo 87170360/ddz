@@ -28,6 +28,9 @@ Table::Table()
     m_timerLord.data = this;
     ev_timer_init(&m_timerLord, Table::lordCB, ev_tstamp(lzddz.game->CALLTIME), ev_tstamp(lzddz.game->CALLTIME));
 
+    m_timerGrab.data = this;
+    ev_timer_init(&m_timerGrab, Table::grabCB, ev_tstamp(lzddz.game->GRABTIME), ev_tstamp(lzddz.game->GRABTIME));
+
     m_timerDouble.data = this;
     ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(lzddz.game->DOUBLETIME), ev_tstamp(lzddz.game->DOUBLETIME));
 
@@ -54,6 +57,7 @@ Table::~Table()
     ev_timer_stop(lzddz.loop, &m_timerUpdate);
     ev_timer_stop(lzddz.loop, &m_timerEntrustOut);
     ev_timer_stop(lzddz.loop, &m_timerLord);
+    ev_timer_stop(lzddz.loop, &m_timerGrab);
 }
 
 int Table::init(int tid)
@@ -104,6 +108,7 @@ void Table::reset(void)
     ev_timer_stop(lzddz.loop, &m_timerUpdate);
     ev_timer_stop(lzddz.loop, &m_timerEntrustOut);
     ev_timer_stop(lzddz.loop, &m_timerLord);
+    ev_timer_stop(lzddz.loop, &m_timerGrab);
 }
 
 int Table::broadcast(Player *p, const std::string &packet)
@@ -325,10 +330,25 @@ void Table::lordCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onLord(void)
 {
-    //xt_log.debug("onLord.\n");
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
+    xt_log.debug("onLord.\n");
     logicCall(false);
+}
+
+void Table::grabCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(lzddz.loop, &table->m_timerGrab);
+    //xt_log.debug("%s:%d, stop m_timerGrab for timeup.\n", __FILE__, __LINE__);
+    table->onGrab();
+}
+
+void Table::onGrab(void)
+{
+    m_opState[m_curSeat] = OP_GRAB_RECEIVE;
+    xt_log.debug("onGrab. m_curSeat:%d\n", m_curSeat);
+    logicGrab(false); 
 }
 
 int Table::login(Player *player)
@@ -487,12 +507,12 @@ void Table::msgCall(Player* player)
     bool act = msg["act"].asBool();
 
     //停止定时器
-    xt_log.debug("stop m_timerLord for msg.\n");
+    //xt_log.debug("stop m_timerLord for msg.\n");
     ev_timer_stop(lzddz.loop, &m_timerLord);
 
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    //xt_log.debug("call score, m_uid:%d, seatid:%d, score :%d\n", player->m_uid, player->m_seatid, m_callScore[player->m_seatid]);
+    //xt_log.debug("call msg, m_uid:%d, seatid:%d, act:%s \n", player->m_uid, player->m_seatid, act ? "true" : "false");
     logicCall(act);
 }
 
@@ -502,7 +522,12 @@ void Table::msgGrab(Player* player)
     bool act = msg["act"].asBool();
     //检查状态
     //记录状态
-    m_opState[m_curSeat] = OP_GARB_RECEIVE;
+    
+    //停止定时器
+    //xt_log.debug("stop m_timerGrab for msg.\n");
+    ev_timer_stop(lzddz.loop, &m_timerGrab);
+
+    m_opState[m_curSeat] = OP_GRAB_RECEIVE;
     //xt_log.debug("msg grab, m_uid:%d, seatid:%d, act:%s\n", player->m_uid, player->m_seatid, act ? "true" : "false");
     logicGrab(act);
 }
@@ -925,7 +950,17 @@ void Table::callProc(void)
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = lzddz.game->CALLTIME;
     ev_timer_again(lzddz.loop, &m_timerLord);
-    xt_log.debug("m_timerLord first start, time:%d \n", m_time);
+    //xt_log.debug("m_timerLord first start.\n");
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+}
+
+void Table::grabProc(void)
+{
+    m_state = STATE_GRAB; 
+    m_opState[m_curSeat] = OP_CALL_NOTIFY;
+    m_time = lzddz.game->CALLTIME;
+    ev_timer_again(lzddz.loop, &m_timerGrab);
+    //xt_log.debug("m_timerGrab first start.\n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -1045,6 +1080,17 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                 //sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
             }
             break;
+        case STATE_GRAB:
+            {
+                if(killtimer)
+                {
+                    xt_log.debug("stop m_timerGrab for entrust. \n");
+                    ev_timer_stop(lzddz.loop, &m_timerGrab);
+                }
+                logicGrab(false);
+                //sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
+            }
+            break;
         case STATE_DOUBLE:
             {
                 if(killtimer)
@@ -1074,27 +1120,31 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
 
 void Table::logicCall(bool act)
 {
-    if(act)
-    {
-        m_state = STATE_GRAB; 
-    }
-
     //广播叫地主响应
     sendCallRsp(act);
 
-    //不叫地主，选择下一个叫地主
+    //选择下一个叫地主或者抢地主
     if(getNext())
     {
         //叫地主，进入抢地主
         if(act)
         {
             sendGrab();  
+            grabProc();
         }
         else
         {
-            ev_timer_again(lzddz.loop, &m_timerLord);
-            //xt_log.debug("logicCall m_timerLord again.\n");
             sendCall();
+            //叫地主托管
+            if(m_entrust[m_curSeat])
+            {
+                entrustProc(true, m_curSeat);
+            }
+            else
+            {
+                //xt_log.debug("%s:%d, m_timerLord again.\n",__FILE__, __LINE__); 
+                ev_timer_again(lzddz.loop, &m_timerLord);
+            }
         }
     }
     else
@@ -1103,48 +1153,6 @@ void Table::logicCall(bool act)
         //无人叫地主，重现发牌
         gameRestart(); 
     }
-
-    /*
-    //是否已经选出地主
-    if(selecLord())
-    {
-    //选地主，进入加倍环节
-    doubleProc();
-    sendCallResult(); 
-
-    //任意一个农民是托管，都要进行处理
-    int famer1 = (m_lordSeat + 1) % 3;
-    int famer2 = (m_lordSeat + 2) % 3;
-    if(m_entrust[famer1])
-    {
-    entrustProc(true, famer1);
-    }
-
-    if(m_entrust[famer2])
-    {
-    entrustProc(true, famer2);
-    }
-    }//设置下一个操作人
-    else if(getNext())
-    {
-    //广播当前叫分和下一个叫分
-    //xt_log.debug("m_timerCall again start.\n");
-    m_time = lzddz.game->CALLTIME;
-    if(m_entrust[m_curSeat])
-    {
-    entrustProc(false, m_curSeat);
-    }
-    else
-    {
-    ev_timer_again(lzddz.loop, &m_timerCall);
-    }
-    }
-    else
-    {//重新发牌
-    xt_log.debug("nobody call, need send card again.\n");
-    gameRestart();
-    }
-    */
 }
 
 void Table::logicGrab(bool act)
@@ -1163,9 +1171,10 @@ void Table::logicGrab(bool act)
     bool allRsp = true;
     for(unsigned int i = 0; i < SEAT_NUM; ++i)   
     {
-        if(m_opState[i] != OP_CALL_RECEIVE && m_opState[i] != OP_GARB_RECEIVE)
+        if(m_opState[i] != OP_CALL_RECEIVE && m_opState[i] != OP_GRAB_RECEIVE)
         {
             allRsp = false;
+            //xt_log.debug("%s:%d, logicGrab seatid:%d, state:%s.\n",__FILE__, __LINE__, i, DESC_OP[m_opState[i]]); 
         }
     }
     //全部响应过，开始农民加倍, 发底牌
@@ -1177,7 +1186,19 @@ void Table::logicGrab(bool act)
     else
     {
     //通知下一个人抢地主
-        getNext();
+        if(getNext())
+        {
+            //叫地主托管
+            if(m_entrust[m_curSeat])
+            {
+                entrustProc(false, m_curSeat);
+            }
+            else
+            {
+                //xt_log.debug("logicGrab m_timerGrab again.\n");
+                ev_timer_again(lzddz.loop, &m_timerGrab);
+            }
+        }
         sendGrab();
     }
     //xt_log.debug("logicGrab, allRsp:%s!\n", allRsp ? "true": "false");
