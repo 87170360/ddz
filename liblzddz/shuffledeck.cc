@@ -1792,3 +1792,8 @@ bool Shuffledeck::isLZ(const vector<Card>& card)
     }
     return false;
 }
+        
+int Shuffledeck::getLZ(void) const
+{
+    return m_lz;
+}

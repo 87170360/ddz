@@ -14,6 +14,10 @@ class Holdcard
 	public:
 		Holdcard(void);
 		~Holdcard(void);
+
+        void reset(void);
+        void popCard(const std::vector<Card>& out); 
+
 	public:
 		vector<Card> m_cards;
         //分组牌, key : DT_TYPE

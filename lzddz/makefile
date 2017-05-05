@@ -4,12 +4,12 @@ CXX = g++
 CFLAGS = -O0 -Wall
 # CXXFLAGS = -O0 -frtti -fexceptions -Wall
 CXXFLAGS = -g -O0 -fno-strict-aliasing -Wno-write-strings -frtti -fexceptions -Wall -DDEBUG
-INCPATH = -I/data/download/jsoncpp-src-0.5.0/include -I../libddz -I/usr/local/include
+INCPATH = -I/data/download/jsoncpp-src-0.5.0/include -I../liblzddz -I/usr/local/include
 
 LD = gcc
 LFLAGS = #-static
-LIBS = /usr/local/lib/libjsoncpp.a /usr/local/lib/libhiredis.a -L. -L../libddz -L/usr/local/lib -lddz -lstdc++ -lev -lm
-#LIBS = -L. -L../libddz -L/usr/local/lib -lzjh -lstdc++ -lev -ljsoncpp -lhiredis
+LIBS = /usr/local/lib/libjsoncpp.a /usr/local/lib/libhiredis.a -L. -L../liblzddz -L/usr/local/lib -llzddz -lstdc++ -lev -lm
+#LIBS = -L. -L../liblzddz -L/usr/local/lib -lzjh -lstdc++ -lev -ljsoncpp -lhiredis
 
 DESTDIR_TARGET = lzddz
 OBJECTS = lzddz.o daemonize.o log.o client.o game.o jpacket.o table.o player.o redis_client.o eventlog.o

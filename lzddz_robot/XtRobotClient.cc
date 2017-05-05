@@ -256,7 +256,7 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
     return 0;
 }
 
-void XtRobotClient::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)
+void XtRobotClient::vector_to_json_array(std::vector<Card> &cards, Jpacket &packet, string key)
 {
     if (cards.empty()) 
     {
@@ -270,35 +270,35 @@ void XtRobotClient::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &pa
     }
 }
 
-void XtRobotClient::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key)
+void XtRobotClient::map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key)
 {
-    std::map<int, XtCard>::iterator it;
+    std::map<int, Card>::iterator it;
     for (it = cards.begin(); it != cards.end(); it++)
     {
-        XtCard &card = it->second;
+        Card &card = it->second;
         packet.val[key].append(card.m_value);
     }
 }
 
 /*
-   void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
+   void XtRobotClient::json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, string key)
    {
    Json::Value &val = packet.tojson();
 
    for (unsigned int i = 0; i < val[key].size(); i++)
    {
-   XtCard card(val[key][i].asInt());
+   Card card(val[key][i].asInt());
 
    cards.push_back(card);
    }
    }
    */
 
-void XtRobotClient::json_array_to_vector(std::vector<XtCard> &cards, Json::Value &val, string key)
+void XtRobotClient::json_array_to_vector(std::vector<Card> &cards, Json::Value &val, string key)
 {
     for (unsigned int i = 0; i < val[key].size(); i++)
     {
-        XtCard card(val[key][i].asInt());
+        Card card(val[key][i].asInt());
 
         cards.push_back(card);
     }
@@ -335,7 +335,7 @@ void XtRobotClient::handleCard(Json::Value& msg)
 {
     m_card.clear();
     json_array_to_vector(m_card, msg, "card");
-    XtCard::sortByDescending(m_card);
+    Card::sortByDescending(m_card);
 }
 
 void XtRobotClient::handleCall(Json::Value& msg) 
@@ -370,7 +370,7 @@ void XtRobotClient::handleResultGrab(Json::Value& msg)
     if(msg["lord"].asInt() == m_uid)
     {
         json_array_to_vector(m_card, msg, "card");
-        XtCard::sortByDescending(m_card);
+        Card::sortByDescending(m_card);
         return;
     }
 
@@ -399,19 +399,19 @@ void XtRobotClient::handleOut(Json::Value& msg)
 
 void XtRobotClient::handleAgainOut(Json::Value& msg)
 {
-    vector<XtCard> preCard;
+    vector<Card> preCard;
     json_array_to_vector(preCard, msg, "card");
 
     //删除自己上次出的牌
     if(msg["pre_id"].asInt() == m_uid && !msg["keep"].asBool())
     {
         //remove 
-        vector<XtCard> newCard;
+        vector<Card> newCard;
         bool find = false;
-        for(vector<XtCard>::iterator it1 = m_card.begin(); it1 != m_card.end(); ++it1)
+        for(vector<Card>::iterator it1 = m_card.begin(); it1 != m_card.end(); ++it1)
         {
             find = false;
-            for(vector<XtCard>::iterator it2 = preCard.begin(); it2 != preCard.end(); ++it2)
+            for(vector<Card>::iterator it2 = preCard.begin(); it2 != preCard.end(); ++it2)
             {
                 if(it1->m_face == it2->m_face && it1->m_suit == it2->m_suit) 
                 {
@@ -509,8 +509,8 @@ void XtRobotClient::sendCall(void)
         
 void XtRobotClient::sendCard(void)
 {
-    XtCard::sortByDescending(m_card);
-    vector<XtCard> outCard;
+    Card::sortByDescending(m_card);
+    vector<Card> outCard;
     Jpacket data;
     data.val["cmd"]     =   CLIENT_OUT;
     //首轮出牌，自己的牌
@@ -521,8 +521,8 @@ void XtRobotClient::sendCard(void)
     //跟牌
     else
     {
-        XtCard::sortByDescending(m_lastCard);
-        m_deck.getOut(m_card, m_lastCard, outCard);
+        Card::sortByDescending(m_lastCard);
+        m_deck.getFollow(m_card, m_lastCard, outCard);
     }
     vector_to_json_array(outCard, data, "card");
     data.val["keep"]     =   outCard.empty();

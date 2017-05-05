@@ -18,7 +18,7 @@
 #include "client.h"
 #include "player.h"
 #include "proto.h"
-#include "XtCard.h"
+#include "card.h"
 
 extern LZDDZ lzddz;
 extern Log xt_log;
@@ -90,7 +90,6 @@ void Table::reset(void)
     m_bottomCard.clear();
     m_lastCard.clear();
     m_players.clear();
-    m_deck.fill();
     m_deck.shuffle(m_tid);
     m_curSeat = 0;
     m_preSeat = 0;
@@ -142,7 +141,7 @@ int Table::random(int start, int end)
     return start + rand() % (end - start + 1);
 }
 
-void Table::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key)
+void Table::vector_to_json_array(std::vector<Card> &cards, Jpacket &packet, string key)
 {
     if (cards.empty()) 
     {
@@ -155,17 +154,17 @@ void Table::vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, st
     }
 }
 
-void Table::map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key)
+void Table::map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key)
 {
-    std::map<int, XtCard>::iterator it;
+    std::map<int, Card>::iterator it;
     for (it = cards.begin(); it != cards.end(); it++)
     {
-        XtCard &card = it->second;
+        Card &card = it->second;
         packet.val[key].append(card.m_value);
     }
 }
 
-void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key)
+void Table::json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, string key)
 {
     Json::Value &val = packet.tojson();
     if(!val.isMember(key))
@@ -175,7 +174,7 @@ void Table::json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, st
 
     for (unsigned int i = 0; i < val[key].size(); i++)
     {
-        XtCard card(val[key][i].asInt());
+        Card card(val[key][i].asInt());
         cards.push_back(card);
     }
 }
@@ -217,11 +216,11 @@ void Table::onOut(void)
     //xt_log.debug("onOut. m_curSeat:%d\n", m_curSeat);
     Player* player = getSeatPlayer(m_curSeat);
     bool keep = false;
-    vector<XtCard> curCard;
-    vector<XtCard> &myCard = m_seatCard[m_curSeat].m_cards;
+    vector<Card> curCard;
+    vector<Card> &myCard = m_seatCard[m_curSeat].m_cards;
 
-    XtCard::sortByDescending(myCard);
-    XtCard::sortByDescending(m_lastCard);
+    Card::sortByDescending(myCard);
+    Card::sortByDescending(m_lastCard);
 
     if(m_entrust[m_curSeat])
     {
@@ -240,7 +239,7 @@ void Table::onOut(void)
         //跟别人的牌
         else
         {
-            m_deck.getOut(myCard, m_lastCard, curCard);
+            m_deck.getFollow(myCard, m_lastCard, curCard);
         }
         m_entrust[m_curSeat] = true;
     }
@@ -615,7 +614,7 @@ void Table::msgOut(Player* player)
 
     Json::Value &msg = player->client->packet.tojson();
 
-    vector<XtCard> curCard;
+    vector<Card> curCard;
     json_array_to_vector(curCard, player->client->packet, "card");
 
     //不出校验
@@ -913,7 +912,7 @@ void Table::loginBC(Player* player)
 bool Table::allocateCard(void)
 {
     //底牌    
-    if(!m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM))
+    if(!m_deck.getHoldCard(m_bottomCard, BOTTON_CARD_NUM))
     {
         xt_log.error("%s:%d, get bottom card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
         return false;
@@ -925,7 +924,7 @@ bool Table::allocateCard(void)
     //手牌
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        if(!m_deck.getHoleCards(m_seatCard[i].m_cards, HAND_CARD_NUM))
+        if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM))
         {
             xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
             return false;
@@ -1188,7 +1187,7 @@ void Table::logicGrab(bool act)
     //通知下一个人抢地主
         if(getNext())
         {
-            //叫地主托管
+            //抢地主托管
             if(m_entrust[m_curSeat])
             {
                 entrustProc(false, m_curSeat);
@@ -1230,12 +1229,12 @@ void Table::logicDouble(bool isMsg)
     }
 }
 
-void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
+void Table::logicOut(Player* player, vector<Card>& curCard, bool keep)
 {
     if(!curCard.empty())
     {
         //牌型校验
-        XtCard::sortByDescending(curCard);
+        Card::sortByDescending(curCard);
         int cardtype = m_deck.getCardType(curCard);
         if(cardtype == CT_ERROR)
         {
@@ -1272,7 +1271,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
     else if(!curCard.empty())
     {//出牌
         //xt_log.debug("compare\n");
-        if(!m_deck.compareCard(curCard, m_lastCard))
+        if(!m_deck.compare(curCard, m_lastCard))
         {
             xt_log.error("%s:%d, compare fail.", __FILE__, __LINE__); 
             xt_log.error("curCard:\n");
@@ -1346,6 +1345,7 @@ void Table::sendCard1(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_CARD_1;
+        packet.val["face"]          = m_deck.getLZ();
         vector_to_json_array(m_seatCard[pl->m_seatid].m_cards, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
@@ -1525,7 +1525,7 @@ void Table::sendError(Player* player, int msgid, int errcode)
     xt_log.error("error msg, msgid:%d, code:%d\n", msgid, errcode);
 }
 
-void Table::sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep)
+void Table::sendEntrustOut(Player* player, vector<Card>& curCard, bool keep)
 {
     Jpacket packet;
     packet.val["cmd"]           = SERVER_ENTRUST_OUT;
@@ -1600,7 +1600,6 @@ void Table::gameRestart(void)
     }
     m_bottomCard.clear();
     m_lastCard.clear();
-    m_deck.fill();
     m_deck.shuffle(m_tid);
     m_curSeat = 0;
     m_preSeat = 0;
@@ -1710,10 +1709,10 @@ int Table::getCount(void)
 
 static string printStr;
 
-void Table::show(const vector<XtCard>& card)
+void Table::show(const vector<Card>& card)
 {
     printStr.clear();
-    for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
+    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
         //xt_log.debug("%s\n", it->getCardDescription());
         printStr.append(it->getCardDescriptionString());
@@ -1778,7 +1777,7 @@ int Table::getBottomDouble(void)
     set<int> suitlist; 
     set<int> facelist; 
     bool isContinue = m_deck.isNContinue(m_bottomCard, 1);
-    for(vector<XtCard>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
+    for(vector<Card>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
     {
         if(it->m_value == 0x00) 
         {
@@ -2127,11 +2126,11 @@ void Table::entrustOut(void)
     //xt_log.debug("entrustOut. m_curSeat:%d\n", m_curSeat);
     Player* player = getSeatPlayer(m_curSeat);
     bool keep = false;
-    vector<XtCard> curCard;
-    vector<XtCard> &myCard = m_seatCard[m_curSeat].m_cards;
+    vector<Card> curCard;
+    vector<Card> &myCard = m_seatCard[m_curSeat].m_cards;
 
-    XtCard::sortByDescending(myCard);
-    XtCard::sortByDescending(m_lastCard);
+    Card::sortByDescending(myCard);
+    Card::sortByDescending(m_lastCard);
     //首轮出牌
     if(m_lastCard.empty())
     {
@@ -2145,7 +2144,7 @@ void Table::entrustOut(void)
     //跟别人的牌
     else
     {
-        m_deck.getOut(myCard, m_lastCard, curCard);
+        m_deck.getFollow(myCard, m_lastCard, curCard);
         /*
            if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
            {

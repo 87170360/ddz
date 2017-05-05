@@ -19,8 +19,8 @@
 
 #include "jpacket.h"
 #include "XtBuffer.h"
-#include "XtCard.h"
-#include "XtShuffleDeck.h"
+#include "card.h"
+#include "shuffledeck.h"
 
 
 enum XtParseState
@@ -57,10 +57,10 @@ class XtRobotClient
 		int onReciveCmd(Jpacket& cmd);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-	    void vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key);
-        void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
-        //void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
-        void json_array_to_vector(std::vector<XtCard> &cards, Json::Value &val, string key);
+	    void vector_to_json_array(std::vector<Card> &cards, Jpacket &packet, string key);
+        void map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key);
+        //void json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, string key);
+        void json_array_to_vector(std::vector<Card> &cards, Json::Value &val, string key);
 
         void handleRespond(Json::Value& msg); 
         void handleCard(Json::Value& msg); 
@@ -94,12 +94,12 @@ class XtRobotClient
 
 	private:
         ///////////////////////////////////////
-        std::vector<XtCard>         m_card;                   //底牌
+        std::vector<Card>         m_card;                   //底牌
 		ev_timer                    m_showTimer;              //第一次出牌延时定时器
         ev_timer                    m_outTimer;               //出牌定时
-        XtShuffleDeck               m_deck;                   //牌库
+        Shuffledeck               m_deck;                   //牌库
 
-        vector<XtCard>              m_lastCard;               //上轮牌
+        vector<Card>              m_lastCard;               //上轮牌
         int                         m_outid;                  //上轮出牌者id
         std::set<int>               m_playerlist;             //玩家id队列
         ///////////////////////////////////////

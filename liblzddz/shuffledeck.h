@@ -28,6 +28,7 @@ class Shuffledeck
         bool getFollow(const vector<Card>& mine, const vector<Card>& other, vector<Card>& result);
 
         const vector<Card>& getCard(void) { return m_card; }
+        int getLZ(void) const;
 
 	private:
         bool isRocket(const vector<Card>& card) const;
@@ -91,8 +92,10 @@ class Shuffledeck
         void delSame(const vector<Card>& card, vector<Card>& result) const;
         //从单张的牌组中取至少连续N张的部分, n>=2, 各部分不一定连续，card降序且单牌队列, 不包括大小王和2, 比如n=3 345 789 , n=2 34 78
         void getNcontinue(const vector<Card>& card1, unsigned int n, set<int>& result);
+    public:
         //是否是连续, 需要降序队列, 不判断n之间是否相同, n是连续相隔的数量, 不包括大小王和2, 比如777888,n=2,  789,n=1
         bool isNContinue(const vector<Card>& card, int n) const;
+    private:
         //比较M带N牌型
         bool compareMN(const vector<Card>& card, const vector<Card>& card1, int m);
         //初始化比较函数
@@ -101,7 +104,6 @@ class Shuffledeck
         void initBig(void);
         //是否有癞子
         bool isLZ(const vector<Card>& card);
-
 
     private:
         //癞子点数

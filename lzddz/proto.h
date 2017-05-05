@@ -21,7 +21,7 @@ enum SERVER_COMMAND
 {
     SERVER_RESPOND              = 2000,         //其他回复, 消息id:msgid, code:错误码
     SERVER_LOGIN                = 2001,         //其他玩家登录  
-    SERVER_CARD_1               = 2002,         //发牌17张, 17张牌:card
+    SERVER_CARD_1               = 2002,         //发牌17张, 17张牌:card, 癞子点数:face
     SERVER_CALL                 = 2003,         //通知叫地主: 操作者id:cur_id, 叫分倒计时:time, 发牌时间:show_time 
     SERVER_CALL_RSP             = 2004,         //广播响应叫地主, 操作者id: cur_id
     SERVER_GRAB                 = 2005,         //通知抢地主, 操作者id: cur_id

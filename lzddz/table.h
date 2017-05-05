@@ -19,8 +19,8 @@
 #include <map>
 #include <set>
 
-#include "XtShuffleDeck.h"
-#include "XtHoleCards.h"
+#include "shuffledeck.h"
+#include "holdcard.h"
 #include "jpacket.h"
 
 static const unsigned int SEAT_NUM          = 3;
@@ -42,9 +42,9 @@ class Table
         int broadcast(Player *player, const std::string &packet);
         int unicast(Player *player, const std::string &packet);
         int random(int start, int end);
-        void vector_to_json_array(std::vector<XtCard> &cards, Jpacket &packet, string key);
-        void map_to_json_array(std::map<int, XtCard> &cards, Jpacket &packet, string key);
-        void json_array_to_vector(std::vector<XtCard> &cards, Jpacket &packet, string key);
+        void vector_to_json_array(std::vector<Card> &cards, Jpacket &packet, string key);
+        void map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key);
+        void json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, string key);
 
         //定时器函数
         /////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ class Table
         //加倍逻辑
         void logicDouble(bool isMsg);
         //出牌逻辑
-        void logicOut(Player* player, vector<XtCard>& curCard, bool keep);
+        void logicOut(Player* player, vector<Card>& curCard, bool keep);
 
         // send msg
         void loginUC(Player* player, int code);
@@ -137,7 +137,7 @@ class Table
         //发送错误反馈
         void sendError(Player* player, int msgid, int errcode);
         //发送托管玩家出牌
-        void sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep);
+        void sendEntrustOut(Player* player, vector<Card>& curCard, bool keep);
         //发送托管玩家叫分
         void sendEntrustCall(Player* player, int score);
         //发送托管玩家加倍
@@ -162,7 +162,7 @@ class Table
         //获取叫分倍数
         int getCount(void);
         //打印牌组
-        void show(const vector<XtCard>& card);
+        void show(const vector<Card>& card);
         //打印游戏信息
         void showGame(void);
         //加倍完毕
@@ -227,7 +227,7 @@ class Table
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
         int                         m_money[SEAT_NUM];              //各座位输赢
-        XtHoleCards                 m_seatCard[SEAT_NUM];           //座位手牌
+        Holdcard                 m_seatCard[SEAT_NUM];           //座位手牌
         unsigned int                m_curSeat;                      //当前操作者座位
         unsigned int                m_preSeat;                      //上个操作者座位
         unsigned int                m_lordSeat;                     //地主座位
@@ -236,9 +236,9 @@ class Table
         unsigned int                m_win;                          //胜利座位
         int                         m_time;                         //剩余倒计时秒
 
-        XtShuffleDeck               m_deck;
-        std::vector<XtCard>         m_bottomCard;                   //底牌
-        std::vector<XtCard>         m_lastCard;                     //上一轮牌
+        Shuffledeck               m_deck;
+        std::vector<Card>         m_bottomCard;                   //底牌
+        std::vector<Card>         m_lastCard;                     //上一轮牌
 
         ev_timer                    m_timerDouble;                  //加倍
         ev_timer                    m_timerOut;                     //出牌

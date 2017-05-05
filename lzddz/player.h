@@ -16,7 +16,7 @@
 #include <json/json.h>
 #include <ev.h>
 
-#include "XtHoleCards.h"
+#include "holdcard.h"
 
 class Client;
 
