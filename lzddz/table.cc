@@ -178,6 +178,36 @@ void Table::json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, stri
         cards.push_back(card);
     }
 }
+        
+void Table::jsonArrayToVector(std::vector<int> &change, Jpacket &packet, string key)
+{
+    Json::Value &val = packet.tojson();
+    if(!val.isMember(key))
+    {
+        return;
+    }
+
+    for (unsigned int i = 0; i < val[key].size(); i++)
+    {
+        change.push_back(val[key][i].asInt());
+    }
+}
+        
+void Table::vectorToJsonArray(const std::vector<Card> &card, Jpacket &packet, string key)
+{
+    if(card.empty()) 
+    {
+        return;
+    }
+
+    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        if(it->m_face != it->m_oldface)
+        {
+            packet.val[key].append(it->m_face);
+        }
+    }
+}
 
 void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
@@ -614,8 +644,16 @@ void Table::msgOut(Player* player)
 
     Json::Value &msg = player->client->packet.tojson();
 
+    //原来牌型
     vector<Card> curCard;
     json_array_to_vector(curCard, player->client->packet, "card");
+
+    //解析癞子变化
+    vector<int> lzface;
+    jsonArrayToVector(lzface, player->client->packet, "change");
+
+    //变化后的牌型
+    m_deck.changeCard(curCard, lzface);
 
     //不出校验
     bool keep = msg["keep"].asBool();
@@ -1471,6 +1509,7 @@ void Table::sendOutAgain(bool last)
         packet.val["keep"]          = (m_preSeat != m_outSeat);
         packet.val["num"]           = static_cast<int>(m_seatCard[m_outSeat].m_cards.size());
         vector_to_json_array(m_lastCard, packet, "card");
+        vectorToJsonArray(m_lastCard, packet, "change");
         packet.end();
         unicast(pl, packet.tostring());
     }
@@ -2166,3 +2205,4 @@ void Table::entrustOut(void)
     //判断是否结束和通知下一个出牌人，本轮出牌
     logicOut(player, curCard, keep);
 }
+        

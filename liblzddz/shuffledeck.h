@@ -95,6 +95,8 @@ class Shuffledeck
     public:
         //是否是连续, 需要降序队列, 不判断n之间是否相同, n是连续相隔的数量, 不包括大小王和2, 比如777888,n=2,  789,n=1
         bool isNContinue(const vector<Card>& card, int n) const;
+        //癞子牌具体化
+        void changeCard(vector<Card>& card, const  vector<int>& lzface);
     private:
         //比较M带N牌型
         bool compareMN(const vector<Card>& card, const vector<Card>& card1, int m);

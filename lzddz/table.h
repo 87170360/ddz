@@ -46,6 +46,9 @@ class Table
         void map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key);
         void json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, string key);
 
+        void jsonArrayToVector(std::vector<int> &change, Jpacket &packet, string key);
+        void vectorToJsonArray(const std::vector<Card> &change, Jpacket &packet, string key);
+
         //定时器函数
         /////////////////////////////////////////////////////////////////////////////
         static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);

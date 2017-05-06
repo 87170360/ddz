@@ -111,6 +111,25 @@ void testGetCardType(void)
     }
 }
 
+void testChangeCard(void)
+{
+    g_deck.shuffle(timeindex++);
+    vector<Card> holdcard;
+    g_deck.getHoldCard(holdcard, 20);
+    show(holdcard, "holdcard:");
+
+    vector<Card> lzcard;
+    lzcard.push_back(g_deck.getLZ());
+    show(lzcard, "lzcard:");
+
+    vector<int> lzface;
+    lzface.push_back(3);
+    lzface.push_back(3);
+
+    g_deck.changeCard(holdcard, lzface);
+    show(holdcard, "changecard:");
+}
+
 
 int main()
 {
@@ -118,6 +137,7 @@ int main()
     //testGetHoldCard();
     //testDivide();
     //testGetCardType();
+    testChangeCard();
     return 0;
 }
 

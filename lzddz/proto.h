@@ -8,7 +8,7 @@ enum CLIENT_COMMAND
     CLIENT_CALL                 = 1003,         //响应叫地主  act: true, false
     CLIENT_GRAB                 = 1004,         //响应抢地主  act: true, false
     CLIENT_DOUBLE               = 1005,         //农民加倍 double: true, false
-    CLIENT_OUT                  = 1006,         //出牌 不出: keep: true, false, 牌: card
+    CLIENT_OUT                  = 1006,         //出牌 不出: keep: true, false, 牌: card, 癞子点数数组: change 
     CLIENT_LOGOUT               = 1007,         //退出
     CLIENT_CHANGE               = 1008,         //换桌
     CLIENT_VIEW                 = 1009,         //查看信息 uid 
@@ -29,7 +29,7 @@ enum SERVER_COMMAND
     SERVER_RESULT_GRAB          = 2007,         //抢地主结果,开始加倍：当期加倍情况:count, 地主id:lord, 加倍倒计时:time, 3底牌:card, 
     SERVER_DOUBLE               = 2008,         //通知加倍情况: 总加倍情况:count, 操作者id:pre_id, 是否加倍: double
     SERVER_RESULT_DOUBLE        = 2009,         //加倍结果,发底牌,通知地主出牌: 总倍数:count, 当前操作者(地主)id:cur_id,出牌倒计时:time
-    SERVER_AGAIN_OUT            = 2010,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time,牌数:num
+    SERVER_AGAIN_OUT            = 2010,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 癞子点数数组: change, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time,牌数:num
     SERVER_END                  = 2011,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2012,         //通知机器人重新准备
     SERVER_KICK                 = 2013,         //踢人离场

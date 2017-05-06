@@ -52,7 +52,7 @@ class Card
 			return 0;
 		}
 
-        bool isLZ(void) const;
+        bool isLZ(int lzface) const;
 
 	public:
         //有效量

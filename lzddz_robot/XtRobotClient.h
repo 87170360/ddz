@@ -61,6 +61,7 @@ class XtRobotClient
         void map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key);
         //void json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, string key);
         void json_array_to_vector(std::vector<Card> &cards, Json::Value &val, string key);
+        void jsonArrayToVector(std::vector<int> &change, Json::Value &val, string key);
 
         void handleRespond(Json::Value& msg); 
         void handleCard(Json::Value& msg); 

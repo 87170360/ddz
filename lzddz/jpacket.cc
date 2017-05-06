@@ -118,7 +118,7 @@ int Jpacket::safe_check()
             break;
 		case CLIENT_OUT:
 			{
-				if (!val["keep"].isBool() || !val["card"].isArray())
+				if (!val["keep"].isBool())
 				{
 					xt_log.error("command client_out error\n");
 					return -1;

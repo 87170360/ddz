@@ -436,6 +436,11 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
     {
         return;
     }
+    
+    vector<int> lzface;
+    jsonArrayToVector(lzface, msg, "change");
+
+    m_deck.changeCard(preCard, lzface);
 
     m_lastCard = preCard;
     m_outid = msg["out_id"].asInt();
@@ -614,3 +619,15 @@ int XtRobotClient::send(const std::string &res)
     //return safe_writen(res.c_str(), res.length());
 }
 
+void XtRobotClient::jsonArrayToVector(std::vector<int> &change, Json::Value &val, string key)
+{
+    if(!val.isMember(key))
+    {
+        return;
+    }
+
+    for (unsigned int i = 0; i < val[key].size(); i++)
+    {
+        change.push_back(val[key][i].asInt());
+    }
+}

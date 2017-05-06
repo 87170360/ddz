@@ -114,7 +114,7 @@ void Card::dumpCards(std::map<int, Card> &m, string str)
 	fprintf(stdout, "]]\n");
 }
         
-bool Card::isLZ(void) const
+bool Card::isLZ(int lzface) const
 {
-    return m_oldface != m_face;
+    return lzface == m_face;
 }

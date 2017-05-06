@@ -1785,7 +1785,7 @@ bool Shuffledeck::isLZ(const vector<Card>& card)
 {
     for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
-        if(it->isLZ()) 
+        if(it->isLZ(m_lz)) 
         {
             return true;
         }
@@ -1796,4 +1796,23 @@ bool Shuffledeck::isLZ(const vector<Card>& card)
 int Shuffledeck::getLZ(void) const
 {
     return m_lz;
+}
+
+void Shuffledeck::changeCard(vector<Card>& card, const vector<int>& lzface)
+{
+   if(lzface.empty())
+   {
+        return;
+   }
+
+   unsigned int sizelz = lzface.size();
+   unsigned int idxlz = 0;
+   for(vector<Card>::iterator it = card.begin(); it != card.end(); ++it) 
+   {
+        if(it->isLZ(m_lz) && idxlz < sizelz) 
+        {
+            it->m_face = lzface[idxlz];
+            ++idxlz;
+        }
+   }
 }
