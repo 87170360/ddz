@@ -1,0 +1,6 @@
+{"cmd" : 1001,"type" : 1,"uid" : 101,"skey" : "skey"}
+
+
+{"cmd" : 1003}
+
+{"cmd" : 1004, "uid" : 101,"seatid" : 0, "action" : }

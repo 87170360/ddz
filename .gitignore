@@ -23,6 +23,7 @@ liblzddz/tags
 liblzddz/test/tags
 lzddz/tags
 lzddz_robot/tags
+bsddz/tags
 
 grab_bull/grab_bull
 grab_robot/grab_robot
@@ -38,6 +39,7 @@ libddz/test/shuffleDeckTest
 liblzddz/test/test
 lzddz/lzddz
 lzddz_robot/lzddz_robot
+bsddz/bsddz
 
 # Prerequisites
 *.d
