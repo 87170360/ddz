@@ -99,13 +99,14 @@ enum OP_STATE
     OP_CALL_WAIT                   = 3,            //等待叫地主通知
     OP_CALL_NOTIFY                 = 4,            //已通知叫地主
     OP_CALL_RECEIVE                = 5,            //已经响应叫地主
-    OP_GRAB_NOTIFY                 = 7,            //已通知抢地主
-    OP_GRAB_RECEIVE                = 8,            //已经响应抢地主
-    OP_DOUBLE_NOTIFY               = 9,            //已经通知
-    OP_DOUBLE_RECEIVE              = 10,           //已经响应
-    OP_OUT_WAIT                    = 11,           //等待出牌
-    OP_GAME_END                    = 12,           //结算中
-    OP_MAX                         = 13,           //MAX
+    OP_GRAB_WAIT                   = 7,            //等待抢地主通知
+    OP_GRAB_NOTIFY                 = 8,            //已通知抢地主
+    OP_GRAB_RECEIVE                = 9,            //已经响应抢地主
+    OP_DOUBLE_NOTIFY               = 10,           //已经通知
+    OP_DOUBLE_RECEIVE              = 11,           //已经响应
+    OP_OUT_WAIT                    = 12,           //等待出牌
+    OP_GAME_END                    = 13,           //结算中
+    OP_MAX                         = 14,           //MAX
 };
 
 static const char* DESC_OP[OP_MAX] = 

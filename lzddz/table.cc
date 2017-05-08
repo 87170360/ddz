@@ -557,7 +557,7 @@ void Table::msgGrab(Player* player)
     ev_timer_stop(lzddz.loop, &m_timerGrab);
 
     m_opState[m_curSeat] = OP_GRAB_RECEIVE;
-    //xt_log.debug("msg grab, m_uid:%d, seatid:%d, act:%s\n", player->m_uid, player->m_seatid, act ? "true" : "false");
+    xt_log.debug("msg grab, m_uid:%d, seatid:%d, act:%s\n", player->m_uid, player->m_seatid, act ? "true" : "false");
     logicGrab(act);
 }
 
@@ -993,8 +993,9 @@ void Table::callProc(void)
 
 void Table::grabProc(void)
 {
-    m_state = STATE_GRAB; 
-    m_opState[m_curSeat] = OP_CALL_NOTIFY;
+    //m_state = STATE_GRAB; 
+    //setAllSeatOp(OP_GRAB_WAIT);
+    //m_opState[m_curSeat] = OP_GRAB_NOTIFY;
     m_time = lzddz.game->CALLTIME;
     ev_timer_again(lzddz.loop, &m_timerGrab);
     //xt_log.debug("m_timerGrab first start.\n");
@@ -1159,6 +1160,14 @@ void Table::logicCall(bool act)
 {
     //广播叫地主响应
     sendCallRsp(act);
+    //有人叫地主后，接着下一个就要抢地主
+    if(act)
+    {
+        m_state = STATE_GRAB; 
+        setAllSeatOp(OP_GRAB_WAIT);
+        //地主保存
+        m_lordSeat = m_curSeat;
+    }
 
     //选择下一个叫地主或者抢地主
     if(getNext())
@@ -1208,7 +1217,7 @@ void Table::logicGrab(bool act)
     bool allRsp = true;
     for(unsigned int i = 0; i < SEAT_NUM; ++i)   
     {
-        if(m_opState[i] != OP_CALL_RECEIVE && m_opState[i] != OP_GRAB_RECEIVE)
+        if(m_opState[i] != OP_GRAB_RECEIVE)
         {
             allRsp = false;
             //xt_log.debug("%s:%d, logicGrab seatid:%d, state:%s.\n",__FILE__, __LINE__, i, DESC_OP[m_opState[i]]); 
@@ -1403,6 +1412,7 @@ void Table::sendCall(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
+    //xt_log.debug("sendCall, curSeat:%d\n", m_curSeat);
 }
 
 void Table::sendCallRsp(bool act)
@@ -1431,6 +1441,7 @@ void Table::sendGrab(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
+    //xt_log.debug("sendGrab, curSeat:%d\n", m_curSeat);
 }
 
 void Table::sendGrabRsp(bool act)
@@ -1490,8 +1501,8 @@ void Table::sendDoubleResult(void)
         packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
-        //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeat(m_curSeat), getCount());
     }
+    //xt_log.debug("sendDoubleResult: cmd:%d, lord_seat:%d, count:%d\n", SERVER_RESULT_DOUBLE, m_curSeat, getCount());
 }
 
 void Table::sendOutAgain(bool last)
@@ -1670,7 +1681,7 @@ bool Table::getNext(void)
             break;
         case STATE_GRAB:
             {
-                if(m_opState[nextSeat] == OP_CALL_WAIT) 
+                if(m_opState[nextSeat] == OP_GRAB_WAIT) 
                 {
                     m_preSeat = m_curSeat;
                     m_curSeat = nextSeat;
