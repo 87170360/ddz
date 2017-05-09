@@ -348,6 +348,10 @@ int Table::login(Player *player)
         loginUC(player, CODE_MONEY);
         return 0; 
     }
+    else//扣除入场费
+    {
+        player->changeMoney(-hlddz.game->ROOMTAX);
+    }
 
     if(!sitdown(player))
     {
@@ -359,6 +363,23 @@ int Table::login(Player *player)
 
     //广播玩家信息
     loginBC(player);
+
+    //准备状态
+    m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
+    if(!allSeatFit(OP_PREPARE_REDAY))
+    {
+        xt_log.debug("not all is prepare.\n");
+        return 0;
+    }
+    else if(m_players.size() != SEAT_NUM)
+    {
+        xt_log.debug("not enouth player, size:%d\n", m_players.size());
+        return 0;
+    }
+    else
+    {
+        gameStart(); 
+    }
 
     return 0;
 }
@@ -383,59 +404,7 @@ void Table::reLogin(Player* player)
     //给机器人加钱
     addRobotMoney(player);
 
-    //检查入场费
-    if(player->m_money < hlddz.game->ROOMTAX)
-    {
-        xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        sendError(player, CLIENT_LOGIN, CODE_MONEY);
-        return; 
-    }
-
     loginUC(player, CODE_SUCCESS);
-}
-
-void Table::msgPrepare(Player* player)
-{
-    //xt_log.debug("msg prepare m_uid:%d, seatid:%d, size:%d\n", player->m_uid, player->m_seatid, m_players.size());
-    //检查入场费
-    if(player->m_money < hlddz.game->ROOMTAX)
-    {
-        xt_log.error("%s:%d, prepare fail!, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        sendError(player, CLIENT_PREPARE, CODE_MONEY);
-        return; 
-    }
-
-    //重复准备
-    if(m_opState[player->m_seatid] == OP_PREPARE_REDAY)
-    {
-        xt_log.error("%s:%d, prepare fail!, player repeat prepare! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        sendError(player, CLIENT_PREPARE, CODE_PREPARE);
-        return; 
-    }
-
-    //检查状态
-    if(m_state != STATE_PREPARE)
-    {
-        xt_log.error("%s:%d, prepare fail!, game state not state_prepare, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
-        sendError(player, CLIENT_PREPARE, CODE_STATE);
-        return; 
-    }
-
-    m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
-    if(!allSeatFit(OP_PREPARE_REDAY))
-    {
-        //xt_log.debug("not all is prepare.\n");
-        return;
-    }
-    else if(m_players.size() != SEAT_NUM)
-    {
-        //xt_log.debug("not enouth player, size:%d\n", m_players.size());
-        return;
-    }
-    else
-    {
-        gameStart(); 
-    }
 }
 
 void Table::msgCall(Player* player)
@@ -945,7 +914,6 @@ void Table::outProc(void)
     m_preSeat = m_curSeat;
     m_time = hlddz.game->OUTTIME;
     ev_timer_again(hlddz.loop, &m_timerOut);
-    payTax();
     //xt_log.debug("m_timerOut first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
@@ -1816,17 +1784,6 @@ void Table::payResult(void)
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
         tmpplayer->changeMoney(m_money[tmpplayer->m_seatid]);
-    }
-}
-
-void Table::payTax(void)
-{
-    Player* tmpplayer = NULL;
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        tmpplayer = it->second;
-        if(tmpplayer == NULL) continue;
-        tmpplayer->changeMoney(-hlddz.game->ROOMTAX);
     }
 }
 

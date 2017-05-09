@@ -169,8 +169,6 @@ class Table
 
         //扣除玩家牌局的输赢
         void payResult(void);
-        //扣除入场费
-        void payTax(void);
         //统计比赛次数和胜场次数
         void total(void);
         //计算各座位输赢

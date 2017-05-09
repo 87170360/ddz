@@ -80,6 +80,7 @@ int Jpacket::safe_check()
 
 	int cmd = val["cmd"].asInt();
 
+    //xt_log.debug("safe_check cmd:%d\n", cmd);
 	switch (cmd)
 	{
 		case CLIENT_LOGIN:

@@ -216,6 +216,12 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
 {
     Json::Value &val = data.tojson();
     int cmd = val["cmd"].asInt();
+    /*
+    if(cmd != 2011)
+    {
+        printf("onReciveCmd :%d, uid:%d\n", cmd, m_uid);
+    }
+    */
     switch(cmd)
     {
         case SERVER_RESPOND:
@@ -240,9 +246,6 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             break;
         case SERVER_AGAIN_OUT:
             handleAgainOut(val);
-            break;
-        case SERVER_REPREPARE:
-            handleReprepare(val);
             break;
         case SERVER_END:
             handleEnd(val);
@@ -318,10 +321,6 @@ void XtRobotClient::handleRespond(Json::Value& msg)
             {
                 if(code == CODE_SUCCESS) 
                 {
-                    Jpacket data;
-                    data.val["cmd"]     =   CLIENT_PREPARE;
-                    data.end();
-                    send(data.tostring());
                 }
             }
             break;
@@ -363,6 +362,7 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
     data.end();
 
     send(data.tostring());
+    //printf("sendcall uid:%d score:%d\n", m_uid, msg["score"].asInt() + 1);
 }
 
 void XtRobotClient::handleDouble(Json::Value& msg) 
@@ -451,15 +451,6 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
     ev_timer_start(m_evloop, &m_outTimer);
     printf("outtimer active after %f second.\n", ot);
     //sendCard();
-}
-
-void XtRobotClient::handleReprepare(Json::Value& msg)
-{
-    m_card.clear();
-    Jpacket data;
-    data.val["cmd"]     =   CLIENT_PREPARE;
-    data.end();
-    send(data.tostring());
 }
 
 void XtRobotClient::handleEnd(Json::Value& msg)
@@ -589,6 +580,7 @@ void XtRobotClient::sendLoginPackage()
     data.end();
 
     send(data.tostring());
+    printf("send login. uid:%d\n", m_uid);
 }
 
 int XtRobotClient::send(const char *buf, unsigned int len)

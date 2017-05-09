@@ -3,17 +3,16 @@
 
 enum CLIENT_COMMAND
 {
-    CLIENT_LOGIN                = 1001,         //登录 uid, zid
-    CLIENT_PREPARE              = 1002,         //准备 
-    CLIENT_CALL                 = 1003,         //叫分 score = 0,1,2,3
-    CLIENT_DOUBLE               = 1004,         //农民加倍 double: true, false
-    CLIENT_OUT                  = 1005,         //出牌 不出: keep: true, false, 牌: card
-    CLIENT_LOGOUT               = 1006,         //退出
-    CLIENT_CHANGE               = 1007,         //换桌
-    CLIENT_VIEW                 = 1008,         //查看信息 uid 
-    CLIENT_ENTRUST              = 1009,         //托管 开启或者关闭 active: true, false
-    CLIENT_CHAT                 = 1010,         //聊天 字符串content, 表情id: chatid
-    CLIENT_MOTION               = 1011,         //玩家互动 目标id：target_id, 互动id: type, 
+    CLIENT_LOGIN                = 1000,         //登录 uid, zid
+    CLIENT_CALL                 = 1001,         //叫分 score = 0,1,2,3
+    CLIENT_DOUBLE               = 1002,         //农民加倍 double: true, false
+    CLIENT_OUT                  = 1003,         //出牌 不出: keep: true, false, 牌: card
+    CLIENT_LOGOUT               = 1004,         //退出
+    CLIENT_CHANGE               = 1005,         //换桌
+    CLIENT_VIEW                 = 1006,         //查看信息 uid 
+    CLIENT_ENTRUST              = 1007,         //托管 开启或者关闭 active: true, false
+    CLIENT_CHAT                 = 1008,         //聊天 字符串content, 表情id: chatid
+    CLIENT_MOTION               = 1009,         //玩家互动 目标id：target_id, 互动id: type, 
 };
 
 enum SERVER_COMMAND

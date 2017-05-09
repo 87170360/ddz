@@ -262,11 +262,6 @@ int Game::dispatch(Client *client)
     Player *player = client->player;
     // dispatch 
     switch (cmd) {
-        case CLIENT_PREPARE:
-            {
-                all_tables[player->m_tid]->msgPrepare(player);
-            } 
-            break;
         case CLIENT_CALL:
             {
                 all_tables[player->m_tid]->msgCall(player);
