@@ -50,9 +50,7 @@ class Table
         /////////////////////////////////////////////////////////////////////////////
         static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onCall(void);
-        static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void onDouble(void);
-        static void OutCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+        static void outCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onOut(void);
         static void kickCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onKick(void);
@@ -68,7 +66,6 @@ class Table
         void reLogin(Player* player); 
         void msgPrepare(Player* player);
         void msgCall(Player* player);
-        void msgDouble(Player* player);
         void msgOut(Player* player);
         void msgChange(Player* player);
         void msgView(Player* player);
@@ -97,8 +94,6 @@ class Table
 
         //叫分逻辑
         void logicCall(void);
-        //加倍逻辑
-        void logicDouble(bool isMsg);
         //出牌逻辑
         void logicOut(Player* player, vector<XtCard>& curCard, bool keep);
 
@@ -109,12 +104,8 @@ class Table
         void sendCard1(void);
         //继续叫分
         void sendCallAgain(void); 
-        //叫分结果和加倍
+        //叫分结果和出牌
         void sendCallResult(void);
-        //加倍广播
-        void sendDouble(int uid, bool isDouble); 
-        //加倍结果和出牌
-        void sendDoubleResult(void);
         //继续出牌
         void sendOutAgain(bool last);
         //结束
@@ -146,14 +137,10 @@ class Table
         bool allSeatFit(int state);
         //评选地主
         bool selecLord(void);
-        //获取叫分倍数
-        int getCount(void);
         //打印牌组
         void show(const vector<XtCard>& card);
         //打印游戏信息
         void showGame(void);
-        //加倍完毕
-        bool isDoubleFinish(void);
         //获取所有加倍数量
         int getAllDouble(void);
         //获取底牌加倍
@@ -173,8 +160,6 @@ class Table
         void total(void);
         //计算各座位输赢
         void calculate(int doubleNum);
-        //检查入场费并进行破产补助
-        void allowanceProc(void); 
         //检查入场费, 检查托管并踢出玩家
         void kick(void);
         //增加robot money
@@ -206,7 +191,6 @@ class Table
         int                         m_seats[SEAT_NUM];              //各座位玩家id
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
         int                         m_callScore[SEAT_NUM];          //各座位叫分
-        bool                        m_famerDouble[SEAT_NUM];        //农民加倍
         bool                        m_entrust[SEAT_NUM];            //托管状态 true false
         bool                        m_timeout[SEAT_NUM];           //出牌超时 true false
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
@@ -226,7 +210,6 @@ class Table
         std::vector<XtCard>         m_lastCard;                     //上一轮牌
 
         ev_timer                    m_timerCall;                    //叫分
-        ev_timer                    m_timerDouble;                  //加倍
         ev_timer                    m_timerOut;                     //出牌
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
         ev_timer                    m_timerUpdate;                  //更新倒计时

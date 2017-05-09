@@ -28,11 +28,8 @@ Table::Table()
     m_timerCall.data = this;
     ev_timer_init(&m_timerCall, Table::callCB, ev_tstamp(hlddz.game->CALLTIME), ev_tstamp(hlddz.game->CALLTIME));
 
-    m_timerDouble.data = this;
-    ev_timer_init(&m_timerDouble, Table::doubleCB, ev_tstamp(hlddz.game->DOUBLETIME), ev_tstamp(hlddz.game->DOUBLETIME));
-
     m_timerOut.data = this;
-    ev_timer_init(&m_timerOut, Table::OutCB, ev_tstamp(hlddz.game->OUTTIME), ev_tstamp(hlddz.game->OUTTIME));
+    ev_timer_init(&m_timerOut, Table::outCB, ev_tstamp(hlddz.game->OUTTIME), ev_tstamp(hlddz.game->OUTTIME));
 
     m_timerKick.data = this;
     ev_timer_init(&m_timerKick, Table::kickCB, ev_tstamp(hlddz.game->KICKTIME), ev_tstamp(hlddz.game->KICKTIME));
@@ -47,7 +44,6 @@ Table::Table()
 Table::~Table()
 {
     ev_timer_stop(hlddz.loop, &m_timerCall);
-    ev_timer_stop(hlddz.loop, &m_timerDouble);
     ev_timer_stop(hlddz.loop, &m_timerOut);
     ev_timer_stop(hlddz.loop, &m_timerKick);
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
@@ -73,7 +69,6 @@ void Table::reset(void)
     {
         m_seats[i] = 0;
         m_callScore[i] = 0;
-        m_famerDouble[i] = false;
         m_seatCard[i].reset();
         m_bomb[i] = 0;
         m_outNum[i] = 0;
@@ -97,7 +92,6 @@ void Table::reset(void)
     m_state = STATE_PREPARE; 
 
     ev_timer_stop(hlddz.loop, &m_timerCall);
-    ev_timer_stop(hlddz.loop, &m_timerDouble);
     ev_timer_stop(hlddz.loop, &m_timerOut);
     ev_timer_stop(hlddz.loop, &m_timerKick);
     ev_timer_stop(hlddz.loop, &m_timerUpdate);
@@ -190,31 +184,7 @@ void Table::onCall(void)
     logicCall();
 }
 
-void Table::doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents)
-{
-    Table *table = (Table*) w->data;
-    ev_timer_stop(hlddz.loop, &table->m_timerDouble);
-    //xt_log.debug("stop m_timerDouble for timerup.\n");
-    table->onDouble();
-}
-
-void Table::onDouble(void)
-{
-    //xt_log.debug("onDouble\n");
-    //农民加倍
-    for(unsigned int i = 0; i < SEAT_NUM; ++i)
-    {
-        if(i != m_lordSeat && m_opState[i] == OP_DOUBLE_NOTIFY) 
-        {
-            m_famerDouble[i] = false;
-            m_opState[i] = OP_DOUBLE_RECEIVE;
-            sendDouble(m_seats[i], m_famerDouble[i]);
-        }
-    }
-    logicDouble(false);
-}
-
-void Table::OutCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+void Table::outCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerOut);
@@ -470,61 +440,6 @@ void Table::msgCall(Player* player)
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
     //xt_log.debug("call score, m_uid:%d, seatid:%d, score :%d\n", player->m_uid, player->m_seatid, m_callScore[player->m_seatid]);
     logicCall();
-}
-
-void Table::msgDouble(Player* player)
-{
-    //检查状态
-    if(m_state != STATE_DOUBLE)
-    {
-        xt_log.error("%s:%d, double fail!, game state not double_state, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
-        sendError(player, CLIENT_DOUBLE, CODE_STATE);
-        return;
-    }
-
-    //地主不能加倍
-    if(player->m_seatid == m_lordSeat) 
-    {
-        xt_log.error("%s:%d, double fail!, lord no allow double. uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        sendError(player, CLIENT_DOUBLE, CODE_LORD);
-        return; 
-    }
-
-    //处于等待加倍
-    if(m_opState[player->m_seatid] != OP_DOUBLE_NOTIFY) 
-    {
-        xt_log.error("%s:%d, double fail!, not in double_notify uid:%d, opstate:%s\n", __FILE__, __LINE__, player->m_uid, DESC_OP[m_opState[player->m_seatid]]); 
-        sendError(player, CLIENT_DOUBLE, CODE_NOTIFY);
-        return; 
-    }
-
-    //不能重复加倍
-    if(m_famerDouble[player->m_seatid]) 
-    {
-        xt_log.error("%s:%d, double fail!, no allow double repeat. uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        sendError(player, CLIENT_DOUBLE, CODE_DOUBLE);
-        return; 
-    }
-
-    //托管中
-    if(m_entrust[player->m_seatid])
-    {
-        xt_log.error("%s:%d, double fail!, entrusting. playerSeat:%d\n", __FILE__, __LINE__, player->m_seatid); 
-        sendError(player, CLIENT_CALL, CODE_ENTRUST);
-        return; 
-    }
-
-    Json::Value &msg = player->client->packet.tojson();
-    m_famerDouble[player->m_seatid] = msg["double"].asBool();
-    //xt_log.debug("msgdouble, m_uid:%d, seatid:%d, double:%s\n", player->m_uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
-
-    //加倍不分先后
-    m_opState[player->m_seatid] = OP_DOUBLE_RECEIVE;
-
-    //xt_log.debug("double continue!\n");
-    sendDouble(player->m_uid, m_famerDouble[player->m_seatid]);
-
-    logicDouble(true);
 }
 
 void Table::msgOut(Player* player)
@@ -783,17 +698,6 @@ void Table::loginUC(Player* player, int code)
                 packet.val["time"] = m_time;
             }
             break;
-        case STATE_DOUBLE:
-            {
-                //加倍
-                for(unsigned int i = 0; i < SEAT_NUM; ++i)
-                {
-                    packet.val["famerDouble"].append(m_famerDouble[i]);
-                }
-                //剩余时间
-                packet.val["time"] = m_time;
-            }
-            break;
         case STATE_OUT:
             {
                 //发牌
@@ -894,18 +798,6 @@ void Table::callProc(void)
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
-void Table::doubleProc(void)
-{
-    //xt_log.debug("doubleProc \n");
-    m_state = STATE_DOUBLE; 
-    setAllSeatOp(OP_DOUBLE_NOTIFY);
-    m_time = hlddz.game->DOUBLETIME;
-
-    ev_timer_again(hlddz.loop, &m_timerDouble);
-    //xt_log.debug("m_timerDouble first start \n");
-    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-}
-
 void Table::outProc(void)
 {
     m_state = STATE_OUT;
@@ -982,8 +874,6 @@ void Table::endProc(void)
     //增加经验
     addPlayersExp(); 
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-    //破产补助
-    allowanceProc();
     //清空seatid
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -1008,21 +898,6 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                 sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
             }
             break;
-        case STATE_DOUBLE:
-            {
-                if(killtimer)
-                {
-                    ev_timer_stop(hlddz.loop, &m_timerDouble);
-                }
-                m_famerDouble[entrustSeat] = true;
-                m_opState[entrustSeat] = OP_DOUBLE_RECEIVE;
-
-                sendEntrustDouble(getSeatPlayer(entrustSeat), true);
-
-                sendDouble(m_seats[entrustSeat], m_famerDouble[entrustSeat]);
-                logicDouble(false);
-            }
-            break;
         case STATE_OUT:
             {
                 if(killtimer)
@@ -1040,8 +915,7 @@ void Table::logicCall(void)
     //是否已经选出地主
     if(selecLord())
     {
-        //选地主，进入加倍环节
-        doubleProc();
+        outProc();
         sendCallResult(); 
 
         //任意一个农民是托管，都要进行处理
@@ -1076,32 +950,6 @@ void Table::logicCall(void)
     {//重新发牌
         xt_log.debug("nobody call, need send card again.\n");
         gameRestart();
-    }
-}
-
-void Table::logicDouble(bool isMsg)
-{
-    //xt_log.debug("logicDouble\n");
-    if(isDoubleFinish())
-    {
-        xt_log.debug("=======================================start out card, double finish!\n");
-        //showGame();
-        outProc();
-        //发送加倍结果，开始出牌
-        sendDoubleResult(); 
-
-        //如果托管直接自动处理
-        if(m_entrust[m_curSeat])
-        {
-            entrustProc(true, m_curSeat);
-        }
-
-        if(isMsg)
-        {
-            //停止加倍定时器
-            //xt_log.debug("stop m_timerDouble for msg.\n");
-            ev_timer_stop(hlddz.loop, &m_timerDouble);
-        }
     }
 }
 
@@ -1253,44 +1101,12 @@ void Table::sendCallResult(void)
         Player* pl = it->second;
         Jpacket packet;
         packet.val["cmd"]           = SERVER_RESULT_CALL;
-        packet.val["time"]          = hlddz.game->DOUBLETIME;
+        packet.val["time"]          = hlddz.game->OUTTIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeat(m_lordSeat);
         vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
-    }
-}
-
-void Table::sendDouble(int uid, bool isDouble)
-{
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        Player* pl = it->second;
-        Jpacket packet;
-        packet.val["cmd"]           = SERVER_DOUBLE;
-        packet.val["pre_id"]        = uid;
-        packet.val["count"]         = getCount();
-        packet.val["double"]        = isDouble;
-        packet.end();
-        unicast(pl, packet.tostring());
-        //xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getCount(), isDouble ? "true" : "false");
-    }
-}
-
-void Table::sendDoubleResult(void)
-{
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        Player* pl = it->second;
-        Jpacket packet;
-        packet.val["cmd"]           = SERVER_RESULT_DOUBLE;
-        packet.val["time"]          = hlddz.game->OUTTIME;
-        packet.val["cur_id"]        = getSeat(m_curSeat);
-        packet.val["count"]         = getCount();
-        packet.end();
-        unicast(pl, packet.tostring());
-        //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeat(m_curSeat), getCount());
     }
 }
 
@@ -1428,7 +1244,6 @@ void Table::gameRestart(void)
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         m_callScore[i] = 0;
-        m_famerDouble[i] = false;
         m_seatCard[i].reset();
         m_bomb[i] = 0;
         m_outNum[i] = 0;
@@ -1576,19 +1391,6 @@ bool Table::selecLord(void)
     return true;
 }
 
-int Table::getCount(void)
-{
-    int ret = 1;
-    for(unsigned int i = 0; i < SEAT_NUM; ++i) 
-    {
-        if(m_famerDouble[i])
-        {
-            ret *= 2;
-        }
-    }
-    return ret;
-}
-
 static string printStr;
 
 void Table::show(const vector<XtCard>& card)
@@ -1614,19 +1416,6 @@ void Table::showGame(void)
     }
 
     xt_log.debug("tid:%d, seat0:%d, seat1:%d, seat2:%d\n", m_tid, getSeat(0), getSeat(1), getSeat(2));
-}
-
-bool Table::isDoubleFinish(void)
-{
-    //所以农民已经回复加倍
-    for(unsigned int i = 0; i < SEAT_NUM; ++i) 
-    {
-        if(m_opState[i] != OP_DOUBLE_RECEIVE && m_lordSeat != i)
-        {
-            return false; 
-        }
-    }
-    return true;
 }
 
 int Table::getAllDouble(void)
@@ -1900,22 +1689,6 @@ int Table::getSeat(int seatid)
         return 0; 
     }
     return m_seats[seatid];
-}
-        
-void Table::allowanceProc(void) 
-{
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        Player* pl = it->second;
-        if(pl->m_money < hlddz.game->ROOMTAX && pl->allowance(hlddz.game->ALLOWANCEMONEY))
-        {
-            Jpacket packet;
-            packet.val["cmd"]           = SERVER_ALLOWANCE;
-            packet.val["money"]         = hlddz.game->ALLOWANCEMONEY;
-            packet.end();
-            unicast(NULL, packet.tostring());
-        }
-    }
 }
 
 void Table::kick(void)

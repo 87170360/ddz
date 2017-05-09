@@ -237,11 +237,6 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             handleAgainCall(val);
             break;
         case SERVER_RESULT_CALL:
-            handleDouble(val);
-            break;
-        case SERVER_DOUBLE:
-            break;
-        case SERVER_RESULT_DOUBLE:
             handleOut(val);
             break;
         case SERVER_AGAIN_OUT:
@@ -365,28 +360,15 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
     //printf("sendcall uid:%d score:%d\n", m_uid, msg["score"].asInt() + 1);
 }
 
-void XtRobotClient::handleDouble(Json::Value& msg) 
-{
-    if(msg["lord"].asInt() == m_uid)
-    {
-        json_array_to_vector(m_card, msg, "card");
-        XtCard::sortByDescending(m_card);
-        return;
-    }
-
-    Jpacket data;
-    data.val["cmd"]     =   CLIENT_DOUBLE;
-    data.val["double"]  =   true;
-    data.end();
-    send(data.tostring());
-}
-
 void XtRobotClient::handleOut(Json::Value& msg) 
 {
-    if(msg["cur_id"].asInt() != m_uid)
+    if(msg["lord"].asInt() != m_uid)
     {
         return;
     }
+
+    json_array_to_vector(m_card, msg, "card");
+    XtCard::sortByDescending(m_card);
 
     float ot = ((rand() % 3) + 15) / 10.0;
     ev_timer_stop(m_evloop, &m_outTimer);
