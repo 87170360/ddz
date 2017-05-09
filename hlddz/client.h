@@ -73,6 +73,7 @@ public:
     int update_timer(void);
 	static void join_table_failed(Client *client);
 	void set_positon(int pos);
+    void showStateName(void);
 };
 
 

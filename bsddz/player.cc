@@ -37,6 +37,8 @@ Player::~Player()
 	ev_timer_stop(hlddz.loop, &_offline_timer);
 	if (client)
 		client->player = NULL;
+    printf("%s", DESC_STATE[0]);
+    printf("%s", DESC_OP[0]);
 }
 
 void Player::set_client(Client *c)

@@ -318,3 +318,9 @@ void Client::set_positon(int pos)
 {
 	position = pos;
 }
+    
+void Client::showStateName(void)
+{
+    printf("%s", DESC_STATE[0]);
+    printf("%s", DESC_OP[0]);
+}

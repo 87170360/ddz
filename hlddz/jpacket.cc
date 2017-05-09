@@ -22,6 +22,8 @@ Jpacket::Jpacket()
 
 Jpacket::~Jpacket()
 {
+    printf("%s", DESC_STATE[0]);
+    printf("%s", DESC_OP[0]);
 }
 
 std::string& Jpacket::tostring()

@@ -49,6 +49,8 @@ XtRobotClient::~XtRobotClient()
         delete m_writeQueue.front();
         m_writeQueue.pop_front();
     }
+    printf("%s", DESC_STATE[0]);
+    printf("%s", DESC_OP[0]);
 }
 
 void XtRobotClient::onReadData( struct ev_loop* loop, struct ev_io* w, int revents)

@@ -24,6 +24,7 @@ liblzddz/test/tags
 lzddz/tags
 lzddz_robot/tags
 bsddz/tags
+bsddz_robot/tags
 
 grab_bull/grab_bull
 grab_robot/grab_robot
@@ -40,6 +41,7 @@ liblzddz/test/test
 lzddz/lzddz
 lzddz_robot/lzddz_robot
 bsddz/bsddz
+bsddz_robot/bsddz_robot
 
 # Prerequisites
 *.d

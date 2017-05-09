@@ -43,6 +43,8 @@ Game::~Game()
 
 void dump_game_info(char *tag)
 {
+    printf("%s", DESC_STATE[0]);
+    printf("%s", DESC_OP[0]);
 }
 
 int Game::start()
