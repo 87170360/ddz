@@ -74,6 +74,7 @@ int Player::init()
 	//m_allowance_stamp = static_cast<time_t>(hlddz.main_rc[index]->get_value_as_int("allowance_stamp"));
     m_exp = hlddz.main_rc[index]->get_value_as_int("exp");
     m_match = hlddz.main_rc[index]->get_value_as_int("match");
+    m_bill = hlddz.main_rc[index]->get_value_as_int("bill");
 
 	if(m_uid<XT_ROBOT_UID_MAX)
 	{
@@ -351,3 +352,19 @@ void Player::changeMatch(int value)
 	m_match = hlddz.main_rc[index]->reply->integer; 
 }
 
+void Player::changeBill(int value)
+{
+	if(value == 0) 
+    {
+		return;
+	}
+
+    int ret = hlddz.main_rc[index]->command("hincrby hu:%d bill %d", m_uid, value);
+	if (ret < 0) 
+    {
+        xt_log.error("%s:%d, changeBill error. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, value); 
+		return;
+	}
+//	xt_log.info("changeBill m_uid[%d] value[%d] old[%d] new[%d].\n", m_uid, value, m_bill, hlddz.main_rc[index]->reply->integer);
+	m_bill = hlddz.main_rc[index]->reply->integer; 
+}

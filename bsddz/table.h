@@ -154,7 +154,7 @@ class Table
         //获取最小本钱
         int getMinMoney(void);
 
-        //扣除玩家牌局的输赢
+        //结算处理
         void payResult(void);
         //统计比赛次数和胜场次数
         void total(void);

@@ -861,7 +861,7 @@ void Table::endProc(void)
     int doubleNum = getAllDouble();
     //计算各座位输赢
     calculate(doubleNum);
-    //修改玩家金币
+    //结算处理
     payResult();
     //统计局数和胜场
     total();
@@ -1564,12 +1564,32 @@ int Table::getMinMoney(void)
 
 void Table::payResult(void)
 {
+    //修改参数点
     Player* tmpplayer = NULL;
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
         tmpplayer->changeMatch(m_money[tmpplayer->m_seatid]);
+    }
+
+    //返回报名费，奖励话费券
+    Player* lord = getSeatPlayer(m_lordSeat); 
+    Player* f1 = getSeatPlayer((m_lordSeat + 1) % 3); 
+    Player* f2 = getSeatPlayer((m_lordSeat + 2) % 3); 
+    if(m_win == m_lordSeat)
+    {
+        lord->changeMoney(hlddz.game->ROOMTAX);
+        lord->changeBill(hlddz.game->BILL);
+        f1->changeMoney(hlddz.game->ROOMTAX / 2);
+        f2->changeMoney(hlddz.game->ROOMTAX / 2);
+    }
+    else
+    {
+        f1->changeMoney(hlddz.game->ROOMTAX);
+        f2->changeMoney(hlddz.game->ROOMTAX);
+        f1->changeBill(hlddz.game->BILL / 2);
+        f2->changeBill(hlddz.game->BILL / 2);
     }
 }
 

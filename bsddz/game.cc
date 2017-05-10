@@ -149,6 +149,8 @@ void Game::initConf(void)
     //xt_log.debug("MOTIONMONEY:%d\n",MOTIONMONEY);
     ROOMLIMIT         = hlddz.conf["tables"]["roomlimit"].asInt();  //房间最低携带
     //xt_log.debug("ROOMLIMIT:%d\n",ROOMLIMIT);
+    BILL              = hlddz.conf["tables"]["bill"].asInt();  
+    xt_log.debug("BILL:%d\n",BILL);
 }
 
 void Game::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)

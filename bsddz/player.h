@@ -49,6 +49,8 @@ public:
     int upMoney(void);
     //竞赛点改变
     void changeMatch(int value);
+    //话费券
+    void changeBill(int value);
 
 public:
 	int 				index;
@@ -71,6 +73,8 @@ public:
     //time_t                 m_allowance_stamp;
     //参数点
     int                 m_match;
+    //话费券
+    int                 m_bill;
 
 	// connect to client
 	Client              *client;
