@@ -547,6 +547,29 @@ void Table::msgCall(Player* player)
 
 void Table::msgGrab(Player* player)
 {
+    //检查状态
+    if(m_state != STATE_GRAB)
+    {
+        xt_log.error("%s:%d, grab fail!, game state not call_state, m_state:%s\n", __FILE__, __LINE__, DESC_STATE[m_state]); 
+        sendError(player, CLIENT_GRAB, CODE_STATE);
+        return;
+    }
+
+    //是否当前操作者
+    if(m_curSeat != player->m_seatid)
+    {
+        xt_log.error("%s:%d, grab fail!, operator error. m_curSeat:%d, playerSeat:%d\n", __FILE__, __LINE__, m_curSeat, player->m_seatid); 
+        sendError(player, CLIENT_GRAB, CODE_CURRENT);
+        return; 
+    }
+
+    if(m_opState[player->m_seatid] != OP_GRAB_NOTIFY)
+    {        
+        xt_log.error("%s:%d, grab fail!, player callstate error. player seatid:%d, m_uid:%d, callstate:%s\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, DESC_OP[m_opState[player->m_seatid]]); 
+        sendError(player, CLIENT_GRAB, CODE_NOTIFY);
+        return; 
+    }
+
     Json::Value &msg = player->client->packet.tojson();
     bool act = msg["act"].asBool();
     //检查状态
