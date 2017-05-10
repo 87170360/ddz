@@ -1820,6 +1820,6 @@ void Table::payTax(void)
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
         tmpplayer->changeMoney(-hlddz.game->ROOMTAX);
+        tmpplayer->changeMatch(hlddz.game->ROOMTAX);
     }
 }
-        

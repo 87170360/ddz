@@ -40,13 +40,15 @@ public:
     //统计玩家比赛次数和胜场
     void keepTotal(bool win);
     //破产补助
-    bool allowance(int money);
+    //bool allowance(int money);
     //添加经验
     void addExp(int exp);
     //升级
     bool levelUp(void);
     //获取升级奖励
     int upMoney(void);
+    //竞赛点改变
+    void changeMatch(int value);
 
 public:
 	int 				index;
@@ -64,9 +66,11 @@ public:
 	int					m_level;
     int                 m_exp;
     //补助领取剩余次数
-    int                 m_allowance_num;
+    //int                 m_allowance_num;
     //补助领取时间戳
-    time_t                 m_allowance_stamp;
+    //time_t                 m_allowance_stamp;
+    //参数点
+    int                 m_match;
 
 	// connect to client
 	Client              *client;

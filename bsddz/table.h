@@ -177,7 +177,7 @@ class Table
         int money2exp(int money);
         //托管出牌处理
         void entrustOut(void);
-        //扣除房费
+        //扣除房费, 添加参赛点
         void payTax(void);
 
     private:
