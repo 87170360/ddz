@@ -318,10 +318,6 @@ int Table::login(Player *player)
         loginUC(player, CODE_MONEY);
         return 0; 
     }
-    else//扣除入场费
-    {
-        player->changeMoney(-hlddz.game->ROOMTAX);
-    }
 
     if(!sitdown(player))
     {
@@ -1223,6 +1219,7 @@ void Table::gameStart(void)
     xt_log.debug("=======================================start send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
             getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
+    payTax();
     callProc();
     allocateCard();
 
@@ -1813,4 +1810,15 @@ void Table::entrustOut(void)
 
     //判断是否结束和通知下一个出牌人，本轮出牌
     logicOut(player, curCard, keep);
+}
+
+void Table::payTax(void)
+{
+    Player* tmpplayer = NULL;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        tmpplayer = it->second;
+        if(tmpplayer == NULL) continue;
+        tmpplayer->changeMoney(-hlddz.game->ROOMTAX);
+    }
 }
