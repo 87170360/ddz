@@ -63,11 +63,17 @@ public:
 	
 	int handle_logout_table(int tid);
 	int send_error(Client *client, int cmd, int error_code);
+
+    //获取排队人数
+	int handlerNumber(Client *client);
 	
 	int check_skey(Client *client);
     int add_player(Client *client);
     int del_player(Player *player);
     int change_table(Player *player);
+
+    //获取排队人数
+    int getNumber(void); 
 
 private:
 	int     init_table();

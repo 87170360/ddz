@@ -251,6 +251,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_TIME:
             handleTime(val);
             break;
+        case SERVER_NUMBER:
+            handleNumber(val);
+            break;
     }
 
     return 0;
@@ -316,6 +319,7 @@ void XtRobotClient::handleRespond(Json::Value& msg)
             {
                 if(code == CODE_SUCCESS) 
                 {
+                    sendNumber();
                 }
             }
             break;
@@ -468,6 +472,12 @@ void XtRobotClient::handleLogin(Json::Value& msg)
 {
 
 }
+        
+void XtRobotClient::handleNumber(Json::Value& msg)
+{
+    //int num = msg["num"].asInt();
+    //printf("handleNumer!, num:%d\n", num);
+}
 
 void XtRobotClient::sendCall(void)
 {
@@ -503,6 +513,14 @@ void XtRobotClient::sendCard(void)
     data.end();
     send(data.tostring());
     //show()
+}
+        
+void XtRobotClient::sendNumber(void)
+{
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_NUMBER;
+    data.end();
+    send(data.tostring());
 }
 
 void XtRobotClient::doLogin()

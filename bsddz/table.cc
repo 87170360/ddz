@@ -1822,3 +1822,4 @@ void Table::payTax(void)
         tmpplayer->changeMoney(-hlddz.game->ROOMTAX);
     }
 }
+        

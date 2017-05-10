@@ -254,6 +254,10 @@ int Game::dispatch(Client *client)
         xt_log.error("CLIENT_LOGIN_REQ player must be NULL. uid:%d\n", client->player->m_uid);
         return -1;
     }
+    else if(cmd == CLIENT_NUMBER)
+    {
+        return handlerNumber(client);
+    }
 
     if (safe_check(client, cmd) < 0) {
         return -1;
@@ -451,6 +455,15 @@ int Game::send_error(Client *client, int cmd, int error_code)
     error.end();
     return client->send(error.tostring());
 }
+	
+int Game::handlerNumber(Client *client)
+{
+    Jpacket packet;
+    packet.val["cmd"]         = SERVER_NUMBER;
+    packet.val["num"]         = getNumber();
+    packet.end();
+    return client->send(packet.tostring());
+}
 
 int Game::check_skey(Client *client)
 {
@@ -630,4 +643,19 @@ int Game::change_table(Player *player)
         }
     }
     return 0;
+}
+
+int Game::getNumber(void) 
+{
+    //xt_log.debug("getNumber one:%d, two:%d, three:%d\n", one_tables.size(), two_tables.size(), three_tables.size());
+    int num = 0;
+    if(!two_tables.empty())
+    {
+        num = 2;
+    }
+    else if(!one_tables.empty())
+    {
+        num = 1;
+    }
+    return num;
 }

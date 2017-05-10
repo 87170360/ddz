@@ -3,7 +3,7 @@
 
 enum CLIENT_COMMAND
 {
-    CLIENT_LOGIN                = 1000,         //登录 uid, zid
+    CLIENT_LOGIN                = 1000,         //登录 uid, skey
     CLIENT_CALL                 = 1001,         //叫分 score = 0,1,2,3
     CLIENT_OUT                  = 1002,         //出牌 不出: keep: true, false, 牌: card
     CLIENT_LOGOUT               = 1003,         //退出
@@ -12,6 +12,7 @@ enum CLIENT_COMMAND
     CLIENT_ENTRUST              = 1006,         //托管 开启或者关闭 active: true, false
     CLIENT_CHAT                 = 1007,         //聊天 字符串content, 表情id: chatid
     CLIENT_MOTION               = 1008,         //玩家互动 目标id：target_id, 互动id: type, 
+    CLIENT_NUMBER               = 1009,         //获取排队人数
 };
 
 enum SERVER_COMMAND
@@ -33,6 +34,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST_OUT          = 2014,         //托管出牌 牌型: card, 不出: keep
     SERVER_ENTRUST_CALL         = 2015,         //托管叫分 score
     SERVER_ENTRUST_DOUBLE       = 2016,         //托管加倍 double 
+    SERVER_NUMBER               = 2017,         //当前排队人数  num
 };
 
 enum ERROR_CODE

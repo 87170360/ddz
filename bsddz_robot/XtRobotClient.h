@@ -71,9 +71,11 @@ class XtRobotClient
         void handleKick(Json::Value& msg);
         void handleTime(Json::Value& msg);
         void handleLogin(Json::Value& msg);
+        void handleNumber(Json::Value& msg);
 
         void sendCall(void);
         void sendCard(void);
+        void sendNumber(void);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
