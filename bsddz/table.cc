@@ -1569,7 +1569,7 @@ void Table::payResult(void)
     {
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
-        tmpplayer->changeMoney(m_money[tmpplayer->m_seatid]);
+        tmpplayer->changeMatch(m_money[tmpplayer->m_seatid]);
     }
 }
 
@@ -1596,10 +1596,10 @@ void Table::calculate(int doubleNum)
         std::swap(big, small);
     }
 
-    //地主钱, 农民大，农民小
-    double lordmoney = static_cast<double>(lord->m_money);
-    double bigmoney = static_cast<double>(big->m_money);
-    double smallmoney = static_cast<double>(small->m_money);
+    //地主钱, 农民大，农民小, 改成参数点
+    double lordmoney = static_cast<double>(lord->m_match);
+    double bigmoney = static_cast<double>(big->m_match);
+    double smallmoney = static_cast<double>(small->m_match);
 
     double lordchange = 0;
     double bigchange = 0;
