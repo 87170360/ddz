@@ -194,6 +194,10 @@ class Table
         int money2exp(int money);
         //托管出牌处理
         void entrustOut(void);
+        //手牌是否存在
+        bool checkCard(unsigned int seatid, const vector<XtCard>& outcard);  
+        //底牌给地主
+        void addBottom2Lord(void);
 
     private:
         void reset(void);
@@ -210,7 +214,7 @@ class Table
         int                         m_callScore[SEAT_NUM];          //各座位叫分
         bool                        m_famerDouble[SEAT_NUM];        //农民加倍
         bool                        m_entrust[SEAT_NUM];            //托管状态 true false
-        bool                        m_timeout[SEAT_NUM];           //出牌超时 true false
+        bool                        m_timeout[SEAT_NUM];            //出牌超时 true false
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
         int                         m_money[SEAT_NUM];              //各座位输赢
