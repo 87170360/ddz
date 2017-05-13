@@ -681,9 +681,9 @@ void Table::msgOut(Player* player)
     //不出校验
     bool keep = msg["keep"].asBool();
 
-    xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
+    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
     //xt_log.debug("curCard:\n");
-    show(curCard);
+    //show(curCard);
     //xt_log.debug("lastCard:\n");
     //show(m_lastCard);
     //
@@ -693,6 +693,17 @@ void Table::msgOut(Player* player)
         xt_log.debug("curCard:\n");
         show(curCard);
         sendError(player, CLIENT_OUT, CODE_KEEP);
+        return;
+    }
+
+    //校验手牌存在
+    if(!checkCard(player->m_seatid, curCard))
+    {
+        xt_log.error("%s:%d, out fail! outcard not in hand!. m_uid:%d, seatid:%d, \n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
+        //show(m_bottomCard);
+        show(curCard);
+        show(m_seatCard[player->m_seatid].m_cards);
+        sendError(player, CLIENT_OUT, CODE_CARD_EXIST);
         return;
     }
 
@@ -1250,6 +1261,7 @@ void Table::logicGrab(bool act)
     if(allRsp)
     {
         doubleProc();
+        addBottom2Lord();
         sendGrabResult();
     }
     else
@@ -2240,3 +2252,40 @@ void Table::entrustOut(void)
     logicOut(player, curCard, keep);
 }
         
+bool Table::checkCard(unsigned int seatid, const vector<Card>& outcard)  
+{
+    if(seatid < 0 || seatid > SEAT_NUM)
+    {
+        return false;
+    }
+
+    if(outcard.empty())
+    {
+        return true;
+    }
+
+    set<int> tmpset;
+    const vector<Card>& holdcard = m_seatCard[seatid].m_cards;
+    for(vector<Card>::const_iterator it = holdcard.begin(); it != holdcard.end(); ++it)
+    {
+        tmpset.insert(it->m_value);    
+    }
+
+    for(vector<Card>::const_iterator it = outcard.begin(); it != outcard.end(); ++it)
+    {
+        if(tmpset.find(it->m_value) == tmpset.end())
+        {
+            return false; 
+        }
+    }
+
+    return true;
+}
+        
+void Table::addBottom2Lord(void)
+{
+    for(vector<Card>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
+    {
+        m_seatCard[m_lordSeat].m_cards.push_back(*it);
+    }
+}

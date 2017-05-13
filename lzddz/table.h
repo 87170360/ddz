@@ -210,6 +210,10 @@ class Table
         int money2exp(int money);
         //托管出牌处理
         void entrustOut(void);
+        //手牌是否存在
+        bool checkCard(unsigned int seatid, const vector<Card>& outcard);  
+        //底牌给地主
+        void addBottom2Lord(void);
 
     private:
         void reset(void);
@@ -230,7 +234,7 @@ class Table
         int                         m_bomb[SEAT_NUM];               //各座位炸弹数量
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
         int                         m_money[SEAT_NUM];              //各座位输赢
-        Holdcard                 m_seatCard[SEAT_NUM];           //座位手牌
+        Holdcard                    m_seatCard[SEAT_NUM];           //座位手牌
         unsigned int                m_curSeat;                      //当前操作者座位
         unsigned int                m_preSeat;                      //上个操作者座位
         unsigned int                m_lordSeat;                     //地主座位

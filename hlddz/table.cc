@@ -1088,6 +1088,7 @@ void Table::logicCall(void)
         //底牌给地主
         addBottom2Lord();
         sendCallResult(); 
+        //xt_log.debug("num: %d, %d, %d\n", m_seatCard[0].m_cards.size(), m_seatCard[1].m_cards.size(), m_seatCard[2].m_cards.size());
 
         //任意一个农民是托管，都要进行处理
         int famer1 = (m_lordSeat + 1) % 3;
