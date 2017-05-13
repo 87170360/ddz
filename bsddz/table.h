@@ -179,6 +179,10 @@ class Table
         void entrustOut(void);
         //扣除房费, 添加参赛点
         void payTax(void);
+        //手牌是否存在
+        bool checkCard(unsigned int seatid, const vector<XtCard>& outcard);  
+        //底牌给地主
+        void addBottom2Lord(void);
 
     private:
         void reset(void);

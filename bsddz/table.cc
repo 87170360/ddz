@@ -487,6 +487,17 @@ void Table::msgOut(Player* player)
         return;
     }
 
+    //校验手牌存在
+    if(!checkCard(player->m_seatid, curCard))
+    {
+        xt_log.error("%s:%d, out fail! outcard not in hand!. m_uid:%d, seatid:%d, \n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
+        //show(m_bottomCard);
+        show(curCard);
+        show(m_seatCard[player->m_seatid].m_cards);
+        sendError(player, CLIENT_OUT, CODE_CARD_EXIST);
+        return;
+    }
+
     //清除超时用户
     m_timeout[player->m_seatid] = false;
 
@@ -912,6 +923,7 @@ void Table::logicCall(void)
     if(selecLord())
     {
         outProc();
+        addBottom2Lord();
         sendCallResult(); 
 
         //任意一个农民是托管，都要进行处理
@@ -1841,5 +1853,43 @@ void Table::payTax(void)
         if(tmpplayer == NULL) continue;
         tmpplayer->changeMoney(-hlddz.game->ROOMTAX);
         tmpplayer->changeMatch(hlddz.game->ROOMTAX);
+    }
+}
+
+bool Table::checkCard(unsigned int seatid, const vector<XtCard>& outcard)  
+{
+    if(seatid < 0 || seatid > SEAT_NUM)
+    {
+        return false;
+    }
+
+    if(outcard.empty())
+    {
+        return true;
+    }
+
+    set<int> tmpset;
+    const vector<XtCard>& holdcard = m_seatCard[seatid].m_cards;
+    for(vector<XtCard>::const_iterator it = holdcard.begin(); it != holdcard.end(); ++it)
+    {
+        tmpset.insert(it->m_value);    
+    }
+
+    for(vector<XtCard>::const_iterator it = outcard.begin(); it != outcard.end(); ++it)
+    {
+        if(tmpset.find(it->m_value) == tmpset.end())
+        {
+            return false; 
+        }
+    }
+
+    return true;
+}
+        
+void Table::addBottom2Lord(void)
+{
+    for(vector<XtCard>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
+    {
+        m_seatCard[m_lordSeat].m_cards.push_back(*it);
     }
 }
