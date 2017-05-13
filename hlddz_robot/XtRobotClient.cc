@@ -440,11 +440,13 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
     m_outid = msg["out_id"].asInt();
 
     float ot = ((rand() % 3) + 15) / 10.0;
+    /*
     int cardtype = m_deck.getCardType(m_lastCard);
     if(cardtype == CT_SINGLE || cardtype == CT_PAIR)
     {
         ot = 0.1;    
     }
+    */
 
     ev_timer_stop(m_evloop, &m_outTimer);
     ev_timer_set(&m_outTimer, ot, 0);
