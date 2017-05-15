@@ -344,7 +344,10 @@ void testCompareAircraft(void)
 static string printStr;
 void show(const vector<XtCard>& card, const char* desc = NULL)
 {
-    printf("%s\n", desc);
+    if(desc != NULL)
+    {
+        printf("%s\n", desc);
+    }
     printStr.clear();
     for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
@@ -357,7 +360,10 @@ void show(const vector<XtCard>& card, const char* desc = NULL)
 
 void show(const set<int> card, const char* desc = NULL)
 {
-    printf("%s\n", desc);
+    if(desc != NULL)
+    {
+        printf("%s\n", desc);
+    }
     for(set<int>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
         printf("%d ", *it); 
@@ -1458,7 +1464,7 @@ int main()
     //testCompareShuttle();
     //testCompareAircraft();
     //testCompareSingle();
-    //testBigPair();
+    testBigPair();
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();
@@ -1471,7 +1477,7 @@ int main()
     //testDivideCard();
     //testGetNContinue();
     //testVector();
-    while(1)
+    //while(1)
     {
         //if(testBigStraight()) { break; };
         //if(testBigDoubleStraight()) { break; }
@@ -1484,7 +1490,7 @@ int main()
         //if(testBigShuttle2()) { break; }
         //if(testBigShuttle0()) { break; }
         //if(testBigBomb()) { break; }
-        if(!testGetOut()) { break; }
+        //if(!testGetOut()) { break; }
         //if(!testCreateCard()) { break; }
         //if(!testGetFirst()) { break; }
     }
