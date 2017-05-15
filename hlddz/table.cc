@@ -1342,6 +1342,8 @@ void Table::sendDoubleResult(void)
 
 void Table::sendOutAgain(bool last)
 {
+    //showHoldcardNum();
+    //xt_log.debug("sendOutAgain, outseat:%d, num:%d\n", m_outSeat, m_seatCard[m_outSeat].m_cards.size());
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
@@ -2134,5 +2136,14 @@ void Table::addBottom2Lord(void)
     for(vector<XtCard>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
     {
         m_seatCard[m_lordSeat].m_cards.push_back(*it);
+    }
+}
+        
+void Table::showHoldcardNum(void)
+{
+    std::map<int, Player*>::iterator it;
+    for (it = m_players.begin(); it != m_players.end(); it++)
+    {
+        xt_log.debug("uid:%d, seatid:%d, num:%d\n", it->second->m_uid, it->second->m_seatid, m_seatCard[it->second->m_seatid].m_cards.size()); 
     }
 }

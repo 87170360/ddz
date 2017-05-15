@@ -448,6 +448,17 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
     }
     */
 
+    //牌数量检验
+    if(m_outid == m_uid)
+    {
+       int server_num = msg["num"].asInt();
+       int my_num = m_card.size();
+       if( server_num != my_num) 
+       {
+            printf("outid:%d, server_num:%d, my_num:%d\n", m_outid, server_num, my_num);
+       }
+    }
+
     ev_timer_stop(m_evloop, &m_outTimer);
     ev_timer_set(&m_outTimer, ot, 0);
     ev_timer_start(m_evloop, &m_outTimer);

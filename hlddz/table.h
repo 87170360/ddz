@@ -198,6 +198,8 @@ class Table
         bool checkCard(unsigned int seatid, const vector<XtCard>& outcard);  
         //底牌给地主
         void addBottom2Lord(void);
+        //显示手牌数量
+        void showHoldcardNum(void);
 
     private:
         void reset(void);
