@@ -146,7 +146,7 @@ class Table
         bool allSeatFit(int state);
         //评选地主
         bool selecLord(void);
-        //获取叫分倍数
+        //获取叫分和农民加倍的倍数
         int getCount(void);
         //打印牌组
         void show(const vector<XtCard>& card);
@@ -156,6 +156,10 @@ class Table
         bool isDoubleFinish(void);
         //获取所有加倍数量
         int getAllDouble(void);
+        //获取农民加倍
+        int getFamerDouble(void);
+        //获取叫分加倍
+        int getCallDouble(void);
         //获取底牌加倍
         int getBottomDouble(void);
         //是否春天

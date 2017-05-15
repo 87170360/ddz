@@ -484,6 +484,7 @@ void Table::msgCall(Player* player)
     //有效叫分
     Json::Value &msg = player->client->packet.tojson();
     int score = msg["score"].asInt();
+    //xt_log.debug("msg Call m_uid:%d, score:%d\n", player->m_uid, score);
     if(score < 0 || score > 3)
     {
         xt_log.error("%s:%d, call fail!, score error. uid:%d, score:%d\n", __FILE__, __LINE__, player->m_uid, score); 
@@ -1287,9 +1288,11 @@ void Table::sendCallAgain(void)
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["score"]         = m_callScore[m_preSeat];
+        packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
     }
+    xt_log.debug("sendCallAgain: count:%d\n", getCount());
 }
 
 void Table::sendCallResult(void)
@@ -1302,10 +1305,12 @@ void Table::sendCallResult(void)
         packet.val["time"]          = hlddz.game->DOUBLETIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeat(m_lordSeat);
+        packet.val["count"]         = getCount();
         vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
     }
+    xt_log.debug("sendCallResult: count:%d\n", getCount());
 }
 
 void Table::sendDouble(int uid, bool isDouble)
@@ -1320,8 +1325,8 @@ void Table::sendDouble(int uid, bool isDouble)
         packet.val["double"]        = isDouble;
         packet.end();
         unicast(pl, packet.tostring());
-        //xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getCount(), isDouble ? "true" : "false");
     }
+    //xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getCount(), isDouble ? "true" : "false");
 }
 
 void Table::sendDoubleResult(void)
@@ -1336,8 +1341,8 @@ void Table::sendDoubleResult(void)
         packet.val["count"]         = getCount();
         packet.end();
         unicast(pl, packet.tostring());
-        //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeat(m_curSeat), getCount());
     }
+    //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeat(m_curSeat), getCount());
 }
 
 void Table::sendOutAgain(bool last)
@@ -1626,15 +1631,8 @@ bool Table::selecLord(void)
 
 int Table::getCount(void)
 {
-    int ret = 1;
-    for(unsigned int i = 0; i < SEAT_NUM; ++i) 
-    {
-        if(m_famerDouble[i])
-        {
-            ret *= 2;
-        }
-    }
-    return ret;
+    int ret = getFamerDouble() + getCallDouble();
+    return max(ret, 1);
 }
 
 static string printStr;
@@ -1682,7 +1680,7 @@ int Table::getAllDouble(void)
     int ret = 0;
 
     //叫分加倍
-    int callDouble = 0;
+    int callDouble = getCallDouble();
     //炸弹加倍
     int bombDouble = 0;
     //底牌加倍
@@ -1691,17 +1689,44 @@ int Table::getAllDouble(void)
     int springDouble = isSpring() ? 2 : 0;
     //反春天加倍
     int antiSpringDouble = isAntiSpring() ? 2 : 0;
+    //农民加倍
+    int famerDouble = getFamerDouble();
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         bombDouble += m_bomb[i];
-        if(m_callScore[i] > callDouble)
+    }
+
+    //xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d, famerDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble, famerDouble);
+    ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble + famerDouble;
+    return max(ret, 1);
+}
+        
+int Table::getFamerDouble(void)
+{
+    int ret = 0;
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(i != m_lordSeat && m_famerDouble[i]) 
         {
-            callDouble = m_callScore[i];
+            ret++;  
         }
     }
-    //xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble);
-    ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble;
-    return max(ret, 1);
+    return ret * 2;
+}
+        
+int Table::getCallDouble(void)
+{
+    int ret = 0;
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        //1分叫地主不算加倍, 取叫分最高
+        if(m_callScore[i] > ret && m_callScore[i] > 1)
+        {
+            ret = m_callScore[i];
+        }
+    }
+        
+    return ret;
 }
 
 int Table::getBottomDouble(void)
