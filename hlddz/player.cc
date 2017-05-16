@@ -70,8 +70,8 @@ int Player::init()
 	m_sex = hlddz.main_rc[index]->get_value_as_int("sex");
 	m_money = hlddz.main_rc[index]->get_value_as_int("money");
 	m_level = hlddz.main_rc[index]->get_value_as_int("level");
-	m_allowance_num = hlddz.main_rc[index]->get_value_as_int("allowance_num");
-	m_allowance_stamp = static_cast<time_t>(hlddz.main_rc[index]->get_value_as_int("allowance_stamp"));
+	//m_allowance_num = hlddz.main_rc[index]->get_value_as_int("allowance_num");
+	//m_allowance_stamp = static_cast<time_t>(hlddz.main_rc[index]->get_value_as_int("allowance_stamp"));
     m_exp = hlddz.main_rc[index]->get_value_as_int("exp");
 
 	if(m_uid<XT_ROBOT_UID_MAX)
@@ -200,6 +200,7 @@ void Player::keepTotal(bool win)
 	}
 }
     
+/*
 bool Player::allowance(int money)
 {
     time_t curstamp = time(NULL);
@@ -233,6 +234,7 @@ bool Player::allowance(int money)
             
     return false;
 }
+*/
     
 void Player::addExp(int exp)
 {

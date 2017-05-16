@@ -180,7 +180,7 @@ class Table
         //计算各座位输赢
         void calculate(int doubleNum);
         //检查入场费并进行破产补助
-        void allowanceProc(void); 
+        //void allowanceProc(void); 
         //检查入场费, 检查托管并踢出玩家
         void kick(void);
         //增加robot money

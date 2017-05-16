@@ -1999,6 +1999,7 @@ int Table::getSeat(int seatid)
     return m_seats[seatid];
 }
         
+/*
 void Table::allowanceProc(void) 
 {
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -2014,6 +2015,7 @@ void Table::allowanceProc(void)
         }
     }
 }
+*/
 
 void Table::kick(void)
 {
