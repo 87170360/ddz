@@ -226,6 +226,11 @@ void Table::onOut(void)
 {
     //xt_log.debug("onOut. m_curSeat:%d\n", m_curSeat);
     Player* player = getSeatPlayer(m_curSeat);
+    if(player == NULL)
+    {
+        xt_log.error("%s:%d, player null. seatid:%d\n", __FILE__, __LINE__, m_curSeat); 
+        return;
+    }
     bool keep = false;
     vector<XtCard> curCard;
     vector<XtCard> &myCard = m_seatCard[m_curSeat].m_cards;
@@ -253,6 +258,7 @@ void Table::onOut(void)
             m_deck.getOut(myCard, m_lastCard, curCard);
         }
         m_entrust[m_curSeat] = true;
+        sendEntrust(player->m_uid, true);
     }
     //第一次超时
     else
@@ -265,6 +271,7 @@ void Table::onOut(void)
         {
             m_deck.getFirst(myCard, curCard);
             m_entrust[m_curSeat] = true;
+            sendEntrust(player->m_uid, true);
         }
         //跟别人的牌
         else
@@ -974,13 +981,13 @@ void Table::logout(Player* player)
         m_players.erase(it);
     }
 
-    /*
     if(m_players.empty())
     {
         reset(); 
         //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     }
 
+    /*
     bool findHuman = false;
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -1382,7 +1389,7 @@ void Table::sendEnd(int doubleNum)
     packet.val["bomb"]      = getBombNum();
     packet.val["score"]     = hlddz.game->ROOMSCORE;
 
-    //xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
+    xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
 
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
@@ -1393,7 +1400,7 @@ void Table::sendEnd(int doubleNum)
         jval["money"]   = m_money[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
-        //xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
+        xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
     }
 
     packet.end();
@@ -1904,10 +1911,10 @@ void Table::calculate(int doubleNum)
     double lordmoney = static_cast<double>(lord->m_money);
     double bigmoney = static_cast<double>(big->m_money);
     double smallmoney = static_cast<double>(small->m_money);
-    //xt_log.debug("lordname:%s, money:%d, big:%s, money:%d, small:%s, money:%d\n"
-    //        , lord->m_name.c_str(), lord->m_money, big->m_name.c_str(), big->m_money, small->m_name.c_str(), small->m_money);
-    //xt_log.debug("caculate, roomscore:%d, doubleNum:%d, score:%d, lordmoney:%f, bigmoney:%f, smallmoney:%f, winseat:%d\n",
-    //        hlddz.game->ROOMSCORE, doubleNum, score, lordmoney, bigmoney, smallmoney, m_win);
+    xt_log.debug("lordname:%s, money:%d, big:%s, money:%d, small:%s, money:%d\n"
+            , lord->m_name.c_str(), lord->m_money, big->m_name.c_str(), big->m_money, small->m_name.c_str(), small->m_money);
+    xt_log.debug("caculate, roomscore:%d, doubleNum:%d, score:%d, lordmoney:%f, bigmoney:%f, smallmoney:%f, winseat:%d\n",
+            hlddz.game->ROOMSCORE, doubleNum, score, lordmoney, bigmoney, smallmoney, m_win);
 
     double lordchange = 0;
     double bigchange = 0;
@@ -1922,14 +1929,14 @@ void Table::calculate(int doubleNum)
                 lordchange = score * 2;
                 smallchange = -score;
                 bigchange = -score;
-                //xt_log.debug("1\n");
+                xt_log.debug("1\n");
             }
             else
             {
                 lordchange = lordmoney;
                 smallchange = -smallmoney;
                 bigchange = -(lordmoney-smallmoney);
-                //xt_log.debug("2\n");
+                xt_log.debug("2\n");
             }
         }
         else
@@ -1937,7 +1944,7 @@ void Table::calculate(int doubleNum)
             lordchange = lordmoney; 
             smallchange = -lordmoney * (smallmoney/(smallmoney + bigmoney));
             bigchange = -lordmoney * (bigmoney/(smallmoney + bigmoney));
-            //xt_log.debug("3\n");
+            xt_log.debug("3\n");
         }
     }
     else
@@ -1951,14 +1958,14 @@ void Table::calculate(int doubleNum)
                     lordchange = -(smallmoney + bigmoney); 
                     smallchange = smallmoney;
                     bigchange = bigmoney;
-                    //xt_log.debug("4\n");
+                    xt_log.debug("4\n");
                 }
                 else
                 {
                     lordchange = -(smallmoney + score); 
                     smallchange = smallmoney;
                     bigchange = score;
-                    //xt_log.debug("5\n");
+                    xt_log.debug("5\n");
                 }
             }
             else
@@ -1966,7 +1973,7 @@ void Table::calculate(int doubleNum)
                 lordchange = -(score * 2); 
                 smallchange = score;
                 bigchange = score;
-                //xt_log.debug("6\n");
+                xt_log.debug("6\n");
             }
         }
         else
@@ -1974,7 +1981,7 @@ void Table::calculate(int doubleNum)
             lordchange = -lordmoney; 
             smallchange = lordmoney * (smallmoney/(smallmoney + bigmoney));
             bigchange = lordmoney * (bigmoney/(smallmoney + bigmoney));
-            //xt_log.debug("7\n");
+            xt_log.debug("7\n");
         }
     }
 
@@ -2103,6 +2110,11 @@ void Table::entrustOut(void)
 {
     //xt_log.debug("entrustOut. m_curSeat:%d\n", m_curSeat);
     Player* player = getSeatPlayer(m_curSeat);
+    if(player == NULL)
+    {
+        xt_log.error("%s:%d, player null. seatid:%d\n", __FILE__, __LINE__, m_curSeat); 
+        return;
+    }
     bool keep = false;
     vector<XtCard> curCard;
     vector<XtCard> &myCard = m_seatCard[m_curSeat].m_cards;

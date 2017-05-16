@@ -70,6 +70,7 @@ int Player::init()
 	m_sex = hlddz.main_rc[index]->get_value_as_int("sex");
 	m_money = hlddz.main_rc[index]->get_value_as_int("money");
 	m_level = hlddz.main_rc[index]->get_value_as_int("level");
+    xt_log.debug("player init, uid:%d, money:%d\n", m_uid, m_money);
 	//m_allowance_num = hlddz.main_rc[index]->get_value_as_int("allowance_num");
 	//m_allowance_stamp = static_cast<time_t>(hlddz.main_rc[index]->get_value_as_int("allowance_stamp"));
     m_exp = hlddz.main_rc[index]->get_value_as_int("exp");
