@@ -628,14 +628,19 @@ int Game::change_table(Player *player)
     {
         ret = handle_logout_table(player->m_tid);
         if (ret < 0) {
-            xt_log.error("handle logout table error.\n");
+            xt_log.error("change_table error.\n");
             return -1;
         }
         Client *client = player->client;
+        if(client == NULL)
+        {
+            xt_log.error("change_table error.\n");
+            return -1;
+        }
         client->position = POSITION_WAIT;
         ret = handler_login_table(client);
         if (ret < 0) {
-            xt_log.error("handle login table error.\n");
+            xt_log.error("change_table error.\n");
             return -1;
         }
     }

@@ -344,7 +344,7 @@ int Table::login(Player *player)
     //检查入场费
     if(player->m_money < hlddz.game->ROOMTAX)
     {
-        xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
+        xt_log.error("%s:%d, player was no enouth money! m_uid:%d, money:%d, roomtax:%d\n", __FILE__, __LINE__, player->m_uid, player->m_money, hlddz.game->ROOMTAX); 
         loginUC(player, CODE_MONEY);
         return 0; 
     }
@@ -974,6 +974,7 @@ void Table::logout(Player* player)
         m_players.erase(it);
     }
 
+    /*
     if(m_players.empty())
     {
         reset(); 
@@ -1004,9 +1005,12 @@ void Table::logout(Player* player)
             unicast(it->second, packet.tostring());
         }
     }
+    */
 
     //清理座位信息
     setSeat(0, player->m_seatid);
+    //座位状态还原
+    m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
 }
 
 void Table::endProc(void)
@@ -2047,7 +2051,7 @@ void Table::addRobotMoney(Player* player)
     }
 
     int addval = hlddz.game->ROOMTAX * (rand() % 9 + 1) + 100000;
-    //xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
+    xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }
         
