@@ -1292,7 +1292,7 @@ void Table::sendCallAgain(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    xt_log.debug("sendCallAgain: count:%d\n", getCount());
+    //xt_log.debug("sendCallAgain: count:%d\n", getCount());
 }
 
 void Table::sendCallResult(void)
@@ -1310,7 +1310,7 @@ void Table::sendCallResult(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    xt_log.debug("sendCallResult: count:%d\n", getCount());
+    //xt_log.debug("sendCallResult: count:%d\n", getCount());
 }
 
 void Table::sendDouble(int uid, bool isDouble)
