@@ -1898,7 +1898,7 @@ void Table::total(void)
 void Table::calculate(int doubleNum)
 {
     //台面额度
-    int score = hlddz.game->ROOMSCORE * doubleNum;
+    double score = hlddz.game->ROOMSCORE * doubleNum;
     Player* lord = getSeatPlayer(m_lordSeat); 
     Player* big = getSeatPlayer((m_lordSeat + 1) % 3); 
     Player* small = getSeatPlayer((m_lordSeat + 2) % 3); 
@@ -1913,81 +1913,53 @@ void Table::calculate(int doubleNum)
     double smallmoney = static_cast<double>(small->m_money);
     xt_log.debug("lordname:%s, money:%d, big:%s, money:%d, small:%s, money:%d\n"
             , lord->m_name.c_str(), lord->m_money, big->m_name.c_str(), big->m_money, small->m_name.c_str(), small->m_money);
-    xt_log.debug("caculate, roomscore:%d, doubleNum:%d, score:%d, lordmoney:%f, bigmoney:%f, smallmoney:%f, winseat:%d\n",
+    xt_log.debug("caculate, roomscore:%d, doubleNum:%d, score:%f, lordmoney:%f, bigmoney:%f, smallmoney:%f, winseat:%d\n",
             hlddz.game->ROOMSCORE, doubleNum, score, lordmoney, bigmoney, smallmoney, m_win);
 
-    double lordchange = 0;
-    double bigchange = 0;
-    double smallchange = 0;
-
-    if(m_win == m_lordSeat)
+    //地主赢 地主持有≥2*台面  小农＜台面&大农≥台面 
+    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
     {
-        if(score * 2 <= lordmoney)
-        {
-            if(lordmoney / 2 <= smallmoney)     
-            {
-                lordchange = score * 2;
-                smallchange = -score;
-                bigchange = -score;
-                xt_log.debug("1\n");
-            }
-            else
-            {
-                lordchange = lordmoney;
-                smallchange = -smallmoney;
-                bigchange = -(lordmoney-smallmoney);
-                xt_log.debug("2\n");
-            }
-        }
-        else
-        {
-            lordchange = lordmoney; 
-            smallchange = -lordmoney * (smallmoney/(smallmoney + bigmoney));
-            bigchange = -lordmoney * (bigmoney/(smallmoney + bigmoney));
-            xt_log.debug("3\n");
-        }
-    }
-    else
-    {
-        if(score * 2 <= lordmoney)
-        {
-            if(smallmoney <= score)
-            {
-                if(bigmoney <= score) 
-                {
-                    lordchange = -(smallmoney + bigmoney); 
-                    smallchange = smallmoney;
-                    bigchange = bigmoney;
-                    xt_log.debug("4\n");
-                }
-                else
-                {
-                    lordchange = -(smallmoney + score); 
-                    smallchange = smallmoney;
-                    bigchange = score;
-                    xt_log.debug("5\n");
-                }
-            }
-            else
-            {
-                lordchange = -(score * 2); 
-                smallchange = score;
-                bigchange = score;
-                xt_log.debug("6\n");
-            }
-        }
-        else
-        {
-            lordchange = -lordmoney; 
-            smallchange = lordmoney * (smallmoney/(smallmoney + bigmoney));
-            bigchange = lordmoney * (bigmoney/(smallmoney + bigmoney));
-            xt_log.debug("7\n");
-        }
+        m_money[small->m_seatid] = -smallmoney;
+        m_money[big->m_seatid] = -score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        return;
     }
 
-    m_money[m_lordSeat] = lordchange;
-    m_money[big->m_seatid] = bigchange;
-    m_money[small->m_seatid] = smallchange;
+    //地主赢 地主持有≥2*台面 两个农民＜台面
+    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
+    {
+        m_money[small->m_seatid] = -smallmoney;
+        m_money[big->m_seatid] = -bigmoney;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        return;
+    }
+
+    //地主赢 地主持有＜2*台面
+    if(m_win == m_lordSeat && lordmoney < 2 * score)
+    {
+        m_money[small->m_seatid] = -min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
+        m_money[big->m_seatid] = -min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        return;
+    }
+
+    //农民赢 地主持有≥2*台面      小农＜台面&大农≥台面
+    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
+    {
+        m_money[small->m_seatid] = smallmoney;
+        m_money[big->m_seatid] = score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        return;
+    }
+
+    //农民赢 地主持有＜2*台面
+    if(m_win != m_lordSeat && (lordmoney < 2 * score))
+    {
+        m_money[small->m_seatid] = min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
+        m_money[big->m_seatid] = min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        return;
+    }
 }
 
 void Table::setSeat(int uid, int seatid)
