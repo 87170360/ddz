@@ -877,6 +877,8 @@ void Table::loginBC(Player* player)
     packet.val["userinfo"].append(jval);
     packet.val["cmd"]       = SERVER_LOGIN;
 
+    //xt_log.debug("loginBC, uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), pl->m_money);
+
     /* //直接这样发，客户端解析有错误
     Jpacket packet;
     packet.val["uid"]       = player->m_uid;
@@ -1027,7 +1029,7 @@ void Table::endProc(void)
     addPlayersExp(); 
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     //破产补助
-    allowanceProc();
+    //allowanceProc();
     //清空seatid
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -1221,7 +1223,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         //发送最后一轮出牌
         getNext(); 
         sendOutAgain(true);    
-        xt_log.debug("=======================================gameover\n");
+        xt_log.debug("=======================================gameover, winseat:%d\n", player->m_seatid);
         m_win = player->m_seatid;
         endProc();
     }
@@ -1898,6 +1900,10 @@ void Table::calculate(int doubleNum)
     double lordmoney = static_cast<double>(lord->m_money);
     double bigmoney = static_cast<double>(big->m_money);
     double smallmoney = static_cast<double>(small->m_money);
+    //xt_log.debug("lordname:%s, money:%d, big:%s, money:%d, small:%s, money:%d\n"
+    //        , lord->m_name.c_str(), lord->m_money, big->m_name.c_str(), big->m_money, small->m_name.c_str(), small->m_money);
+    //xt_log.debug("caculate, roomscore:%d, doubleNum:%d, score:%d, lordmoney:%f, bigmoney:%f, smallmoney:%f, winseat:%d\n",
+    //        hlddz.game->ROOMSCORE, doubleNum, score, lordmoney, bigmoney, smallmoney, m_win);
 
     double lordchange = 0;
     double bigchange = 0;
@@ -1912,12 +1918,14 @@ void Table::calculate(int doubleNum)
                 lordchange = score * 2;
                 smallchange = -score;
                 bigchange = -score;
+                //xt_log.debug("1\n");
             }
             else
             {
                 lordchange = lordmoney;
                 smallchange = -smallmoney;
                 bigchange = -(lordmoney-smallmoney);
+                //xt_log.debug("2\n");
             }
         }
         else
@@ -1925,6 +1933,7 @@ void Table::calculate(int doubleNum)
             lordchange = lordmoney; 
             smallchange = -lordmoney * (smallmoney/(smallmoney + bigmoney));
             bigchange = -lordmoney * (bigmoney/(smallmoney + bigmoney));
+            //xt_log.debug("3\n");
         }
     }
     else
@@ -1938,12 +1947,14 @@ void Table::calculate(int doubleNum)
                     lordchange = -(smallmoney + bigmoney); 
                     smallchange = smallmoney;
                     bigchange = bigmoney;
+                    //xt_log.debug("4\n");
                 }
                 else
                 {
                     lordchange = -(smallmoney + score); 
                     smallchange = smallmoney;
                     bigchange = score;
+                    //xt_log.debug("5\n");
                 }
             }
             else
@@ -1951,6 +1962,7 @@ void Table::calculate(int doubleNum)
                 lordchange = -(score * 2); 
                 smallchange = score;
                 bigchange = score;
+                //xt_log.debug("6\n");
             }
         }
         else
@@ -1958,6 +1970,7 @@ void Table::calculate(int doubleNum)
             lordchange = -lordmoney; 
             smallchange = lordmoney * (smallmoney/(smallmoney + bigmoney));
             bigchange = lordmoney * (bigmoney/(smallmoney + bigmoney));
+            //xt_log.debug("7\n");
         }
     }
 
