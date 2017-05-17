@@ -147,8 +147,6 @@ class Table
         bool allSeatFit(int state);
         //评选地主
         bool selecLord(void);
-        //获取叫分和农民加倍的倍数
-        int getCount(void);
         //打印牌组
         void show(const vector<XtCard>& card);
         //打印游戏信息

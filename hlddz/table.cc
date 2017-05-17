@@ -1299,11 +1299,12 @@ void Table::sendCallAgain(void)
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["score"]         = m_callScore[m_preSeat];
-        packet.val["count"]         = getCount();
+        packet.val["count"]         = getGameDouble();
+        packet.val["callcount"]     = getCallDouble();
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendCallAgain: count:%d\n", getCount());
+    //xt_log.debug("sendCallAgain: count:%d\n", getGameDouble());
 }
 
 void Table::sendCallResult(void)
@@ -1316,12 +1317,13 @@ void Table::sendCallResult(void)
         packet.val["time"]          = hlddz.game->DOUBLETIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeat(m_lordSeat);
-        packet.val["count"]         = getCount();
+        packet.val["count"]         = getGameDouble();
+        packet.val["callcount"]     = getCallDouble();
         vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendCallResult: count:%d\n", getCount());
+    //xt_log.debug("sendCallResult: count:%d\n", getGameDouble());
 }
 
 void Table::sendDouble(int uid, bool isDouble)
@@ -1332,12 +1334,12 @@ void Table::sendDouble(int uid, bool isDouble)
         Jpacket packet;
         packet.val["cmd"]           = SERVER_DOUBLE;
         packet.val["pre_id"]        = uid;
-        packet.val["count"]         = getCount();
+        packet.val["count"]         = getGameDouble();
         packet.val["double"]        = isDouble;
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getCount(), isDouble ? "true" : "false");
+    //xt_log.debug("sendDouble: cmd:%d, uid:%d, count:%d, isDouble:%s\n", SERVER_DOUBLE, uid, getGameDouble(), isDouble ? "true" : "false");
 }
 
 void Table::sendDoubleResult(void)
@@ -1349,11 +1351,11 @@ void Table::sendDoubleResult(void)
         packet.val["cmd"]           = SERVER_RESULT_DOUBLE;
         packet.val["time"]          = hlddz.game->OUTTIME;
         packet.val["cur_id"]        = getSeat(m_curSeat);
-        packet.val["count"]         = getCount();
+        packet.val["count"]         = getGameDouble();
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeat(m_curSeat), getCount());
+    //xt_log.debug("sendDoubleResult: cmd:%d, cur_id:%d, count:%d\n", SERVER_RESULT_DOUBLE, getSeat(m_curSeat), getGameDouble());
 }
 
 void Table::sendOutAgain(bool last)
@@ -1640,12 +1642,6 @@ bool Table::selecLord(void)
     return true;
 }
 
-int Table::getCount(void)
-{
-    int ret = getFamerDouble() + getCallDouble();
-    return max(ret, 1);
-}
-
 static string printStr;
 
 void Table::show(const vector<XtCard>& card)
@@ -1710,8 +1706,10 @@ int Table::getTableQuota(void)
     double tmp = pow(baseval, exponetval);
 
     int ret = static_cast<int>(score * bottomDouble * famerDouble * callScore * tmp); 
+    /*
     xt_log.debug("%s:%d, getTableQuota, score:%d, bottomDouble:%d, famerDouble:%d, callScore:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
             score, bottomDouble, famerDouble, callScore, bombnum, spring, anti, ret); 
+    */
     return ret;
 }
         
@@ -1733,8 +1731,10 @@ int Table::getGameDouble(void)
     double tmp = pow(baseval, exponetval);
 
     int ret = static_cast<int>(bottomDouble * tmp); 
+    /*
     xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
              bottomDouble, bombnum, spring, anti, ret); 
+     */
     return ret;
 }
         
@@ -1746,8 +1746,10 @@ int Table::getResultDoulbe(void)
     //叫分 范围1, 2, 3
     int callScore = getCallScore();
     int ret = famerDouble * callScore;
+    /*
     xt_log.debug("%s:%d, getResultDoulbe, famerDouble:%d, callScore:%d, result:%d\n", __FILE__, __LINE__,
              famerDouble, callScore, ret); 
+     */
     return ret;
 }
         
@@ -1766,17 +1768,7 @@ int Table::getFamerDouble(void)
         
 int Table::getCallDouble(void)
 {
-    int ret = 0;
-    for(unsigned int i = 0; i < SEAT_NUM; ++i)
-    {
-        //1分叫地主不算加倍, 取叫分最高
-        if(m_callScore[i] > ret && m_callScore[i] > 1)
-        {
-            ret = m_callScore[i];
-        }
-    }
-        
-    return ret;
+    return getCallScore();
 }
         
 int Table::getCallScore(void)
