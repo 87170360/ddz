@@ -1026,16 +1026,14 @@ void Table::endProc(void)
     setAllSeatOp(OP_GAME_END);
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 
-    //总倍数
-    int doubleNum = getAllDouble();
     //计算各座位输赢
-    calculate(doubleNum);
+    calculate();
     //修改玩家金币
     payResult();
     //统计局数和胜场
     total();
     //通知结算
-    sendEnd(doubleNum);
+    sendEnd();
     //增加经验
     addPlayersExp(); 
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
@@ -1380,13 +1378,13 @@ void Table::sendOutAgain(bool last)
     }
 }
 
-void Table::sendEnd(int doubleNum)
+void Table::sendEnd(void)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_END;
     packet.val["code"]      = CODE_SUCCESS;
-    packet.val["double"]    = doubleNum;
-    packet.val["bomb"]      = getBombNum();
+    packet.val["double"]    = getResultDoulbe();
+    packet.val["bomb"]      = getGameDouble();
     packet.val["score"]     = hlddz.game->ROOMSCORE;
 
     //xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
@@ -1687,31 +1685,70 @@ bool Table::isDoubleFinish(void)
     }
     return true;
 }
-
-int Table::getAllDouble(void)
+        
+int Table::getTableQuota(void)
 {
-    int ret = 0;
-
-    //叫分加倍
-    int callDouble = getCallDouble();
-    //炸弹加倍
-    int bombDouble = 0;
+    //台面额度 = 底分 * 底牌加倍（没有为1） * 农民加倍（没有为1） * 叫分 * 2 ^（炸弹个数 + 春天或反春天1）
+    //底分
+    int score = hlddz.game->ROOMSCORE;
     //底牌加倍
     int bottomDouble = getBottomDouble();
-    //春天加倍
-    int springDouble = isSpring() ? 2 : 0;
-    //反春天加倍
-    int antiSpringDouble = isAntiSpring() ? 2 : 0;
-    //农民加倍
+    //农民加倍 范围1, 2, 4
     int famerDouble = getFamerDouble();
-    for(unsigned int i = 0; i < SEAT_NUM; ++i)
-    {
-        bombDouble += m_bomb[i];
-    }
+    //叫分 范围1, 2, 3
+    int callScore = getCallScore();
+    //炸弹个数
+    int bombnum = getBombNum();
+    //春天
+    int spring = isSpring() ? 1 : 0;
+    //反春天
+    int anti = isAntiSpring() ? 1 : 0;
 
-    //xt_log.debug("double: callDouble:%d, bombDouble:%d, bottomDouble:%d, springDouble:%d, antiSpringDouble:%d, famerDouble:%d\n", callDouble, bombDouble, bottomDouble, springDouble, antiSpringDouble, famerDouble);
-    ret = callDouble + bombDouble + bottomDouble + springDouble + antiSpringDouble + famerDouble;
-    return max(ret, 1);
+    //2 ^（炸弹个数 + 春天或反春天1）
+    double baseval = 2;
+    double exponetval = bombnum + spring + anti;
+    double tmp = pow(baseval, exponetval);
+
+    int ret = static_cast<int>(score * bottomDouble * famerDouble * callScore * tmp); 
+    xt_log.debug("%s:%d, getTableQuota, score:%d, bottomDouble:%d, famerDouble:%d, callScore:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
+            score, bottomDouble, famerDouble, callScore, bombnum, spring, anti, ret); 
+    return ret;
+}
+        
+int Table::getGameDouble(void)
+{
+    //游戏中显示倍数（结算框炸弹） = 底牌加倍（没有为1） * 2 ^（炸弹个数 + 春天或反春天1）
+    //底牌加倍
+    int bottomDouble = getBottomDouble();
+    //炸弹个数
+    int bombnum = getBombNum();
+    //春天
+    int spring = isSpring() ? 1 : 0;
+    //反春天
+    int anti = isAntiSpring() ? 1 : 0;
+
+    //2 ^（炸弹个数 + 春天或反春天1）
+    double baseval = 2;
+    double exponetval = bombnum + spring + anti;
+    double tmp = pow(baseval, exponetval);
+
+    int ret = static_cast<int>(bottomDouble * tmp); 
+    xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
+             bottomDouble, bombnum, spring, anti, ret); 
+    return ret;
+}
+        
+int Table::getResultDoulbe(void)
+{
+    //结算框倍数 = 农民加倍（没有为1）* 叫分
+    //农民加倍 范围1, 2, 4
+    int famerDouble = getFamerDouble();
+    //叫分 范围1, 2, 3
+    int callScore = getCallScore();
+    int ret = famerDouble * callScore;
+    xt_log.debug("%s:%d, getResultDoulbe, famerDouble:%d, callScore:%d, result:%d\n", __FILE__, __LINE__,
+             famerDouble, callScore, ret); 
+    return ret;
 }
         
 int Table::getFamerDouble(void)
@@ -1724,7 +1761,7 @@ int Table::getFamerDouble(void)
             ret++;  
         }
     }
-    return ret * 2;
+    return max(ret * 2, 1);
 }
         
 int Table::getCallDouble(void)
@@ -1734,6 +1771,20 @@ int Table::getCallDouble(void)
     {
         //1分叫地主不算加倍, 取叫分最高
         if(m_callScore[i] > ret && m_callScore[i] > 1)
+        {
+            ret = m_callScore[i];
+        }
+    }
+        
+    return ret;
+}
+        
+int Table::getCallScore(void)
+{
+    int ret = 1;
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(m_callScore[i] > ret)
         {
             ret = m_callScore[i];
         }
@@ -1811,7 +1862,7 @@ int Table::getBottomDouble(void)
         //printf("三同");
         return 4; 
     }
-    return 0;
+    return 1;
 }
 
 bool Table::isSpring(void)
@@ -1895,10 +1946,10 @@ void Table::total(void)
     }
 }
 
-void Table::calculate(int doubleNum)
+void Table::calculate(void)
 {
     //台面额度
-    double score = hlddz.game->ROOMSCORE * doubleNum;
+    double score = getTableQuota();
     Player* lord = getSeatPlayer(m_lordSeat); 
     Player* big = getSeatPlayer((m_lordSeat + 1) % 3); 
     Player* small = getSeatPlayer((m_lordSeat + 2) % 3); 
