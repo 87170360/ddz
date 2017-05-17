@@ -974,7 +974,14 @@ void Table::outProc(void)
 void Table::logout(Player* player)
 {
     xt_log.debug("player logout, uid:%d\n", player->m_uid);
-    //退出发生后，牌桌内只有机器人,重新进入准备状态，方便测试
+    sendLogout(player->m_uid);
+   
+    //其他状态退出，要托管继续，不能删除
+    if(m_state != STATE_PREPARE)
+    {
+        return; 
+    }
+
     map<int, Player*>::iterator it = m_players.find(player->m_uid);
     if(it != m_players.end())
     {
@@ -1018,7 +1025,6 @@ void Table::logout(Player* player)
     setSeat(0, player->m_seatid);
     //座位状态还原
     m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
-    sendLogout(player->m_uid);
 }
 
 void Table::endProc(void)
