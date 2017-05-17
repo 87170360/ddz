@@ -1389,7 +1389,7 @@ void Table::sendEnd(int doubleNum)
     packet.val["bomb"]      = getBombNum();
     packet.val["score"]     = hlddz.game->ROOMSCORE;
 
-    xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
+    //xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
 
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
@@ -1400,7 +1400,7 @@ void Table::sendEnd(int doubleNum)
         jval["money"]   = m_money[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
-        xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
+        //xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
     }
 
     packet.end();
@@ -1911,17 +1911,15 @@ void Table::calculate(int doubleNum)
     double lordmoney = static_cast<double>(lord->m_money);
     double bigmoney = static_cast<double>(big->m_money);
     double smallmoney = static_cast<double>(small->m_money);
-    xt_log.debug("lordname:%s, money:%d, big:%s, money:%d, small:%s, money:%d\n"
-            , lord->m_name.c_str(), lord->m_money, big->m_name.c_str(), big->m_money, small->m_name.c_str(), small->m_money);
-    xt_log.debug("caculate, roomscore:%d, doubleNum:%d, score:%f, lordmoney:%f, bigmoney:%f, smallmoney:%f, winseat:%d\n",
-            hlddz.game->ROOMSCORE, doubleNum, score, lordmoney, bigmoney, smallmoney, m_win);
 
+    ///////////////////////////////////////////////////////////////////以小博大限制
     //地主赢 地主持有≥2*台面  小农＜台面&大农≥台面 
     if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
     {
         m_money[small->m_seatid] = -smallmoney;
         m_money[big->m_seatid] = -score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("1\n");
         return;
     }
 
@@ -1931,6 +1929,7 @@ void Table::calculate(int doubleNum)
         m_money[small->m_seatid] = -smallmoney;
         m_money[big->m_seatid] = -bigmoney;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("2\n");
         return;
     }
 
@@ -1940,6 +1939,7 @@ void Table::calculate(int doubleNum)
         m_money[small->m_seatid] = -min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
         m_money[big->m_seatid] = -min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("3\n");
         return;
     }
 
@@ -1949,6 +1949,17 @@ void Table::calculate(int doubleNum)
         m_money[small->m_seatid] = smallmoney;
         m_money[big->m_seatid] = score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("4\n");
+        return;
+    }
+
+    //农民赢 地主持有≥2*台面     两个农民＜台面 
+    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
+    {
+        m_money[small->m_seatid] = smallmoney;
+        m_money[big->m_seatid] = score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("5\n");
         return;
     }
 
@@ -1958,8 +1969,33 @@ void Table::calculate(int doubleNum)
         m_money[small->m_seatid] = min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
         m_money[big->m_seatid] = min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("6\n");
         return;
     }
+
+    ///////////////////////////////////////////////////////////////////正常情况
+    //地主赢 正常结算
+    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
+    {
+        m_money[small->m_seatid] = -score;
+        m_money[big->m_seatid] = -score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("7\n");
+        return;
+    }
+
+    //农民赢 正常结算
+    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
+    {
+        m_money[small->m_seatid] = score;
+        m_money[big->m_seatid] = score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("8\n");
+        return;
+    }
+
+    xt_log.error("caculate error, lordname:%s, money:%f, big:%s, money:%f, small:%s, money:%f, score:%f\n"
+            , lord->m_name.c_str(), lordmoney, big->m_name.c_str(), bigmoney, small->m_name.c_str(), smallmoney, score);
 }
 
 void Table::setSeat(int uid, int seatid)
