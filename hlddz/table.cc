@@ -1018,6 +1018,7 @@ void Table::logout(Player* player)
     setSeat(0, player->m_seatid);
     //座位状态还原
     m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
+    sendLogout(player->m_uid);
 }
 
 void Table::endProc(void)
@@ -1463,6 +1464,15 @@ void Table::sendEntrust(int uid, bool active)
     packet.val["cmd"]       = SERVER_ENTRUST;
     packet.val["uid"]       = uid;
     packet.val["active"]    = active;
+    packet.end();
+    broadcast(NULL, packet.tostring());
+}
+        
+void Table::sendLogout(int uid)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_ENTRUST;
+    packet.val["uid"]       = uid;
     packet.end();
     broadcast(NULL, packet.tostring());
 }

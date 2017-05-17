@@ -37,6 +37,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST_OUT          = 2016,         //托管出牌 牌型: card, 不出: keep
     SERVER_ENTRUST_CALL         = 2017,         //托管叫分 score
     SERVER_ENTRUST_DOUBLE       = 2018,         //托管加倍 double 
+    SERVER_LOGOUT               = 2019,         //玩家退出 玩家id uid
 };
 
 enum ERROR_CODE
