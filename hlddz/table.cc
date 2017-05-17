@@ -1471,7 +1471,7 @@ void Table::sendEntrust(int uid, bool active)
 void Table::sendLogout(int uid)
 {
     Jpacket packet;
-    packet.val["cmd"]       = SERVER_ENTRUST;
+    packet.val["cmd"]       = SERVER_LOGOUT;
     packet.val["uid"]       = uid;
     packet.end();
     broadcast(NULL, packet.tostring());
