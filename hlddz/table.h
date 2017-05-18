@@ -135,7 +135,7 @@ class Table
         //通知托管
         void sendEntrust(int uid, bool active);
         //发送退出
-        void sendLogout(int uid);
+        void sendLogout(Player* player);
     
         //开始发牌
         void gameStart(void);

@@ -1010,7 +1010,7 @@ void Table::leave(Player* player)
         m_entrust[player->m_seatid] = true;
         entrustProc(true, player->m_seatid);
     }
-    sendLogout(player->m_uid);
+    sendLogout(player);
 }
 
 void Table::endProc(void)
@@ -1460,13 +1460,13 @@ void Table::sendEntrust(int uid, bool active)
     broadcast(NULL, packet.tostring());
 }
         
-void Table::sendLogout(int uid)
+void Table::sendLogout(Player* player)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_LOGOUT;
-    packet.val["uid"]       = uid;
+    packet.val["uid"]       = player->m_uid;
     packet.end();
-    broadcast(NULL, packet.tostring());
+    broadcast(player, packet.tostring());
 }
 
 void Table::gameStart(void)
