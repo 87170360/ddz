@@ -23,7 +23,7 @@
 extern HLDDZ hlddz;
 extern Log xt_log;
 
-Table::Table()
+Table::Table() : m_count(0)
 {
     m_timerCall.data = this;
     ev_timer_init(&m_timerCall, Table::callCB, ev_tstamp(hlddz.game->CALLTIME), ev_tstamp(hlddz.game->CALLTIME));
@@ -373,20 +373,21 @@ int Table::login(Player *player)
 bool Table::reLogin(Player* player) 
 {
     xt_log.debug("player relogin m_uid:%d\n", player->m_uid);
-    //断线时候托管了，重连取消托管
-    m_entrust[player->m_seatid] = false;
+    if(player->m_table_count != m_count)
+    {
+        xt_log.error("%s:%d, not in same table game m_uid:%d, table_count:%d, count:%d\n", __FILE__, __LINE__, player->m_uid, player->m_table_count, m_count); 
+        return false;
+    }
 
     if(m_players.find(player->m_uid) == m_players.end())
     {
         xt_log.error("%s:%d, player was not existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
-        sendError(player, CLIENT_LOGIN, CODE_RELOGIN);
         return false;
     }
 
     if(player->m_seatid < 0 || player->m_seatid > SEAT_NUM)
     {
         xt_log.error("%s:%d, player seat error! uid:%d, seatid:%d\n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
-        sendError(player, CLIENT_LOGIN, CODE_SEAT);
         return false;
     }
 
@@ -401,7 +402,11 @@ bool Table::reLogin(Player* player)
         return false; 
     }
 
+    //断线时候托管了，重连取消托管
+    m_entrust[player->m_seatid] = false;
+
     loginUC(player, CODE_SUCCESS, true);
+
     return true;
 }
 
@@ -776,6 +781,7 @@ bool Table::sitdown(Player* player)
 
     player->m_seatid = seatid;
     player->m_tid = m_tid;
+    player->m_table_count = m_count;
     setSeat(player->m_uid, seatid);
     m_players[player->m_uid] = player;
     //xt_log.debug("sitdown uid:%d, seatid:%d\n", player->m_uid, seatid);
@@ -1022,6 +1028,8 @@ void Table::endProc(void)
     setAllSeatOp(OP_GAME_END);
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 
+    //累计一次牌局次数
+    m_count++;
     //计算各座位输赢
     calculate();
     //修改玩家金币
@@ -1491,6 +1499,7 @@ void Table::gameStart(void)
     {
         entrustProc(true, m_curSeat);
     }
+
 }
 
 void Table::gameRestart(void)
@@ -1516,22 +1525,7 @@ void Table::gameRestart(void)
     m_topCall = 0;
     m_win = 0;
 
-    m_curSeat = rand() % SEAT_NUM;
-    xt_log.debug("=======================================restart send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
-            getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
-
-    callProc();
-
-    allocateCard();
-    sendCard1();
-
-    ev_timer_stop(hlddz.loop, &m_timerUpdate);
-    ev_timer_again(hlddz.loop, &m_timerUpdate);
-    //如果托管直接自动处理
-    if(m_entrust[m_curSeat])
-    {
-        entrustProc(true, m_curSeat);
-    }
+    gameStart();
 }
 
 bool Table::getNext(void)

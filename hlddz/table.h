@@ -225,6 +225,7 @@ class Table
         std::map<int, Player*>		m_offline;
 
     private:
+        int                         m_count;                        //牌局计数
         int                         m_seats[SEAT_NUM];              //各座位玩家id
         int                         m_opState[SEAT_NUM];            //各座位操作状态            
         int                         m_callScore[SEAT_NUM];          //各座位叫分
