@@ -373,6 +373,9 @@ int Table::login(Player *player)
 bool Table::reLogin(Player* player) 
 {
     xt_log.debug("player relogin m_uid:%d\n", player->m_uid);
+    //断线时候托管了，重连取消托管
+    m_entrust[player->m_seatid] = false;
+
     if(m_players.find(player->m_uid) == m_players.end())
     {
         xt_log.error("%s:%d, player was not existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
