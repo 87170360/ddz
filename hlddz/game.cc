@@ -178,7 +178,7 @@ void Game::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 
 void Game::del_client(Client *client)
 {
-    xt_log.debug("del_client.\n");
+    xt_log.debug("%s%d, del_client.\n", __FILE__, __LINE__);
     if (fd_client.find(client->fd) == fd_client.end()) {
         xt_log.error("del client free client err[miss].\n");
         return;
@@ -201,14 +201,22 @@ void Game::del_client(Client *client)
             delete player;
             player = NULL;
         } else if (client->position == POSITION_TABLE) {
+            //在牌桌中的掉线，开始离线定时器, 超时才删除player
             if (online_players.find(player->m_uid) != online_players.end()) {
                 online_players.erase(player->m_uid);
                 offline_players[player->m_uid] = client->player;
+                //开始离线计时器
                 player->start_offline_timer();
                 player->client = NULL;
                 xt_log.debug("del client player uid[%d] online and add this uid to offline\n", player->m_uid);
             }
             client->player->client = NULL;
+
+            //通知table内进行托管处理
+            if (all_tables.find(client->player->m_tid) != all_tables.end()) 
+            {
+                all_tables[client->player->m_tid]->leave(player);
+            }
         }
     }
 
@@ -239,13 +247,19 @@ int Game::dispatch(Client *client)
             } 
             else if (ret == 1) 
             {//断线重连
-                all_tables[client->player->m_tid]->reLogin(client->player);
-                return 0;
+                bool suc = all_tables[client->player->m_tid]->reLogin(client->player);
+                if(suc)
+                {
+                    return 0;
+                }
             }
             else if (ret == 2) 
             {//断线重连
-                all_tables[client->player->m_tid]->reLogin(client->player);
-                return 0;
+                bool suc = all_tables[client->player->m_tid]->reLogin(client->player);
+                if(suc)
+                {
+                    return 0;
+                }
             }
 
             ret = handler_login_table(client);
@@ -577,7 +591,7 @@ int Game::del_player(Player *player)
     int ret = 0;
     if (all_tables.find(player->m_tid) != all_tables.end()) {
         all_tables[player->m_tid]->logout(player);
-        xt_log.error("del player\n");
+        xt_log.error("%s%d, del player\n", __FILE__, __LINE__);
 
         ret = handle_logout_table(player->m_tid);
         if (ret < 0) {

@@ -352,7 +352,7 @@ int Table::login(Player *player)
     if(player->m_money < hlddz.game->ROOMTAX)
     {
         xt_log.error("%s:%d, player was no enouth money! m_uid:%d, money:%d, roomtax:%d\n", __FILE__, __LINE__, player->m_uid, player->m_money, hlddz.game->ROOMTAX); 
-        loginUC(player, CODE_MONEY);
+        loginUC(player, CODE_MONEY, false);
         return 0; 
     }
 
@@ -362,7 +362,7 @@ int Table::login(Player *player)
     }
 
     //登录回复
-    loginUC(player, CODE_SUCCESS);
+    loginUC(player, CODE_SUCCESS, false);
 
     //广播玩家信息
     loginBC(player);
@@ -370,21 +370,21 @@ int Table::login(Player *player)
     return 0;
 }
 
-void Table::reLogin(Player* player) 
+bool Table::reLogin(Player* player) 
 {
     xt_log.debug("player relogin m_uid:%d\n", player->m_uid);
     if(m_players.find(player->m_uid) == m_players.end())
     {
         xt_log.error("%s:%d, player was not existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         sendError(player, CLIENT_LOGIN, CODE_RELOGIN);
-        return;
+        return false;
     }
 
     if(player->m_seatid < 0 || player->m_seatid > SEAT_NUM)
     {
         xt_log.error("%s:%d, player seat error! uid:%d, seatid:%d\n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
         sendError(player, CLIENT_LOGIN, CODE_SEAT);
-        return;
+        return false;
     }
 
     //给机器人加钱
@@ -395,10 +395,11 @@ void Table::reLogin(Player* player)
     {
         xt_log.error("%s:%d, player was no enouth money! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
         sendError(player, CLIENT_LOGIN, CODE_MONEY);
-        return; 
+        return false; 
     }
 
-    loginUC(player, CODE_SUCCESS);
+    loginUC(player, CODE_SUCCESS, true);
+    return true;
 }
 
 void Table::msgPrepare(Player* player)
@@ -778,7 +779,7 @@ bool Table::sitdown(Player* player)
     return true;
 }
 
-void Table::loginUC(Player* player, int code)
+void Table::loginUC(Player* player, int code, bool relogin)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_RESPOND;
@@ -786,6 +787,7 @@ void Table::loginUC(Player* player, int code)
     packet.val["msgid"]     = CLIENT_LOGIN;
     packet.val["tid"]       = m_tid;
     packet.val["seatid"]    = player->m_seatid;
+    packet.val["relogin"]   = relogin;
 
     //pack other player info
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
@@ -811,6 +813,8 @@ void Table::loginUC(Player* player, int code)
 
     //重登处理
     packet.val["state"]       = m_state;
+    //当期操作者
+    packet.val["cur_id"]      = getSeat(m_curSeat);
 
     switch(m_state)
     {
@@ -831,6 +835,10 @@ void Table::loginUC(Player* player, int code)
                 }
                 //剩余时间
                 packet.val["time"] = m_time;
+                //当前加倍
+                packet.val["count"]         = getGameDouble();
+                //当前叫分倍数
+                packet.val["callcount"]     = getCallDouble();
             }
             break;
         case STATE_DOUBLE:
@@ -842,6 +850,10 @@ void Table::loginUC(Player* player, int code)
                 }
                 //剩余时间
                 packet.val["time"] = m_time;
+                //当前加倍
+                packet.val["count"]         = getGameDouble();
+                //当前叫分倍数
+                packet.val["callcount"]     = getCallDouble();
             }
             break;
         case STATE_OUT:
@@ -859,6 +871,10 @@ void Table::loginUC(Player* player, int code)
                 packet.val["currentSeat"] = m_curSeat;
                 //剩余时间
                 packet.val["time"] = m_time;
+                //当前加倍
+                packet.val["count"]         = getGameDouble();
+                //当前叫分倍数
+                packet.val["callcount"]     = getCallDouble();
             }
             break;
     }
@@ -973,58 +989,28 @@ void Table::outProc(void)
 
 void Table::logout(Player* player)
 {
-    xt_log.debug("player logout, uid:%d\n", player->m_uid);
-    sendLogout(player->m_uid);
-   
-    //其他状态退出，要托管继续，不能删除
-    if(m_state != STATE_PREPARE)
-    {
-        return; 
-    }
-
-    map<int, Player*>::iterator it = m_players.find(player->m_uid);
-    if(it != m_players.end())
-    {
-        m_players.erase(it);
-    }
-
-    if(m_players.empty())
-    {
-        reset(); 
-        //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-    }
-
+    //player 离线太久已经被释放
     /*
-    bool findHuman = false;
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    if(m_players.find(player->m_uid) != m_players.end())
     {
-        if(!it->second->isRobot()) 
-        {
-            findHuman = true;
-            break;
-        }
-    }
-
-    //通知机器人重新准备
-    if(!findHuman)
-    {
-        reset();
-        //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-        for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-        {
-            Jpacket packet;
-            packet.val["cmd"]           = SERVER_REPREPARE;
-            packet.val["uid"]           = it->first;
-            packet.end();
-            unicast(it->second, packet.tostring());
-        }
+        xt_log.debug("player logout, uid:%d\n", player->m_uid);
+        m_win = (player->m_seatid + 1) % 3;
+        endProc();
     }
     */
+}
 
-    //清理座位信息
-    setSeat(0, player->m_seatid);
-    //座位状态还原
-    m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
+void Table::leave(Player* player)
+{
+    xt_log.debug("%s %d player :%d %s leave.\n", __FILE__, __LINE__, player->m_uid, player->m_name.c_str());
+    //如果游戏中，进入托管
+    if(m_state != STATE_PREPARE)
+    {
+        xt_log.debug("entrust for leave!\n");
+        m_entrust[player->m_seatid] = true;
+        entrustProc(true, player->m_seatid);
+    }
+    sendLogout(player->m_uid);
 }
 
 void Table::endProc(void)
@@ -1585,6 +1571,13 @@ Player* Table::getSeatPlayer(unsigned int seatid)
         return it->second; 
     }
 
+    //从离线player中寻找
+    map<int, Player*>::const_iterator ofit = hlddz.game->offline_players.find(uid);
+    if(ofit != hlddz.game->offline_players.end())
+    {
+        return ofit->second; 
+    }
+    
     xt_log.error("%s:%d, getSeatPlayer error! seatid:%d\n",__FILE__, __LINE__, seatid); 
     return NULL;
 }

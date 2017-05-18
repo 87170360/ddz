@@ -66,7 +66,7 @@ class Table
         //receive msg
         int login(Player* player);
         //断线重连
-        void reLogin(Player* player); 
+        bool reLogin(Player* player); 
         void msgPrepare(Player* player);
         void msgCall(Player* player);
         void msgDouble(Player* player);
@@ -89,8 +89,10 @@ class Table
         void doubleProc(void);
         //出牌处理
         void outProc(void);
-        //玩家退出
+        //player已经被释放，不能被托管，彻底结束游戏
         void logout(Player* player);
+        //临时断开，进行托管
+        void leave(Player* player);
         //结算处理
         void endProc(void);
         //托管处理
@@ -104,7 +106,7 @@ class Table
         void logicOut(Player* player, vector<XtCard>& curCard, bool keep);
 
         // send msg
-        void loginUC(Player* player, int code);
+        void loginUC(Player* player, int code, bool relogin);
         void loginBC(Player* player);
         //第一次发牌和叫分
         void sendCard1(void);
@@ -220,6 +222,7 @@ class Table
         int             			m_vid;
         int                         m_state;
         std::map<int, Player*>		m_players;
+        std::map<int, Player*>		m_offline;
 
     private:
         int                         m_seats[SEAT_NUM];              //各座位玩家id
