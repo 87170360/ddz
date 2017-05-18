@@ -894,6 +894,7 @@ void Table::loginUC(Player* player, int code, bool relogin)
 
 void Table::loginBC(Player* player)
 {
+    string ava = "avatar.png";
     Jpacket packet;
     Json::Value jval;          
     Player* pl = player;
@@ -903,7 +904,7 @@ void Table::loginBC(Player* player)
     jval["money"]   = pl->m_money;
     jval["level"]   = pl->m_level;
     jval["sex"]     = pl->m_sex;
-    jval["avatar"]  = pl->m_avatar;
+    jval["avatar"]  = ava;
     jval["state"]   = m_state;
 
     packet.val["userinfo"].append(jval);

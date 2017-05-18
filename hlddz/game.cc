@@ -228,7 +228,7 @@ void Game::del_client(Client *client)
 
 int Game::dispatch(Client *client)
 {
-    xt_log.debug("game, dispatch\n");
+    //xt_log.debug("game, dispatch\n");
     client->cmd_type = 0;
     int cmd = client->packet.safe_check();
     if (cmd < 0) 
