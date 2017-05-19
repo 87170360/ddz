@@ -76,6 +76,7 @@ class XtRobotClient
 
         void sendCall(void);
         void sendCard(void);
+        void reset(void);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
@@ -99,7 +100,7 @@ class XtRobotClient
 
         vector<XtCard>              m_lastCard;               //上轮牌
         int                         m_outid;                  //上轮出牌者id
-        std::set<int>               m_playerlist;             //玩家id队列
+        int                         m_tid;                    //牌桌id
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
 

@@ -338,7 +338,7 @@ void Table::onEntrustOut(void)
 
 int Table::login(Player *player)
 {
-    xt_log.debug("player login m_uid:%d, tid:%d\n", player->m_uid, m_tid);
+    //xt_log.debug("player login m_uid:%d, tid:%d\n", player->m_uid, m_tid);
     if(m_players.find(player->m_uid) != m_players.end())
     {
         xt_log.error("%s:%d, login fail! player was existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
@@ -440,12 +440,12 @@ void Table::msgPrepare(Player* player)
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
-        //xt_log.debug("not all is prepare.\n");
+        xt_log.debug("not all is prepare.\n");
         return;
     }
     else if(m_players.size() != SEAT_NUM)
     {
-        //xt_log.debug("not enouth player, size:%d\n", m_players.size());
+        xt_log.debug("not enouth player, size:%d\n", m_players.size());
         return;
     }
     else
@@ -647,16 +647,21 @@ void Table::msgOut(Player* player)
 
 void Table::msgChange(Player* player)
 {
-    xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
-
     if(m_state != STATE_PREPARE)
     {
         sendError(player, CLIENT_CHANGE, CODE_STATE);
         return;
     }
 
-    //清理座位信息
-    setSeat(0, player->m_seatid);
+    //xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
+    map<int, Player*>::iterator it = m_players.find(player->m_uid);
+    if(it != m_players.end())
+    {
+        m_players.erase(it);
+        //清理座位信息
+        setSeat(0, player->m_seatid);
+        m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
+    }
 
     hlddz.game->change_table(player);
 }
@@ -894,7 +899,6 @@ void Table::loginUC(Player* player, int code, bool relogin)
 
 void Table::loginBC(Player* player)
 {
-    string ava = "avatar.png";
     Jpacket packet;
     Json::Value jval;          
     Player* pl = player;
@@ -904,7 +908,7 @@ void Table::loginBC(Player* player)
     jval["money"]   = pl->m_money;
     jval["level"]   = pl->m_level;
     jval["sex"]     = pl->m_sex;
-    jval["avatar"]  = ava;
+    jval["avatar"]  = pl->m_avatar;
     jval["state"]   = m_state;
 
     packet.val["userinfo"].append(jval);
@@ -1001,11 +1005,14 @@ void Table::logout(Player* player)
 {
     //player 离线太久已经被释放
     
-    xt_log.debug("player logout, uid:%d\n", player->m_uid);
+    //xt_log.debug("player logout, uid:%d\n", player->m_uid);
     map<int, Player*>::iterator it = m_players.find(player->m_uid);
     if(it != m_players.end())
     {
         m_players.erase(it);
+        //清理座位信息
+        setSeat(0, player->m_seatid);
+        m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
     }
 }
 

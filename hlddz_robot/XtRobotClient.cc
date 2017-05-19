@@ -16,6 +16,8 @@
 #include "proto.h"
 #include "jpacket.h"
 
+#define XT_ROBOT_UID_MAX 1000
+
 XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 {
     m_evWrite.data=this;
@@ -30,6 +32,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
     m_serverfd=-1;
 
     m_state=XT_PARSE_HEADER;
+    m_tid = -1;
 }
 
 
@@ -316,10 +319,36 @@ void XtRobotClient::handleRespond(Json::Value& msg)
     {
         case CLIENT_LOGIN:
             {
+                //reset();
                 if(code == CODE_SUCCESS) 
                 {
+                    //m_playernum++;
+                    int num = 0;
+                    bool real = false;
+                    int tmpuid = 0;
+                    m_tid = msg["tid"].asInt();
+                    for(unsigned int i = 0; i < msg["userinfo"].size(); ++i)
+                    {
+                        tmpuid = msg["userinfo"][i]["uid"].asInt();
+                        if(tmpuid > XT_ROBOT_UID_MAX)
+                        {
+                            real = true;
+                        }
+                        num++;
+                    }
+
                     Jpacket data;
-                    data.val["cmd"]     =   CLIENT_PREPARE;
+                    if(num == 2 && !real)
+                    {
+                        printf("change, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
+                        data.val["cmd"]     =   CLIENT_CHANGE;
+                    }
+                    else
+                    {
+                        printf("prepare, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
+                        data.val["cmd"]     =   CLIENT_PREPARE;
+                    }
+
                     data.end();
                     send(data.tostring());
                 }
@@ -506,7 +535,6 @@ void XtRobotClient::handleTime(Json::Value& msg)
         
 void XtRobotClient::handleLogin(Json::Value& msg)
 {
-
 }
 
 void XtRobotClient::sendCall(void)
@@ -543,6 +571,10 @@ void XtRobotClient::sendCard(void)
     data.end();
     send(data.tostring());
     //show()
+}
+
+void XtRobotClient::reset(void)
+{
 }
 
 void XtRobotClient::doLogin()
