@@ -366,7 +366,7 @@ int Game::safe_check(Client *client, int cmd)
 int Game::handler_login_table(Client *client)
 {
     Player *player = client->player;
-    int old_tid = player->m_tid;
+    //int old_tid = player->m_tid;
     if (client->position == POSITION_TABLE) {
         xt_log.error("handler_login_table uid[%d] have been in table\n", player->m_uid);
         return -1;
@@ -376,7 +376,7 @@ int Game::handler_login_table(Client *client)
     ret = login_table(client, two_tables, three_tables);
     if (ret == 0)
     {
-        xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
+        //xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
         return 0;
     }
     else if (ret == -2)
@@ -385,7 +385,7 @@ int Game::handler_login_table(Client *client)
     ret = login_table(client, one_tables, two_tables);
     if (ret == 0)
     {
-        xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
+        //xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
         return 0;
     }
     else if (ret == -2)
@@ -394,7 +394,7 @@ int Game::handler_login_table(Client *client)
     ret = login_table(client, zero_tables, one_tables);
     if (ret == 0)
     {
-        xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
+        //xt_log.debug("handler_login_table, uid:%d, old_tid:%d, new_tid:%d\n", player->m_uid, old_tid, player->m_tid);
         return 0;
     }
     else if (ret == -2)
