@@ -253,6 +253,8 @@ int Game::dispatch(Client *client)
                 {
                     return 0;
                 }
+                //重连失败，设置为等待状态
+                client->position = POSITION_WAIT;
             }
             else if (ret == 2) 
             {//断线重连
@@ -261,6 +263,8 @@ int Game::dispatch(Client *client)
                 {
                     return 0;
                 }
+                //重连失败，设置为等待状态
+                client->position = POSITION_WAIT;
             }
 
             ret = handler_login_table(client);
