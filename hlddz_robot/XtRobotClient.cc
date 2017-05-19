@@ -24,6 +24,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
     m_evRead.data=this;
     m_showTimer.data = this;
     m_outTimer.data = this;
+    m_changeTimer.data = this;
 
     m_evloop=evloop;
 
@@ -44,6 +45,7 @@ XtRobotClient::~XtRobotClient()
         ev_io_stop(m_evloop,&m_evRead);
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
+        ev_timer_stop(m_evloop, &m_changeTimer);
         close(m_serverfd);
     }
 
@@ -195,6 +197,14 @@ void XtRobotClient::tfOut(struct ev_loop* loop, struct ev_timer* w, int events)
     self->sendCard();
 }
 
+void XtRobotClient::tfChange(struct ev_loop* loop, struct ev_timer* w, int events)
+{
+    printf("changetimer active.\n");
+    ev_timer_stop(loop,w);
+    XtRobotClient* self = (XtRobotClient*) w->data;
+    self->sendChange();
+}
+
 int XtRobotClient::closeConnect()
 {
     if(m_serverfd!=-1)
@@ -203,6 +213,7 @@ int XtRobotClient::closeConnect()
         ev_io_stop(m_evloop,&m_evRead);
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
+        ev_timer_stop(m_evloop, &m_changeTimer);
         close(m_serverfd);
     }
     m_serverfd=-1;
@@ -337,20 +348,22 @@ void XtRobotClient::handleRespond(Json::Value& msg)
                         num++;
                     }
 
-                    Jpacket data;
                     if(num == 2 && !real)
                     {
                         printf("change, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
-                        data.val["cmd"]     =   CLIENT_CHANGE;
+                        ev_timer_stop(m_evloop, &m_changeTimer);
+                        ev_timer_start(m_evloop, &m_changeTimer);
                     }
                     else
                     {
-                        printf("prepare, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
+                        Jpacket data;
                         data.val["cmd"]     =   CLIENT_PREPARE;
+                        data.end();
+                        send(data.tostring());
+                        printf("prepare, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
                     }
 
-                    data.end();
-                    send(data.tostring());
+
                 }
             }
             break;
@@ -508,10 +521,7 @@ void XtRobotClient::handleEnd(Json::Value& msg)
 {
     //printf("handleEnd !\n");
     m_card.clear();
-    Jpacket data; 
-    data.val["cmd"]     =   CLIENT_CHANGE;
-    data.end();
-    send(data.tostring());
+    sendChange();
 }
 
 void XtRobotClient::handleKick(Json::Value& msg)
@@ -520,10 +530,7 @@ void XtRobotClient::handleKick(Json::Value& msg)
     int uid = msg["uid"].asInt();
     if(m_uid == uid)
     {
-        Jpacket data; 
-        data.val["cmd"]     =   CLIENT_CHANGE;
-        data.end();
-        send(data.tostring());
+        sendChange();
     }
 }
 
@@ -573,6 +580,14 @@ void XtRobotClient::sendCard(void)
     //show()
 }
 
+void XtRobotClient::sendChange(void)
+{
+    Jpacket data; 
+    data.val["cmd"]     =   CLIENT_CHANGE;
+    data.end();
+    send(data.tostring());
+}
+
 void XtRobotClient::reset(void)
 {
 }
@@ -618,6 +633,7 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 
     ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 2, 0);
     ev_timer_init(&m_outTimer, XtRobotClient::tfOut, 2, 0);
+    ev_timer_init(&m_changeTimer, XtRobotClient::tfChange, 5, 0);
 
     doLogin();
 

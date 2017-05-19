@@ -440,12 +440,12 @@ void Table::msgPrepare(Player* player)
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
-        xt_log.debug("not all is prepare.\n");
+        xt_log.debug("not all is prepare. tid:%d\n", m_tid);
         return;
     }
     else if(m_players.size() != SEAT_NUM)
     {
-        xt_log.debug("not enouth player, size:%d\n", m_players.size());
+        xt_log.debug("not enouth player, size:%d, tid:%d\n", m_players.size(), m_tid);
         return;
     }
     else
