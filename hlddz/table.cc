@@ -1000,14 +1000,13 @@ void Table::outProc(void)
 void Table::logout(Player* player)
 {
     //player 离线太久已经被释放
-    /*
-    if(m_players.find(player->m_uid) != m_players.end())
+    
+    xt_log.debug("player logout, uid:%d\n", player->m_uid);
+    map<int, Player*>::iterator it = m_players.find(player->m_uid);
+    if(it != m_players.end())
     {
-        xt_log.debug("player logout, uid:%d\n", player->m_uid);
-        m_win = (player->m_seatid + 1) % 3;
-        endProc();
+        m_players.erase(it);
     }
-    */
 }
 
 void Table::leave(Player* player)
