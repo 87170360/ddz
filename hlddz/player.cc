@@ -25,8 +25,7 @@ extern Log xt_log;
 static const int DAY_SECOND = 86400;
 static const int ALLOWANCE_NUM = 3;
 
-Player::Player() :
-_offline_timeout(60 * 30)
+Player::Player() : m_table_count(0), _offline_timeout(60 * 30) 
 {
 	_offline_timer.data = this;
 	ev_timer_init(&_offline_timer, Player::offline_timeout, _offline_timeout, 0);
