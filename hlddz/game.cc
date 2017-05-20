@@ -48,11 +48,10 @@ void dump_game_info(char *tag)
 
 int Game::start()
 {
+    initConf();
     /* first init table */
     init_table();
-
     init_accept();
-    initConf();
 
     return 0;
 }

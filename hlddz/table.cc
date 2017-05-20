@@ -25,6 +25,7 @@ extern Log xt_log;
 
 Table::Table() : m_count(0)
 {
+    //xt_log.debug("%s%d CALLTIME:%d\n", __FILE__, __LINE__, hlddz.game->CALLTIME);
     m_timerCall.data = this;
     ev_timer_init(&m_timerCall, Table::callCB, ev_tstamp(hlddz.game->CALLTIME), ev_tstamp(hlddz.game->CALLTIME));
 
@@ -177,13 +178,13 @@ void Table::callCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
     Table *table = (Table*) w->data;
     ev_timer_stop(hlddz.loop, &table->m_timerCall);
-    //xt_log.debug("stop m_timerCall for timerup.\n");
+    xt_log.debug("stop m_timerCall for timerup.\n");
     table->onCall();
 }
 
 void Table::onCall(void)
 {
-    //xt_log.debug("onCall\n");
+    xt_log.debug("onCall, curseat:%d, score:%d\n", m_curSeat, 0);
     m_callScore[m_curSeat] = 0;
     //记录状态
     m_opState[m_curSeat] = OP_CALL_RECEIVE;
@@ -502,7 +503,7 @@ void Table::msgCall(Player* player)
     //有效叫分
     Json::Value &msg = player->client->packet.tojson();
     int score = msg["score"].asInt();
-    //xt_log.debug("msg Call m_uid:%d, score:%d\n", player->m_uid, score);
+    xt_log.debug("msg Call m_uid:%d, score:%d, name:%s\n", player->m_uid, score, player->m_name.c_str());
     if(score < 0 || score > 3)
     {
         xt_log.error("%s:%d, call fail!, score error. uid:%d, score:%d\n", __FILE__, __LINE__, player->m_uid, score); 
@@ -511,7 +512,7 @@ void Table::msgCall(Player* player)
     }
 
     //停止叫分定时器
-    //xt_log.debug("stop m_timerCall for msg.\n");
+    xt_log.debug("stop m_timerCall for msg.\n");
     ev_timer_stop(hlddz.loop, &m_timerCall);
 
     //保存当前叫分
@@ -979,7 +980,7 @@ void Table::callProc(void)
     m_opState[m_curSeat] = OP_CALL_NOTIFY;
     m_time = hlddz.game->CALLTIME;
     ev_timer_again(hlddz.loop, &m_timerCall);
-    //xt_log.debug("m_timerCall first start \n");
+    xt_log.debug("m_timerCall first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
 
@@ -1136,7 +1137,7 @@ void Table::logicCall(void)
     else if(getNext())
     {
         //广播当前叫分和下一个叫分
-        //xt_log.debug("m_timerCall again start.\n");
+        xt_log.debug("m_timerCall again start.\n");
         m_time = hlddz.game->CALLTIME;
         sendCallAgain(); 
         if(m_entrust[m_curSeat])
