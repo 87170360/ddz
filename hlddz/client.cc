@@ -154,7 +154,7 @@ void Client::read_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 			time_t end = time(NULL);
 			int total = end - begin;
 			if (total >= 1) {
-				xt_log.error("slow cmd: [%d]\n", total);
+				xt_log.error("%s,:%d, slow cmd: [%d]\n", __FILE__, __LINE__, total);
 			}
 			if (ret < 0) {
 				xt_log.error("dispatch err\n");

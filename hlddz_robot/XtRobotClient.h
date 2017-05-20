@@ -48,6 +48,7 @@ class XtRobotClient
 		static void tfShow(struct ev_loop* loop, struct ev_timer* w, int events);
 		static void tfOut(struct ev_loop* loop, struct ev_timer* w, int events);
 		static void tfChange(struct ev_loop* loop, struct ev_timer* w, int events);
+		static void tfIdle(struct ev_loop* loop, struct ev_timer* w, int events);
 
 	public:
 		int send(const char *buf, unsigned int len);
@@ -74,6 +75,7 @@ class XtRobotClient
         void handleKick(Json::Value& msg);
         void handleTime(Json::Value& msg);
         void handleLogin(Json::Value& msg);
+        void handlePrepare(Json::Value& msg);
 
         void sendCall(void);
         void sendCard(void);
@@ -99,6 +101,7 @@ class XtRobotClient
 		ev_timer                    m_showTimer;              //第一次出牌延时定时器
         ev_timer                    m_outTimer;               //出牌定时
         ev_timer                    m_changeTimer;            //换桌定时
+        //ev_timer                    m_idleTimer;              //空闲太久换桌
         XtShuffleDeck               m_deck;                   //牌库
 
         vector<XtCard>              m_lastCard;               //上轮牌

@@ -38,6 +38,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST_CALL         = 2017,         //托管叫分 score
     SERVER_ENTRUST_DOUBLE       = 2018,         //托管加倍 double 
     SERVER_LOGOUT               = 2019,         //玩家退出 玩家id uid
+    SERVER_PREPARE              = 2020,         //准备 uid
 };
 
 enum ERROR_CODE

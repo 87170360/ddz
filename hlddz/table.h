@@ -124,6 +124,8 @@ class Table
         void sendEnd(void);
         //定时器时间
         void sendTime(void);
+        //准备
+        void sendPrepare(Player* player);
         //发送错误反馈
         void sendError(Player* player, int msgid, int errcode);
         //发送托管玩家出牌

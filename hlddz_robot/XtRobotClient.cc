@@ -25,6 +25,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
     m_showTimer.data = this;
     m_outTimer.data = this;
     m_changeTimer.data = this;
+    //m_idleTimer.data = this;
 
     m_evloop=evloop;
 
@@ -46,6 +47,7 @@ XtRobotClient::~XtRobotClient()
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
         ev_timer_stop(m_evloop, &m_changeTimer);
+        //ev_timer_stop(m_evloop, &m_idleTimer);
         close(m_serverfd);
     }
 
@@ -199,9 +201,17 @@ void XtRobotClient::tfOut(struct ev_loop* loop, struct ev_timer* w, int events)
 
 void XtRobotClient::tfChange(struct ev_loop* loop, struct ev_timer* w, int events)
 {
-    printf("changetimer active.\n");
     ev_timer_stop(loop,w);
     XtRobotClient* self = (XtRobotClient*) w->data;
+    printf("uid:%d, tid:%d, changetimer active.\n", self->m_uid, self->m_tid);
+    self->sendChange();
+}
+
+void XtRobotClient::tfIdle(struct ev_loop* loop, struct ev_timer* w, int events)
+{
+    ev_timer_stop(loop,w);
+    XtRobotClient* self = (XtRobotClient*) w->data;
+    printf("uid:%d, tid:%d, idletimer active.\n", self->m_uid, self->m_tid);
     self->sendChange();
 }
 
@@ -214,6 +224,7 @@ int XtRobotClient::closeConnect()
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
         ev_timer_stop(m_evloop, &m_changeTimer);
+        //ev_timer_stop(m_evloop, &m_idleTimer);
         close(m_serverfd);
     }
     m_serverfd=-1;
@@ -266,6 +277,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             break;
         case SERVER_TIME:
             handleTime(val);
+            break;
+        case SERVER_PREPARE:
+            handlePrepare(val);
             break;
     }
 
@@ -352,6 +366,7 @@ void XtRobotClient::handleRespond(Json::Value& msg)
                     {
                         printf("change, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
                         ev_timer_stop(m_evloop, &m_changeTimer);
+                        ev_timer_set(&m_changeTimer, (m_uid % 10) + 1, 0);
                         ev_timer_start(m_evloop, &m_changeTimer);
                     }
                     else
@@ -362,8 +377,6 @@ void XtRobotClient::handleRespond(Json::Value& msg)
                         send(data.tostring());
                         printf("prepare, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
                     }
-
-
                 }
             }
             break;
@@ -544,6 +557,16 @@ void XtRobotClient::handleLogin(Json::Value& msg)
 {
 }
 
+void XtRobotClient::handlePrepare(Json::Value& msg)
+{
+    //printf("handlePrepare. \n");
+    int uid = msg["uid"].asInt();
+    if(uid == m_uid)
+    {
+        //printf("====================start idle timer.\n"); 
+    }
+}
+
 void XtRobotClient::sendCall(void)
 {
     int score = rand()%2;
@@ -621,8 +644,6 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
         return -1;
     }
 
-
-
     m_serverfd=socket_fd;
     m_uid=uid;
 
@@ -633,7 +654,8 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 
     ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 2, 0);
     ev_timer_init(&m_outTimer, XtRobotClient::tfOut, 2, 0);
-    ev_timer_init(&m_changeTimer, XtRobotClient::tfChange, 5, 0);
+    ev_timer_init(&m_changeTimer, XtRobotClient::tfChange, 8, 0);
+    //ev_timer_init(&m_idleTimer, XtRobotClient::tfIdle, 6, 0);
 
     doLogin();
 
