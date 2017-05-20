@@ -141,13 +141,13 @@ int Player::set_money(int value)
 
 void Player::start_offline_timer()
 {
-    xt_log.debug("%s:%d, start_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    //xt_log.debug("%s:%d, start_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
 	ev_timer_start(hlddz.loop, &_offline_timer);
 }
 
 void Player::stop_offline_timer()
 {
-    xt_log.debug("%s:%d, stop_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    //xt_log.debug("%s:%d, stop_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
 	ev_timer_stop(hlddz.loop, &_offline_timer);
 }
 
