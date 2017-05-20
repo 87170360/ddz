@@ -14,6 +14,7 @@ enum CLIENT_COMMAND
     CLIENT_ENTRUST              = 1009,         //托管 开启或者关闭 active: true, false
     CLIENT_CHAT                 = 1010,         //聊天 字符串content, 表情id: chatid
     CLIENT_MOTION               = 1011,         //玩家互动 目标id：target_id, 互动id: type, 
+    CLIENT_IDLE                 = 1012,         //机器人空闲
 };
 
 enum SERVER_COMMAND

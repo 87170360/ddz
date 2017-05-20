@@ -76,6 +76,7 @@ class Table
         void msgEntrust(Player* player);
         void msgChat(Player* player);
         void msgMotion(Player* player);
+        void msgIdle(Player* player);
 
         //坐下
         bool sitdown(Player* player);

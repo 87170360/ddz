@@ -768,6 +768,11 @@ void Table::msgMotion(Player* player)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
+        
+void Table::msgIdle(Player* player)
+{
+    xt_log.debug("%s,%d, msgIdle, uid:%d\n", __FILE__, __LINE__, player->m_uid);
+}
 
 bool Table::sitdown(Player* player)
 {

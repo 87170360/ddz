@@ -80,6 +80,7 @@ class XtRobotClient
         void sendCall(void);
         void sendCard(void);
         void sendChange(void);
+        void sendIdle(void);
         void reset(void);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +102,7 @@ class XtRobotClient
 		ev_timer                    m_showTimer;              //第一次出牌延时定时器
         ev_timer                    m_outTimer;               //出牌定时
         ev_timer                    m_changeTimer;            //换桌定时
-        //ev_timer                    m_idleTimer;              //空闲太久换桌
+        ev_timer                    m_idleTimer;              //空闲太久换桌
         XtShuffleDeck               m_deck;                   //牌库
 
         vector<XtCard>              m_lastCard;               //上轮牌
