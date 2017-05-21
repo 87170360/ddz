@@ -209,7 +209,7 @@ void XtRobotClient::tfChange(struct ev_loop* loop, struct ev_timer* w, int event
 
 void XtRobotClient::tfIdle(struct ev_loop* loop, struct ev_timer* w, int events)
 {
-    ev_timer_stop(loop,w);
+    //ev_timer_stop(loop,w);
     XtRobotClient* self = (XtRobotClient*) w->data;
     printf("uid:%d, tid:%d, idletimer active.\n", self->m_uid, self->m_tid);
     self->sendIdle();
