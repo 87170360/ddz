@@ -666,7 +666,8 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
     ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 2, 0);
     ev_timer_init(&m_outTimer, XtRobotClient::tfOut, 2, 0);
     ev_timer_init(&m_changeTimer, XtRobotClient::tfChange, 8, 0);
-    ev_timer_init(&m_idleTimer, XtRobotClient::tfIdle, 300 + (m_uid % 10) * 60, 0);
+    int at = 300 + (m_uid % 10) * 60;
+    ev_timer_init(&m_idleTimer, XtRobotClient::tfIdle, at, at);
 
     doLogin();
 
