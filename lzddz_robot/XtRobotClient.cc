@@ -463,6 +463,7 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
 
 void XtRobotClient::handleReprepare(Json::Value& msg)
 {
+    printf("uid:%d, handleReprepare \n", m_uid);
     m_card.clear();
     Jpacket data;
     data.val["cmd"]     =   CLIENT_PREPARE;

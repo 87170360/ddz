@@ -209,6 +209,12 @@ void Game::del_client(Client *client)
                 xt_log.debug("del client player uid[%d] online and add this uid to offline\n", player->m_uid);
             }
             client->player->client = NULL;
+
+            //通知table内进行托管处理
+            if (all_tables.find(client->player->m_tid) != all_tables.end()) 
+            {
+                all_tables[client->player->m_tid]->leave(player);
+            }
         }
     }
 

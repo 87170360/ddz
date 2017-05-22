@@ -98,6 +98,8 @@ class Table
         void outProc(void);
         //玩家退出
         void logout(Player* player);
+        //玩家断连
+        void leave(Player* player);
         //结算处理
         void endProc(void);
         //托管处理
@@ -191,8 +193,6 @@ class Table
         void total(void);
         //计算各座位输赢
         void calculate(int doubleNum);
-        //检查入场费并进行破产补助
-        void allowanceProc(void); 
         //检查入场费, 检查托管并踢出玩家
         void kick(void);
         //增加robot money

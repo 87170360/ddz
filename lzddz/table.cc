@@ -74,10 +74,10 @@ int Table::init(int tid)
 
 void Table::reset(void)
 {
-    //xt_log.debug("reset.\n");
+    xt_log.debug("reset.\n");
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        m_seats[i] = 0;
+        //m_seats[i] = 0;
         m_famerDouble[i] = false;
         m_seatCard[i].reset();
         m_bomb[i] = 0;
@@ -89,7 +89,7 @@ void Table::reset(void)
     }
     m_bottomCard.clear();
     m_lastCard.clear();
-    m_players.clear();
+    //m_players.clear();
     m_deck.shuffle(m_tid);
     m_curSeat = 0;
     m_preSeat = 0;
@@ -447,7 +447,7 @@ void Table::reLogin(Player* player)
 
 void Table::msgPrepare(Player* player)
 {
-    //xt_log.debug("msg prepare m_uid:%d, seatid:%d, size:%d\n", player->m_uid, player->m_seatid, m_players.size());
+    xt_log.debug("msg prepare m_uid:%d, seatid:%d, size:%d\n", player->m_uid, player->m_seatid, m_players.size());
     //检查入场费
     if(player->m_money < lzddz.game->ROOMTAX)
     {
@@ -459,7 +459,7 @@ void Table::msgPrepare(Player* player)
     //重复准备
     if(m_opState[player->m_seatid] == OP_PREPARE_REDAY)
     {
-        xt_log.error("%s:%d, prepare fail!, player repeat prepare! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
+        xt_log.error("%s:%d, prepare fail!, player repeat prepare! m_uid:%d, seatid:%d\n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
         sendError(player, CLIENT_PREPARE, CODE_PREPARE);
         return; 
     }
@@ -475,12 +475,12 @@ void Table::msgPrepare(Player* player)
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
-        //xt_log.debug("not all is prepare.\n");
+        xt_log.debug("not all is prepare.\n");
         return;
     }
     else if(m_players.size() != SEAT_NUM)
     {
-        //xt_log.debug("not enouth player, size:%d\n", m_players.size());
+        xt_log.debug("not enouth player, size:%d\n", m_players.size());
         return;
     }
     else
@@ -1071,39 +1071,27 @@ void Table::logout(Player* player)
         m_players.erase(it);
     }
 
-    if(m_players.empty())
-    {
-        reset(); 
-        //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-    }
-
-    bool findHuman = false;
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        if(!it->second->isRobot()) 
-        {
-            findHuman = true;
-            break;
-        }
-    }
+    reset(); 
 
     //通知机器人重新准备
-    if(!findHuman)
+    //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
-        reset();
-        //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-        for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-        {
-            Jpacket packet;
-            packet.val["cmd"]           = SERVER_REPREPARE;
-            packet.val["uid"]           = it->first;
-            packet.end();
-            unicast(it->second, packet.tostring());
-        }
+        xt_log.debug("reparepare: uid%d \n", it->first);
+        Jpacket packet;
+        packet.val["cmd"]           = SERVER_REPREPARE;
+        packet.val["uid"]           = it->first;
+        packet.end();
+        unicast(it->second, packet.tostring());
     }
 
     //清理座位信息
     setSeat(0, player->m_seatid);
+}
+
+void Table::leave(Player* player)
+{
+    //logout(player);
 }
 
 void Table::endProc(void)
@@ -1125,8 +1113,6 @@ void Table::endProc(void)
     //增加经验
     addPlayersExp(); 
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-    //破产补助
-    allowanceProc();
     //清空seatid
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
@@ -1767,7 +1753,7 @@ bool Table::allSeatFit(int state)
     {
         if(m_opState[i] != state) 
         {
-            //xt_log.debug("seatid:%d state is %s, check state is %s\n", i, DESC_OP[m_opState[i]], DESC_OP[state]);
+            xt_log.debug("seatid:%d state is %s, check state is %s\n", i, DESC_OP[m_opState[i]], DESC_OP[state]);
             return false; 
         }
     }
@@ -2110,22 +2096,6 @@ int Table::getSeat(int seatid)
         return 0; 
     }
     return m_seats[seatid];
-}
-
-void Table::allowanceProc(void) 
-{
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        Player* pl = it->second;
-        if(pl->m_money < lzddz.game->ROOMTAX && pl->allowance(lzddz.game->ALLOWANCEMONEY))
-        {
-            Jpacket packet;
-            packet.val["cmd"]           = SERVER_ALLOWANCE;
-            packet.val["money"]         = lzddz.game->ALLOWANCEMONEY;
-            packet.end();
-            unicast(NULL, packet.tostring());
-        }
-    }
 }
 
 void Table::kick(void)

@@ -70,8 +70,6 @@ int Player::init()
 	m_sex = lzddz.main_rc[index]->get_value_as_int("sex");
 	m_money = lzddz.main_rc[index]->get_value_as_int("money");
 	m_level = lzddz.main_rc[index]->get_value_as_int("level");
-	m_allowance_num = lzddz.main_rc[index]->get_value_as_int("allowance_num");
-	m_allowance_stamp = static_cast<time_t>(lzddz.main_rc[index]->get_value_as_int("allowance_stamp"));
     m_exp = lzddz.main_rc[index]->get_value_as_int("exp");
 
 	if(m_uid<XT_ROBOT_UID_MAX)
@@ -198,40 +196,6 @@ void Player::keepTotal(bool win)
     {
         xt_log.error("%s:%d, keepTotal error2. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, 1); 
 	}
-}
-    
-bool Player::allowance(int money)
-{
-    time_t curstamp = time(NULL);
-    //不同一天
-    if(m_allowance_stamp / DAY_SECOND != curstamp / DAY_SECOND)
-    {
-        //重置剩余次数         
-        m_allowance_num = ALLOWANCE_NUM;
-    }
-
-    if(m_allowance_num > 0)
-    {
-        m_allowance_num--;
-        m_allowance_stamp = curstamp;
-        changeMoney(money);
-        
-        xt_log.debug("allowance, uid:%d, money:%d, m_allowance_num:%d\n", m_uid, money, m_allowance_num);
-        if(lzddz.main_rc[index]->command("hset hu:%d allowance_num %d", m_uid, m_allowance_num) < 0)
-        {
-            xt_log.error("set m_allowance_num error.\n");
-            return false;
-        }
-
-        if(lzddz.main_rc[index]->command("hset hu:%d allowance_stamp %d", m_uid, m_allowance_stamp) < 0)
-        {
-            xt_log.error("set m_allowance_stamp error.\n");
-            return false;
-        }
-        return true;
-    }
-            
-    return false;
 }
     
 void Player::addExp(int exp)
