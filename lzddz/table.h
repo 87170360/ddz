@@ -28,6 +28,8 @@ static const unsigned int HAND_CARD_NUM     = 17;
 static const unsigned int BOTTON_CARD_NUM   = 3;
 //托管出牌定时
 static const unsigned int ENTRUST_OUT_TIME  = 2;
+//发牌后延时开始叫分
+static const unsigned int WAIT_CALL_TIME  = 3;
 
 class Player;
 class Client;
@@ -65,6 +67,8 @@ class Table
         void onLord(void);
         static void grabCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onGrab(void);
+        static void waitCallCB(struct ev_loop *loop, struct ev_timer *w, int revents);
+        void onWaitCall(void);
         /////////////////////////////////////////////////////////////////////////////
 
         //receive msg
@@ -256,6 +260,7 @@ class Table
         ev_timer                    m_timerEntrustOut;              //托管出牌定时器
         ev_timer                    m_timerLord;                    //叫地主定时器
         ev_timer                    m_timerGrab;                    //抢地主定时器
+        ev_timer                    m_timerWaitCall;                //发牌后延时进行叫地主
 
         vector<Player*>             m_delPlayer;
 };

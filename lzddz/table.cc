@@ -46,6 +46,8 @@ Table::Table()
     m_timerEntrustOut.data = this;
     ev_timer_init(&m_timerEntrustOut, Table::entrustOutCB, ev_tstamp(ENTRUST_OUT_TIME), ev_tstamp(ENTRUST_OUT_TIME));
 
+    m_timerWaitCall.data = this;
+    ev_timer_init(&m_timerWaitCall, Table::waitCallCB, ev_tstamp(WAIT_CALL_TIME), ev_tstamp(WAIT_CALL_TIME));
 }
 
 Table::~Table()
@@ -378,6 +380,20 @@ void Table::onGrab(void)
     m_opState[m_curSeat] = OP_GRAB_RECEIVE;
     xt_log.debug("onGrab. m_curSeat:%d\n", m_curSeat);
     logicGrab(false); 
+}
+
+void Table::waitCallCB(struct ev_loop *loop, struct ev_timer *w, int revents)
+{
+    Table *table = (Table*) w->data;
+    ev_timer_stop(lzddz.loop, w);
+    //xt_log.debug("%s:%d, stop m_timerGrab for timeup.\n", __FILE__, __LINE__);
+    table->onWaitCall();
+}
+
+void Table::onWaitCall(void)
+{
+    xt_log.debug("onWaitCall. \n");
+    sendCall();
 }
 
 int Table::login(Player *player)
@@ -1345,7 +1361,7 @@ void Table::logicOut(Player* player, vector<Card>& curCard, bool keep)
         //xt_log.debug("compare\n");
         if(!m_deck.compare(curCard, m_lastCard))
         {
-            xt_log.error("%s:%d, compare fail.", __FILE__, __LINE__); 
+            xt_log.error("%s:%d, compare fail.\n", __FILE__, __LINE__); 
             xt_log.error("curCard:\n");
             show(curCard);
             xt_log.error("lastCard:\n");
@@ -1659,7 +1675,8 @@ void Table::gameStart(void)
 
     sendCard1();
 
-    sendCall();
+    ev_timer_stop(lzddz.loop, &m_timerWaitCall);
+    ev_timer_again(lzddz.loop, &m_timerWaitCall);
 
     ev_timer_stop(lzddz.loop, &m_timerUpdate);
     ev_timer_again(lzddz.loop, &m_timerUpdate);
