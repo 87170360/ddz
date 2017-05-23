@@ -12,7 +12,7 @@ char policy_cross_domain[] = "<cross-domain-policy>\
 char policy_file[] = "<policy-file-request/>";
 
 Client::Client(int fd_in) :
-_ev_nodata_tstamp(60 * 320)
+_ev_nodata_tstamp(60 * 30)
 {
     /* set state */
     _state          = PARSE_HEADER;

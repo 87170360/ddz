@@ -15,6 +15,7 @@ enum CLIENT_COMMAND
     CLIENT_ENTRUST              = 1010,         //托管 开启或者关闭 active: true, false
     CLIENT_CHAT                 = 1011,         //聊天 字符串content, 表情id: chatid
     CLIENT_MOTION               = 1012,         //玩家互动 目标id：target_id, 互动id: type, 
+    CLIENT_IDLE                 = 1013,         //机器人空闲
 };
 
 enum SERVER_COMMAND
@@ -41,6 +42,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST_OUT          = 2019,         //托管出牌 牌型: card, 不出: keep
     SERVER_ENTRUST_CALL         = 2020,         //托管叫分 score
     SERVER_ENTRUST_DOUBLE       = 2021,         //托管加倍 double 
+    SERVER_PREPARE              = 2022,         //玩家点了准备, uid
 };
 
 enum ERROR_CODE

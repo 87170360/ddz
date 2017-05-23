@@ -149,6 +149,8 @@ class Table
         void sendEntrustDouble(Player* player, bool dou);
         //通知托管
         void sendEntrust(int uid, bool active);
+        //准备
+        void sendPrepare(Player* player);
     
         //开始发牌
         void gameStart(void);

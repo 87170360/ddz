@@ -74,7 +74,7 @@ int Table::init(int tid)
 
 void Table::reset(void)
 {
-    xt_log.debug("reset.\n");
+    //xt_log.debug("reset.\n");
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         //m_seats[i] = 0;
@@ -471,6 +471,8 @@ void Table::msgPrepare(Player* player)
         sendError(player, CLIENT_PREPARE, CODE_STATE);
         return; 
     }
+    
+    sendPrepare(player);
 
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
@@ -897,10 +899,12 @@ void Table::loginUC(Player* player, int code)
     {
         case STATE_PREPARE:
             {
+                /* 多余， state 已经传递了这个信息
                 for(unsigned int i = 0; i < SEAT_NUM; ++i)
                 {
                     packet.val["prepare"].append(m_opState[i] == OP_PREPARE_REDAY); 
                 }
+                */
             }
             break;
         case STATE_CALL:
@@ -1581,6 +1585,16 @@ void Table::sendTime(void)
     Jpacket packet;
     packet.val["cmd"]       = SERVER_TIME;
     packet.val["time"]      = m_time;
+    packet.end();
+    broadcast(NULL, packet.tostring());
+}
+
+void Table::sendPrepare(Player* player)
+{
+    //xt_log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$sendPrepare\n");
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_PREPARE;
+    packet.val["uid"]       = player->m_uid;
     packet.end();
     broadcast(NULL, packet.tostring());
 }

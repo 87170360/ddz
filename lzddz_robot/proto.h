@@ -8,20 +8,21 @@ enum CLIENT_COMMAND
     CLIENT_CALL                 = 1003,         //响应叫地主  act: true, false
     CLIENT_GRAB                 = 1004,         //响应抢地主  act: true, false
     CLIENT_DOUBLE               = 1005,         //农民加倍 double: true, false
-    CLIENT_OUT                  = 1006,         //出牌 不出: keep: true, false, 牌: card
+    CLIENT_OUT                  = 1006,         //出牌 不出: keep: true, false, 牌: card, 癞子点数数组: change 
     CLIENT_LOGOUT               = 1007,         //退出
     CLIENT_CHANGE               = 1008,         //换桌
     CLIENT_VIEW                 = 1009,         //查看信息 uid 
     CLIENT_ENTRUST              = 1010,         //托管 开启或者关闭 active: true, false
     CLIENT_CHAT                 = 1011,         //聊天 字符串content, 表情id: chatid
     CLIENT_MOTION               = 1012,         //玩家互动 目标id：target_id, 互动id: type, 
+    CLIENT_IDLE                 = 1013,         //机器人空闲
 };
 
 enum SERVER_COMMAND
 {
     SERVER_RESPOND              = 2000,         //其他回复, 消息id:msgid, code:错误码
     SERVER_LOGIN                = 2001,         //其他玩家登录  
-    SERVER_CARD_1               = 2002,         //发牌17张, 17张牌:card
+    SERVER_CARD_1               = 2002,         //发牌17张, 17张牌:card, 癞子点数:face
     SERVER_CALL                 = 2003,         //通知叫地主: 操作者id:cur_id, 叫分倒计时:time, 发牌时间:show_time 
     SERVER_CALL_RSP             = 2004,         //广播响应叫地主, 操作者id: cur_id
     SERVER_GRAB                 = 2005,         //通知抢地主, 操作者id: cur_id
@@ -29,7 +30,7 @@ enum SERVER_COMMAND
     SERVER_RESULT_GRAB          = 2007,         //抢地主结果,开始加倍：当期加倍情况:count, 地主id:lord, 加倍倒计时:time, 3底牌:card, 
     SERVER_DOUBLE               = 2008,         //通知加倍情况: 总加倍情况:count, 操作者id:pre_id, 是否加倍: double
     SERVER_RESULT_DOUBLE        = 2009,         //加倍结果,发底牌,通知地主出牌: 总倍数:count, 当前操作者(地主)id:cur_id,出牌倒计时:time
-    SERVER_AGAIN_OUT            = 2010,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time,牌数:num
+    SERVER_AGAIN_OUT            = 2010,         //通知下一个出牌, 上轮不出: keep = true, false, 上轮牌: card, 癞子点数数组: change, 当前操作者id:cur_id, 上一轮操作者id:pre_id, 上轮牌出牌人out_id 出牌倒计时:time,牌数:num
     SERVER_END                  = 2011,         //牌局结束, info{uid, name, 是否地主isLord, 底分score, 倍数double, 炸弹数bomb}
     SERVER_REPREPARE            = 2012,         //通知机器人重新准备
     SERVER_KICK                 = 2013,         //踢人离场
@@ -41,6 +42,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST_OUT          = 2019,         //托管出牌 牌型: card, 不出: keep
     SERVER_ENTRUST_CALL         = 2020,         //托管叫分 score
     SERVER_ENTRUST_DOUBLE       = 2021,         //托管加倍 double 
+    SERVER_PREPARE              = 2022,         //玩家点了准备, uid
 };
 
 enum ERROR_CODE
@@ -64,6 +66,7 @@ enum ERROR_CODE
     CODE_ENTRUST                = 16,           //已经托管
     CODE_OUT_ENTRUST            = 17,           //出牌阶段才可以托管
     CODE_REPEAT_ENTRUST         = 18,           //重复开启或者关闭托管
+    CODE_CARD_EXIST             = 19,           //手牌不存在
 };  
 
 //游戏阶段
@@ -99,13 +102,14 @@ enum OP_STATE
     OP_CALL_WAIT                   = 3,            //等待叫地主通知
     OP_CALL_NOTIFY                 = 4,            //已通知叫地主
     OP_CALL_RECEIVE                = 5,            //已经响应叫地主
-    OP_GRAB_NOTIFY                 = 7,            //已通知抢地主
-    OP_GRAB_RECEIVE                = 8,            //已经响应抢地主
-    OP_DOUBLE_NOTIFY               = 9,            //已经通知
-    OP_DOUBLE_RECEIVE              = 10,           //已经响应
-    OP_OUT_WAIT                    = 11,           //等待出牌
-    OP_GAME_END                    = 12,           //结算中
-    OP_MAX                         = 13,           //MAX
+    OP_GRAB_WAIT                   = 7,            //等待抢地主通知
+    OP_GRAB_NOTIFY                 = 8,            //已通知抢地主
+    OP_GRAB_RECEIVE                = 9,            //已经响应抢地主
+    OP_DOUBLE_NOTIFY               = 10,           //已经通知
+    OP_DOUBLE_RECEIVE              = 11,           //已经响应
+    OP_OUT_WAIT                    = 12,           //等待出牌
+    OP_GAME_END                    = 13,           //结算中
+    OP_MAX                         = 14,           //MAX
 };
 
 static const char* DESC_OP[OP_MAX] = 

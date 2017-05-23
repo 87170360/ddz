@@ -12,9 +12,24 @@
 #include <fcntl.h>
 #include<netinet/in.h>
 #include <stdlib.h>
+#include <time.h>
 #include <arpa/inet.h>
 #include "proto.h"
 #include "jpacket.h"
+
+static char buff26[26]; 
+
+static char* getTime(void)
+{
+    time_t timer;
+    struct tm* tm_info;
+
+    time(&timer);
+    tm_info = localtime(&timer);
+
+    strftime(buff26, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+    return buff26; 
+}
 
 XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 {
@@ -22,6 +37,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
     m_evRead.data=this;
     m_showTimer.data = this;
     m_outTimer.data = this;
+    m_idleTimer.data = this;
 
     m_evloop=evloop;
 
@@ -41,6 +57,7 @@ XtRobotClient::~XtRobotClient()
         ev_io_stop(m_evloop,&m_evRead);
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
+        ev_timer_stop(m_evloop, &m_idleTimer);
         close(m_serverfd);
     }
 
@@ -192,6 +209,13 @@ void XtRobotClient::tfOut(struct ev_loop* loop, struct ev_timer* w, int events)
     self->sendCard();
 }
 
+void XtRobotClient::tfIdle(struct ev_loop* loop, struct ev_timer* w, int events)
+{
+    printf("%s, idleTimer active.\n", getTime());
+    XtRobotClient* self = (XtRobotClient*) w->data;
+    self->sendIdle();
+}
+
 int XtRobotClient::closeConnect()
 {
     if(m_serverfd!=-1)
@@ -200,6 +224,7 @@ int XtRobotClient::closeConnect()
         ev_io_stop(m_evloop,&m_evRead);
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
+        ev_timer_stop(m_evloop, &m_idleTimer);
         close(m_serverfd);
     }
     m_serverfd=-1;
@@ -252,6 +277,9 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
             break;
         case SERVER_TIME:
             handleTime(val);
+            break;
+        case SERVER_PREPARE:
+            handlePrepare(val);
             break;
     }
 
@@ -332,7 +360,7 @@ void XtRobotClient::handleRespond(Json::Value& msg)
         printf("msgid:%d, code:%d\n", msgid, code);
     }
 }
-        
+
 void XtRobotClient::handleCard(Json::Value& msg) 
 {
     m_card.clear();
@@ -432,14 +460,14 @@ void XtRobotClient::handleAgainOut(Json::Value& msg)
 
     if(msg["last"].asBool())
     {
-       return; 
+        return; 
     }
 
     if(m_card.empty() || msg["cur_id"].asInt() != m_uid)
     {
         return;
     }
-    
+
     vector<int> lzface;
     jsonArrayToVector(lzface, msg, "change");
 
@@ -499,10 +527,22 @@ void XtRobotClient::handleTime(Json::Value& msg)
     //int time = msg["time"].asInt();
     //printf("handleTime!, time:%d\n", time);
 }
-        
+
 void XtRobotClient::handleLogin(Json::Value& msg)
 {
 
+}
+
+void XtRobotClient::handlePrepare(Json::Value& msg)
+{
+    //printf("handlePrepare. \n");
+    int uid = msg["uid"].asInt();
+    if(uid == m_uid)
+    {
+        //printf("====================start idle timer.\n"); 
+        ev_timer_stop(m_evloop, &m_idleTimer);
+        ev_timer_start(m_evloop, &m_idleTimer);
+    }
 }
 
 void XtRobotClient::sendCall(void)
@@ -516,7 +556,7 @@ void XtRobotClient::sendCall(void)
     send(data.tostring());
     printf("sendcall uid:%d. \n", m_uid);
 }
-        
+
 void XtRobotClient::sendCard(void)
 {
     Card::sortByDescending(m_card);
@@ -539,6 +579,14 @@ void XtRobotClient::sendCard(void)
     data.end();
     send(data.tostring());
     //show()
+}
+
+void XtRobotClient::sendIdle(void)
+{
+    Jpacket data;
+    data.val["cmd"]     =   CLIENT_IDLE;
+    data.end();
+    send(data.tostring());
 }
 
 void XtRobotClient::doLogin()
@@ -582,6 +630,8 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 
     ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 2, 0);
     ev_timer_init(&m_outTimer, XtRobotClient::tfOut, 2, 0);
+    int at = 300 + (m_uid % 10) * 60;
+    ev_timer_init(&m_idleTimer, XtRobotClient::tfIdle, at, at);
 
     doLogin();
 
