@@ -249,9 +249,9 @@ class Table
         unsigned int                m_win;                          //胜利座位
         int                         m_time;                         //剩余倒计时秒
 
-        Shuffledeck               m_deck;
-        std::vector<Card>         m_bottomCard;                   //底牌
-        std::vector<Card>         m_lastCard;                     //上一轮牌
+        Shuffledeck                 m_deck;
+        std::vector<Card>           m_bottomCard;                   //底牌
+        std::vector<Card>           m_lastCard;                     //上一轮牌
 
         ev_timer                    m_timerDouble;                  //加倍
         ev_timer                    m_timerOut;                     //出牌

@@ -1362,9 +1362,9 @@ void Table::logicOut(Player* player, vector<Card>& curCard, bool keep)
         if(!m_deck.compare(curCard, m_lastCard))
         {
             xt_log.error("%s:%d, compare fail.\n", __FILE__, __LINE__); 
-            xt_log.error("curCard:\n");
+            xt_log.error("curCard:%d\n", curCard.size());
             show(curCard);
-            xt_log.error("lastCard:\n");
+            xt_log.error("lastCard:%d\n", m_lastCard.size());
             show(m_lastCard);
             sendError(player, CLIENT_OUT, CODE_COMPARE);
             return;
