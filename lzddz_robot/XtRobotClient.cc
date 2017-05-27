@@ -389,7 +389,7 @@ void XtRobotClient::handleGrab(Json::Value& msg)
     }
     Jpacket data;
     data.val["cmd"]     =   CLIENT_GRAB;
-    data.val["act"]     =   rand() % 2 > 1;
+    data.val["act"]     =   rand() % 2 > 0;
     //data.val["act"]     =   false;
     data.end();
     send(data.tostring());
@@ -554,7 +554,7 @@ void XtRobotClient::sendCall(void)
     data.end();
 
     send(data.tostring());
-    printf("sendcall uid:%d. \n", m_uid);
+    //printf("sendcall uid:%d. \n", m_uid);
 }
 
 void XtRobotClient::sendCard(void)

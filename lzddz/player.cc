@@ -141,13 +141,13 @@ int Player::set_money(int value)
 
 void Player::start_offline_timer()
 {
-    xt_log.debug("%s:%d, start_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    //xt_log.debug("%s:%d, start_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
 	ev_timer_start(lzddz.loop, &_offline_timer);
 }
 
 void Player::stop_offline_timer()
 {
-    xt_log.debug("%s:%d, stop_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    //xt_log.debug("%s:%d, stop_offlie_timer. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
 	ev_timer_stop(lzddz.loop, &_offline_timer);
 }
 
@@ -156,7 +156,7 @@ void Player::offline_timeout(struct ev_loop *loop, ev_timer *w, int revents)
 	/* player logout
 	 * remove from offline table */
 	Player* self = (Player*)w->data;
-    xt_log.debug("%s:%d, offline_timeout. m_uid:%d\n", __FILE__, __LINE__, self->m_uid); 
+    //xt_log.debug("%s:%d, offline_timeout. m_uid:%d\n", __FILE__, __LINE__, self->m_uid); 
 	lzddz.game->del_player(self);
 }
     

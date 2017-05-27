@@ -400,7 +400,7 @@ void Table::waitCallCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onWaitCall(void)
 {
-    xt_log.debug("onWaitCall. \n");
+    //xt_log.debug("onWaitCall. \n");
     sendCall();
 }
 
@@ -569,7 +569,7 @@ void Table::msgCall(Player* player)
     m_opState[m_curSeat] = act ? OP_CALL_RECEIVE_Y : OP_CALL_RECEIVE_N;
     //记录行为
     m_act.push_back(act ? SS_CALL : SS_NOCA);
-    xt_log.debug("call msg, m_uid:%d, seatid:%d, act:%s \n", player->m_uid, player->m_seatid, act ? "true" : "false");
+    //xt_log.debug("call msg, m_uid:%d, seatid:%d, act:%s \n", player->m_uid, player->m_seatid, act ? "true" : "false");
     logicLord();
 }
 
@@ -608,7 +608,7 @@ void Table::msgGrab(Player* player)
     //记录状态
     m_opState[m_curSeat] = act ? OP_GRAB_RECEIVE_Y : OP_GRAB_RECEIVE_N;
     m_act.push_back(act ? SS_GRAB : SS_NOGR);
-    xt_log.debug("msg grab, m_uid:%d, seatid:%d, act:%s\n", player->m_uid, player->m_seatid, act ? "true" : "false");
+    //xt_log.debug("msg grab, m_uid:%d, seatid:%d, act:%s\n", player->m_uid, player->m_seatid, act ? "true" : "false");
     logicLord();
 }
 
