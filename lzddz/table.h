@@ -13,6 +13,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <math.h>
 
 #include <json/json.h>
 
@@ -138,7 +139,7 @@ class Table
         //继续出牌
         void sendOutAgain(bool last);
         //结束
-        void sendEnd(int doubleNum);
+        void sendEnd(void);
         //定时器时间
         void sendTime(void);
         //发送错误反馈
@@ -188,6 +189,10 @@ class Table
         int getBombNum(void);
         //获取最小本钱
         int getMinMoney(void);
+        //获取农民加倍
+        int getFamerDouble(void);
+        //获取结算框倍数
+        int getResultDoulbe(void);
 
         //扣除玩家牌局的输赢
         void payResult(void);
@@ -196,13 +201,15 @@ class Table
         //统计比赛次数和胜场次数
         void total(void);
         //计算各座位输赢
-        void calculate(int doubleNum);
+        void calculate(void);
         //检查入场费, 检查托管并踢出玩家
         void kick(void);
         //增加robot money
         void addRobotMoney(Player* player);
         //累计经验，升级，奖励
         void addPlayersExp(void);
+        //获取台面额度
+        int getTableQuota(void);
 
         //设置座位的玩家
         void setSeat(int uid, int seatid);

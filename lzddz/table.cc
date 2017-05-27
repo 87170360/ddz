@@ -1130,16 +1130,14 @@ void Table::endProc(void)
     setAllSeatOp(OP_GAME_END);
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 
-    //总倍数
-    int doubleNum = getAllDouble();
     //计算各座位输赢
-    calculate(doubleNum);
+    calculate();
     //修改玩家金币
     payResult();
     //统计局数和胜场
     total();
     //通知结算
-    sendEnd(doubleNum);
+    sendEnd();
     //增加经验
     addPlayersExp(); 
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
@@ -1546,12 +1544,12 @@ void Table::sendOutAgain(bool last)
     }
 }
 
-void Table::sendEnd(int doubleNum)
+void Table::sendEnd(void)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_END;
     packet.val["code"]      = CODE_SUCCESS;
-    packet.val["double"]    = doubleNum;
+    packet.val["double"]    = getResultDoulbe();
     packet.val["bomb"]      = getBombNum();
     packet.val["score"]     = lzddz.game->ROOMSCORE;
 
@@ -2003,10 +2001,10 @@ void Table::total(void)
     }
 }
 
-void Table::calculate(int doubleNum)
+void Table::calculate(void)
 {
     //台面额度
-    int score = lzddz.game->ROOMSCORE * doubleNum;
+    double score = getTableQuota();
     Player* lord = getSeatPlayer(m_lordSeat); 
     Player* big = getSeatPlayer((m_lordSeat + 1) % 3); 
     Player* small = getSeatPlayer((m_lordSeat + 2) % 3); 
@@ -2020,71 +2018,90 @@ void Table::calculate(int doubleNum)
     double bigmoney = static_cast<double>(big->m_money);
     double smallmoney = static_cast<double>(small->m_money);
 
-    double lordchange = 0;
-    double bigchange = 0;
-    double smallchange = 0;
-
-    if(m_win == m_lordSeat)
+    ///////////////////////////////////////////////////////////////////以小博大限制
+    //地主赢 地主持有≥2*台面  小农＜台面&大农≥台面 
+    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
     {
-        if(score * 2 <= lordmoney)
-        {
-            if(lordmoney / 2 <= smallmoney)     
-            {
-                lordchange = score * 2;
-                smallchange = -score;
-                bigchange = -score;
-            }
-            else
-            {
-                lordchange = lordmoney;
-                smallchange = -smallmoney;
-                bigchange = -(lordmoney-smallmoney);
-            }
-        }
-        else
-        {
-            lordchange = lordmoney; 
-            smallchange = -lordmoney * (smallmoney/(smallmoney + bigmoney));
-            bigchange = -lordmoney * (bigmoney/(smallmoney + bigmoney));
-        }
-    }
-    else
-    {
-        if(score * 2 <= lordmoney)
-        {
-            if(smallmoney <= score)
-            {
-                if(bigmoney <= score) 
-                {
-                    lordchange = -(smallmoney + bigmoney); 
-                    smallchange = smallmoney;
-                    bigchange = bigmoney;
-                }
-                else
-                {
-                    lordchange = -(smallmoney + score); 
-                    smallchange = smallmoney;
-                    bigchange = score;
-                }
-            }
-            else
-            {
-                lordchange = -(score * 2); 
-                smallchange = score;
-                bigchange = score;
-            }
-        }
-        else
-        {
-            lordchange = -lordmoney; 
-            smallchange = lordmoney * (smallmoney/(smallmoney + bigmoney));
-            bigchange = lordmoney * (bigmoney/(smallmoney + bigmoney));
-        }
+        m_money[small->m_seatid] = -smallmoney;
+        m_money[big->m_seatid] = -score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("1\n");
+        return;
     }
 
-    m_money[m_lordSeat] = lordchange;
-    m_money[big->m_seatid] = bigchange;
-    m_money[small->m_seatid] = smallchange;
+    //地主赢 地主持有≥2*台面 两个农民＜台面
+    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
+    {
+        m_money[small->m_seatid] = -smallmoney;
+        m_money[big->m_seatid] = -bigmoney;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("2\n");
+        return;
+    }
+
+    //地主赢 地主持有＜2*台面
+    if(m_win == m_lordSeat && lordmoney < 2 * score)
+    {
+        m_money[small->m_seatid] = -min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
+        m_money[big->m_seatid] = -min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("3\n");
+        return;
+    }
+
+    //农民赢 地主持有≥2*台面      小农＜台面&大农≥台面
+    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
+    {
+        m_money[small->m_seatid] = smallmoney;
+        m_money[big->m_seatid] = score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("4\n");
+        return;
+    }
+
+    //农民赢 地主持有≥2*台面     两个农民＜台面 
+    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
+    {
+        m_money[small->m_seatid] = smallmoney;
+        m_money[big->m_seatid] = score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("5\n");
+        return;
+    }
+
+    //农民赢 地主持有＜2*台面
+    if(m_win != m_lordSeat && (lordmoney < 2 * score))
+    {
+        m_money[small->m_seatid] = min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
+        m_money[big->m_seatid] = min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("6\n");
+        return;
+    }
+
+    ///////////////////////////////////////////////////////////////////正常情况
+    //地主赢 正常结算
+    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
+    {
+        m_money[small->m_seatid] = -score;
+        m_money[big->m_seatid] = -score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("7\n");
+        return;
+    }
+
+    //农民赢 正常结算
+    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
+    {
+        m_money[small->m_seatid] = score;
+        m_money[big->m_seatid] = score;
+        m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+        //xt_log.debug("8\n");
+        return;
+    }
+
+    xt_log.error("caculate error, lordname:%s, money:%f, big:%s, money:%f, small:%s, money:%f, score:%f\n"
+            , lord->m_name.c_str(), lordmoney, big->m_name.c_str(), bigmoney, small->m_name.c_str(), smallmoney, score);
 }
 
 void Table::setSeat(int uid, int seatid)
@@ -2151,6 +2168,59 @@ void Table::addPlayersExp(void)
         exp = money2exp(m_money[player->m_seatid]); 
         player->addExp(exp);
     }
+}
+        
+int Table::getTableQuota(void)
+{
+    //台面额度 = 底分 * 底牌加倍（没有为1） * 农民加倍（没有为1） * 叫分 * 2 ^（炸弹个数 + 春天或反春天1）
+    //底分
+    int score = lzddz.game->ROOMSCORE;
+    //底牌加倍
+    int bottomDouble = getBottomDouble();
+    //农民加倍 范围1, 2, 4
+    int famerDouble = getFamerDouble();
+    //炸弹个数
+    int bombnum = getBombNum();
+    //春天
+    int spring = isSpring() ? 1 : 0;
+    //反春天
+    int anti = isAntiSpring() ? 1 : 0;
+
+    //2 ^（炸弹个数 + 春天或反春天1）
+    double baseval = 2;
+    double exponetval = bombnum + spring + anti;
+    double tmp = pow(baseval, exponetval);
+
+    int ret = static_cast<int>(score * bottomDouble * famerDouble * tmp); 
+    /*
+    xt_log.debug("%s:%d, getTableQuota, score:%d, bottomDouble:%d, famerDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
+            score, bottomDouble, famerDouble, bombnum, spring, anti, ret); 
+    */
+    return ret;
+}
+
+int Table::getFamerDouble(void)
+{
+    int ret = 0;
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(i != m_lordSeat && m_famerDouble[i]) 
+        {
+            ret++;  
+        }
+    }
+    return max(ret * 2, 1);
+}
+
+int Table::getResultDoulbe(void)
+{
+    //结算框倍数 = 农民加倍（没有为1）* 叫分
+    //农民加倍 范围1, 2, 4
+    int famerDouble = getFamerDouble();
+    /*
+    xt_log.debug("%s:%d, getResultDoulbe, famerDouble:%d\n", __FILE__, __LINE__, famerDouble); 
+     */
+    return famerDouble;
 }
 
 int Table::money2exp(int money)
