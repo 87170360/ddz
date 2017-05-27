@@ -52,7 +52,7 @@ int Game::start()
     initConf();
     init_table();
     init_accept();
-
+    initSelect();
     return 0;
 }
 
@@ -655,4 +655,40 @@ int Game::change_table(Player *player)
         }
     }
     return 0;
+}
+    
+void Game::initSelect(void)
+{
+    m_select[SS_CALL | SS_GRAB << (1 * 3) | SS_GRAB << (2 * 3) | SS_GRAB << (3 * 3) ]                                      = 0;
+    m_select[SS_CALL | SS_GRAB << (1 * 3) | SS_GRAB << (2 * 3) | SS_NOGR << (3 * 3) ]                                      = 2;
+    m_select[SS_CALL | SS_GRAB << (1 * 3) | SS_NOGR << (2 * 3) | SS_GRAB << (3 * 3) ]                                      = 0;
+    m_select[SS_CALL | SS_GRAB << (1 * 3) | SS_NOGR << (2 * 3) | SS_NOGR << (3 * 3) ]                                      = 1;
+    //m_select[SS_CALL | SS_GRAB << (1 * 3) | SS_NOGR << (2 * 3) | SS_GRAB << (3 * 3) ]                                      = 0;
+    m_select[SS_CALL | SS_NOGR << (1 * 3) | SS_NOGR << (2 * 3)]                                                            = 0;
+    m_select[SS_CALL | SS_NOGR << (1 * 3) | SS_GRAB << (2 * 3) | SS_GRAB << (3 * 3) ]                                      = 0;
+    m_select[SS_CALL | SS_NOGR << (1 * 3) | SS_GRAB << (2 * 3) | SS_NOGR << (3 * 3) ]                                      = 2;
+
+    m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_GRAB << (2 * 3) | SS_GRAB << (3 * 3) | SS_GRAB << (4 * 3)]                       = 1;
+    m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_GRAB << (2 * 3) | SS_GRAB << (3 * 3) | SS_NOGR << (4 * 3)]                       = 0;
+    m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_GRAB << (2 * 3) | SS_NOGR << (3 * 3) | SS_GRAB << (4 * 3)]                       = 1;
+    m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_GRAB << (2 * 3) | SS_NOGR << (3 * 3) | SS_NOGR << (4 * 3)]                       = 2;
+    //m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_GRAB << (2 * 3) | SS_NOGR << (3 * 3) | SS_GRAB << (4 * 3)]                       = 1;
+    m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_NOGR << (2 * 3) | SS_NOGR << (3 * 3) ]                                           = 1;
+    m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_NOGR << (2 * 3) | SS_GRAB << (3 * 3) | SS_GRAB << (4 * 3)]                       = 1;
+    m_select[SS_NOCA | SS_CALL << (1 * 3) | SS_NOGR << (2 * 3) | SS_GRAB << (3 * 3) | SS_NOGR << (4 * 3)]                       = 0;
+
+    m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_GRAB << (3 * 3) | SS_GRAB << (4 * 3) | SS_GRAB << (5 * 3)]        = 2;
+    m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_GRAB << (3 * 3) | SS_GRAB << (4 * 3) | SS_NOGR << (5 * 3)]        = 1;
+    m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_GRAB << (3 * 3) | SS_NOGR << (4 * 3) | SS_GRAB << (5 * 3)]        = 2;
+    m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_GRAB << (3 * 3) | SS_NOGR << (4 * 3) | SS_NOGR << (5 * 3)]        = 0;
+    //m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_GRAB << (3 * 3) | SS_NOGR << (4 * 3) | SS_GRAB << (5 * 3)]        = 2;
+    m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_NOGR << (3 * 3) | SS_NOGR << (4 * 3)]                             = 2;
+    m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_NOGR << (3 * 3) | SS_GRAB << (4 * 3) | SS_GRAB << (5 * 3)]        = 2;
+    m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_NOGR << (3 * 3) | SS_GRAB << (4 * 3) | SS_NOGR << (5 * 3)]        = 1;
+
+    for(map<int, int>::const_iterator it = m_select.begin(); it != m_select.end(); ++it)
+    {
+        xt_log.debug("m_select, key:%d, value:%d\n", it->first, it->second); 
+    }
+    xt_log.debug("size:%d\n", m_select.size()); 
 }

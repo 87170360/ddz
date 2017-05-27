@@ -101,15 +101,17 @@ enum OP_STATE
     OP_PREPARE_REDAY               = 2,            //已准备
     OP_CALL_WAIT                   = 3,            //等待叫地主通知
     OP_CALL_NOTIFY                 = 4,            //已通知叫地主
-    OP_CALL_RECEIVE                = 5,            //已经响应叫地主
+    OP_CALL_RECEIVE_Y              = 5,            //已经响应叫地主, 叫地主
+    OP_CALL_RECEIVE_N              = 6,            //已经响应叫地主, 不叫
     OP_GRAB_WAIT                   = 7,            //等待抢地主通知
     OP_GRAB_NOTIFY                 = 8,            //已通知抢地主
-    OP_GRAB_RECEIVE                = 9,            //已经响应抢地主
-    OP_DOUBLE_NOTIFY               = 10,           //已经通知
-    OP_DOUBLE_RECEIVE              = 11,           //已经响应
-    OP_OUT_WAIT                    = 12,           //等待出牌
-    OP_GAME_END                    = 13,           //结算中
-    OP_MAX                         = 14,           //MAX
+    OP_GRAB_RECEIVE_Y              = 9,            //已经响应抢地主, 抢
+    OP_GRAB_RECEIVE_N              = 10,           //已经响应抢地主, 不抢
+    OP_DOUBLE_NOTIFY               = 11,           //已经通知
+    OP_DOUBLE_RECEIVE              = 12,           //已经响应
+    OP_OUT_WAIT                    = 13,           //等待出牌
+    OP_GAME_END                    = 14,           //结算中
+    OP_MAX                         = 15,           //MAX
 };
 
 static const char* DESC_OP[OP_MAX] = 
@@ -119,14 +121,34 @@ static const char* DESC_OP[OP_MAX] =
     "OP_PREPARE_REDAY",
     "OP_CALL_WAIT",
     "OP_CALL_NOTIFY",
-    "OP_CALL_RECEIVE",
+    "OP_CALL_RECEIVE_Y",
+    "OP_CALL_RECEIVE_N",
     "OP_GRAB_WAIT",
     "OP_GRAB_NOTIFY",
-    "OP_GRAB_RECEIVE",
+    "OP_GRAB_RECEIVE_Y",
+    "OP_GRAB_RECEIVE_N",
     "OP_DOUBLE_NOTIFY",
     "OP_DOUBLE_RECEIVE",
     "OP_OUT_WAIT",
     "OP_GAME_END",
+};
+
+//选地主
+enum SELECT_STATE
+{
+    SS_CALL  = 1,                               //叫地主
+    SS_NOCA  = 2,                               //不叫
+    SS_GRAB  = 3,                               //抢地主
+    SS_NOGR  = 4,                               //不抢
+};
+
+static const char* DESC_SS[5] = 
+{
+    "NULL",
+    "CALL",
+    "NOCA",
+    "GRAB",
+    "NOGR",
 };
 
 #endif

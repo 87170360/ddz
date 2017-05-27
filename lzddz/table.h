@@ -109,10 +109,8 @@ class Table
         //托管处理
         void entrustProc(bool killtimer, int entrustSeat);
 
-        //叫地主逻辑
-        void logicCall(bool act);
-        //抢地主逻辑
-        void logicGrab(bool act);
+        //争夺地主逻辑
+        void logicLord(void);
         //加倍逻辑
         void logicDouble(bool isMsg);
         //出牌逻辑
@@ -168,14 +166,14 @@ class Table
         void setAllSeatOp(int state);
         //座位状态查询
         bool allSeatFit(int state);
-        //评选地主
-        bool selecLord(void);
         //获取叫分倍数
         int getCount(void);
         //打印牌组
         void show(const vector<Card>& card);
         //打印游戏信息
         void showGame(void);
+        //打印行为
+        void showAct(void);
         //加倍完毕
         bool isDoubleFinish(void);
         //获取所有加倍数量
@@ -220,6 +218,14 @@ class Table
         bool checkCard(unsigned int seatid, const vector<Card>& outcard);  
         //底牌给地主
         void addBottom2Lord(void);
+        //是否无人叫地主
+        bool isNoCall(void);
+        //选择地主成功
+        bool selectLord(unsigned int& lordseat);
+        //选择叫或抢
+        bool selectCall(void);
+        //act 2 key
+        int act2key(void);
 
     private:
         void reset(void);
@@ -248,6 +254,9 @@ class Table
         int                         m_topCall;                      //最高叫分
         unsigned int                m_win;                          //胜利座位
         int                         m_time;                         //剩余倒计时秒
+        unsigned int                m_firstSeat;                    //首叫座位
+        std::vector<int>            m_act;                          //争夺地主行为
+
 
         Shuffledeck                 m_deck;
         std::vector<Card>           m_bottomCard;                   //底牌

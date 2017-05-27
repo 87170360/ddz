@@ -31,6 +31,7 @@ public:
     std::map<int, Client*> 		fd_client;
 	std::map<int, Player*>      offline_players;
 	std::map<int, Player*>      online_players;
+	std::map<int, int>          m_select;           //选择地主条件
 
     int CALLTIME;
     int GRABTIME;
@@ -73,7 +74,8 @@ public:
 private:
 	int     init_table();
     int     init_accept();
-    void     initConf(void);
+    void    initConf(void);
+    void    initSelect(void);
 
 };
 

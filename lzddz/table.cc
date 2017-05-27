@@ -102,6 +102,8 @@ void Table::reset(void)
     m_time = 0;
     m_state = STATE_PREPARE; 
     m_grabDoulbe = 0;
+    m_firstSeat = 0;
+    m_act.clear();
 
     ev_timer_stop(lzddz.loop, &m_timerDouble);
     ev_timer_stop(lzddz.loop, &m_timerOut);
@@ -361,10 +363,14 @@ void Table::lordCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onLord(void)
 {
+    //超时不叫
+    bool isCall = false;
     //记录状态
-    m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    xt_log.debug("onLord.\n");
-    logicCall(false);
+    m_opState[m_curSeat] = isCall ? OP_CALL_RECEIVE_Y : OP_CALL_RECEIVE_N;
+    //记录行为
+    m_act[isCall ? SS_CALL : SS_NOCA];
+    //xt_log.debug("onLord.\n");
+    logicLord();
 }
 
 void Table::grabCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -377,9 +383,11 @@ void Table::grabCB(struct ev_loop *loop, struct ev_timer *w, int revents)
 
 void Table::onGrab(void)
 {
-    m_opState[m_curSeat] = OP_GRAB_RECEIVE;
+    bool isGrab = false;
+    m_opState[m_curSeat] = isGrab ? OP_GRAB_RECEIVE_Y : OP_GRAB_RECEIVE_N;
+    m_act.push_back(isGrab ? SS_GRAB : SS_NOGR);
     xt_log.debug("onGrab. m_curSeat:%d\n", m_curSeat);
-    logicGrab(false); 
+    logicLord();
 }
 
 void Table::waitCallCB(struct ev_loop *loop, struct ev_timer *w, int revents)
@@ -398,7 +406,7 @@ void Table::onWaitCall(void)
 
 int Table::login(Player *player)
 {
-    xt_log.debug("player login m_uid:%d, tid:%d\n", player->m_uid, m_tid);
+    //xt_log.debug("player login m_uid:%d, tid:%d\n", player->m_uid, m_tid);
     if(m_players.find(player->m_uid) != m_players.end())
     {
         xt_log.error("%s:%d, login fail! player was existed! m_uid:%d\n", __FILE__, __LINE__, player->m_uid); 
@@ -463,7 +471,7 @@ void Table::reLogin(Player* player)
 
 void Table::msgPrepare(Player* player)
 {
-    xt_log.debug("msg prepare m_uid:%d, seatid:%d, size:%d\n", player->m_uid, player->m_seatid, m_players.size());
+    //xt_log.debug("msg prepare m_uid:%d, seatid:%d, size:%d\n", player->m_uid, player->m_seatid, m_players.size());
     //检查入场费
     if(player->m_money < lzddz.game->ROOMTAX)
     {
@@ -493,7 +501,7 @@ void Table::msgPrepare(Player* player)
     m_opState[player->m_seatid] = OP_PREPARE_REDAY; 
     if(!allSeatFit(OP_PREPARE_REDAY))
     {
-        xt_log.debug("not all is prepare.\n");
+        //xt_log.debug("not all is prepare.\n");
         return;
     }
     else if(m_players.size() != SEAT_NUM)
@@ -558,9 +566,11 @@ void Table::msgCall(Player* player)
     ev_timer_stop(lzddz.loop, &m_timerLord);
 
     //记录状态
-    m_opState[m_curSeat] = OP_CALL_RECEIVE;
-    //xt_log.debug("call msg, m_uid:%d, seatid:%d, act:%s \n", player->m_uid, player->m_seatid, act ? "true" : "false");
-    logicCall(act);
+    m_opState[m_curSeat] = act ? OP_CALL_RECEIVE_Y : OP_CALL_RECEIVE_N;
+    //记录行为
+    m_act.push_back(act ? SS_CALL : SS_NOCA);
+    xt_log.debug("call msg, m_uid:%d, seatid:%d, act:%s \n", player->m_uid, player->m_seatid, act ? "true" : "false");
+    logicLord();
 }
 
 void Table::msgGrab(Player* player)
@@ -581,7 +591,7 @@ void Table::msgGrab(Player* player)
         return; 
     }
 
-    if(m_opState[player->m_seatid] != OP_GRAB_NOTIFY)
+    if(m_opState[player->m_seatid] != OP_CALL_NOTIFY)
     {        
         xt_log.error("%s:%d, grab fail!, player callstate error. player seatid:%d, m_uid:%d, callstate:%s\n", __FILE__, __LINE__, player->m_seatid, player->m_uid, DESC_OP[m_opState[player->m_seatid]]); 
         sendError(player, CLIENT_GRAB, CODE_NOTIFY);
@@ -590,16 +600,16 @@ void Table::msgGrab(Player* player)
 
     Json::Value &msg = player->client->packet.tojson();
     bool act = msg["act"].asBool();
-    //检查状态
-    //记录状态
     
     //停止定时器
     //xt_log.debug("stop m_timerGrab for msg.\n");
     ev_timer_stop(lzddz.loop, &m_timerGrab);
 
-    m_opState[m_curSeat] = OP_GRAB_RECEIVE;
+    //记录状态
+    m_opState[m_curSeat] = act ? OP_GRAB_RECEIVE_Y : OP_GRAB_RECEIVE_N;
+    m_act.push_back(act ? SS_GRAB : SS_NOGR);
     xt_log.debug("msg grab, m_uid:%d, seatid:%d, act:%s\n", player->m_uid, player->m_seatid, act ? "true" : "false");
-    logicGrab(act);
+    logicLord();
 }
 
 void Table::msgDouble(Player* player)
@@ -737,7 +747,7 @@ void Table::msgOut(Player* player)
 
 void Table::msgChange(Player* player)
 {
-    xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
+    //xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
 
     if(m_state != STATE_PREPARE)
     {
@@ -1154,7 +1164,7 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                     ev_timer_stop(lzddz.loop, &m_timerLord);
                     xt_log.debug("stop m_timerLord for entrust. \n");
                 }
-                logicCall(false);
+                logicLord();
                 //sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
             }
             break;
@@ -1165,7 +1175,7 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
                     xt_log.debug("stop m_timerGrab for entrust. \n");
                     ev_timer_stop(lzddz.loop, &m_timerGrab);
                 }
-                logicGrab(false);
+                logicLord();
                 //sendEntrustCall(getSeatPlayer(entrustSeat), m_callScore[entrustSeat]); 
             }
             break;
@@ -1195,100 +1205,68 @@ void Table::entrustProc(bool killtimer, int entrustSeat)
             break;
     }
 }
-
-void Table::logicCall(bool act)
+        
+void Table::logicLord(void)
 {
-    //广播叫地主响应
-    sendCallRsp(act);
-    //有人叫地主后，接着下一个就要抢地主
-    if(act)
-    {
-        m_state = STATE_GRAB; 
-        setAllSeatOp(OP_GRAB_WAIT);
-        //地主保存
-        m_lordSeat = m_curSeat;
-    }
-
-    //选择下一个叫地主或者抢地主
-    if(getNext())
-    {
-        //叫地主，进入抢地主
-        if(act)
-        {
-            sendGrab();  
-            grabProc();
-        }
-        else
-        {
-            sendCall();
-            //叫地主托管
-            if(m_entrust[m_curSeat])
-            {
-                entrustProc(true, m_curSeat);
-            }
-            else
-            {
-                //xt_log.debug("%s:%d, m_timerLord again.\n",__FILE__, __LINE__); 
-                ev_timer_again(lzddz.loop, &m_timerLord);
-            }
-        }
-    }
-    else
+    //无人叫地主，重现发牌
+    if(isNoCall())
     {
         xt_log.debug("nobody call, send card again.\n");
-        //无人叫地主，重现发牌
         gameRestart(); 
-    }
-}
-
-void Table::logicGrab(bool act)
-{
-    //保存抢地主倍数
-    if(act)
-    {
-        m_grabDoulbe += 1;
-        //地主保存
-        m_lordSeat = m_curSeat;
+        return;
     }
 
-    //广播抢地主响应
-    sendGrabRsp(act);
-
-    bool allRsp = true;
-    for(unsigned int i = 0; i < SEAT_NUM; ++i)   
+    //异常，重新发牌
+    if(m_act.size() > 6)
     {
-        if(m_opState[i] != OP_GRAB_RECEIVE)
-        {
-            allRsp = false;
-            //xt_log.debug("%s:%d, logicGrab seatid:%d, state:%s.\n",__FILE__, __LINE__, i, DESC_OP[m_opState[i]]); 
-        }
+        xt_log.error("act size > 6, key:%d, send card again.\n", act2key());
+        showAct();
+        gameRestart(); 
+        return;
     }
-    //全部响应过，开始农民加倍, 发底牌
-    if(allRsp)
+
+    //选择地主, 开始发底牌
+    if(selectLord(m_lordSeat))
     {
+        xt_log.debug("select lord uid:%d\n", getSeat(m_lordSeat));
         doubleProc();
         addBottom2Lord();
         sendGrabResult();
+        return; 
+    }
+
+    //选择下一个人
+    getNext();
+    bool notifycall = selectCall(); 
+    if(notifycall)
+    {
+        sendCall();
+        //叫地主托管
+        if(m_entrust[m_curSeat])
+        {
+            entrustProc(true, m_curSeat);
+        }
+        else
+        {
+            //xt_log.debug("%s:%d, m_timerLord again.\n",__FILE__, __LINE__); 
+            ev_timer_again(lzddz.loop, &m_timerLord);
+        }
     }
     else
     {
-    //通知下一个人抢地主
-        if(getNext())
-        {
-            //抢地主托管
-            if(m_entrust[m_curSeat])
-            {
-                entrustProc(false, m_curSeat);
-            }
-            else
-            {
-                //xt_log.debug("logicGrab m_timerGrab again.\n");
-                ev_timer_again(lzddz.loop, &m_timerGrab);
-            }
-        }
+        m_state = STATE_GRAB;
         sendGrab();
+        //抢地主托管
+        if(m_entrust[m_curSeat])
+        {
+            entrustProc(false, m_curSeat);
+        }
+        else
+        {
+            //xt_log.debug("m_timerGrab again.\n");
+            ev_timer_again(lzddz.loop, &m_timerGrab);
+        }
     }
-    //xt_log.debug("logicGrab, allRsp:%s!\n", allRsp ? "true": "false");
 }
 
 void Table::logicDouble(bool isMsg)
@@ -1438,6 +1416,7 @@ void Table::sendCard1(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
+    xt_log.debug("sendCard1, face:%d\n", m_deck.getLZ());
 }
 
 void Table::sendCall(void)
@@ -1453,7 +1432,7 @@ void Table::sendCall(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendCall, curSeat:%d\n", m_curSeat);
+    //xt_log.debug("sendCall, cur_id:%d\n", getSeat(m_curSeat));
 }
 
 void Table::sendCallRsp(bool act)
@@ -1482,7 +1461,7 @@ void Table::sendGrab(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendGrab, curSeat:%d\n", m_curSeat);
+    //xt_log.debug("sendGrab, cur_id:%d\n", getSeat(m_curSeat));
 }
 
 void Table::sendGrabRsp(bool act)
@@ -1667,6 +1646,7 @@ void Table::sendEntrust(int uid, bool active)
 void Table::gameStart(void)
 {
     m_curSeat = rand() % SEAT_NUM;
+    m_firstSeat = m_curSeat;
     xt_log.debug("=======================================start send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
             getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
@@ -1709,6 +1689,7 @@ void Table::gameRestart(void)
     m_outSeat = 0;
     m_topCall = 0;
     m_win = 0;
+    m_act.clear();
 
     xt_log.debug("restart.\n");
     gameStart();
@@ -1720,29 +1701,14 @@ bool Table::getNext(void)
     switch(m_state)
     {
         case STATE_CALL:
-            {
-                if(m_opState[nextSeat] == OP_CALL_WAIT) 
-                {
-                    m_preSeat = m_curSeat;
-                    m_curSeat = nextSeat;
-                    m_opState[m_curSeat] = OP_CALL_NOTIFY;
-                    //xt_log.debug("get next call success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
-                    return true; 
-                }
-            }
-            break;
         case STATE_GRAB:
             {
-                if(m_opState[nextSeat] == OP_GRAB_WAIT) 
-                {
-                    m_preSeat = m_curSeat;
-                    m_curSeat = nextSeat;
-                    m_opState[m_curSeat] = OP_GRAB_NOTIFY;
-                    //xt_log.debug("get next grab, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
-                    return true; 
-                }
+                m_preSeat = m_curSeat;
+                m_curSeat = nextSeat;
+                m_opState[m_curSeat] = OP_CALL_NOTIFY;
+                //xt_log.debug("get next call success, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+                return true; 
             }
-            break;
         case STATE_OUT:
             {//校验出牌时间戳
                 m_preSeat = m_curSeat;
@@ -1753,7 +1719,7 @@ bool Table::getNext(void)
             break;
     }
 
-    //xt_log.debug("get next finish, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
+    xt_log.debug("get next finish false, cur_seat:%d, pre_seat:%d\n", m_curSeat, m_preSeat);
     return false;
 }
 
@@ -1784,15 +1750,10 @@ bool Table::allSeatFit(int state)
     {
         if(m_opState[i] != state) 
         {
-            xt_log.debug("seatid:%d state is %s, check state is %s\n", i, DESC_OP[m_opState[i]], DESC_OP[state]);
+            //xt_log.debug("seatid:%d state is %s, check state is %s\n", i, DESC_OP[m_opState[i]], DESC_OP[state]);
             return false; 
         }
     }
-    return true;
-}
-
-bool Table::selecLord(void)
-{
     return true;
 }
 
@@ -1810,7 +1771,6 @@ int Table::getCount(void)
 }
 
 static string printStr;
-
 void Table::show(const vector<Card>& card)
 {
     printStr.clear();
@@ -1834,6 +1794,24 @@ void Table::showGame(void)
     }
 
     xt_log.debug("tid:%d, seat0:%d, seat1:%d, seat2:%d\n", m_tid, getSeat(0), getSeat(1), getSeat(2));
+}
+        
+void Table::showAct(void)
+{
+    printStr.clear();
+    for(vector<int>::const_iterator it = m_act.begin(); it != m_act.end(); ++it)
+    {
+        if( 0 < *it && *it < 5)
+        {
+            printStr.append(DESC_SS[*it]);
+        }
+        else
+        {
+            xt_log.error("error act val:%d\n", *it);
+        }
+        printStr.append(" ");
+    }
+    xt_log.error("act list: %s\n", printStr.c_str());
 }
 
 bool Table::isDoubleFinish(void)
@@ -2289,4 +2267,70 @@ void Table::addBottom2Lord(void)
     {
         m_seatCard[m_lordSeat].m_cards.push_back(*it);
     }
+}
+        
+bool Table::isNoCall(void)
+{
+   if(m_act.size() != 3) 
+   {
+        return false;
+   }
+
+   if(m_act[0] == m_act[1] && m_act[1] == m_act[2] && m_act[2] == static_cast<int>(SS_NOCA))
+   {
+        return true;
+   }
+   return false;
+}
+        
+bool Table::selectLord(unsigned int& lordseat)
+{
+    if(m_act.size() < 3)
+    {
+        return false;
+    }
+
+    if(m_act.size() > 6)
+    {
+        //xt_log.debug("selectLord size:%d\n", m_act.size());
+        return false;
+    }
+
+    int key = act2key();
+    std::map<int, int>::const_iterator it = lzddz.game->m_select.find(key);
+    if(it == lzddz.game->m_select.end())
+    {
+        return false; 
+    }
+
+    //xt_log.debug("m_firstSeat:%d, key:%d, value:%d\n", m_firstSeat, key, it->second);
+    lordseat = (m_firstSeat + it->second) % SEAT_NUM;
+    return true;
+}
+        
+bool Table::selectCall(void)
+{
+    for(std::vector<int>::const_iterator it = m_act.begin(); it != m_act.end(); ++it)
+    {
+        if((*it) == SS_CALL) 
+        {
+            return false;
+        }
+    }
+    return true;
+}
+        
+int Table::act2key(void)
+{
+    if(m_act.size() < 2)
+    {
+        return 0;
+    }
+
+    int key = m_act[0];
+    for(size_t i = 1; i < m_act.size(); ++i)
+    {
+        key = key | (m_act[i] << i * 3);
+    }
+    return key;
 }
