@@ -17,6 +17,8 @@
 #include "proto.h"
 #include "jpacket.h"
 
+#define XT_ROBOT_UID_MAX 1000
+
 static char buff26[26]; 
 
 static char* getTime(void)
@@ -38,6 +40,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
     m_showTimer.data = this;
     m_outTimer.data = this;
     m_idleTimer.data = this;
+    m_changeTimer.data = this;
 
     m_evloop=evloop;
 
@@ -58,6 +61,7 @@ XtRobotClient::~XtRobotClient()
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
         ev_timer_stop(m_evloop, &m_idleTimer);
+        ev_timer_stop(m_evloop, &m_changeTimer);
         close(m_serverfd);
     }
 
@@ -68,6 +72,7 @@ XtRobotClient::~XtRobotClient()
     }
     printf("%s", DESC_STATE[0]);
     printf("%s", DESC_OP[0]);
+    printf("%s", DESC_SS[0]);
 }
 
 void XtRobotClient::onReadData( struct ev_loop* loop, struct ev_io* w, int revents)
@@ -209,6 +214,14 @@ void XtRobotClient::tfOut(struct ev_loop* loop, struct ev_timer* w, int events)
     self->sendCard();
 }
 
+void XtRobotClient::tfChange(struct ev_loop* loop, struct ev_timer* w, int events)
+{
+    ev_timer_stop(loop,w);
+    XtRobotClient* self = (XtRobotClient*) w->data;
+    //printf("uid:%d, tid:%d, changetimer active.\n", self->m_uid, self->m_tid);
+    self->sendChange();
+}
+
 void XtRobotClient::tfIdle(struct ev_loop* loop, struct ev_timer* w, int events)
 {
     printf("%s, idleTimer active.\n", getTime());
@@ -225,6 +238,7 @@ int XtRobotClient::closeConnect()
         ev_timer_stop(m_evloop, &m_showTimer);
         ev_timer_stop(m_evloop, &m_outTimer);
         ev_timer_stop(m_evloop, &m_idleTimer);
+        ev_timer_stop(m_evloop, &m_changeTimer);
         close(m_serverfd);
     }
     m_serverfd=-1;
@@ -346,10 +360,35 @@ void XtRobotClient::handleRespond(Json::Value& msg)
             {
                 if(code == CODE_SUCCESS) 
                 {
-                    Jpacket data;
-                    data.val["cmd"]     =   CLIENT_PREPARE;
-                    data.end();
-                    send(data.tostring());
+                    int num = 0;
+                    bool real = false;
+                    int tmpuid = 0;
+                    m_tid = msg["tid"].asInt();
+                    for(unsigned int i = 0; i < msg["userinfo"].size(); ++i)
+                    {
+                        tmpuid = msg["userinfo"][i]["uid"].asInt();
+                        if(tmpuid > XT_ROBOT_UID_MAX)
+                        {
+                            real = true;
+                        }
+                        num++;
+                    }
+
+                    if(num == 2 && !real)
+                    {
+                        //printf("change, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
+                        ev_timer_stop(m_evloop, &m_changeTimer);
+                        ev_timer_set(&m_changeTimer, (m_uid % 10) + 1, 0);
+                        ev_timer_start(m_evloop, &m_changeTimer);
+                    }
+                    else
+                    {
+                        Jpacket data;
+                        data.val["cmd"]     =   CLIENT_PREPARE;
+                        data.end();
+                        send(data.tostring());
+                        //printf("prepare, my_uid:%d, m_tid:%d, num:%d, real:%s\n", m_uid, m_tid, num, real ? "true" : "false");
+                    }
                 }
             }
             break;
@@ -581,6 +620,14 @@ void XtRobotClient::sendCard(void)
     //show()
 }
 
+void XtRobotClient::sendChange(void)
+{
+    Jpacket data; 
+    data.val["cmd"]     =   CLIENT_CHANGE;
+    data.end();
+    send(data.tostring());
+}
+
 void XtRobotClient::sendIdle(void)
 {
     Jpacket data;
@@ -630,6 +677,7 @@ int XtRobotClient::connectToServer(const char* ip,int port,int uid)
 
     ev_timer_init(&m_showTimer, XtRobotClient::tfShow, 2, 0);
     ev_timer_init(&m_outTimer, XtRobotClient::tfOut, 2, 0);
+    ev_timer_init(&m_changeTimer, XtRobotClient::tfChange, 8, 0);
     int at = 300 + (m_uid % 10) * 60;
     ev_timer_init(&m_idleTimer, XtRobotClient::tfIdle, at, at);
 

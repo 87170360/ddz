@@ -47,6 +47,7 @@ class XtRobotClient
         //showTimer 定时器回调函数
 		static void tfShow(struct ev_loop* loop, struct ev_timer* w, int events);
 		static void tfOut(struct ev_loop* loop, struct ev_timer* w, int events);
+		static void tfChange(struct ev_loop* loop, struct ev_timer* w, int events);
 		static void tfIdle(struct ev_loop* loop, struct ev_timer* w, int events);
 
 	public:
@@ -81,6 +82,7 @@ class XtRobotClient
 
         void sendCall(void);
         void sendCard(void);
+        void sendChange(void);
         void sendIdle(void);
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,11 +103,13 @@ class XtRobotClient
         std::vector<Card>           m_card;                   //底牌
 		ev_timer                    m_showTimer;              //第一次出牌延时定时器
         ev_timer                    m_outTimer;               //出牌定时
-        ev_timer                    m_idleTimer;              //出牌定时
+        ev_timer                    m_changeTimer;            //换桌定时
+        ev_timer                    m_idleTimer;              //空闲
         Shuffledeck                 m_deck;                   //牌库
 
         vector<Card>                m_lastCard;               //上轮牌
         int                         m_outid;                  //上轮出牌者id
+        int                         m_tid;                    //牌桌id
         std::set<int>               m_playerlist;             //玩家id队列
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
