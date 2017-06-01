@@ -1121,7 +1121,15 @@ void Table::logout(Player* player)
 
 void Table::leave(Player* player)
 {
-    //logout(player);
+    xt_log.debug("%s %d player :%d %s leave.\n", __FILE__, __LINE__, player->m_uid, player->m_name.c_str());
+    //如果游戏中，进入托管
+    if(m_state != STATE_PREPARE)
+    {
+        xt_log.debug("entrust for leave!\n");
+        m_entrust[player->m_seatid] = true;
+        entrustProc(true, player->m_seatid);
+    }
+    sendLogout(player);
 }
 
 void Table::endProc(void)
@@ -1542,6 +1550,15 @@ void Table::sendOutAgain(bool last)
         packet.end();
         unicast(pl, packet.tostring());
     }
+}
+
+void Table::sendLogout(Player* player)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_LOGOUT;
+    packet.val["uid"]       = player->m_uid;
+    packet.end();
+    broadcast(player, packet.tostring());
 }
 
 void Table::sendEnd(void)

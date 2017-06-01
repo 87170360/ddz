@@ -154,6 +154,8 @@ class Table
         void sendEntrust(int uid, bool active);
         //准备
         void sendPrepare(Player* player);
+        //退出
+        void sendLogout(Player* player);
     
         //开始发牌
         void gameStart(void);
