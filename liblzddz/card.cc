@@ -17,11 +17,11 @@
 	0x0D, 0x1D, 0x2D, 0x3D,		//K 13
  */
 
-static string m_face_symbols[] = {
+static string m_face_symbols[14] = {
 	"3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "2", "JOKER"
 };
 
-static string m_suit_symbols[] = {
+static string m_suit_symbols[4] = {
 	"d", "c", "h", "s"
 };
 
@@ -86,6 +86,16 @@ const char* Card::getCardDescription() const
 
 string Card::getCardDescriptionString() const
 {
+    if(m_face - 3 > 13 || m_face - 3 < 0)
+    {
+        return "error face";
+    }
+
+    if(m_suit > 3 || m_suit < 0)
+    {
+        return "error suit";
+    }
+
 	string card;
 	card.append(m_face_symbols[m_face - 3]);
 	card.append(m_suit_symbols[m_suit]);
