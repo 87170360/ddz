@@ -1422,7 +1422,14 @@ void Table::sendCard1(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
+
     xt_log.debug("sendCard1, face:%d\n", m_deck.getLZ());
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        Player* pl = it->second;
+        xt_log.debug("seatid:%d, uid:%d\n", pl->m_seatid, pl->m_uid);
+        show(m_seatCard[pl->m_seatid].m_cards);    
+    }
 }
 
 void Table::sendCall(void)
@@ -1528,7 +1535,7 @@ void Table::sendDoubleResult(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendDoubleResult: cmd:%d, lord_seat:%d, count:%d\n", SERVER_RESULT_DOUBLE, m_curSeat, getCount());
+    xt_log.debug("sendDoubleResult: cmd:%d, lord_seat:%d, lord_uid:%d, count:%d\n", SERVER_RESULT_DOUBLE, m_curSeat, getSeat(m_curSeat), getCount());
 }
 
 void Table::sendOutAgain(bool last)
@@ -1796,6 +1803,12 @@ void Table::show(const vector<Card>& card)
         printStr.append(" ");
     }
     xt_log.debug("%s\n", printStr.c_str());
+}
+        
+void Table::show(const vector<Card>& card, string& msg)
+{
+    xt_log.debug("%s\n", msg.c_str());
+    show(card);
 }
 
 void Table::showGame(void)
