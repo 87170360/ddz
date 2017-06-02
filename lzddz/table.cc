@@ -703,9 +703,6 @@ void Table::msgOut(Player* player)
     vector<int> lzface;
     jsonArrayToVector(lzface, player->client->packet, "change");
 
-    //变化后的牌型
-    m_deck.changeCard(curCard, lzface);
-
     //不出校验
     bool keep = msg["keep"].asBool();
 
@@ -734,6 +731,9 @@ void Table::msgOut(Player* player)
         sendError(player, CLIENT_OUT, CODE_CARD_EXIST);
         return;
     }
+
+    //变化后的牌型
+    m_deck.changeCard(curCard, lzface);
 
     //清除超时用户
     m_timeout[player->m_seatid] = false;
