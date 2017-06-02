@@ -194,6 +194,7 @@ void Table::jsonArrayToVector(std::vector<int> &change, Jpacket &packet, string 
     for (unsigned int i = 0; i < val[key].size(); i++)
     {
         change.push_back(val[key][i].asInt());
+        xt_log.debug("lz card change face:%d\n", change.back());
     }
 }
         
@@ -208,7 +209,7 @@ void Table::vectorToJsonArray(const std::vector<Card> &card, Jpacket &packet, st
     {
         if(it->m_face != it->m_oldface)
         {
-            packet.val[key].append(it->m_face);
+            packet.val[key].append(it->m_value);
         }
     }
 }
@@ -656,7 +657,7 @@ void Table::msgDouble(Player* player)
 
     Json::Value &msg = player->client->packet.tojson();
     m_famerDouble[player->m_seatid] = msg["double"].asBool();
-    //xt_log.debug("msgdouble, m_uid:%d, seatid:%d, double:%s\n", player->m_uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
+    xt_log.debug("msgdouble, m_uid:%d, seatid:%d, double:%s\n", player->m_uid, player->m_seatid, m_famerDouble[player->m_seatid] ? "true" : "false");
 
     //加倍不分先后
     m_opState[player->m_seatid] = OP_DOUBLE_RECEIVE;
@@ -733,7 +734,18 @@ void Table::msgOut(Player* player)
     }
 
     //变化后的牌型
-    m_deck.changeCard(curCard, lzface);
+    xt_log.debug("lz size:%d\n", lzface.size()); 
+    if(!lzface.empty())
+    {
+        for(size_t i = 0; i < lzface.size(); ++i)
+        {
+            xt_log.debug("lz face:%d\n", lzface[i]); 
+        }
+        show(curCard, "befor change:");
+        //要校验不能变成大小王
+        m_deck.changeCard(curCard, lzface);
+        show(curCard, "after change:");
+    }
 
     //清除超时用户
     m_timeout[player->m_seatid] = false;
@@ -1424,12 +1436,14 @@ void Table::sendCard1(void)
     }
 
     xt_log.debug("sendCard1, face:%d\n", m_deck.getLZ());
+    /*
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;
         xt_log.debug("seatid:%d, uid:%d\n", pl->m_seatid, pl->m_uid);
         show(m_seatCard[pl->m_seatid].m_cards);    
     }
+    */
 }
 
 void Table::sendCall(void)
@@ -1535,7 +1549,7 @@ void Table::sendDoubleResult(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    xt_log.debug("sendDoubleResult: cmd:%d, lord_seat:%d, lord_uid:%d, count:%d\n", SERVER_RESULT_DOUBLE, m_curSeat, getSeat(m_curSeat), getCount());
+    //xt_log.debug("sendDoubleResult: cmd:%d, lord_seat:%d, lord_uid:%d, count:%d\n", SERVER_RESULT_DOUBLE, m_curSeat, getSeat(m_curSeat), getCount());
 }
 
 void Table::sendOutAgain(bool last)
@@ -1805,9 +1819,9 @@ void Table::show(const vector<Card>& card)
     xt_log.debug("%s\n", printStr.c_str());
 }
         
-void Table::show(const vector<Card>& card, string& msg)
+void Table::show(const vector<Card>& card, const char* msg)
 {
-    xt_log.debug("%s\n", msg.c_str());
+    xt_log.debug("%s\n", msg);
     show(card);
 }
 

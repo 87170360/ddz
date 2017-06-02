@@ -173,7 +173,7 @@ class Table
         int getCount(void);
         //打印牌组
         void show(const vector<Card>& card);
-        void show(const vector<Card>& card, string& msg);
+        void show(const vector<Card>& card, const char* msg);
         //打印游戏信息
         void showGame(void);
         //打印行为
