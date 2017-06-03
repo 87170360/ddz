@@ -1811,7 +1811,7 @@ void Shuffledeck::changeCard(vector<Card>& card, const vector<int>& lzface)
    {
         if(it->isLZ(m_lz) && idxlz < sizelz) 
         {
-            it->m_face = lzface[idxlz];
+            it->change(lzface[idxlz]);
             ++idxlz;
         }
    }

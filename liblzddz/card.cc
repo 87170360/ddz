@@ -67,6 +67,21 @@ void Card::setValue(int val)
     m_oldface = m_face;
 	// printf("Face[%d] Suit[%d]\n", m_face, m_suit);	
 }
+        
+void Card::change(int val)
+{
+	m_value = val;
+	m_face = m_value & 0xF;
+	m_suit = m_value >> 4;
+    if(m_face == 0)
+    {
+        m_face = 16; 
+    }
+	else if(m_face <= 2)
+	{
+		m_face += 13;
+	}
+}
 
 const char* Card::getCardDescription() const
 {

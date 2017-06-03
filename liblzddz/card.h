@@ -20,6 +20,8 @@ class Card
 
 	public:
 		void setValue(int val);
+        //癞子变牌, val 变化后牌的value
+        void change(int val);
 
 		const char* getCardDescription() const;
 		string getCardDescriptionString(void) const;
