@@ -191,14 +191,14 @@ class Table
         void total(void);
         //计算各座位输赢
         void calculate(void);
-        //检查入场费并进行破产补助
-        //void allowanceProc(void); 
         //检查入场费, 检查托管并踢出玩家
         void kick(void);
         //增加robot money
         void addRobotMoney(Player* player);
         //累计经验，升级，奖励
         void addPlayersExp(void);
+        //胜局处理
+        void winProc(void);
 
         //设置座位的玩家
         void setSeat(int uid, int seatid);

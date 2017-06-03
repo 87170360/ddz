@@ -39,14 +39,16 @@ public:
     bool isRobot(void) { return m_uid < XT_ROBOT_UID_MAX; }
     //统计玩家比赛次数和胜场
     void keepTotal(bool win);
-    //破产补助
-    bool allowance(int money);
     //添加经验
     void addExp(int exp);
     //升级
     bool levelUp(void);
     //获取升级奖励
     int upMoney(void);
+    //最大赢局的钱
+    void updateTopMoney(int money);
+    //最大赢局倍数
+    void updateTopCount(int count);
 
 public:
 	int 				index;
@@ -64,10 +66,10 @@ public:
 	int					m_money;
 	int					m_level;
     int                 m_exp;
-    //补助领取剩余次数
-    //int                 m_allowance_num;
-    //补助领取时间戳
-    //time_t                 m_allowance_stamp;
+    //单局赢过的最多钱
+    int                 m_top_money;
+    //单局赢过的最到倍数
+    int                 m_top_count;
 
 	// connect to client
 	Client              *client;

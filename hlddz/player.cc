@@ -70,6 +70,8 @@ int Player::init()
 	m_money = hlddz.main_rc[index]->get_value_as_int("money");
 	m_level = hlddz.main_rc[index]->get_value_as_int("level");
     m_exp = hlddz.main_rc[index]->get_value_as_int("exp");
+    m_top_money = hlddz.main_rc[index]->get_value_as_int("top_money");
+    m_top_count = hlddz.main_rc[index]->get_value_as_int("top_count");
     xt_log.debug("player init, uid:%d, money:%d, skey:%s, name:%s, avatar:%s\n", m_uid, m_money, m_skey.c_str(), m_name.c_str(), m_avatar.c_str());
 
 	if(m_uid<XT_ROBOT_UID_MAX)
@@ -198,41 +200,6 @@ void Player::keepTotal(bool win)
 	}
 }
     
-/*
-bool Player::allowance(int money)
-{
-    time_t curstamp = time(NULL);
-    //不同一天
-    if(m_allowance_stamp / DAY_SECOND != curstamp / DAY_SECOND)
-    {
-        //重置剩余次数         
-        m_allowance_num = ALLOWANCE_NUM;
-    }
-
-    if(m_allowance_num > 0)
-    {
-        m_allowance_num--;
-        m_allowance_stamp = curstamp;
-        changeMoney(money);
-        
-        xt_log.debug("allowance, uid:%d, money:%d, m_allowance_num:%d\n", m_uid, money, m_allowance_num);
-        if(hlddz.main_rc[index]->command("hset hu:%d allowance_num %d", m_uid, m_allowance_num) < 0)
-        {
-            xt_log.error("set m_allowance_num error.\n");
-            return false;
-        }
-
-        if(hlddz.main_rc[index]->command("hset hu:%d allowance_stamp %d", m_uid, m_allowance_stamp) < 0)
-        {
-            xt_log.error("set m_allowance_stamp error.\n");
-            return false;
-        }
-        return true;
-    }
-            
-    return false;
-}
-*/
     
 void Player::addExp(int exp)
 {
@@ -262,6 +229,40 @@ void Player::addExp(int exp)
     if(hlddz.main_rc[index]->command("hset hu:%d exp %d", m_uid, m_exp) < 0)
     {
         xt_log.error("set exp error.exp:%d\n", m_exp);
+    }
+}
+
+void Player::updateTopMoney(int money)
+{
+	if(m_top_money >= money) 
+    {
+		return;
+	}
+
+    if(hlddz.main_rc[index]->command("hset hu:%d top_money %d", m_uid, m_top_money) < 0)
+    {
+        xt_log.error("set top_money error.exp:%d\n", m_top_money);
+    }
+    else
+    {
+        m_top_money = money;
+    }
+}
+
+void Player::updateTopCount(int count)
+{
+	if(m_top_count >= count) 
+    {
+		return;
+	}
+
+    if(hlddz.main_rc[index]->command("hset hu:%d top_count %d", m_uid, m_top_count) < 0)
+    {
+        xt_log.error("set top_count error.exp:%d\n", m_top_count);
+    }
+    else
+    {
+        m_top_count = count;
     }
 }
     

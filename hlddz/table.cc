@@ -1056,13 +1056,12 @@ void Table::endProc(void)
     //增加经验
     addPlayersExp(); 
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
-    //破产补助
-    //allowanceProc();
     //清空seatid
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         it->second->m_seatid = 0;
     }
+    winProc();
 
     //重置游戏
     reset();
@@ -2091,24 +2090,6 @@ int Table::getSeat(int seatid)
     }
     return m_seats[seatid];
 }
-        
-/*
-void Table::allowanceProc(void) 
-{
-    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
-    {
-        Player* pl = it->second;
-        if(pl->m_money < hlddz.game->ROOMTAX && pl->allowance(hlddz.game->ALLOWANCEMONEY))
-        {
-            Jpacket packet;
-            packet.val["cmd"]           = SERVER_ALLOWANCE;
-            packet.val["money"]         = hlddz.game->ALLOWANCEMONEY;
-            packet.end();
-            unicast(NULL, packet.tostring());
-        }
-    }
-}
-*/
 
 void Table::kick(void)
 {
@@ -2153,6 +2134,21 @@ void Table::addPlayersExp(void)
         player = it->second;
         exp = money2exp(m_money[player->m_seatid]); 
         player->addExp(exp);
+    }
+}
+        
+void Table::winProc(void)
+{
+    Player* player = NULL;
+    int score = static_cast<int>(getTableQuota());
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        player = it->second;
+        if(m_money[player->m_seatid] > 0)
+        {
+            player->updateTopMoney(m_money[player->m_seatid]); 
+            player->updateTopCount(score);
+        }
     }
 }
         
