@@ -1166,6 +1166,7 @@ void Table::endProc(void)
     {
         it->second->m_seatid = 0;
     }
+    winProc();
 
     //重置游戏
     reset();
@@ -2211,6 +2212,21 @@ void Table::addPlayersExp(void)
         player = it->second;
         exp = money2exp(m_money[player->m_seatid]); 
         player->addExp(exp);
+    }
+}
+
+void Table::winProc(void)
+{
+    Player* player = NULL;
+    int score = static_cast<int>(getTableQuota());
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        player = it->second;
+        if(m_money[player->m_seatid] > 0)
+        {
+            player->updateTopMoney(m_money[player->m_seatid]); 
+            player->updateTopCount(score);
+        }
     }
 }
         

@@ -45,6 +45,10 @@ public:
     bool levelUp(void);
     //获取升级奖励
     int upMoney(void);
+    //最大赢局的钱
+    void updateTopMoney(int money);
+    //最大赢局倍数
+    void updateTopCount(int count);
 
 public:
 	int 				index;
@@ -61,6 +65,8 @@ public:
 	int					m_money;
 	int					m_level;
     int                 m_exp;
+    int                 m_top_money;
+    int                 m_top_count;
 
 	// connect to client
 	Client              *client;

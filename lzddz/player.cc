@@ -71,6 +71,8 @@ int Player::init()
 	m_money = lzddz.main_rc[index]->get_value_as_int("money");
 	m_level = lzddz.main_rc[index]->get_value_as_int("level");
     m_exp = lzddz.main_rc[index]->get_value_as_int("exp");
+    m_top_money = lzddz.main_rc[index]->get_value_as_int("top_money");
+    m_top_count = lzddz.main_rc[index]->get_value_as_int("top_count");
 
 	if(m_uid<XT_ROBOT_UID_MAX)
 	{
@@ -226,6 +228,40 @@ void Player::addExp(int exp)
     if(lzddz.main_rc[index]->command("hset hu:%d exp %d", m_uid, m_exp) < 0)
     {
         xt_log.error("set exp error.exp:%d\n", m_exp);
+    }
+}
+
+void Player::updateTopMoney(int money)
+{
+	if(m_top_money >= money) 
+    {
+		return;
+	}
+
+    if(lzddz.main_rc[index]->command("hset hu:%d top_money %d", m_uid, m_top_money) < 0)
+    {
+        xt_log.error("set top_money error.exp:%d\n", m_top_money);
+    }
+    else
+    {
+        m_top_money = money;
+    }
+}
+
+void Player::updateTopCount(int count)
+{
+	if(m_top_count >= count) 
+    {
+		return;
+	}
+
+    if(lzddz.main_rc[index]->command("hset hu:%d top_count %d", m_uid, m_top_count) < 0)
+    {
+        xt_log.error("set top_count error.exp:%d\n", m_top_count);
+    }
+    else
+    {
+        m_top_count = count;
     }
 }
     

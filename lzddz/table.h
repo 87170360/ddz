@@ -213,6 +213,7 @@ class Table
         void addPlayersExp(void);
         //获取台面额度
         int getTableQuota(void);
+        void winProc(void);
 
         //设置座位的玩家
         void setSeat(int uid, int seatid);
