@@ -596,8 +596,12 @@ void XtRobotClient::sendCard(void)
     //跟牌
     else
     {
-        XtCard::sortByDescending(m_lastCard);
-        m_deck.getOut(m_card, m_lastCard, outCard);
+        //不顶机器人队友
+        if(m_outid >= XT_ROBOT_UID_MAX)
+        {
+            XtCard::sortByDescending(m_lastCard);
+            m_deck.getOut(m_card, m_lastCard, outCard);
+        }
     }
     vector_to_json_array(outCard, data, "card");
     data.val["keep"]     =   outCard.empty();
