@@ -1798,7 +1798,7 @@ int Shuffledeck::getLZ(void) const
     return m_lz;
 }
 
-void Shuffledeck::delCard(const vector<Card>& card, int seed)
+void Shuffledeck::delCard(const vector<Card>& card)
 {
     map<int, Card> tmap;
     for(vector<Card>::iterator it = m_card.begin(); it != m_card.end(); ++it)
@@ -1822,8 +1822,6 @@ void Shuffledeck::delCard(const vector<Card>& card, int seed)
     {
         m_card.push_back(it->second); 
     }
-
-    shuffle(seed);
 }
         
 void Shuffledeck::getFaceCard(int face, vector<Card>& card) 

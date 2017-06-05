@@ -1057,6 +1057,7 @@ bool Table::allocateCardControl(void)
     int lzface = m_deck.getLZ();
     vector<Card> lzcard; 
     m_deck.getFaceCard(lzface, lzcard);
+    show(lzcard, "lzcard");
 
     //手牌
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
@@ -1065,7 +1066,7 @@ bool Table::allocateCardControl(void)
         if(m_curSeat == i)
         {
             m_seatCard[i].m_cards.assign(lzcard.begin(), lzcard.end());
-            m_deck.delCard(lzcard, m_tid);
+            m_deck.delCard(lzcard);
             if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM - lzcard.size()))
             {
                 xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
@@ -1483,8 +1484,8 @@ void Table::sendCard1(void)
         unicast(pl, packet.tostring());
     }
 
-    xt_log.debug("sendCard1, face:%d\n", m_deck.getLZ());
     /*
+    xt_log.debug("sendCard1, face:%d\n", m_deck.getLZ());
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         Player* pl = it->second;

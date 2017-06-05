@@ -598,6 +598,10 @@ void XtRobotClient::sendCall(void)
 
 void XtRobotClient::sendCard(void)
 {
+    if(m_card.empty())
+    {
+        return;
+    }
     Card::sortByDescending(m_card);
     vector<Card> outCard;
     Jpacket data;
