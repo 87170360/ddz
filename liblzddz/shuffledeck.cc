@@ -1822,6 +1822,9 @@ void Shuffledeck::delCard(const vector<Card>& card)
     {
         m_card.push_back(it->second); 
     }
+
+    srand(time(NULL));
+    random_shuffle(m_card.begin(), m_card.end());
 }
         
 void Shuffledeck::getFaceCard(int face, vector<Card>& card) 
