@@ -1735,7 +1735,7 @@ void Table::gameStart(void)
        {
             if(it->second->isRobot() == false)
             {
-                m_curSeat = it->first; 
+                m_curSeat = it->second->m_seatid; 
             }
        }
     }
