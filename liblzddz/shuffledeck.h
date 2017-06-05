@@ -29,6 +29,10 @@ class Shuffledeck
 
         const vector<Card>& getCard(void) { return m_card; }
         int getLZ(void) const;
+        //删除牌
+        void delCard(const vector<Card>& card, int seed);
+        //获取点数牌
+        void getFaceCard(int face, vector<Card>& card); 
 
 	private:
         bool isRocket(const vector<Card>& card) const;

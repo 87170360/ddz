@@ -91,6 +91,8 @@ class Table
         bool sitdown(Player* player);
         //分牌
         bool allocateCard(void);
+        //控制牌 
+        bool allocateCardControl(void);
         //准备处理
         void prepareProc(void);
         //叫地主

@@ -1798,6 +1798,45 @@ int Shuffledeck::getLZ(void) const
     return m_lz;
 }
 
+void Shuffledeck::delCard(const vector<Card>& card, int seed)
+{
+    map<int, Card> tmap;
+    for(vector<Card>::iterator it = m_card.begin(); it != m_card.end(); ++it)
+    {
+        tmap[it->m_value] = *it;  
+    }
+
+    map<int, Card>::iterator findit;
+    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        findit = tmap.find(it->m_value); 
+        if(findit != tmap.end())
+        {
+            tmap.erase(findit); 
+        }
+    }
+
+    m_card.clear();
+
+    for(map<int, Card>::const_iterator it = tmap.begin(); it != tmap.end(); ++it)
+    {
+        m_card.push_back(it->second); 
+    }
+
+    shuffle(seed);
+}
+        
+void Shuffledeck::getFaceCard(int face, vector<Card>& card) 
+{
+    for(vector<Card>::iterator it = m_card.begin(); it != m_card.end(); ++it)
+    {
+        if(it->m_face == face) 
+        {
+            card.push_back(*it);
+        }
+    }
+}
+
 void Shuffledeck::changeCard(vector<Card>& card, const vector<int>& lzface)
 {
    if(lzface.empty())

@@ -23,6 +23,8 @@
 extern LZDDZ lzddz;
 extern Log xt_log;
 
+static bool g_test = true;
+
 Table::Table()
 {
     m_timerLord.data = this;
@@ -1050,6 +1052,51 @@ bool Table::allocateCard(void)
     return true;
 }
 
+bool Table::allocateCardControl(void)
+{
+    int lzface = m_deck.getLZ();
+    vector<Card> lzcard; 
+    m_deck.getFaceCard(lzface, lzcard);
+
+    //手牌
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        //4张癞子牌给真人玩家 
+        if(m_curSeat == i)
+        {
+            m_seatCard[i].m_cards.assign(lzcard.begin(), lzcard.end());
+            m_deck.delCard(lzcard, m_tid);
+            if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM - lzcard.size()))
+            {
+                xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
+                return false;
+            }
+        }
+        else
+        {
+            if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM))
+            {
+                xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
+                return false;
+            }
+        }
+        //xt_log.debug("uid:%d\n", getSeat(i));
+        //show(m_seatCard[i].m_cards);
+    }
+
+    //底牌    
+    if(!m_deck.getHoldCard(m_bottomCard, BOTTON_CARD_NUM))
+    {
+        xt_log.error("%s:%d, get bottom card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
+        return false;
+    }
+
+    //xt_log.debug("allocateCard, bottonCard:\n");
+    //show(m_bottomCard);
+
+    return true;
+}
+
 void Table::prepareProc(void)
 {
     m_state = STATE_PREPARE; 
@@ -1682,13 +1729,35 @@ void Table::sendEntrust(int uid, bool active)
 
 void Table::gameStart(void)
 {
-    m_curSeat = rand() % SEAT_NUM;
+    if(g_test)
+    {
+        for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+       {
+            if(it->second->isRobot() == false)
+            {
+                m_curSeat = it->first; 
+            }
+       }
+    }
+    else
+    {
+        m_curSeat = rand() % SEAT_NUM;
+    }
+
     m_firstSeat = m_curSeat;
     xt_log.debug("=======================================start send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
             getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
     callProc();
-    allocateCard();
+
+    if(g_test)
+    {
+        allocateCardControl(); 
+    }
+    else
+    {
+        allocateCard();
+    }
 
     sendCard1();
 
