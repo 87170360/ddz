@@ -32,7 +32,7 @@ class Shuffledeck
         //删除牌
         void delCard(const vector<Card>& card);
         //获取点数牌
-        void getFaceCard(int face, vector<Card>& card); 
+        void getFaceCard(int face, vector<Card>& card, int max); 
 
 	private:
         bool isRocket(const vector<Card>& card) const;

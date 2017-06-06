@@ -1054,32 +1054,29 @@ bool Table::allocateCard(void)
 
 bool Table::allocateCardControl(void)
 {
+    //4张癞子牌给真人玩家 
     int lzface = m_deck.getLZ();
-    vector<Card> lzcard; 
-    m_deck.getFaceCard(lzface, lzcard);
-    m_deck.delCard(lzcard);
-    show(lzcard, "lzcard");
+    vector<Card> specard; 
+    m_deck.getFaceCard(lzface, specard, 4);
 
-    //face 范围3-15
+    //给真人玩家一副炸弹(癞子点+1)
+    //face 范围3-15, 先把点数还原到0-13范围，再加1,(lzface - 3 + 1) 再恢复
     int bombface = (lzface - 2) % 13 + 3;
-    vector<Card> bombcard; 
-    m_deck.getFaceCard(bombface, bombcard);
-    m_deck.delCard(bombcard);
-    show(bombcard, "bombcard");
+    m_deck.getFaceCard(bombface, specard, 4);
+
+    //给真人玩家一对(癞子点+2)
+    int doubleface = (lzface - 1) % 13 + 3;
+    m_deck.getFaceCard(doubleface, specard, 2);
+
+    m_deck.delCard(specard);
     
     //手牌
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        //4张癞子牌给真人玩家 
-        //给真人玩家一副炸弹
         if(m_curSeat == i)
         {
-            m_seatCard[i].m_cards.assign(lzcard.begin(), lzcard.end());
-            for(vector<Card>::const_iterator it = bombcard.begin(); it != bombcard.end(); ++it)
-            {
-               m_seatCard[i].m_cards.push_back(*it);  
-            }
-            if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM - lzcard.size() - bombcard.size()))
+            m_seatCard[i].m_cards.assign(specard.begin(), specard.end());
+            if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM - specard.size()))
             {
                 xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
                 return false;

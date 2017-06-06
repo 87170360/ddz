@@ -1827,13 +1827,19 @@ void Shuffledeck::delCard(const vector<Card>& card)
     random_shuffle(m_card.begin(), m_card.end());
 }
         
-void Shuffledeck::getFaceCard(int face, vector<Card>& card) 
+void Shuffledeck::getFaceCard(int face, vector<Card>& card, int max) 
 {
+    int tmp = 0;
     for(vector<Card>::iterator it = m_card.begin(); it != m_card.end(); ++it)
     {
         if(it->m_face == face) 
         {
             card.push_back(*it);
+            tmp++;
+        }
+        if(tmp >= max)
+        {
+            break;
         }
     }
 }
