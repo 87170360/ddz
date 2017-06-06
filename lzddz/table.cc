@@ -1057,17 +1057,29 @@ bool Table::allocateCardControl(void)
     int lzface = m_deck.getLZ();
     vector<Card> lzcard; 
     m_deck.getFaceCard(lzface, lzcard);
+    m_deck.delCard(lzcard);
     show(lzcard, "lzcard");
 
+    //face 范围3-15
+    int bombface = (lzface - 2) % 13 + 3;
+    vector<Card> bombcard; 
+    m_deck.getFaceCard(bombface, bombcard);
+    m_deck.delCard(bombcard);
+    show(bombcard, "bombcard");
+    
     //手牌
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         //4张癞子牌给真人玩家 
+        //给真人玩家一副炸弹
         if(m_curSeat == i)
         {
             m_seatCard[i].m_cards.assign(lzcard.begin(), lzcard.end());
-            m_deck.delCard(lzcard);
-            if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM - lzcard.size()))
+            for(vector<Card>::const_iterator it = bombcard.begin(); it != bombcard.end(); ++it)
+            {
+               m_seatCard[i].m_cards.push_back(*it);  
+            }
+            if(!m_deck.getHoldCard(m_seatCard[i].m_cards, HAND_CARD_NUM - lzcard.size() - bombcard.size()))
             {
                 xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
                 return false;
