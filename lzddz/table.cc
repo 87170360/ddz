@@ -1069,11 +1069,22 @@ bool Table::allocateCardControl(void)
     //m_deck.getFaceCard(doubleface, specard, 2);
 
     //不包括癞子的连续3-14, 癞子已经给过
+    /*
     for(int i = 3; i <= 14; ++i)
     {
         if(i != lzface)
         {
             m_deck.getFaceCard(i, specard, 1);
+        }
+    }
+    */
+
+    //连对
+    for(int i = 3; i <= 6; ++i)
+    {
+        if(i != lzface)
+        {
+            m_deck.getFaceCard(i, specard, 2);
         }
     }
     
