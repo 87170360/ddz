@@ -1061,13 +1061,22 @@ bool Table::allocateCardControl(void)
 
     //给真人玩家一副炸弹(癞子点+1)
     //face 范围3-15, 先把点数还原到0-13范围，再加1,(lzface - 3 + 1) 再恢复
-    int bombface = (lzface - 2) % 13 + 3;
-    m_deck.getFaceCard(bombface, specard, 4);
+    //int bombface = (lzface - 2) % 13 + 3;
+    //m_deck.getFaceCard(bombface, specard, 4);
 
     //给真人玩家一对(癞子点+2)
-    int doubleface = (lzface - 1) % 13 + 3;
-    m_deck.getFaceCard(doubleface, specard, 2);
+    //int doubleface = (lzface - 1) % 13 + 3;
+    //m_deck.getFaceCard(doubleface, specard, 2);
 
+    //不包括癞子的连续3-14, 癞子已经给过
+    for(int i = 3; i <= 14; ++i)
+    {
+        if(i != lzface)
+        {
+            m_deck.getFaceCard(i, specard, 1);
+        }
+    }
+    
     m_deck.delCard(specard);
     
     //手牌
