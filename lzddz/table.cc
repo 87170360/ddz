@@ -1084,12 +1084,12 @@ bool Table::allocateCardControl(void)
     }
     */
 
-    //连对
-    for(int i = 3; i <= 10; ++i)
+    //飞机
+    for(int i = 3; i <= 7; ++i)
     {
         if(i != lzface)
         {
-            m_deck.getFaceCard(i, specard, 2);
+            m_deck.getFaceCard(i, specard, 3);
         }
     }
     
