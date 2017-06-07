@@ -562,7 +562,7 @@ bool Shuffledeck::isAircraft2s(const vector<Card>& card)
     vector<Card> vecTwo;
     keepN(vecTwo, card, 2);
     //翼可能是4张一样
-    vector<XtCard> vecFour;
+    vector<Card> vecFour;
     keepN(vecFour, card, 4);
 
     if(vecTwo.size() + vecThree.size() + vecFour.size() != card.size())
