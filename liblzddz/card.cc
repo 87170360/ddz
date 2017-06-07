@@ -28,7 +28,7 @@ static string m_suit_symbols[4] = {
 Card::Card()
 {
 	m_face = m_suit = m_value = 0;
-    m_oldface = m_face;
+    m_oldvalue = m_value;
 }
 
 Card::Card(int val)
@@ -46,7 +46,7 @@ Card::Card(int val)
 	{
 		m_face += 13;
 	}
-    m_oldface = m_face;
+    m_oldvalue = m_value;
 }
 
 void Card::setValue(int val)
@@ -64,7 +64,7 @@ void Card::setValue(int val)
 	{
 		m_face += 13;
 	}
-    m_oldface = m_face;
+    m_oldvalue = m_value;
 	// printf("Face[%d] Suit[%d]\n", m_face, m_suit);	
 }
         

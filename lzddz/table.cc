@@ -209,7 +209,7 @@ void Table::vectorToJsonArray(const std::vector<Card> &card, Jpacket &packet, st
 
     for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
-        if(it->m_face != it->m_oldface)
+        if(it->m_value != it->m_oldvalue)
         {
             packet.val[key].append(it->m_value);
         }
@@ -736,13 +736,15 @@ void Table::msgOut(Player* player)
     }
 
     //变化后的牌型
-    xt_log.debug("lz size:%d\n", lzface.size()); 
+    //xt_log.debug("lz size:%d\n", lzface.size()); 
     if(!lzface.empty())
     {
+        /*
         for(size_t i = 0; i < lzface.size(); ++i)
         {
             xt_log.debug("lz face:%d\n", lzface[i]); 
         }
+        */
         show(curCard, "befor change:");
         //要校验不能变成大小王
         m_deck.changeCard(curCard, lzface);
@@ -1054,10 +1056,13 @@ bool Table::allocateCard(void)
 
 bool Table::allocateCardControl(void)
 {
-    //4张癞子牌给真人玩家 
+    //设置癞子
+    m_deck.setLZ(15);
+    
+    //1张癞子牌给真人玩家 
     int lzface = m_deck.getLZ();
     vector<Card> specard; 
-    m_deck.getFaceCard(lzface, specard, 4);
+    m_deck.getFaceCard(lzface, specard, 1);
 
     //给真人玩家一副炸弹(癞子点+1)
     //face 范围3-15, 先把点数还原到0-13范围，再加1,(lzface - 3 + 1) 再恢复
@@ -1080,7 +1085,7 @@ bool Table::allocateCardControl(void)
     */
 
     //连对
-    for(int i = 3; i <= 6; ++i)
+    for(int i = 3; i <= 10; ++i)
     {
         if(i != lzface)
         {
@@ -1089,6 +1094,11 @@ bool Table::allocateCardControl(void)
     }
     
     m_deck.delCard(specard);
+
+    vector<Card> bottomcard; 
+    m_deck.getFaceCard(lzface, bottomcard, 3);
+    m_deck.delCard(bottomcard);
+
     
     //手牌
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
@@ -1115,11 +1125,14 @@ bool Table::allocateCardControl(void)
     }
 
     //底牌    
+    m_bottomCard.assign(bottomcard.begin(), bottomcard.end());
+    /*
     if(!m_deck.getHoldCard(m_bottomCard, BOTTON_CARD_NUM))
     {
         xt_log.error("%s:%d, get bottom card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
         return false;
     }
+    */
 
     //xt_log.debug("allocateCard, bottonCard:\n");
     //show(m_bottomCard);
@@ -1453,6 +1466,7 @@ void Table::logicOut(Player* player, vector<Card>& curCard, bool keep)
     {
         m_seatCard[player->m_seatid].popCard(curCard);
     }
+    xt_log.debug("logicOut, cur size:%d\n", m_seatCard[player->m_seatid].m_cards.size());
 
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())

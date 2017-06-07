@@ -1797,6 +1797,11 @@ int Shuffledeck::getLZ(void) const
 {
     return m_lz;
 }
+        
+void Shuffledeck::setLZ(int face)
+{
+    m_lz = face;
+}
 
 void Shuffledeck::delCard(const vector<Card>& card)
 {

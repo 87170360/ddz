@@ -32,10 +32,22 @@ void Holdcard::popCard(const std::vector<Card>& out)
         find = false;
         for(std::vector<Card>::const_iterator it2 = out.begin(); it2 != out.end(); ++it2)    
         {
-            if(it1->m_face == it2->m_face && it1->m_suit == it2->m_suit)
+            //癞子变化牌
+            if(it2->m_value != it2->m_oldvalue)
             {
-                find = true; 
+                if(it1->m_value == it2->m_oldvalue)
+                {
+                    find = true; 
+                }
             }
+            else//普通牌
+            {
+                if(it1->m_value == it2->m_value)
+                {
+                    find = true; 
+                }
+            }
+
         }
         if(!find)
         {

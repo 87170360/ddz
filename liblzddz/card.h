@@ -62,7 +62,7 @@ class Card
 		int m_suit;
 		int m_value;
         //原有量, 表示癞子牌原来的数值
-        int m_oldface;
+        int m_oldvalue;
 
 	public:
 		static bool lesserCallback(const Card &a, const Card &b)

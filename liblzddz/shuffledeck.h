@@ -29,6 +29,7 @@ class Shuffledeck
 
         const vector<Card>& getCard(void) { return m_card; }
         int getLZ(void) const;
+        void setLZ(int face);
         //删除牌
         void delCard(const vector<Card>& card);
         //获取点数牌
