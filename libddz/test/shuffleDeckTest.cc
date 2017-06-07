@@ -39,7 +39,19 @@ void testAircraft(void)
     deck.fill();
     deck.shuffle(timeindex++);
 
-    XtCard initCard[] = {XtCard(0x0B), XtCard(0x3B), XtCard(0x2B), XtCard(0x1C), XtCard(0x0C), XtCard(0x2C)};
+    XtCard initCard[] = 
+    {
+        XtCard(0x0B), 
+        XtCard(0x3B), 
+        XtCard(0x2B), 
+        XtCard(0x1C), 
+        XtCard(0x0C), 
+        XtCard(0x2C),
+        XtCard(0x1D), 
+        XtCard(0x0D), 
+        XtCard(0x2D), 
+        XtCard(0x3D), 
+    };
     vector<XtCard> cards(initCard, initCard + sizeof(initCard) / sizeof(XtCard));
     //vector<XtCard> cards;
     //deck.getHoleCards(cards, 17);
@@ -52,7 +64,7 @@ void testAircraft(void)
     cout << endl;
 
 
-    if(deck.isAircraft0(cards))
+    if(deck.isAircraft2s(cards))
     {
         printf("true!\n");
     }
@@ -1456,7 +1468,7 @@ void testVector(void)
 
 int main()
 {
-    //testAircraft();
+    testAircraft();
     //testDoubleStraight();
     //testStraight();
     //testPair();
@@ -1464,7 +1476,7 @@ int main()
     //testCompareShuttle();
     //testCompareAircraft();
     //testCompareSingle();
-    testBigPair();
+    //testBigPair();
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();

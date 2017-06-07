@@ -650,13 +650,16 @@ bool XtShuffleDeck::isAircraft2s(const vector<XtCard>& card)
     //翼和飞机比例
     vector<XtCard> vecTwo;
     keepN(vecTwo, card, 2);
+    //翼可能是4张一样
+    vector<XtCard> vecFour;
+    keepN(vecFour, card, 4);
 
-    if(vecTwo.size() + vecThree.size() != card.size())
+    if(vecTwo.size() + vecThree.size() + vecFour.size() != card.size())
     {
         return false;
     }
 
-    if(vecTwo.size() * 3 == vecThree.size() * 2)
+    if((vecTwo.size() + vecFour.size()) * 3 == vecThree.size() * 2)
     {
         return true;
     }
