@@ -1085,12 +1085,14 @@ bool Table::allocateCardControl(void)
     */
 
     //飞机
-    for(int i = 3; i <= 7; ++i)
+    for(int i = 3; i <= 5; ++i)
     {
-        if(i != lzface)
-        {
-            m_deck.getFaceCard(i, specard, 3);
-        }
+        m_deck.getFaceCard(i, specard, 3);
+    }
+
+    for(int i = 6; i <= 8; ++i)
+    {
+        m_deck.getFaceCard(i, specard, 2);
     }
     
     m_deck.delCard(specard);
@@ -1466,7 +1468,7 @@ void Table::logicOut(Player* player, vector<Card>& curCard, bool keep)
     {
         m_seatCard[player->m_seatid].popCard(curCard);
     }
-    xt_log.debug("logicOut, cur size:%d\n", m_seatCard[player->m_seatid].m_cards.size());
+    //xt_log.debug("logicOut, cur size:%d\n", m_seatCard[player->m_seatid].m_cards.size());
 
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())
