@@ -1066,8 +1066,8 @@ bool Table::allocateCardControl(void)
 
     //给真人玩家一副炸弹(癞子点+1)
     //face 范围3-15, 先把点数还原到0-13范围，再加1,(lzface - 3 + 1) 再恢复
-    //int bombface = (lzface - 2) % 13 + 3;
-    //m_deck.getFaceCard(bombface, specard, 4);
+    int bombface = (lzface - 2) % 13 + 3;
+    m_deck.getFaceCard(bombface, specard, 4);
 
     //给真人玩家一对(癞子点+2)
     //int doubleface = (lzface - 1) % 13 + 3;
@@ -1085,6 +1085,7 @@ bool Table::allocateCardControl(void)
     */
 
     //飞机
+    /*
     for(int i = 3; i <= 5; ++i)
     {
         m_deck.getFaceCard(i, specard, 3);
@@ -1094,6 +1095,7 @@ bool Table::allocateCardControl(void)
     {
         m_deck.getFaceCard(i, specard, 2);
     }
+    */
     
     m_deck.delCard(specard);
 
@@ -1796,14 +1798,7 @@ void Table::gameStart(void)
 
     callProc();
 
-    if(g_test)
-    {
-        allocateCardControl(); 
-    }
-    else
-    {
-        allocateCard();
-    }
+    allocateCard();
 
     sendCard1();
 
