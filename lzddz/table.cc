@@ -1069,6 +1069,9 @@ bool Table::allocateCardControl(void)
     int bombface = (lzface - 2) % 13 + 3;
     m_deck.getFaceCard(bombface, specard, 4);
 
+    int bombface2 = (lzface - 1) % 13 + 3;
+    m_deck.getFaceCard(bombface2, specard, 4);
+
     //给真人玩家一对(癞子点+2)
     //int doubleface = (lzface - 1) % 13 + 3;
     //m_deck.getFaceCard(doubleface, specard, 2);
@@ -1798,7 +1801,8 @@ void Table::gameStart(void)
 
     callProc();
 
-    allocateCard();
+    //allocateCard();
+    allocateCardControl();
 
     sendCard1();
 
