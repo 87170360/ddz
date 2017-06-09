@@ -87,6 +87,8 @@ class Shuffledeck
 
         //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
         void keepN(vector<Card>& result, const vector<Card>& card, int nu);
+        //与KeepN区别，点数>=N, 如： card=33344445555 nu=3  则 result = 333444555 
+        void keepBigN(vector<Card>& result, const vector<Card>& card, int nu);
         //三张组里，区分飞机和其他三张, card3降序, aircraft 是可以组成飞机的牌，比如333444777888 333444555
         void divideCard3(const vector<Card>& card3, vector<Card>& pure3, vector<Card>& aircraft);
         //两张组里，区分火箭, 纯对子和双顺, card2降序, ds是可以组成双顺的牌，比如 334455778899 33445566

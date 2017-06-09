@@ -41,13 +41,11 @@ void testAircraft(void)
 
     XtCard initCard[] = 
     {
-        XtCard(0x0B), 
-        XtCard(0x3B), 
         XtCard(0x2B), 
         XtCard(0x1C), 
         XtCard(0x0C), 
         XtCard(0x2C),
-        XtCard(0x1D), 
+        XtCard(0x1B), 
         XtCard(0x0D), 
         XtCard(0x2D), 
         XtCard(0x3D), 
@@ -64,7 +62,7 @@ void testAircraft(void)
     cout << endl;
 
 
-    if(deck.isAircraft2s(cards))
+    if(deck.isAircraft1(cards))
     {
         printf("true!\n");
     }
@@ -1446,6 +1444,32 @@ void testVector(void)
     }
 }
 
+void testKeepBigN(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x06));
+    cards1.push_back(XtCard(0x16));
+    cards1.push_back(XtCard(0x26));
+    cards1.push_back(XtCard(0x36));
+    cards1.push_back(XtCard(0x07));
+    cards1.push_back(XtCard(0x17));
+    cards1.push_back(XtCard(0x27));
+    cards1.push_back(XtCard(0x37));
+
+    XtCard::sortByDescending(cards1);
+    show(cards1, "cards1");
+
+    vector<XtCard> result;
+    deck.keepBigN(result, cards1, 3);
+    show(result, "result");
+}
+
 /*
    static int card_arr[] = {
    0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -1468,6 +1492,7 @@ void testVector(void)
 
 int main()
 {
+    //testKeepBigN();
     testAircraft();
     //testDoubleStraight();
     //testStraight();

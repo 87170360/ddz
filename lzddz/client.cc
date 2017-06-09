@@ -56,6 +56,7 @@ Client::~Client()
 	//xt_log.info("~client fd[%d] uid[%d] destrutor\n", fd, uid);
     printf("%s", DESC_STATE[0]);
     printf("%s", DESC_OP[0]);
+    printf("%s", DESC_SS[0]);
 }
 
 void Client::destroy(Client *client)

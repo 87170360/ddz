@@ -513,7 +513,7 @@ bool Shuffledeck::isAircraft1(const vector<Card>& card)
 
     //取出全3的组合
     vector<Card> vecThree;
-    keepN(vecThree, card, 3);
+    keepBigN(vecThree, card, 3);
 
     if(vecThree.empty())
     {
@@ -1525,6 +1525,34 @@ void Shuffledeck::keepN(vector<Card>& result, const vector<Card>& card, int nu)
         if(findit != faceCot.end() && findit->second == nu) 
         {
             result.push_back(*it); 
+        }
+    }
+}
+
+void Shuffledeck::keepBigN(vector<Card>& result, const vector<Card>& card, int nu)
+{
+    result.clear();
+    map<int, int> faceCot;
+    map<int, int>::const_iterator findit;
+    map<int, int> faceGet;
+    map<int, int>::const_iterator findit2;
+    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        faceCot[it->m_face] += 1;  
+        faceGet[it->m_face] = 0;  
+    }
+
+    for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        findit = faceCot.find(it->m_face);
+        if(findit != faceCot.end() && findit->second >= nu) 
+        {
+            findit2 = faceGet.find(it->m_face);
+            if(findit2 != faceGet.end() && findit2->second < nu)
+            {
+                result.push_back(*it); 
+                faceGet[it->m_face] += 1;
+            }
         }
     }
 }

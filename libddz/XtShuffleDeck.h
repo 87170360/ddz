@@ -93,6 +93,8 @@ class XtShuffleDeck
 
         //保留相同点数的牌是N张的牌, result和card同序, 传入的card需排序（升或降）
         void keepN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
+        //与KeepN区别，点数>=N, 如： card=33344445555 nu=3  则 result = 333444555 
+        void keepBigN(vector<XtCard>& result, const vector<XtCard>& card, int nu);
         //是否是连续, 需要降序队列, 不判断n之间是否相同, n是连续相隔的数量, 不包括大小王和2, 比如777888,n=2,  789,n=1
         bool isNContinue(const vector<XtCard>& card, int n) const;
         //比较M带N牌型
