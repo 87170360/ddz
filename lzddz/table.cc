@@ -156,17 +156,7 @@ void Table::vector_to_json_array(std::vector<Card> &cards, Jpacket &packet, stri
 
     for (unsigned int i = 0; i < cards.size(); i++) 
     {
-        packet.val[key].append(cards[i].m_value);
-    }
-}
-
-void Table::map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key)
-{
-    std::map<int, Card>::iterator it;
-    for (it = cards.begin(); it != cards.end(); it++)
-    {
-        Card &card = it->second;
-        packet.val[key].append(card.m_value);
+        packet.val[key].append(cards[i].m_oldvalue);
     }
 }
 
@@ -212,6 +202,7 @@ void Table::vectorToJsonArray(const std::vector<Card> &card, Jpacket &packet, st
         if(it->m_value != it->m_oldvalue)
         {
             packet.val[key].append(it->m_value);
+            //xt_log.debug("sendOutAgain, lzvalue:%d\n", it->m_value);
         }
     }
 }
@@ -703,13 +694,13 @@ void Table::msgOut(Player* player)
     json_array_to_vector(curCard, player->client->packet, "card");
 
     //解析癞子变化
-    vector<int> lzface;
-    jsonArrayToVector(lzface, player->client->packet, "change");
+    vector<int> lzvalue;
+    jsonArrayToVector(lzvalue, player->client->packet, "change");
 
     //不出校验
     bool keep = msg["keep"].asBool();
 
-    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
+    xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
     //xt_log.debug("curCard:\n");
     //show(curCard);
     //xt_log.debug("lastCard:\n");
@@ -736,19 +727,19 @@ void Table::msgOut(Player* player)
     }
 
     //变化后的牌型
-    //xt_log.debug("lz size:%d\n", lzface.size()); 
-    if(!lzface.empty())
+    //xt_log.debug("lz size:%d\n", lzvalue.size()); 
+    if(!lzvalue.empty())
     {
         /*
-        for(size_t i = 0; i < lzface.size(); ++i)
+        for(size_t i = 0; i < lzvalue.size(); ++i)
         {
-            xt_log.debug("lz face:%d\n", lzface[i]); 
+            xt_log.debug("lz value:%d\n", lzvalue[i]); 
         }
         */
-        show(curCard, "befor change:");
+        //show(curCard, "befor change:");
         //要校验不能变成大小王
-        m_deck.changeCard(curCard, lzface);
-        show(curCard, "after change:");
+        m_deck.changeCard(curCard, lzvalue);
+        //show(curCard, "after change:");
     }
 
     //清除超时用户

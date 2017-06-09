@@ -46,7 +46,6 @@ class Table
         int unicast(Player *player, const std::string &packet);
         int random(int start, int end);
         void vector_to_json_array(std::vector<Card> &cards, Jpacket &packet, string key);
-        void map_to_json_array(std::map<int, Card> &cards, Jpacket &packet, string key);
         void json_array_to_vector(std::vector<Card> &cards, Jpacket &packet, string key);
 
         void jsonArrayToVector(std::vector<int> &change, Jpacket &packet, string key);
