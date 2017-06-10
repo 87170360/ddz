@@ -726,6 +726,13 @@ void Table::msgOut(Player* player)
         return;
     }
 
+    //没有上轮牌（新一轮）的时候，不能出pass
+    if(keep && m_lastCard.empty())
+    {
+        xt_log.error("%s:%d, out fail! wrong pass. m_uid:%d, seatid:%d, \n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
+        return;
+    }
+
     //变化后的牌型
     //xt_log.debug("lz size:%d\n", lzvalue.size()); 
     if(!lzvalue.empty())
