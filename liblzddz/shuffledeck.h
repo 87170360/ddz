@@ -106,6 +106,9 @@ class Shuffledeck
         bool isNContinue(const vector<Card>& card, int n) const;
         //癞子牌具体化
         void changeCard(vector<Card>& card, const  vector<int>& lzface);
+
+        //是否有癞子
+        bool isLZArray(const vector<Card>& card);
     private:
         //比较M带N牌型
         bool compareMN(const vector<Card>& card, const vector<Card>& card1, int m);
@@ -113,8 +116,6 @@ class Shuffledeck
         void initCompare(void);
         //初始化跟牌函数
         void initBig(void);
-        //是否有癞子
-        bool isLZ(const vector<Card>& card);
 
     private:
         //癞子点数

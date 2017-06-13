@@ -133,18 +133,47 @@ void testChangeCard(void)
 void testCompare(void)
 {
     g_deck.shuffle(timeindex++);
+    g_deck.setLZ(15);
     vector<Card> holdcard1;
-    holdcard1.push_back(Card(0x34));
-    holdcard1.push_back(Card(0x14));
+    holdcard1.push_back(Card(0x02));
+    //holdcard1.back().changeFace(14);
+    holdcard1.push_back(Card(0x12));
+    //holdcard1.back().changeFace(14);
+    holdcard1.push_back(Card(0x22));
+    //holdcard1.back().changeFace(14);
+    holdcard1.push_back(Card(0x32));
     show(holdcard1, "holdcard1:");
 
     vector<Card> holdcard2;
-    holdcard2.push_back(Card(0x33));
-    holdcard2.push_back(Card(0x13));
+    holdcard2.push_back(Card(0x0D));
+    holdcard2.push_back(Card(0x1D));
+    holdcard2.push_back(Card(0x2D));
+    holdcard2.push_back(Card(0x3D));
     show(holdcard2, "holdcard2:");
 
     bool isBig = g_deck.compare(holdcard1, holdcard2);
     printf("isBig:%s\n", isBig ? "true" : "false");
+}
+
+void testLZArray(void)
+{
+    g_deck.shuffle(timeindex++);
+    g_deck.setLZ(15);
+    vector<Card> holdcard1;
+    holdcard1.push_back(Card(0x02));
+    holdcard1.back().changeFace(14);
+
+    holdcard1.push_back(Card(0x12));
+    //holdcard1.back().changeFace(14);
+
+    holdcard1.push_back(Card(0x22));
+    //holdcard1.back().changeFace(14);
+
+    holdcard1.push_back(Card(0x31));
+    //show(holdcard1, "holdcard1:");
+
+    bool isBig = g_deck.isLZArray(holdcard1);
+    printf("isLZArray:%s\n", isBig ? "true" : "false");
 }
 
 void testGetLZFollow(void)
@@ -217,8 +246,9 @@ int main()
     //testDivide();
     //testGetCardType();
     //testChangeCard();
-    //testCompare();
-    testGetLZFollow();
+    testCompare();
+    //testLZArray();
+    //testGetLZFollow();
     //testChangeRecover();
     return 0;
 }

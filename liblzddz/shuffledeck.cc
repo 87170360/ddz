@@ -873,8 +873,8 @@ bool Shuffledeck::isSingle(const vector<Card>& card) const
 bool Shuffledeck::compareBomb(const vector<Card>& card1, const vector<Card>& card2)        
 {
     //各为软硬
-    bool soft1 = isLZ(card1);
-    bool soft2 = isLZ(card2);
+    bool soft1 = isLZArray(card1);
+    bool soft2 = isLZArray(card2);
 
     if(soft1 && !soft2)
     {
@@ -1907,11 +1907,11 @@ void Shuffledeck::initBig(void)
     m_fun_big[CT_SINGLE]             = &Shuffledeck::bigSingle;
 }
 
-bool Shuffledeck::isLZ(const vector<Card>& card)
+bool Shuffledeck::isLZArray(const vector<Card>& card)
 {
     for(vector<Card>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
-        if(it->isLZ(m_lz)) 
+        if(it->isChange()) 
         {
             return true;
         }

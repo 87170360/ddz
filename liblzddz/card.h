@@ -58,7 +58,11 @@ class Card
 			return 0;
 		}
 
+        //是否癞子牌
         bool isLZ(int lzface) const;
+        //是否变化
+        bool isChange(void) const {return m_oldvalue != m_value;}
+
 
 	public:
         //有效量
