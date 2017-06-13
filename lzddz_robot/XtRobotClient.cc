@@ -604,6 +604,7 @@ void XtRobotClient::sendCard(void)
     }
     Card::sortByDescending(m_card);
     vector<Card> outCard;
+    vector<Card> changeCard;
     Jpacket data;
     data.val["cmd"]     =   CLIENT_OUT;
     //首轮出牌，自己的牌
@@ -615,9 +616,10 @@ void XtRobotClient::sendCard(void)
     else
     {
         Card::sortByDescending(m_lastCard);
-        m_deck.getFollow(m_card, m_lastCard, outCard);
+        m_deck.getLZFollow(m_card, m_lastCard, outCard, changeCard);
     }
     vector_to_json_array(outCard, data, "card");
+    vector_to_json_array(changeCard, data, "change");
     data.val["keep"]     =   outCard.empty();
     data.end();
     send(data.tostring());
