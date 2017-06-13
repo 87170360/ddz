@@ -132,13 +132,13 @@ int Jpacket::safe_check()
 					return -1;
 				}
 
-				if (val.isMember("change") && val["change"].isArray())
+				if (val.isMember("change") && !val["change"].isArray())
 				{
 					xt_log.error("command client_out error, change not array.\n");
 					return -1;
 				}
 
-				if (val.isMember("card") && val["card"].isArray())
+				if (val.isMember("card") && !val["card"].isArray())
 				{
 					xt_log.error("command client_out error, card not array.\n");
 					return -1;
