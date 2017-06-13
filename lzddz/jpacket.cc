@@ -24,6 +24,7 @@ Jpacket::~Jpacket()
 {
     printf("%s", DESC_STATE[0]);
     printf("%s", DESC_OP[0]);
+    printf("%s", DESC_SS[0]);
 }
 
 std::string& Jpacket::tostring()
@@ -120,9 +121,26 @@ int Jpacket::safe_check()
             break;
 		case CLIENT_OUT:
 			{
-				if (!val["keep"].isBool())
+                if(!val.isMember("keep"))
+                {
+					xt_log.error("command client_out error, keep no exist.\n");
+					return -1;
+                }
+				if ((!val["keep"].isBool()))
 				{
-					xt_log.error("command client_out error\n");
+					xt_log.error("command client_out error, keep no boolean.\n");
+					return -1;
+				}
+
+				if (val.isMember("change") && val["change"].isArray())
+				{
+					xt_log.error("command client_out error, change not array.\n");
+					return -1;
+				}
+
+				if (val.isMember("card") && val["card"].isArray())
+				{
+					xt_log.error("command client_out error, card not array.\n");
 					return -1;
 				}
 			}

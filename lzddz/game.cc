@@ -686,9 +686,11 @@ void Game::initSelect(void)
     m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_NOGR << (3 * 3) | SS_GRAB << (4 * 3) | SS_GRAB << (5 * 3)]        = 2;
     m_select[SS_NOCA | SS_NOCA << (1 * 3) | SS_CALL << (2 * 3) | SS_NOGR << (3 * 3) | SS_GRAB << (4 * 3) | SS_NOGR << (5 * 3)]        = 1;
 
+    /*
     for(map<int, int>::const_iterator it = m_select.begin(); it != m_select.end(); ++it)
     {
         xt_log.debug("m_select, key:%d, value:%d\n", it->first, it->second); 
     }
     xt_log.debug("size:%d\n", m_select.size()); 
+    */
 }
