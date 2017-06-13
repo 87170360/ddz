@@ -186,7 +186,7 @@ void Table::jsonArrayToVector(std::vector<int> &change, Jpacket &packet, string 
     for (unsigned int i = 0; i < val[key].size(); i++)
     {
         change.push_back(val[key][i].asInt());
-        xt_log.debug("lz card change face:%d\n", change.back());
+        //xt_log.debug("lz card change value:%d\n", change.back());
     }
 }
         
