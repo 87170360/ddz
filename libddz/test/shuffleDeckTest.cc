@@ -390,7 +390,9 @@ void testBigPair(void)
     //XtCard initCard1[] = { XtCard(0x04), XtCard(0x14), XtCard(0x24), XtCard(0x05), XtCard(0x15), XtCard(0x06), XtCard(0x16)};
     //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
     vector<XtCard> cards1;
-    deck.getHoleCards(cards1, 17);
+    //deck.getHoleCards(cards1, 17);
+    cards1.push_back(XtCard(0x04));
+    cards1.push_back(XtCard(0x14));
     XtCard::sortByDescending(cards1);
 
     XtCard initCard2[] = { XtCard(0x03), XtCard(0x13)};
@@ -1493,7 +1495,7 @@ void testKeepBigN(void)
 int main()
 {
     //testKeepBigN();
-    testAircraft();
+    //testAircraft();
     //testDoubleStraight();
     //testStraight();
     //testPair();
@@ -1501,7 +1503,7 @@ int main()
     //testCompareShuttle();
     //testCompareAircraft();
     //testCompareSingle();
-    //testBigPair();
+    testBigPair();
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();

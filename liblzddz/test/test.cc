@@ -147,6 +147,50 @@ void testCompare(void)
     printf("isBig:%s\n", isBig ? "true" : "false");
 }
 
+void testGetLZFollow(void)
+{
+    g_deck.shuffle(timeindex++);
+    g_deck.setLZ(15);
+
+    vector<Card> holdcard1;
+    holdcard1.push_back(Card(0x02));
+    holdcard1.push_back(Card(0x1B));
+    holdcard1.push_back(Card(0x2B));
+    holdcard1.push_back(Card(0x0A));
+    holdcard1.push_back(Card(0x1A));
+
+    Card::sortByDescending(holdcard1);
+    show(holdcard1, "mine:");
+
+    vector<Card> holdcard2;
+    holdcard2.push_back(Card(0x33));
+    holdcard2.push_back(Card(0x23));
+    holdcard2.push_back(Card(0x13));
+    holdcard2.push_back(Card(0x04));
+    holdcard2.push_back(Card(0x14));
+    show(holdcard2, "other:");
+    Card::sortByDescending(holdcard2);
+
+    vector<Card> result;
+    vector<Card> change;
+    g_deck.getLZFollow(holdcard1, holdcard2, result, change);
+    show(result, "result");
+    show(change, "change");
+}
+
+void testChangeRecover(void)
+{
+    vector<Card> holdcard1;
+    holdcard1.push_back(Card(0x02));
+    show(holdcard1, "origin:");
+
+    holdcard1[0].changeFace(3);
+    show(holdcard1, "change:");
+
+    holdcard1[0].recover();
+    show(holdcard1, "recover:");
+}
+
 /*
 	"d", "c", "h", "s"
 
@@ -173,7 +217,9 @@ int main()
     //testDivide();
     //testGetCardType();
     //testChangeCard();
-    testCompare();
+    //testCompare();
+    testGetLZFollow();
+    //testChangeRecover();
     return 0;
 }
 

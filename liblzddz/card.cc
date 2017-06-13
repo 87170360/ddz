@@ -82,6 +82,17 @@ void Card::change(int val)
 		m_face += 13;
 	}
 }
+        
+void Card::changeFace(int face)
+{
+    m_face = face;
+    m_value = m_face | (m_suit << 4);
+}
+        
+void Card::recover(void)
+{
+    change(m_oldvalue);
+}
 
 const char* Card::getCardDescription() const
 {

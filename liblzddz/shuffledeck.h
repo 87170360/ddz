@@ -26,6 +26,8 @@ class Shuffledeck
         bool getFirst(const vector<Card>& mine, vector<Card>& result);
         //获取跟牌, 降序
         bool getFollow(const vector<Card>& mine, const vector<Card>& other, vector<Card>& result);
+        //获取癞子变化的跟牌, 降序
+        bool getLZFollow(const vector<Card>& mine, const vector<Card>& other, vector<Card>& result, vector<Card>& change);
 
         const vector<Card>& getCard(void) { return m_card; }
         int getLZ(void) const;

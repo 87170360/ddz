@@ -22,6 +22,10 @@ class Card
 		void setValue(int val);
         //癞子变牌, val 变化后牌的value
         void change(int val);
+        //只变点数，不变花色
+        void changeFace(int face);
+        //取消癞子变化
+        void recover(void);
 
 		const char* getCardDescription() const;
 		string getCardDescriptionString(void) const;
