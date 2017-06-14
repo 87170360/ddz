@@ -2338,6 +2338,7 @@ void Table::winProc(void)
         {
             player->updateTopMoney(m_money[player->m_seatid]); 
             player->updateTopCount(score);
+            player->coupon(score);
         }
     }
 }

@@ -165,7 +165,7 @@ int Jpacket::safe_check()
             break;
 		case CLIENT_CHAT:
 			{
-				if (!val["content"].isString() && !val["chatid"].isNumeric())
+				if (!val["content"].isString() || !val["chatid"].isNumeric())
 				{
 					xt_log.error("command client_chat error\n");
 					return -1;
@@ -174,7 +174,7 @@ int Jpacket::safe_check()
             break;
 		case CLIENT_MOTION:
 			{
-				if (!val["type"].isNumeric() && !val["target_id"].isNumeric())
+				if (!val["type"].isNumeric() || !val["target_id"].isNumeric())
 				{
 					xt_log.error("command client_motion error\n");
 					return -1;

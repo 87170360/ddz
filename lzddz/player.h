@@ -49,6 +49,12 @@ public:
     void updateTopMoney(int money);
     //最大赢局倍数
     void updateTopCount(int count);
+    //兑换券处理
+    void coupon(int score); 
+private:
+    //兑换券上限
+    int couponLimit(void);
+    bool isToday(int stamp);
 
 public:
 	int 				index;

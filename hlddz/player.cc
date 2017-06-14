@@ -331,3 +331,89 @@ int Player::upMoney(void)
 
     return money;
 }
+
+void Player::coupon(int score) 
+{
+    if(score < 10000)
+    {
+        return;
+    }
+
+    //当日上限
+    int limit = couponLimit();
+    if(limit <= 0)
+    {
+        return;
+    }
+
+    //付费标识
+    int paid_coupon = 0; 
+    int normal_coupon = 0; 
+	int paid = hlddz.main_rc[index]->get_value_as_int("paid");
+    if(score >= 10000 && score < 30000)
+    {
+        normal_coupon = rand() % 2 + 2;
+        paid_coupon = rand() % 4 + 3;
+    }
+    else if(score >= 30000 && score < 100000)
+    {
+        normal_coupon = rand() % 3 + 3;
+        paid_coupon = rand() % 6 + 5;
+    }
+    else if(score >= 100000 && score < 200000)
+    {
+        normal_coupon = rand() % 4 + 4;
+        paid_coupon = rand() % 9 + 7;
+    }
+    else if(score >= 200000)
+    {
+        normal_coupon = rand() % 6 + 7;
+        paid_coupon = rand() % 9 + 12;
+    }
+
+    int result = (paid == 1) ? paid_coupon : normal_coupon;
+
+    int ret = hlddz.main_rc[index]->command("hincrby hu:%d coupon %d", m_uid, result);
+	if (ret < 0) 
+    {
+        xt_log.error("%s:%d, coupon error. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, result); 
+		return;
+	}
+}
+    
+int Player::couponLimit(void)
+{
+    //付费标识
+	int paid = hlddz.main_rc[index]->get_value_as_int("paid");
+    //在线时长 分钟
+    int onlineTimeToday = hlddz.main_rc[index]->get_value_as_int("onlineTimeToday") / 60;
+
+    //每日上限
+    int limit = 50 + onlineTimeToday  / 10;
+    if(paid == 1)
+    {
+        //当日累计充值 
+	    int paySumToday = hlddz.main_rc[index]->get_value_as_int("paySumToday");
+        limit += paySumToday * 100 * 0.25;
+    }
+
+    //获券时间戳
+    int coupon_stamp = hlddz.main_rc[index]->get_value_as_int("coupon_stamp");
+    //当天获券数量
+    int coupon_today = hlddz.main_rc[index]->get_value_as_int("coupon_today");
+    if(coupon_today != 0 && !isToday(coupon_stamp))
+    {
+        coupon_today = 0; 
+    }
+
+    return max(limit - coupon_today, 0);
+}
+    
+bool Player::isToday(int stamp)
+{
+    //stamp
+    long int nowtime = static_cast<long int>(time(NULL));
+    int tmp1 = (nowtime + 28800) / 86400;
+    int tmp2 = (stamp + 28800) / 86400;
+    return tmp1 == tmp2;
+}
