@@ -225,7 +225,6 @@ class Table
         int             			m_vid;
         int                         m_state;
         std::map<int, Player*>		m_players;
-        std::map<int, Player*>		m_offline;
 
     private:
         int                         m_count;                        //牌局计数
