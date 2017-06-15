@@ -135,20 +135,14 @@ void testCompare(void)
     g_deck.shuffle(timeindex++);
     g_deck.setLZ(15);
     vector<Card> holdcard1;
-    holdcard1.push_back(Card(0x02));
+    holdcard1.push_back(Card(0x08));
+    holdcard1.push_back(Card(0x28));
     //holdcard1.back().changeFace(14);
-    holdcard1.push_back(Card(0x12));
-    //holdcard1.back().changeFace(14);
-    holdcard1.push_back(Card(0x22));
-    //holdcard1.back().changeFace(14);
-    holdcard1.push_back(Card(0x32));
     show(holdcard1, "holdcard1:");
 
     vector<Card> holdcard2;
-    holdcard2.push_back(Card(0x0D));
-    holdcard2.push_back(Card(0x1D));
-    holdcard2.push_back(Card(0x2D));
-    holdcard2.push_back(Card(0x3D));
+    holdcard2.push_back(Card(0x27));
+    holdcard2.push_back(Card(0x37));
     show(holdcard2, "holdcard2:");
 
     bool isBig = g_deck.compare(holdcard1, holdcard2);
@@ -182,21 +176,15 @@ void testGetLZFollow(void)
     g_deck.setLZ(15);
 
     vector<Card> holdcard1;
-    holdcard1.push_back(Card(0x02));
-    holdcard1.push_back(Card(0x1B));
-    holdcard1.push_back(Card(0x2B));
-    holdcard1.push_back(Card(0x0A));
-    holdcard1.push_back(Card(0x1A));
+    holdcard1.push_back(Card(0x07));
+    holdcard1.push_back(Card(0x17));
 
     Card::sortByDescending(holdcard1);
     show(holdcard1, "mine:");
 
     vector<Card> holdcard2;
-    holdcard2.push_back(Card(0x33));
-    holdcard2.push_back(Card(0x23));
-    holdcard2.push_back(Card(0x13));
-    holdcard2.push_back(Card(0x04));
-    holdcard2.push_back(Card(0x14));
+    holdcard2.push_back(Card(0x08));
+    holdcard2.push_back(Card(0x18));
     show(holdcard2, "other:");
     Card::sortByDescending(holdcard2);
 
@@ -246,9 +234,9 @@ int main()
     //testDivide();
     //testGetCardType();
     //testChangeCard();
-    testCompare();
+    //testCompare();
     //testLZArray();
-    //testGetLZFollow();
+    testGetLZFollow();
     //testChangeRecover();
     return 0;
 }

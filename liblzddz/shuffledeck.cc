@@ -988,7 +988,7 @@ bool Shuffledeck::bigPair(const vector<Card>& mine, const vector<Card>& other, v
 
     if(vecTwo.size() == 2)
     {
-        if(vecTwo[1].m_face > other[1].m_face);
+        if(vecTwo[1].m_face > other[1].m_face)
         {
             out.assign(vecTwo.begin(), vecTwo.end()); 
             return true;

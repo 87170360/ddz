@@ -637,7 +637,7 @@ int Game::del_player(Player *player)
 
 int Game::change_table(Player *player)
 {
-    //xt_log.info("change table uid[%d], tid[%d].\n", player->m_uid, player->m_tid);
+    xt_log.info("change table uid[%d], tid[%d].\n", player->m_uid, player->m_tid);
     int ret = 0;
     map<int, Table*>::iterator it = all_tables.find(player->m_tid);
     if (it != all_tables.end()) 
@@ -647,9 +647,11 @@ int Game::change_table(Player *player)
             xt_log.error("handle logout table error.\n");
             return -1;
         }
-        Client *client = player->client;
-        client->position = POSITION_WAIT;
-        ret = handler_login_table(client);
+        //Client *client = player->client;
+        //client->position = POSITION_WAIT;
+        player->client->position = POSITION_WAIT;
+        ret = handler_login_table(player->client);
+        //ret = handler_login_table(client);
         if (ret < 0) {
             xt_log.error("handle login table error.\n");
             return -1;

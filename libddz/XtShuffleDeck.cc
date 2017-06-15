@@ -1002,7 +1002,7 @@ bool XtShuffleDeck::bigPair(const vector<XtCard>& mine, const vector<XtCard>& ot
 
     if(vecTwo.size() == 2)
     {
-        if(vecTwo[0].m_face > other[0].m_face);
+        if(vecTwo[0].m_face > other[0].m_face)
         {
             out.assign(vecTwo.begin(), vecTwo.end()); 
             return true;
