@@ -1011,8 +1011,6 @@ void Table::outProc(void)
 
 void Table::logout(Player* player)
 {
-    //player 离线太久已经被释放
-    
     //xt_log.debug("player logout, uid:%d\n", player->m_uid);
     map<int, Player*>::iterator it = m_players.find(player->m_uid);
     if(it != m_players.end())

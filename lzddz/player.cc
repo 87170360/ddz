@@ -26,6 +26,7 @@ static const int DAY_SECOND = 86400;
 static const int ALLOWANCE_NUM = 3;
 
 Player::Player() :
+m_table_count(0),
 _offline_timeout(1 * 1)
 {
 	_offline_timer.data = this;

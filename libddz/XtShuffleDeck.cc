@@ -372,6 +372,10 @@ bool XtShuffleDeck::getOut(const vector<XtCard>& mine, const vector<XtCard>& oth
 
 bool XtShuffleDeck::getFirst(const vector<XtCard>& mine, vector<XtCard>& result)
 {
+    if(mine.empty())
+    {
+        return false;
+    }
     //划分手牌
     map<int, vector<XtCard> > dvec;
     divideCard(mine, dvec);
@@ -446,13 +450,10 @@ bool XtShuffleDeck::getFirst(const vector<XtCard>& mine, vector<XtCard>& result)
             break;
     }
 
-    /*
-    if(getCardType(result) == CT_ERROR)
+    if(result.empty())
     {
-        result.clear();
         result.push_back(mine.back());
     }
-    */
 
     return true;
 }

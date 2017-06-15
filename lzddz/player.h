@@ -61,6 +61,7 @@ public:
 	// table info
 	int					m_tid;
 	unsigned int		m_seatid;
+    int                 m_table_count;
 
 	// player information
 	int                 m_uid;

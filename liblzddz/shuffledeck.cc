@@ -242,6 +242,11 @@ bool Shuffledeck::compare(const vector<Card>& card1, const vector<Card>& card2)
 
 bool Shuffledeck::getFirst(const vector<Card>& mine, vector<Card>& result)
 {
+    if(mine.empty())
+    {
+        return false;
+    }
+
     //划分手牌
     map<int, vector<Card> > dvec;
     divide(mine, dvec);
@@ -314,6 +319,11 @@ bool Shuffledeck::getFirst(const vector<Card>& mine, vector<Card>& result)
                 result.assign(dvec[select].rbegin(), dvec[select].rbegin() + 6);
             }
             break;
+    }
+
+    if(result.empty())
+    {
+        result.push_back(mine.back()); 
     }
 
     return true;
