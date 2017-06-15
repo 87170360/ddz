@@ -27,7 +27,7 @@ static const int ALLOWANCE_NUM = 3;
 
 Player::Player() :
 m_table_count(0),
-_offline_timeout(1 * 1)
+_offline_timeout(60 * 30)
 {
 	_offline_timer.data = this;
 	ev_timer_init(&_offline_timer, Player::offline_timeout, _offline_timeout, 0);

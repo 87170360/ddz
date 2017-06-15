@@ -769,16 +769,23 @@ void Table::msgOut(Player* player)
 
 void Table::msgChange(Player* player)
 {
-    //xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
-
     if(m_state != STATE_PREPARE)
     {
         sendError(player, CLIENT_CHANGE, CODE_STATE);
         return;
     }
 
+    xt_log.debug("msgChange, m_uid:%d, seatid:%d\n", player->m_uid, player->m_seatid);
+
     //清理座位信息
-    setSeat(0, player->m_seatid);
+    map<int, Player*>::iterator it = m_players.find(player->m_uid);
+    if(it != m_players.end())
+    {
+        m_players.erase(it);
+        //清理座位信息
+        setSeat(0, player->m_seatid);
+        m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
+    }
 
     lzddz.game->change_table(player);
 }
@@ -1215,10 +1222,13 @@ void Table::logout(Player* player)
     if(it != m_players.end())
     {
         m_players.erase(it);
+        //清理座位信息
+        setSeat(0, player->m_seatid);
+        m_opState[player->m_seatid] = OP_PREPARE_WAIT; 
     }
 
+    /* test
     reset(); 
-
     //通知机器人重新准备
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
@@ -1230,9 +1240,8 @@ void Table::logout(Player* player)
         packet.end();
         unicast(it->second, packet.tostring());
     }
+    */
 
-    //清理座位信息
-    setSeat(0, player->m_seatid);
 }
 
 void Table::leave(Player* player)
