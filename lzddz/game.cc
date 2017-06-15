@@ -263,6 +263,7 @@ int Game::dispatch(Client *client)
     }
 
     if (safe_check(client, cmd) < 0) {
+        xt_log.error("safe_check false. uid:%d\n", client->player->m_uid);
         return -1;
     }
 

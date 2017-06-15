@@ -23,8 +23,6 @@
 extern LZDDZ lzddz;
 extern Log xt_log;
 
-static bool g_test = true;
-
 Table::Table() : m_count(0)
 {
     m_timerLord.data = this;
@@ -709,7 +707,7 @@ void Table::msgOut(Player* player)
     //不出校验
     bool keep = msg["keep"].asBool();
 
-    xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
+    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
     //xt_log.debug("curCard:\n");
     //show(curCard);
     //xt_log.debug("lastCard:\n");
@@ -1790,7 +1788,7 @@ void Table::sendEntrust(int uid, bool active)
 
 void Table::gameStart(void)
 {
-    if(g_test)
+    /*测试真人优先
     {
         for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
        {
@@ -1800,10 +1798,9 @@ void Table::gameStart(void)
             }
        }
     }
-    else
-    {
-        m_curSeat = rand() % SEAT_NUM;
-    }
+    */
+
+    m_curSeat = rand() % SEAT_NUM;
 
     m_firstSeat = m_curSeat;
     xt_log.debug("=======================================start send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
@@ -1811,8 +1808,8 @@ void Table::gameStart(void)
 
     callProc();
 
-    //allocateCard();
-    allocateCardControl();
+    allocateCard();
+    //allocateCardControl();
 
     sendCard1();
 
