@@ -737,6 +737,7 @@ void Table::msgOut(Player* player)
     if(keep && m_lastCard.empty())
     {
         xt_log.error("%s:%d, out fail! wrong pass. m_uid:%d, seatid:%d, \n", __FILE__, __LINE__, player->m_uid, player->m_seatid); 
+        show(m_seatCard[player->m_seatid].m_cards);
         return;
     }
 

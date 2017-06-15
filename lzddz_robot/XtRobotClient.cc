@@ -611,6 +611,10 @@ void XtRobotClient::sendCard(void)
     if(m_lastCard.empty() || m_outid == m_uid)
     {
         m_deck.getFirst(m_card, outCard);
+        if(outCard.empty())
+        {
+            outCard.push_back(m_card.back());
+        }
     }
     //跟牌
     else
