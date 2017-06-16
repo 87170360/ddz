@@ -467,7 +467,7 @@ void Table::reLogin(Player* player)
     //断线时候托管了，重连取消托管
     m_entrust[player->m_seatid] = false;
 
-    loginUC(player, CODE_SUCCESS);
+    sendRelogin(player);
 }
 
 void Table::msgPrepare(Player* player)
@@ -946,6 +946,7 @@ void Table::loginUC(Player* player, int code)
         packet.val["userinfo"].append(jval);
     }
 
+    /*
     vector_to_json_array(m_seatCard[player->m_seatid].m_cards, packet, "card");
 
     //重登处理
@@ -955,12 +956,6 @@ void Table::loginUC(Player* player, int code)
     {
         case STATE_PREPARE:
             {
-                /* 多余， state 已经传递了这个信息
-                for(unsigned int i = 0; i < SEAT_NUM; ++i)
-                {
-                    packet.val["prepare"].append(m_opState[i] == OP_PREPARE_REDAY); 
-                }
-                */
             }
             break;
         case STATE_CALL:
@@ -1003,7 +998,54 @@ void Table::loginUC(Player* player, int code)
             }
             break;
     }
+    */
 
+    packet.end();
+    unicast(player, packet.tostring());
+}
+        
+void Table::sendRelogin(Player* player)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_RELOGIN;
+
+    //玩家信息
+    for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
+    {
+        Json::Value jval;          
+        Player* pl = it->second;
+        jval["uid"]     = pl->m_uid;
+        jval["seatid"]  = pl->m_seatid;
+        jval["name"]    = pl->m_name;
+        jval["money"]   = pl->m_money;
+        jval["level"]   = pl->m_level;
+        jval["sex"]     = pl->m_sex;
+        jval["avatar"]  = pl->m_avatar;
+        jval["userstate"]   = m_opState[pl->m_seatid];
+        packet.val["userinfo"].append(jval);
+    }
+
+    //游戏状态
+    packet.val["state"]         = m_state;
+    //地主位置
+    packet.val["lordSeat"]      = m_lordSeat;
+    //自己的手牌 
+    vector_to_json_array(m_seatCard[player->m_seatid].m_cards, packet, "myCard");
+    //上轮出的牌
+    vector_to_json_array(m_lastCard, packet, "lastCard");
+    //底牌
+    vector_to_json_array(m_bottomCard, packet, "bottomCard");
+    //上轮出牌者座位
+    packet.val["outSeat"]       = m_outSeat;
+    //当前操作者座位
+    packet.val["currentSeat"]   = m_curSeat;
+    //剩余时间
+    packet.val["time"]          = m_time;
+    //农民加倍
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        packet.val["famerDouble"].append(m_famerDouble[i]);
+    }
     packet.end();
     unicast(player, packet.tostring());
 }

@@ -118,9 +118,12 @@ class Table
         //出牌逻辑
         void logicOut(Player* player, vector<Card>& curCard, bool keep);
 
-        // send msg
+        //登录发其他玩家数据给自己
         void loginUC(Player* player, int code);
+        //登录发自己数据给比尔
         void loginBC(Player* player);
+        //重新登录发其他玩家数据给自己
+        void sendRelogin(Player* player);
         //发牌
         void sendCard1(void);
         //通知叫地主

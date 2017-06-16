@@ -44,6 +44,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST_DOUBLE       = 2021,         //托管加倍 double 
     SERVER_PREPARE              = 2022,         //玩家点了准备, uid
     SERVER_LOGOUT               = 2023,         //玩家退出
+    SERVER_RELOGIN              = 2024,         //玩家断线重连
 };
 
 enum ERROR_CODE
