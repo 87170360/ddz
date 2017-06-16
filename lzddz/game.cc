@@ -605,7 +605,7 @@ int Game::del_player(Player *player)
 
     if (offline_players.find(player->m_uid) != offline_players.end()) {
         offline_players.erase(player->m_uid);
-        //xt_log.info("del player uid[%d] offline.\n", player->m_uid);
+        xt_log.info("del player uid[%d] offline.\n", player->m_uid);
     }
 
     if (online_players.find(player->m_uid) != online_players.end()) {

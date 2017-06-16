@@ -1032,7 +1032,14 @@ void Table::leave(Player* player)
         m_entrust[player->m_seatid] = true;
         entrustProc(true, player->m_seatid);
     }
+
     sendLogout(player);
+
+    //准备阶段断线，清理玩家，避免断线重连relogin
+    if(m_state == STATE_PREPARE)
+    {
+        lzddz.game->del_player(player);
+    }
 }
 
 void Table::endProc(void)
