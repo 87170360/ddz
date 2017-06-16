@@ -79,7 +79,7 @@ void Table::reset(void)
     //xt_log.debug("reset.\n");
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        //m_seats[i] = 0;
+        m_seats[i] = 0;
         m_famerDouble[i] = false;
         m_seatCard[i].reset();
         m_bomb[i] = 0;
@@ -91,7 +91,7 @@ void Table::reset(void)
     }
     m_bottomCard.clear();
     m_lastCard.clear();
-    //m_players.clear();
+    m_players.clear();
     m_deck.shuffle(m_tid);
     m_curSeat = 0;
     m_preSeat = 0;
