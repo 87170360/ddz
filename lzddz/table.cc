@@ -904,7 +904,7 @@ bool Table::sitdown(Player* player)
     }
     if(seatid < 0)
     {
-        xt_log.error("%s:%d, no empty seat.\n", __FILE__, __LINE__); 
+        xt_log.error("%s:%d, no empty seat. tid:%d, uid:%d\n", __FILE__, __LINE__, m_tid, player->m_uid); 
         return false; 
     }
 
