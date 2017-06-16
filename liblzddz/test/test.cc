@@ -208,6 +208,39 @@ void testChangeRecover(void)
     show(holdcard1, "recover:");
 }
 
+void testGetFirst(void)
+{
+    g_deck.shuffle(timeindex++);
+    vector<Card> holdcard1;
+    holdcard1.push_back(Card(0x14));
+    holdcard1.push_back(Card(0x12));
+    holdcard1.push_back(Card(0x03));
+    holdcard1.push_back(Card(0x11));
+    holdcard1.push_back(Card(0x0D));
+    holdcard1.push_back(Card(0x3B));
+    holdcard1.push_back(Card(0x2A));
+    holdcard1.push_back(Card(0x36));
+    holdcard1.push_back(Card(0x21));
+    holdcard1.push_back(Card(0x17));
+    holdcard1.push_back(Card(0x15));
+    holdcard1.push_back(Card(0x07));
+    holdcard1.push_back(Card(0x04));
+    holdcard1.push_back(Card(0x01));
+    holdcard1.push_back(Card(0x09));
+    holdcard1.push_back(Card(0x24));
+    holdcard1.push_back(Card(0x35));
+    holdcard1.push_back(Card(0x2C));
+    holdcard1.push_back(Card(0x16));
+    holdcard1.push_back(Card(0x22));
+
+    Card::sortByDescending(holdcard1);
+    show(holdcard1, "origin:");
+
+    vector<Card> result;
+    g_deck.getFirst(holdcard1, result);
+    show(result, "result:");
+}
+
 /*
 	"d", "c", "h", "s"
 
@@ -236,8 +269,9 @@ int main()
     //testChangeCard();
     //testCompare();
     //testLZArray();
-    testGetLZFollow();
+    //testGetLZFollow();
     //testChangeRecover();
+    testGetFirst();
     return 0;
 }
 
