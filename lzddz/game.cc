@@ -25,7 +25,7 @@ Game::Game()
     CALLTIME          = 300;
     GRABTIME          = 300;
     DOUBLETIME        = 300;
-    OUTTIME           = 300;
+    OUTTIME           = 5;
     SECOND_OUTTIME    = 5;    //第二次出牌超时
     KICKTIME          = 1;
     UPDATETIME        = 1;
