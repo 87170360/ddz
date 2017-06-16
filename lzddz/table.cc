@@ -1025,6 +1025,8 @@ void Table::sendRelogin(Player* player)
         packet.val["userinfo"].append(jval);
     }
 
+    //癞子牌型
+    packet.val["lzface"]         = m_deck.getLZ();
     //游戏状态
     packet.val["state"]         = m_state;
     //地主位置
