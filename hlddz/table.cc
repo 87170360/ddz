@@ -1038,7 +1038,7 @@ void Table::leave(Player* player)
     //准备阶段断线，清理玩家，避免断线重连relogin
     if(m_state == STATE_PREPARE)
     {
-        lzddz.game->del_player(player);
+        hlddz.game->del_player(player);
     }
 }
 
