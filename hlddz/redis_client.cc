@@ -207,3 +207,24 @@ float RedisClient::get_value_as_float(const char *key)
 	return 0;
 }
 
+bool RedisClient::getSingleInt(long long& value)
+{
+	if (reply->type != REDIS_REPLY_STRING)
+    {
+	    xt_log.error("not string., type:%d\n", reply->type);
+        return false; 
+    }
+    value = ::atof(reply->str);
+    return true;
+}
+
+bool RedisClient::getSingleString(char** value)
+{
+	if (reply->type != REDIS_REPLY_STRING)
+    {
+	    xt_log.error("not string., type:%d\n", reply->type);
+        return false; 
+    }
+    *value = reply->str;
+    return true;
+}

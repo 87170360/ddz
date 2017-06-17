@@ -24,11 +24,16 @@ public:
 	void deinit();
     int command(const char *format, ...);
 	int command_spec(const char *format, ...);
+    //获取一个数组数据
 	int is_array_return_ok();
     char* get_value_as_string(const char *key);
     int get_value_as_int(const char *key);
     long long get_value_as_int64(const char *key);
     float get_value_as_float(const char*key);
+    //获取一个数据
+    bool getSingleInt(long long& value);
+    bool getSingleString(char** value);
+
 private:
     std::string			_host;
     int                 _port;

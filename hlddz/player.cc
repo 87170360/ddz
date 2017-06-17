@@ -379,28 +379,50 @@ void Player::coupon(int score)
         xt_log.error("%s:%d, coupon error. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, result); 
 		return;
 	}
+    //设置获得券时间戳
+	hlddz.main_rc[index]->command("hset hu:%d coupon_stamp %d",m_uid, time(NULL));
+    //累计今日获得券
+    hlddz.main_rc[index]->command("hincrby hu:%d coupon_today %d", m_uid, result);
+    //xt_log.debug("aaaaaaaaaaaaaa\n");
 }
     
 int Player::couponLimit(void)
 {
+	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", m_uid);
+	if (ret < 0 || hlddz.main_rc[index]->is_array_return_ok() < 0) 
+    {
+		xt_log.error("couponLimit 1 error.uid:%d\n", m_uid);
+		return -1;
+	}
+
     //付费标识
 	int paid = hlddz.main_rc[index]->get_value_as_int("paid");
-    //在线时长 分钟
-    int onlineTimeToday = hlddz.main_rc[index]->get_value_as_int("onlineTimeToday") / 60;
+    //获券时间戳
+    int coupon_stamp = hlddz.main_rc[index]->get_value_as_int("coupon_stamp");
+    //当天获券数量
+    int coupon_today = hlddz.main_rc[index]->get_value_as_int("coupon_today");
+
+    //当日在线时长 分钟
+	ret = hlddz.main_rc[index]->command("hget heart:%d %s", m_uid, getTimeYY().c_str());
+    long long onlineTimeToday = 0;
+    if(ret < 0 || hlddz.main_rc[index]->getSingleInt(onlineTimeToday))
+    {
+		xt_log.error("couponLimit 2 error.uid:%d, time:%s\n", m_uid, getTimeYY().c_str());
+    }
 
     //每日上限
     int limit = 50 + onlineTimeToday  / 10;
     if(paid == 1)
     {
         //当日累计充值 
-	    int paySumToday = hlddz.main_rc[index]->get_value_as_int("paySumToday");
+	    ret = hlddz.main_rc[index]->command("hget payrecord:%d %s", m_uid, getTimeYY().c_str());
+        long long paySumToday = 0;
+        if(ret < 0 || hlddz.main_rc[index]->getSingleInt(paySumToday))
+        {
+            xt_log.error("couponLimit 3 error.uid:%d, time:%s\n", m_uid, getTimeYY().c_str());
+        }
         limit += paySumToday * 100 * 0.25;
     }
-
-    //获券时间戳
-    int coupon_stamp = hlddz.main_rc[index]->get_value_as_int("coupon_stamp");
-    //当天获券数量
-    int coupon_today = hlddz.main_rc[index]->get_value_as_int("coupon_today");
     if(coupon_today != 0 && !isToday(coupon_stamp))
     {
         coupon_today = 0; 
@@ -417,3 +439,18 @@ bool Player::isToday(int stamp)
     int tmp2 = (stamp + 28800) / 86400;
     return tmp1 == tmp2;
 }
+
+string Player::getTimeYY(void)
+{
+    time_t theTime = time(NULL);
+    struct tm *aTime = localtime(&theTime);
+
+    int day = aTime->tm_mday;
+    int month = aTime->tm_mon + 1; // Month is 0 - 11, add 1 to get a jan-dec 1-12 concept
+    int year = aTime->tm_year + 1900; // Year is # years since 1900
+    char timebuff[16];
+    sprintf(timebuff, "%.4d-%.2d-%.2d", year, month, day);
+    //xt_log.debug("%s\n", timebuff);
+    return string(timebuff);
+}
+

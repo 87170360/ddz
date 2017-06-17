@@ -51,6 +51,8 @@ public:
     void updateTopCount(int count);
     //兑换券处理
     void coupon(int score); 
+    //获取年月日yyyy-mm-dd
+    string getTimeYY(void);
 private:
     //兑换券上限
     int couponLimit(void);
