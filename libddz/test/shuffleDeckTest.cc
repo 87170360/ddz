@@ -447,20 +447,18 @@ void testBigThree1(void)
     deck.fill();
     deck.shuffle(timeindex++);
 
-    vector<XtCard> cards1;
-    deck.getHoleCards(cards1, 17);
-    /*
-       XtCard initCard1[] = { XtCard(16), XtCard(0), XtCard(34), XtCard(49), XtCard(28), XtCard(27), XtCard(41), 
-       XtCard(40), XtCard(24), XtCard(39), XtCard(6), XtCard(53), XtCard(5), XtCard(36), XtCard(35), XtCard(19), XtCard(3)};
-       vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
-       */
+    //vector<XtCard> cards1;
+    //deck.getHoleCards(cards1, 17);
+    XtCard initCard1[] = { XtCard(0x17), XtCard(0x27), XtCard(0x37), XtCard(0x38)}; 
+    vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
     XtCard::sortByDescending(cards1);
 
-    XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x04)};
+    XtCard initCard2[] = { XtCard(0x05), XtCard(0x15), XtCard(0x25), XtCard(0x08)};
     vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
+    XtCard::sortByDescending(cards2);
 
-    show(cards1);
-    show(cards2);
+    show(cards1, "cards1");
+    show(cards2, "cards2");
     vector<XtCard> result;
     if(deck.bigThree1(cards1, cards2, result))
     {
@@ -1503,9 +1501,9 @@ int main()
     //testCompareShuttle();
     //testCompareAircraft();
     //testCompareSingle();
-    testBigPair();
+    //testBigPair();
     //testBigThree2s();
-    //testBigThree1();
+    testBigThree1();
     //testBigThree0();
     //testGetOut();
     //testGetBottomDouble();

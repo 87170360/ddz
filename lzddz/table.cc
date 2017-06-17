@@ -1022,6 +1022,7 @@ void Table::sendRelogin(Player* player)
         jval["sex"]     = pl->m_sex;
         jval["avatar"]  = pl->m_avatar;
         jval["userstate"]   = m_opState[pl->m_seatid];
+        jval["cardnum"] = static_cast<int>(m_seatCard[player->m_seatid].m_cards.size());
         packet.val["userinfo"].append(jval);
     }
 
