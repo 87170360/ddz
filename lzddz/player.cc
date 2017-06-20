@@ -115,18 +115,14 @@ void Player::reset(void)
 
 int Player::update_info()
 {
-	int ret = lzddz.main_rc[index]->command("hgetall hu:%d", m_uid);
-	if (ret < 0) {
-		xt_log.error("update info error, because get player infomation error.\n");
-		return -1;
+	int ret = lzddz.main_rc[index]->command("hget hu:%d money", m_uid);
+    long long value = 0;
+	if (ret < 0 || lzddz.main_rc[index]->getSingleInt(value) == false) 
+    {
+		xt_log.error("update_info error.uid:%d\n", m_uid);
 	}
-
-	if (lzddz.main_rc[index]->is_array_return_ok() < 0) {
-		xt_log.error("update info error, because get player infomation error.\n");
-		return -1;
-	}
-
-	m_money = lzddz.main_rc[index]->get_value_as_int("money");
+    //xt_log.debug("money:%d\n", value);
+    m_money = value;
 
 	return 0;
 }
