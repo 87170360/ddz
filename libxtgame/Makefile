@@ -34,3 +34,4 @@ $(STATIC_LIB): $(OBJECTS_LIB)
 
 clean:
 	rm -rf $(DESTDIR_TARGET) *.o
+	rm -rf $(DESTDIR_TARGET) *.a
