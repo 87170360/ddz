@@ -35,11 +35,11 @@ clean :
 	make -C bsddz clean 
 	make -C bsddz_robot clean 
 
+#cp -f /data/src/bull/normal_bull/normal_bull  /data/game/bin 
+#cp -f /data/src/bull/normal_robot/normal_robot /data/game/bin
+#cp -f /data/src/bull/grab_bull/grab_bull  /data/game/bin 
+#cp -f /data/src/bull/grab_robot/grab_robot /data/game/bin
 cp: build
-	#cp -f /data/src/bull/normal_bull/normal_bull  /data/game/bin 
-	#cp -f /data/src/bull/normal_robot/normal_robot /data/game/bin
-	#cp -f /data/src/bull/grab_bull/grab_bull  /data/game/bin 
-	#cp -f /data/src/bull/grab_robot/grab_robot /data/game/bin
 	cp -f /data/src/bull/hlddz/hlddz /data/game/bin
 	cp -f /data/src/bull/hlddz_robot/hlddz_robot /data/game/bin
 	cp -f /data/src/bull/lzddz/lzddz /data/game/bin
