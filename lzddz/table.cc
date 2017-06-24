@@ -85,6 +85,7 @@ void Table::reset(void)
         m_bomb[i] = 0;
         m_outNum[i] = 0;
         m_money[i] = 0;
+        m_coupon[i] = 0;
         m_entrust[i] = false;
         m_timeout[i] = false;
         m_opState[i] = OP_PREPARE_WAIT; 
@@ -1322,6 +1323,7 @@ void Table::endProc(void)
     payResult();
     //统计局数和胜场
     total();
+    winProc();
     //通知结算
     sendEnd();
     //增加经验
@@ -1332,7 +1334,6 @@ void Table::endProc(void)
     {
         it->second->m_seatid = 0;
     }
-    winProc();
 
     //重置游戏
     reset();
@@ -1768,6 +1769,7 @@ void Table::sendEnd(void)
         jval["uid"]     = pl->m_uid;
         jval["name"]    = pl->m_name;
         jval["money"]   = m_money[pl->m_seatid];
+        jval["coupon"]  = m_coupon[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
         //xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
@@ -2408,7 +2410,7 @@ void Table::winProc(void)
         {
             player->updateTopMoney(m_money[player->m_seatid]); 
             player->updateTopCount(score);
-            player->coupon(score);
+            m_coupon[player->m_seatid] = player->coupon(score);
         }
     }
 }
