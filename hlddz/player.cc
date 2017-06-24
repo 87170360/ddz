@@ -328,18 +328,18 @@ int Player::upMoney(void)
     return money;
 }
 
-void Player::coupon(int score) 
+int Player::coupon(int score) 
 {
     if(score < 10000)
     {
-        return;
+        return 0;
     }
 
     //当日上限
     int limit = couponLimit();
     if(limit <= 0)
     {
-        return;
+        return 0;
     }
 
     //付费标识
@@ -373,13 +373,14 @@ void Player::coupon(int score)
 	if (ret < 0) 
     {
         xt_log.error("%s:%d, coupon error. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, result); 
-		return;
+		return 0;
 	}
     //设置获得券时间戳
 	hlddz.main_rc[index]->command("hset hu:%d coupon_stamp %d",m_uid, time(NULL));
     //累计今日获得券
     hlddz.main_rc[index]->command("hincrby hu:%d coupon_today %d", m_uid, result);
     //xt_log.debug("aaaaaaaaaaaaaa\n");
+    return result;
 }
     
 int Player::couponLimit(void)

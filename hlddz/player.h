@@ -50,7 +50,7 @@ public:
     //最大赢局倍数
     void updateTopCount(int count);
     //兑换券处理
-    void coupon(int score); 
+    int coupon(int score); 
     //获取年月日yyyy-mm-dd
     string getTimeYY(void);
 private:
