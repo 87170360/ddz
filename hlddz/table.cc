@@ -1426,7 +1426,7 @@ void Table::sendEnd(void)
         jval["coupon"]  = m_coupon[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
         packet.val["info"].append(jval);
-        //xt_log.debug("end info: uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid]);
+        xt_log.debug("end info: uid:%d, name:%s, money:%d, coupon:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid], m_coupon[pl->m_seatid]);
     }
 
     packet.end();
