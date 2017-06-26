@@ -1028,6 +1028,12 @@ bool Shuffledeck::bigThree2s(const vector<Card>& mine, const vector<Card>& other
         return false;
     }
 
+    //去掉大小王
+    if(v2.size() == 2 && v2[0].isJoker())
+    {
+        return false;
+    }
+
     if(v3.size() == 3)
     {
         if(v3[0].m_face > v3o[0].m_face) 

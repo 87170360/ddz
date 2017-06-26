@@ -420,8 +420,10 @@ void testBigThree2s(void)
 
     //XtCard initCard1[] = { XtCard(0x04), XtCard(0x14), XtCard(0x24), XtCard(0x05), XtCard(0x15), XtCard(0x06), XtCard(0x16)};
     //vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
-    vector<XtCard> cards1;
-    deck.getHoleCards(cards1, 17);
+    //vector<XtCard> cards1;
+    //deck.getHoleCards(cards1, 17);
+    XtCard initCard1[] = { XtCard(0x05), XtCard(0x15), XtCard(0x25), XtCard(0x06), XtCard(0x16)};
+    vector<XtCard> cards1(initCard1, initCard1 + sizeof(initCard1) / sizeof(XtCard));
     XtCard::sortByDescending(cards1);
 
     XtCard initCard2[] = { XtCard(0x03), XtCard(0x13), XtCard(0x23), XtCard(0x04), XtCard(0x14)};
@@ -433,7 +435,7 @@ void testBigThree2s(void)
     vector<XtCard> result;
     if(deck.bigThree2s(cards1, cards2, result))
     {
-        show(result);
+        show(result, "result");
         printf("true!\n");
     }
     else

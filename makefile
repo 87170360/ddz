@@ -1,7 +1,7 @@
 
 build:
 	#make -C libxtnet
-	#make -C libxtgame
+	make -C libxtgame
 	#make -C libbull  
 	make -C libzjh  
 	make -C libddz  
