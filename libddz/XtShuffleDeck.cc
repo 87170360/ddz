@@ -1202,8 +1202,18 @@ bool XtShuffleDeck::bigDoubleStraight(const vector<XtCard>& mine, const vector<X
 
     //遍历所有该数量的双顺，然后分别比较
 
+    vector<XtCard> v2old;
+    keepN(v2old, mine, 2);
+
+    //去掉大小王
     vector<XtCard> v2;
-    keepN(v2, mine, 2);
+    for(size_t i = 0; i < v2old.size(); ++i)
+    {
+        if(v2old[i].isJoker() == false) 
+        {
+            v2.push_back(v2old[i]);
+        }
+    }
 
     if(v2.size() < other.size())
     {

@@ -559,17 +559,17 @@ bool testBigDoubleStraight(void)
     cards1.push_back(XtCard(0x35));
     cards1.push_back(XtCard(0x06));
     cards1.push_back(XtCard(0x16));
-    cards1.push_back(XtCard(0x26));
+    //cards1.push_back(XtCard(0x26));
     cards1.push_back(XtCard(0x07));
     cards1.push_back(XtCard(0x17));
-    deck.delCard(cards1, timeindex);
-    deck.getHoleCards(cards1, 17 - cards1.size());
+    //deck.delCard(cards1, timeindex);
+    //deck.getHoleCards(cards1, 17 - cards1.size());
 
     XtCard::sortByDescending(cards1);
     XtCard::sortByDescending(cards2);
 
-    show(cards1);
-    show(cards2);
+    show(cards1, "cards1");
+    show(cards2, "cards2");
     vector<XtCard> result;
     if(deck.bigDoubleStraight(cards1, cards2, result))
     {
@@ -1505,7 +1505,7 @@ int main()
     //testCompareAircraft();
     //testCompareSingle();
     //testBigPair();
-    testBigThree2s();
+    //testBigThree2s();
     //testBigThree1();
     //testBigThree0();
     //testGetOut();
@@ -1517,6 +1517,7 @@ int main()
     //testDivideCard();
     //testGetNContinue();
     //testVector();
+    testBigDoubleStraight();
     //while(1)
     {
         //if(testBigStraight()) { break; };
