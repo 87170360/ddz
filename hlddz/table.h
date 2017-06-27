@@ -181,6 +181,8 @@ class Table
         void total(void);
         //计算各座位输赢
         void calculate(void);
+        //测试兑换券，设置得分
+        void setScore(void);
         //检查入场费, 检查托管并踢出玩家
         void kick(void);
         //增加robot money

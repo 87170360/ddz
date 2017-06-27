@@ -990,6 +990,8 @@ void Table::endProc(void)
     m_count++;
     //计算各座位输赢
     calculate();
+    //test
+    //setScore();
     //修改玩家金币
     payResult();
     //统计局数和胜场
@@ -1377,8 +1379,8 @@ void Table::gameStart(void)
             getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
     callProc();
-    //allocateCard();
-    allocateCardControl();
+    allocateCard();
+    //allocateCardControl();
 
     sendCard1();
 
@@ -1938,6 +1940,16 @@ void Table::calculate(void)
             , lord->m_name.c_str(), lordmoney, big->m_name.c_str(), bigmoney, small->m_name.c_str(), smallmoney, score);
 }
 
+void Table::setScore(void)
+{
+    Player* big = getSeatPlayer((m_lordSeat + 1) % 3);  
+    Player* small = getSeatPlayer((m_lordSeat + 2) % 3);  
+
+    m_money[small->m_seatid] = -5000;
+    m_money[big->m_seatid] = -5000;
+    m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
+}
+
 void Table::setSeat(int uid, int seatid)
 {
     if(seatid < 0 || seatid >= static_cast<int>(SEAT_NUM))
@@ -2007,15 +2019,16 @@ void Table::addPlayersExp(void)
 void Table::winProc(void)
 {
     Player* player = NULL;
-    int score = static_cast<int>(getTableQuota());
+    //最大倍数
+    int quota = static_cast<int>(getTableQuota());
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         player = it->second;
         if(m_money[player->m_seatid] > 0)
         {
             player->updateTopMoney(m_money[player->m_seatid]); 
-            player->updateTopCount(score);
-            m_coupon[player->m_seatid] = player->coupon(score);
+            player->updateTopCount(quota);
+            m_coupon[player->m_seatid] = player->coupon(m_money[player->m_seatid]);
         }
     }
 }
