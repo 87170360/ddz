@@ -100,15 +100,6 @@ int Jpacket::safe_check()
 				}
 			}
             break;
-		case CLIENT_DOUBLE:
-			{
-				if (!val["double"].isBool())
-				{
-					xt_log.error("command client_double error\n");
-					return -1;
-				}
-			}
-            break;
 		case CLIENT_OUT:
 			{
 				if (!val["keep"].isBool() || !val["card"].isArray())

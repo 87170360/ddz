@@ -51,8 +51,6 @@ class Table
         /////////////////////////////////////////////////////////////////////////////
         static void callCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onCall(void);
-        static void doubleCB(struct ev_loop *loop, struct ev_timer *w, int revents);
-        void onDouble(void);
         static void OutCB(struct ev_loop *loop, struct ev_timer *w, int revents);
         void onOut(void);
         static void kickCB(struct ev_loop *loop, struct ev_timer *w, int revents);
@@ -69,7 +67,6 @@ class Table
         bool reLogin(Player* player); 
         void msgPrepare(Player* player);
         void msgCall(Player* player);
-        void msgDouble(Player* player);
         void msgOut(Player* player);
         void msgChange(Player* player);
         void msgView(Player* player);
@@ -87,8 +84,6 @@ class Table
         void prepareProc(void);
         //叫分处理
         void callProc(void);
-        //加倍处理
-        void doubleProc(void);
         //出牌处理
         void outProc(void);
         //player已经被释放，不能被托管，彻底结束游戏
@@ -102,8 +97,6 @@ class Table
 
         //叫分逻辑
         void logicCall(void);
-        //加倍逻辑
-        void logicDouble(bool isMsg);
         //出牌逻辑
         void logicOut(Player* player, vector<XtCard>& curCard, bool keep);
 
@@ -116,10 +109,6 @@ class Table
         void sendCallAgain(void); 
         //叫分结果和加倍
         void sendCallResult(void);
-        //加倍广播
-        void sendDouble(int uid, bool isDouble); 
-        //加倍结果和出牌
-        void sendDoubleResult(void);
         //继续出牌
         void sendOutAgain(bool last);
         //结束
@@ -253,7 +242,6 @@ class Table
         std::vector<XtCard>         m_lastCard;                     //上一轮牌
 
         ev_timer                    m_timerCall;                    //叫分
-        ev_timer                    m_timerDouble;                  //加倍
         ev_timer                    m_timerOut;                     //出牌
         ev_timer                    m_timerKick;                    //踢人，要保证最后一个消息发送后才断开连接，所以要延时
         ev_timer                    m_timerUpdate;                  //更新倒计时
