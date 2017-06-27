@@ -82,6 +82,7 @@ class Table
         bool sitdown(Player* player);
         //分牌
         bool allocateCard(void);
+        bool allocateCardControl(void);
         //准备处理
         void prepareProc(void);
         //叫分处理

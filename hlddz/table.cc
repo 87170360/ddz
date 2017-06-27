@@ -968,6 +968,39 @@ bool Table::allocateCard(void)
     return true;
 }
 
+bool Table::allocateCardControl(void)
+{
+    vector<XtCard> cards1;
+    cards1.push_back(XtCard(0x00));
+    cards1.push_back(XtCard(0x10));
+    m_deck.delCard(cards1, m_tid);
+    m_bottomCard.assign(cards1.begin(), cards1.end());
+
+    //底牌    
+    if(!m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM - cards1.size()))
+    {
+        xt_log.error("%s:%d, get bottom card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
+        return false;
+    }
+
+    //xt_log.debug("allocateCard, bottonCard:\n");
+    //show(m_bottomCard);
+
+    //手牌
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(!m_deck.getHoleCards(m_seatCard[i].m_cards, HAND_CARD_NUM))
+        {
+            xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
+            return false;
+        }
+        //xt_log.debug("uid:%d\n", getSeat(i));
+        //show(m_seatCard[i].m_cards);
+    }
+
+    return true;
+}
+
 void Table::prepareProc(void)
 {
     m_state = STATE_PREPARE; 
@@ -1519,7 +1552,8 @@ void Table::gameStart(void)
             getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
     callProc();
-    allocateCard();
+    //allocateCard();
+    allocateCardControl();
 
     sendCard1();
 
