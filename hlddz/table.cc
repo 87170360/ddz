@@ -1240,7 +1240,7 @@ void Table::sendCallResult(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    xt_log.debug("sendCallResult: count:%d\n", getGameDouble());
+    //xt_log.debug("sendCallResult: count:%d\n", getGameDouble());
 }
 
 void Table::sendOutAgain(bool last)
@@ -1631,8 +1631,8 @@ int Table::getGameDouble(void)
     double tmp = pow(baseval, exponetval);
 
     int ret = static_cast<int>(bottomDouble * tmp); 
-    xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
-             bottomDouble, bombnum, spring, anti, ret); 
+   // xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
+   //          bottomDouble, bombnum, spring, anti, ret); 
     return ret;
 }
         
