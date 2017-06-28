@@ -402,7 +402,7 @@ int Player::couponLimit(void)
     //当日在线时长 分钟
 	ret = hlddz.main_rc[index]->command("hget heart:%d %s", m_uid, getTimeYY().c_str());
     long long onlineTimeToday = 0;
-    if(ret < 0 || hlddz.main_rc[index]->getSingleInt(onlineTimeToday))
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(onlineTimeToday))
     {
 		xt_log.error("couponLimit 2 error.uid:%d, time:%s\n", m_uid, getTimeYY().c_str());
     }
@@ -414,7 +414,7 @@ int Player::couponLimit(void)
         //当日累计充值 
 	    ret = hlddz.main_rc[index]->command("hget payrecord:%d %s", m_uid, getTimeYY().c_str());
         long long paySumToday = 0;
-        if(ret < 0 || hlddz.main_rc[index]->getSingleInt(paySumToday))
+        if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(paySumToday))
         {
             xt_log.error("couponLimit 3 error.uid:%d, time:%s\n", m_uid, getTimeYY().c_str());
         }

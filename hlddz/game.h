@@ -35,15 +35,16 @@ public:
     int CALLTIME;
     int DOUBLETIME;
     int OUTTIME;
-    int SECOND_OUTTIME;    //第二次出牌超时
+    int SECOND_OUTTIME;     //第二次出牌超时
     int KICKTIME;
     int UPDATETIME;
-    int SHOWTIME;    //发牌动画时间, 机器人根据这个延时叫分
-    int ROOMSCORE;   //房间底分
-    int ROOMTAX;   //房间抽水
-    int ALLOWANCEMONEY; //破产补助
-    int MOTIONMONEY;  //互动价格
-    int ROOMLIMIT; //房间最低携带
+    int SHOWTIME;           //发牌动画时间, 机器人根据这个延时叫分
+    int ROOMSCORE;          //房间底分
+    int ROOMTAX;            //房间抽水
+    int ALLOWANCEMONEY;     //破产补助
+    int MOTIONMONEY;        //互动价格
+    int ROOMLIMIT;          //房间最低携带
+    std::string m_venuename;     //配置名字
 
 private:
     ev_io _ev_accept;

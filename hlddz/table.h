@@ -208,6 +208,8 @@ class Table
         void addBottom2Lord(void);
         //显示手牌数量
         void showHoldcardNum(void);
+        //从redis刷新配置
+        void refreshConfig(void);
 
     private:
         void reset(void);

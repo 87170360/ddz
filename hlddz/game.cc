@@ -138,7 +138,7 @@ void Game::initConf(void)
     //xt_log.debug("UPDATETIME:%d\n",UPDATETIME);
     SHOWTIME          = hlddz.conf["tables"]["showtime"].asInt();  //发牌动画时间, 机器人根据这个延时叫分
     //xt_log.debug("SHOWTIME:%d\n",SHOWTIME);
-    ROOMSCORE         = hlddz.conf["tables"]["roomscore"].asInt();  //房间底分
+    ROOMSCORE         = hlddz.conf["tables"]["roomscore"].asInt();  //房间底分, 开局前会从redis中同步
     //xt_log.debug("ROOMSCORE:%d\n",ROOMSCORE);
     ROOMTAX           = hlddz.conf["tables"]["roomtax"].asInt();  //房间抽水
     //xt_log.debug("ROOMTAX:%d\n",ROOMTAX);
@@ -148,6 +148,7 @@ void Game::initConf(void)
     //xt_log.debug("MOTIONMONEY:%d\n",MOTIONMONEY);
     ROOMLIMIT         = hlddz.conf["tables"]["roomlimit"].asInt();  //房间最低携带
     //xt_log.debug("ROOMLIMIT:%d\n",ROOMLIMIT);
+    m_venuename       = hlddz.conf["tables"]["venuename"].asString();
 }
 
 void Game::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)
