@@ -2205,5 +2205,18 @@ void Table::refreshConfig(void)
     {
         hlddz.game->ROOMSCORE = startPoint;
     }
+    
+    //台费
+	ret = hlddz.cache_rc->command("hget %s accessFee", hlddz.game->m_venuename.c_str());
+    long long accessFee = 0;
+    if(ret < 0 || false == hlddz.cache_rc->getSingleInt(accessFee))
+    {
+		xt_log.error("get accessFee fail. venuename:%s\n", hlddz.game->m_venuename.c_str());
+    }
+    else
+    {
+        hlddz.game->ROOMTAX = accessFee;
+    }
+    
     //xt_log.debug("roomlimit:%d, roomscore:%d \n", hlddz.game->ROOMLIMIT, hlddz.game->ROOMSCORE);
 }
