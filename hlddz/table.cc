@@ -1631,10 +1631,8 @@ int Table::getGameDouble(void)
     double tmp = pow(baseval, exponetval);
 
     int ret = static_cast<int>(bottomDouble * tmp); 
-    /*
     xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
              bottomDouble, bombnum, spring, anti, ret); 
-     */
     return ret;
 }
         
@@ -1759,6 +1757,7 @@ int Table::getBottomDouble(void)
 
 bool Table::isSpring(void)
 {
+    //农民没出过牌，且地主出牌(因为开始时候地主也没出牌)
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
         if(i != m_lordSeat && m_outNum[i] != 0)
@@ -1766,12 +1765,28 @@ bool Table::isSpring(void)
             return false; 
         }
     }
+    if(m_outNum[m_lordSeat] == 0)
+    {
+        return false;
+    }
     return true;
 }
 
 bool Table::isAntiSpring(void)
 {
-    return m_outNum[m_lordSeat] == 1;
+    //地主只出过1次牌，农民出过牌（初始时候农民没出牌）
+    if(m_outNum[m_lordSeat] != 1)
+    {
+        return false;
+    }
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(i != m_lordSeat && m_outNum[i] <= 0)
+        {
+            return false; 
+        }
+    }
+    return true;
 }
 
 int Table::getBombNum(void)
