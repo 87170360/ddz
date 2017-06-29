@@ -29,6 +29,9 @@ public:
     int get_value_as_int(const char *key);
     long long get_value_as_int64(const char *key);
     float get_value_as_float(const char*key);
+    //获取一个数据
+    bool getSingleInt(long long& value);
+    bool getSingleString(char** value);
 private:
     std::string			_host;
     int                 _port;

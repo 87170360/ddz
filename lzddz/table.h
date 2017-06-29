@@ -241,6 +241,8 @@ class Table
         bool selectCall(void);
         //act 2 key
         int act2key(void);
+        //刷新配置
+        void refreshConfig(void);
 
     private:
         void reset(void);

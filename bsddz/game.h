@@ -45,6 +45,7 @@ public:
     int MOTIONMONEY;    //互动价格
     int ROOMLIMIT;      //房间最低携带
     int BILL;           //话费券 
+    std::string m_venuename;
 
 private:
     ev_io _ev_accept;

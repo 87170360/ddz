@@ -1869,6 +1869,7 @@ void Table::gameStart(void)
     xt_log.debug("=======================================start send card, cur_id:%d, next_id:%d, next_id:%d, tid:%d\n",
             getSeat(m_curSeat), getSeat((m_curSeat + 1) % SEAT_NUM), getSeat((m_curSeat + 2) % SEAT_NUM), m_tid);
 
+    refreshConfig();
     callProc();
 
     allocateCard();
@@ -2665,4 +2666,46 @@ int Table::act2key(void)
         key = key | (m_act[i] << i * 3);
     }
     return key;
+}
+
+void Table::refreshConfig(void)
+{
+    //最低携带
+    int ret = 0;
+	ret = lzddz.cache_rc->command("hget %s accessStart", lzddz.game->m_venuename.c_str());
+    long long accessStart = 0;
+    if(ret < 0 || false == lzddz.cache_rc->getSingleInt(accessStart))
+    {
+		xt_log.error("get accessStart fail. venuename:%s\n", lzddz.game->m_venuename.c_str());
+    }
+    else
+    {
+        lzddz.game->ROOMLIMIT = accessStart;
+    }
+
+    //房间底分
+	ret = lzddz.cache_rc->command("hget %s startPoint", lzddz.game->m_venuename.c_str());
+    long long startPoint = 0;
+    if(ret < 0 || false == lzddz.cache_rc->getSingleInt(startPoint))
+    {
+		xt_log.error("get startPoint fail. venuename:%s\n", lzddz.game->m_venuename.c_str());
+    }
+    else
+    {
+        lzddz.game->ROOMSCORE = startPoint;
+    }
+    
+    //台费
+	ret = lzddz.cache_rc->command("hget %s accessFee", lzddz.game->m_venuename.c_str());
+    long long accessFee = 0;
+    if(ret < 0 || false == lzddz.cache_rc->getSingleInt(accessFee))
+    {
+		xt_log.error("get accessFee fail. venuename:%s\n", lzddz.game->m_venuename.c_str());
+    }
+    else
+    {
+        lzddz.game->ROOMTAX = accessFee;
+    }
+    
+    //xt_log.debug("roomlimit:%d, roomscore:%d \n", lzddz.game->ROOMLIMIT, lzddz.game->ROOMSCORE);
 }
