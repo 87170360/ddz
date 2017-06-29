@@ -154,7 +154,7 @@ class Table
         int getTableQuota(void);
         //获取游戏中倍数和结算框炸弹数
         int getGameDouble(void);
-        //获取结算框倍数
+        //获取结算框倍数(作废)
         int getResultDoulbe(void);
         //获取农民加倍
         int getFamerDouble(void);
@@ -210,6 +210,8 @@ class Table
         void showHoldcardNum(void);
         //从redis刷新配置
         void refreshConfig(void);
+        //高倍广播
+        void topCount(Player* player, int maxcount);
 
     private:
         void reset(void);

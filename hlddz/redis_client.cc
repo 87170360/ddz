@@ -211,7 +211,7 @@ bool RedisClient::getSingleInt(long long& value)
 {
 	if (reply->type != REDIS_REPLY_STRING)
     {
-	    xt_log.error("not string., type:%d\n", reply->type);
+	    xt_log.error("not string 1, type:%d\n", reply->type);
         return false; 
     }
     value = ::atof(reply->str);
@@ -222,7 +222,7 @@ bool RedisClient::getSingleString(char** value)
 {
 	if (reply->type != REDIS_REPLY_STRING)
     {
-	    xt_log.error("not string., type:%d\n", reply->type);
+	    xt_log.error("not string 2, type:%d\n", reply->type);
         return false; 
     }
     *value = reply->str;

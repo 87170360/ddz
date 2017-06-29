@@ -1606,10 +1606,8 @@ int Table::getTableQuota(void)
     double tmp = pow(baseval, exponetval);
 
     int ret = static_cast<int>(score * bottomDouble * famerDouble * callScore * tmp); 
-    /*
     xt_log.debug("%s:%d, getTableQuota, score:%d, bottomDouble:%d, famerDouble:%d, callScore:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
             score, bottomDouble, famerDouble, callScore, bombnum, spring, anti, ret); 
-    */
     return ret;
 }
         
@@ -2036,15 +2034,24 @@ void Table::winProc(void)
 {
     Player* player = NULL;
     //最大倍数
-    int quota = static_cast<int>(getTableQuota());
+    int maxcount = static_cast<int>(getGameDouble());
+
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         player = it->second;
         if(m_money[player->m_seatid] > 0)
         {
+            //历史记录
             player->updateTopMoney(m_money[player->m_seatid]); 
-            player->updateTopCount(quota);
+            //历史记录
+            player->updateTopCount(maxcount);
+            //兑换券
             m_coupon[player->m_seatid] = player->coupon(m_money[player->m_seatid]);
+            //高倍广播
+            if(m_money[player->m_seatid] > 0 && maxcount > 0)
+            {
+                topCount(player, maxcount); 
+            }
         }
     }
 }
@@ -2219,4 +2226,14 @@ void Table::refreshConfig(void)
     }
     
     //xt_log.debug("roomlimit:%d, roomscore:%d \n", hlddz.game->ROOMLIMIT, hlddz.game->ROOMSCORE);
+}
+        
+void Table::topCount(Player* player, int maxcount)
+{
+    xt_log.debug("topCount.\n");
+	int ret = hlddz.cache_rc->command("lpush broadcast %s在%s中力压群雄,打出了%d倍!真是厉害.", player->m_name.c_str(), hlddz.game->m_title.c_str(), maxcount);
+    if(ret < 0)
+    {
+		xt_log.error("topCount fail. title:%s, name:%s, maxcount:%d\n", hlddz.game->m_title.c_str(), player->m_name.c_str(), maxcount);
+    }
 }

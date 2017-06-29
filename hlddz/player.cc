@@ -345,7 +345,15 @@ int Player::coupon(int score)
     //付费标识
     int paid_coupon = 0; 
     int normal_coupon = 0; 
-	int paid = hlddz.main_rc[index]->get_value_as_int("paid");
+
+    int ret = 0;
+	ret = hlddz.main_rc[index]->command("hget hu:%d paid", m_uid);
+    long long paid = 0;
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(paid))
+    {
+        xt_log.error("%s:%d, coupon error. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    }
+
     if(score >= 10000 && score < 30000)
     {
         normal_coupon = rand() % 2 + 2;
@@ -369,7 +377,7 @@ int Player::coupon(int score)
 
     int result = (paid == 1) ? paid_coupon : normal_coupon;
 
-    int ret = hlddz.main_rc[index]->command("hincrby hu:%d coupon %d", m_uid, result);
+    ret = hlddz.main_rc[index]->command("hincrby hu:%d coupon %d", m_uid, result);
 	if (ret < 0) 
     {
         xt_log.error("%s:%d, coupon error. m_uid:%d, value:%d\n", __FILE__, __LINE__, m_uid, result); 

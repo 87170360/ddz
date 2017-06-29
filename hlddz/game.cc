@@ -149,6 +149,15 @@ void Game::initConf(void)
     ROOMLIMIT         = hlddz.conf["tables"]["roomlimit"].asInt();  //房间最低携带
     //xt_log.debug("ROOMLIMIT:%d\n",ROOMLIMIT);
     m_venuename       = hlddz.conf["tables"]["venuename"].asString();
+
+    int ret = hlddz.cache_rc->command("hget %s title", m_venuename.c_str());
+    char* title = "";
+    if(ret < 0 || false == hlddz.cache_rc->getSingleString(&title))
+    {
+		xt_log.error("get title fail. venuename:%s\n", m_venuename.c_str());
+    }
+    m_title = title;
+    //xt_log.debug("ventue title:%s\n", title);
 }
 
 void Game::accept_cb(struct ev_loop *loop, struct ev_io *w, int revents)

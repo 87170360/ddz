@@ -965,6 +965,22 @@ bool XtShuffleDeck::compareSingle(const vector<XtCard>& card1, const vector<XtCa
 
 bool XtShuffleDeck::bigSingle(const vector<XtCard>& mine, const vector<XtCard>& other, vector<XtCard>& out)        
 {
+    //从单张中选
+    map<int, vector<XtCard> > divide;
+    divideCard(mine, divide); 
+    if(divide[DT_1].size() > 0)
+    {
+        for(vector<XtCard>::const_reverse_iterator it = divide[DT_1].rbegin(); it != divide[DT_1].rend(); ++it)
+        {
+            if((*it).m_face > other[0].m_face) 
+            {
+                out.push_back(*it);
+                return true;
+            }
+        }
+    }
+
+    //从全部手牌中选
     for(vector<XtCard>::const_reverse_iterator it = mine.rbegin(); it != mine.rend(); ++it)
     {
         //大小王比较
