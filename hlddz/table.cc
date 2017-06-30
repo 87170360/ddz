@@ -2048,12 +2048,12 @@ void Table::winProc(void)
             //兑换券
             m_coupon[player->m_seatid] = player->coupon(m_money[player->m_seatid]);
             //高倍广播
-            if(m_money[player->m_seatid] > 0 && maxcount > 0)
+            if(m_money[player->m_seatid] > 0 && maxcount >= 64)
             {
                 topCount(player, maxcount); 
             }
             //兑换券广播
-            if(m_coupon[player->m_seatid] >= 0)
+            if(m_coupon[player->m_seatid] >= 3)
             {
                 topCoupon(player);
             }
