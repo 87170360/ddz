@@ -2253,7 +2253,7 @@ void Table::topCount(Player* player, int maxcount)
 	int ret = hlddz.cache_rc->command("lpush broadcast1 %s", packet.tostring().c_str());
     */
 
-	int ret = hlddz.cache_rc->command("lpush broadcast {\"content\"=\"%s在%s中力压群雄,打出了%d倍!真是厉害.\",\"color\"=\"#FF99FF\",\"name\"=\"系统\",\"vlevel\"=\"0\",\"sex\"=\"3\"}",
+	int ret = hlddz.cache_rc->command("lpush broadcast {\"content\":\"%s在%s中力压群雄,打出了%d倍!真是厉害.\",\"color\":\"#FF99FF\",\"name\":\"系统\",\"vlevel\":\"0\",\"sex\":\"3\"}",
             player->m_name.c_str(), hlddz.game->m_title.c_str(), maxcount);
     if(ret < 0)
     {
@@ -2263,7 +2263,7 @@ void Table::topCount(Player* player, int maxcount)
         
 void Table::topCoupon(Player* player)
 {
-	int ret = hlddz.cache_rc->command("lpush broadcast {\"content\"=\"天降好彩啦,%s打牌爆出%d兑换券,可以兑换奖励啦!\",\"color\"=\"#FF99FF\",\"name\"=\"系统\",\"vlevel\"=\"0\",\"sex\"=\"3\"}",
+	int ret = hlddz.cache_rc->command("lpush broadcast {\"content\":\"天降好彩啦,%s打牌爆出%d兑换券,可以兑换奖励啦!\",\"color\":\"#FF99FF\",\"name\":\"系统\",\"vlevel\":\"0\",\"sex\":\"3\"}",
             player->m_name.c_str(), m_coupon[player->m_seatid]);
     if(ret < 0)
     {
