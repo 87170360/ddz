@@ -1259,6 +1259,7 @@ void Table::sendOutAgain(bool last)
         packet.val["out_id"]        = getSeat(m_outSeat);
         packet.val["keep"]          = (m_preSeat != m_outSeat);
         packet.val["num"]           = static_cast<int>(m_seatCard[m_outSeat].m_cards.size());
+        packet.val["count"]         = getGameDouble();
         vector_to_json_array(m_lastCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
