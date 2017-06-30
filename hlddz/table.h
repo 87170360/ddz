@@ -212,6 +212,8 @@ class Table
         void refreshConfig(void);
         //高倍广播
         void topCount(Player* player, int maxcount);
+        //券广播
+        void topCoupon(Player* player);
 
     private:
         void reset(void);
