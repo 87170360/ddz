@@ -381,6 +381,12 @@ bool Table::reLogin(Player* player)
 
     loginUC(player, CODE_SUCCESS, true);
 
+    //记牌器
+    if(m_record[player->m_seatid])
+    {
+        sendRecord(player);
+    }
+
     return true;
 }
 
