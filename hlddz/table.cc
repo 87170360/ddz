@@ -707,6 +707,8 @@ void Table::msgRecord(Player* player)
     packet.val["msgid"]     = CLIENT_RECORD;
     packet.end();
     unicast(player, packet.tostring());
+
+    sendRecord(player);
 }
 
 bool Table::sitdown(Player* player)
@@ -1068,7 +1070,7 @@ void Table::logicCall(void)
         //开始出牌
         sendCallResult(); 
         //记牌器信息
-        sendRecord();
+        broadcastRecord();
 
         //地主托管自动处理
         if(m_entrust[m_curSeat])
@@ -1161,7 +1163,7 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
     {
         m_seatCard[player->m_seatid].popCard(curCard);
         //发送记牌器
-        sendRecord();
+        broadcastRecord();
     }
 
 
@@ -1395,7 +1397,7 @@ void Table::sendLogout(Player* player)
     broadcast(player, packet.tostring());
 }
 
-void Table::sendRecord(void)
+void Table::sendRecord(Player* player)
 {
     Jpacket packet;
     packet.val["cmd"]       = SERVER_RECORED;
@@ -1409,8 +1411,7 @@ void Table::sendRecord(void)
 
     for(unsigned int i = 0; i < SEAT_NUM; ++i)
     {
-        //检查玩家是否开启记牌器
-        if(m_record[i] == false)
+        if(player->m_seatid == i)
         {
             continue;
         }
@@ -1428,7 +1429,19 @@ void Table::sendRecord(void)
     }
     //showRecord(cardinfo, "record");
     packet.end();
-    broadcast(NULL, packet.tostring());
+
+    unicast(player, packet.tostring());
+}
+        
+void Table::broadcastRecord(void)
+{
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        if(m_record[i])
+        {
+            sendRecord(getSeatPlayer(i));
+        }
+    }
 }
 
 void Table::gameStart(void)

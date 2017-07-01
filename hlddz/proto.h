@@ -66,6 +66,7 @@ enum ERROR_CODE
     CODE_OUT_ENTRUST            = 17,           //出牌阶段才可以托管
     CODE_REPEAT_ENTRUST         = 18,           //重复开启或者关闭托管
     CODE_CARD_EXIST             = 19,           //手牌不存在
+    CODE_RECORD                 = 20,           //记牌器不存在
 };  
 
 //游戏阶段

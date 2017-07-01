@@ -131,7 +131,9 @@ class Table
         //发送退出
         void sendLogout(Player* player);
         //发记牌器信息
-        void sendRecord(void);
+        void sendRecord(Player* player);
+        //广播记牌器
+        void broadcastRecord(void);
     
         //开始发牌
         void gameStart(void);
