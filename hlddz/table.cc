@@ -775,7 +775,7 @@ void Table::loginUC(Player* player, int code, bool relogin)
                 //剩余时间
                 packet.val["time"] = m_time;
                 //当前加倍
-                packet.val["count"]         = getGameDouble();
+                packet.val["count"]         = getGameDouble(false);
                 //当前叫分倍数
                 packet.val["callcount"]     = getCallDouble();
             }
@@ -790,7 +790,7 @@ void Table::loginUC(Player* player, int code, bool relogin)
                 //剩余时间
                 packet.val["time"] = m_time;
                 //当前加倍
-                packet.val["count"]         = getGameDouble();
+                packet.val["count"]         = getGameDouble(false);
                 //当前叫分倍数
                 packet.val["callcount"]     = getCallDouble();
             }
@@ -811,7 +811,7 @@ void Table::loginUC(Player* player, int code, bool relogin)
                 //剩余时间
                 packet.val["time"] = m_time;
                 //当前加倍
-                packet.val["count"]         = getGameDouble();
+                packet.val["count"]         = getGameDouble(false);
                 //当前叫分倍数
                 packet.val["callcount"]     = getCallDouble();
             }
@@ -1216,12 +1216,12 @@ void Table::sendCallAgain(void)
         packet.val["cur_id"]        = getSeat(m_curSeat);
         packet.val["pre_id"]        = getSeat(m_preSeat);
         packet.val["score"]         = m_callScore[m_preSeat];
-        packet.val["count"]         = getGameDouble();
+        packet.val["count"]         = getGameDouble(false);
         packet.val["callcount"]     = getCallDouble();
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendCallAgain: count:%d\n", getGameDouble());
+    //xt_log.debug("sendCallAgain: count:%d\n", getGameDouble(false));
 }
 
 void Table::sendCallResult(void)
@@ -1234,13 +1234,13 @@ void Table::sendCallResult(void)
         packet.val["time"]          = hlddz.game->DOUBLETIME;
         packet.val["score"]         = m_topCall;
         packet.val["lord"]          = getSeat(m_lordSeat);
-        packet.val["count"]         = getGameDouble();
+        packet.val["count"]         = getGameDouble(false);
         packet.val["callcount"]     = getCallDouble();
         vector_to_json_array(m_bottomCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendCallResult: count:%d\n", getGameDouble());
+    //xt_log.debug("sendCallResult: count:%d\n", getGameDouble(false));
 }
 
 void Table::sendOutAgain(bool last)
@@ -1259,7 +1259,7 @@ void Table::sendOutAgain(bool last)
         packet.val["out_id"]        = getSeat(m_outSeat);
         packet.val["keep"]          = (m_preSeat != m_outSeat);
         packet.val["num"]           = static_cast<int>(m_seatCard[m_outSeat].m_cards.size());
-        packet.val["count"]         = getGameDouble();
+        packet.val["count"]         = getGameDouble(false);
         vector_to_json_array(m_lastCard, packet, "card");
         packet.end();
         unicast(pl, packet.tostring());
@@ -1272,7 +1272,7 @@ void Table::sendEnd(void)
     packet.val["cmd"]       = SERVER_END;
     packet.val["code"]      = CODE_SUCCESS;
     packet.val["double"]    = getResultDoulbe();
-    packet.val["bomb"]      = getGameDouble();
+    packet.val["bomb"]      = getGameDouble(true);
     packet.val["score"]     = hlddz.game->ROOMSCORE;
 
     //xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
@@ -1612,7 +1612,7 @@ int Table::getTableQuota(void)
     return ret;
 }
         
-int Table::getGameDouble(void)
+int Table::getGameDouble(bool isEnd)
 {
     //游戏中显示倍数（结算框炸弹） = 底牌加倍（没有为1） * 2 ^（炸弹个数 + 春天或反春天1）
     //底牌加倍
@@ -1620,9 +1620,9 @@ int Table::getGameDouble(void)
     //炸弹个数
     int bombnum = getBombNum();
     //春天
-    int spring = isSpring() ? 1 : 0;
+    int spring = (isSpring() && isEnd) ? 1 : 0;
     //反春天
-    int anti = isAntiSpring() ? 1 : 0;
+    int anti = (isAntiSpring() && isEnd) ? 1 : 0;
 
     //2 ^（炸弹个数 + 春天或反春天1）
     double baseval = 2;
@@ -1630,8 +1630,8 @@ int Table::getGameDouble(void)
     double tmp = pow(baseval, exponetval);
 
     int ret = static_cast<int>(bottomDouble * tmp); 
-   // xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
-   //          bottomDouble, bombnum, spring, anti, ret); 
+    xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
+             bottomDouble, bombnum, spring, anti, ret); 
     return ret;
 }
         
@@ -2035,7 +2035,7 @@ void Table::winProc(void)
 {
     Player* player = NULL;
     //最大倍数
-    int maxcount = static_cast<int>(getGameDouble());
+    int maxcount = static_cast<int>(getGameDouble(true));
 
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {

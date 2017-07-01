@@ -152,8 +152,8 @@ class Table
         bool isDoubleFinish(void);
         //获取台面额度
         int getTableQuota(void);
-        //获取游戏中倍数和结算框炸弹数
-        int getGameDouble(void);
+        //获取游戏中倍数和结算框炸弹数 isEnd==true, 计算春天和反春天
+        int getGameDouble(bool isEnd);
         //获取结算框倍数(作废)
         int getResultDoulbe(void);
         //获取农民加倍
