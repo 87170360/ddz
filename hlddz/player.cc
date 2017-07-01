@@ -459,3 +459,28 @@ string Player::getTimeYY(void)
     return string(timebuff);
 }
 
+bool Player::useRecored(void)
+{
+    //记牌器数量 
+    int ret = hlddz.main_rc[index]->command("hget hu:%d 2001", m_uid);
+    long long num = 0;
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(num))
+    {
+        xt_log.error("%s%d. uid:%d\n", __FILE__, __LINE__, m_uid);
+        return false;
+    }
+
+    if(num <= 0)
+    {
+        return false;
+    }
+
+    ret = hlddz.main_rc[index]->command("hincrby hu:%d 2001 %d", m_uid, -1);
+    if(ret < 0)
+    {
+        xt_log.error("%s%d. uid:%d\n", __FILE__, __LINE__, m_uid);
+        return false;
+    }
+
+    return true;
+}

@@ -702,19 +702,24 @@ void Table::msgIdle(Player* player)
 void Table::msgRecord(Player* player)
 {
     xt_log.debug("%s,%d, msgRecord, uid:%d\n", __FILE__, __LINE__, player->m_uid);
+
+
     //检查记牌器数量
-    //扣除记牌器
+    bool use = player->useRecored();
     
-    m_record[player->m_seatid] = true;
+    m_record[player->m_seatid] = use ? true : false;
 
     Jpacket packet;
     packet.val["cmd"]       = SERVER_RESPOND;
-    packet.val["code"]      = CODE_SUCCESS;
     packet.val["msgid"]     = CLIENT_RECORD;
+    packet.val["code"]      = use ? CODE_SUCCESS : CODE_RECORED;
     packet.end();
     unicast(player, packet.tostring());
 
-    sendRecord(player);
+    if(use)
+    {
+        sendRecord(player);
+    }
 }
 
 bool Table::sitdown(Player* player)

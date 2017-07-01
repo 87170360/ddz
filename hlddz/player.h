@@ -53,6 +53,8 @@ public:
     int coupon(int score); 
     //获取年月日yyyy-mm-dd
     string getTimeYY(void);
+    //使用记牌器
+    bool useRecored(void);
 private:
     //兑换券上限
     int couponLimit(void);
