@@ -15,6 +15,7 @@ enum CLIENT_COMMAND
     CLIENT_CHAT                 = 1010,         //聊天 字符串content, 表情id: chatid
     CLIENT_MOTION               = 1011,         //玩家互动 目标id：target_id, 互动id: type, 
     CLIENT_IDLE                 = 1012,         //机器人空闲
+    CLIENT_RECORD               = 1013,         //使用记牌器
 };
 
 enum SERVER_COMMAND
@@ -40,6 +41,7 @@ enum SERVER_COMMAND
     SERVER_ENTRUST_DOUBLE       = 2018,         //托管加倍 double 
     SERVER_LOGOUT               = 2019,         //玩家退出 玩家id uid
     SERVER_PREPARE              = 2020,         //准备 uid
+    SERVER_RECORED              = 2021,         //记牌器信息, 格式从3到大王，各个牌的数量 {info:[0,0,0,...]}
 };
 
 enum ERROR_CODE

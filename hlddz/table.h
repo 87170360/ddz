@@ -74,6 +74,7 @@ class Table
         void msgChat(Player* player);
         void msgMotion(Player* player);
         void msgIdle(Player* player);
+        void msgRecord(Player* player);
 
         //坐下
         bool sitdown(Player* player);
@@ -129,6 +130,8 @@ class Table
         void sendEntrust(int uid, bool active);
         //发送退出
         void sendLogout(Player* player);
+        //发记牌器信息
+        void sendRecord(void);
     
         //开始发牌
         void gameStart(void);
@@ -148,6 +151,8 @@ class Table
         void show(const vector<XtCard>& card);
         //打印游戏信息
         void showGame(void);
+        //打印记牌器
+        void showRecord(const map<int, int>& card, char* desc);
         //加倍完毕
         bool isDoubleFinish(void);
         //获取台面额度
@@ -214,6 +219,7 @@ class Table
         void topCount(Player* player, int maxcount);
         //券广播
         void topCoupon(Player* player);
+        
 
     private:
         void reset(void);
@@ -236,6 +242,7 @@ class Table
         int                         m_outNum[SEAT_NUM];             //各座位出牌次数
         int                         m_money[SEAT_NUM];              //各座位输赢
         int                         m_coupon[SEAT_NUM];             //各座位兑换券
+        bool                        m_record[SEAT_NUM];             //各座位开启记牌器
         XtHoleCards                 m_seatCard[SEAT_NUM];           //座位手牌
         unsigned int                m_curSeat;                      //当前操作者座位
         unsigned int                m_preSeat;                      //上个操作者座位

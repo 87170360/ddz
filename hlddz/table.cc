@@ -76,6 +76,7 @@ void Table::reset(void)
         m_outNum[i] = 0;
         m_money[i] = 0;
         m_coupon[i] = 0;
+        m_record[i] = false;
         m_entrust[i] = false;
         m_timeout[i] = false;
         m_opState[i] = OP_PREPARE_WAIT; 
@@ -665,7 +666,7 @@ void Table::msgChat(Player* player)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
-        
+
 void Table::msgMotion(Player* player)
 {
     if(player->m_money < hlddz.game->MOTIONMONEY || player->m_money < hlddz.game->ROOMLIMIT)
@@ -686,10 +687,26 @@ void Table::msgMotion(Player* player)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
-        
+
 void Table::msgIdle(Player* player)
 {
     //xt_log.debug("%s,%d, msgIdle, uid:%d\n", __FILE__, __LINE__, player->m_uid);
+}
+        
+void Table::msgRecord(Player* player)
+{
+    xt_log.debug("%s,%d, msgRecord, uid:%d\n", __FILE__, __LINE__, player->m_uid);
+    //检查记牌器数量
+    //扣除记牌器
+    
+    m_record[player->m_seatid] = true;
+
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_RESPOND;
+    packet.val["code"]      = CODE_SUCCESS;
+    packet.val["msgid"]     = CLIENT_RECORD;
+    packet.end();
+    unicast(player, packet.tostring());
 }
 
 bool Table::sitdown(Player* player)
@@ -842,16 +859,16 @@ void Table::loginBC(Player* player)
     //xt_log.debug("loginBC, uid:%d, name:%s, money:%d\n", pl->m_uid, pl->m_name.c_str(), pl->m_money);
 
     /* //直接这样发，客户端解析有错误
-    Jpacket packet;
-    packet.val["uid"]       = player->m_uid;
-    packet.val["seatid"]    = player->m_seatid;
-    packet.val["name"]      = player->m_name;
-    packet.val["money"]     = player->m_money;
-    packet.val["level"]     = player->m_level;
-    packet.val["sex"]       = player->m_sex;
-    packet.val["avatar"]    = player->m_avatar;
-    packet.val["state"]     = m_state;
-    */
+       Jpacket packet;
+       packet.val["uid"]       = player->m_uid;
+       packet.val["seatid"]    = player->m_seatid;
+       packet.val["name"]      = player->m_name;
+       packet.val["money"]     = player->m_money;
+       packet.val["level"]     = player->m_level;
+       packet.val["sex"]       = player->m_sex;
+       packet.val["avatar"]    = player->m_avatar;
+       packet.val["state"]     = m_state;
+       */
 
     packet.end();
     broadcast(player, packet.tostring());
@@ -1050,6 +1067,8 @@ void Table::logicCall(void)
         outProc();
         //开始出牌
         sendCallResult(); 
+        //记牌器信息
+        sendRecord();
 
         //地主托管自动处理
         if(m_entrust[m_curSeat])
@@ -1141,7 +1160,10 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
     if(!curCard.empty())
     {
         m_seatCard[player->m_seatid].popCard(curCard);
+        //发送记牌器
+        sendRecord();
     }
+
 
     //判定结束
     if(m_seatCard[player->m_seatid].m_cards.empty())
@@ -1304,7 +1326,7 @@ void Table::sendTime(void)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
-        
+
 void Table::sendPrepare(Player* player)
 {
     //xt_log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$sendPrepare\n");
@@ -1325,7 +1347,7 @@ void Table::sendError(Player* player, int msgid, int errcode)
     unicast(player, packet.tostring());
     xt_log.error("error msg, msgid:%d, code:%d\n", msgid, errcode);
 }
-        
+
 void Table::sendEntrustOut(Player* player, vector<XtCard>& curCard, bool keep)
 {
     Jpacket packet;
@@ -1353,7 +1375,7 @@ void Table::sendEntrustDouble(Player* player, bool dou)
     packet.end();
     unicast(player, packet.tostring());
 }
-        
+
 void Table::sendEntrust(int uid, bool active)
 {
     Jpacket packet;
@@ -1363,7 +1385,7 @@ void Table::sendEntrust(int uid, bool active)
     packet.end();
     broadcast(NULL, packet.tostring());
 }
-        
+
 void Table::sendLogout(Player* player)
 {
     Jpacket packet;
@@ -1371,6 +1393,42 @@ void Table::sendLogout(Player* player)
     packet.val["uid"]       = player->m_uid;
     packet.end();
     broadcast(player, packet.tostring());
+}
+
+void Table::sendRecord(void)
+{
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_RECORED;
+
+    //初始
+    map<int, int> cardinfo;
+    for(int i = 3; i <= 17; ++i)
+    {
+        cardinfo[i] = 0; 
+    }
+
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        //检查玩家是否开启记牌器
+        if(m_record[i] == false)
+        {
+            continue;
+        }
+
+        vector<XtCard> &cards = m_seatCard[i].m_cards;
+        for(vector<XtCard>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+        {
+            cardinfo[it->getCardFace()]++;
+        }
+    }
+
+    for(map<int, int>::const_iterator it = cardinfo.begin(); it != cardinfo.end(); ++it)
+    {
+        packet.val["info"].append(it->second);
+    }
+    //showRecord(cardinfo, "record");
+    packet.end();
+    broadcast(NULL, packet.tostring());
 }
 
 void Table::gameStart(void)
@@ -1469,7 +1527,7 @@ Player* Table::getSeatPlayer(unsigned int seatid)
     {
         return ofit->second; 
     }
-    
+
     xt_log.error("%s:%d, getSeatPlayer error! seatid:%d\n",__FILE__, __LINE__, seatid); 
     return NULL;
 }
@@ -1557,6 +1615,22 @@ void Table::show(const vector<XtCard>& card)
     xt_log.debug("%s\n", printStr.c_str());
 }
 
+void Table::showRecord(const map<int, int>& card, char* desc)
+{
+    char buff[8];
+    printStr.clear();
+    for(map<int, int>::const_iterator it = card.begin(); it != card.end(); ++it)
+    {
+        sprintf(buff, "%d", it->first);
+        printStr.append(buff);
+        printStr.append(":");
+        sprintf(buff, "%d", it->second);
+        printStr.append(buff);
+        printStr.append(" ");
+    }
+    xt_log.debug("%s %s\n", desc, printStr.c_str());
+}
+
 void Table::showGame(void)
 {
     Player* tmpplayer = NULL;
@@ -1582,7 +1656,7 @@ bool Table::isDoubleFinish(void)
     }
     return true;
 }
-        
+
 int Table::getTableQuota(void)
 {
     //台面额度 = 底分 * 底牌加倍（没有为1） * 农民加倍（没有为1） * 叫分 * 2 ^（炸弹个数 + 春天或反春天1）
@@ -1611,7 +1685,7 @@ int Table::getTableQuota(void)
             score, bottomDouble, famerDouble, callScore, bombnum, spring, anti, ret); 
     return ret;
 }
-        
+
 int Table::getGameDouble(bool isEnd)
 {
     //游戏中显示倍数（结算框炸弹） = 底牌加倍（没有为1） * 2 ^（炸弹个数 + 春天或反春天1）
@@ -1631,12 +1705,12 @@ int Table::getGameDouble(bool isEnd)
 
     int ret = static_cast<int>(bottomDouble * tmp); 
     /*
-    xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
-             bottomDouble, bombnum, spring, anti, ret); 
-             */
+       xt_log.debug("%s:%d, getGameDouble, bottomDouble:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
+       bottomDouble, bombnum, spring, anti, ret); 
+       */
     return ret;
 }
-        
+
 int Table::getResultDoulbe(void)
 {
     //结算框倍数 = 农民加倍（没有为1）* 叫分
@@ -1646,12 +1720,12 @@ int Table::getResultDoulbe(void)
     int callScore = getCallScore();
     int ret = famerDouble * callScore;
     /*
-    xt_log.debug("%s:%d, getResultDoulbe, famerDouble:%d, callScore:%d, result:%d\n", __FILE__, __LINE__,
-             famerDouble, callScore, ret); 
-     */
+       xt_log.debug("%s:%d, getResultDoulbe, famerDouble:%d, callScore:%d, result:%d\n", __FILE__, __LINE__,
+       famerDouble, callScore, ret); 
+       */
     return ret;
 }
-        
+
 int Table::getFamerDouble(void)
 {
     int ret = 0;
@@ -1664,12 +1738,12 @@ int Table::getFamerDouble(void)
     }
     return max(ret * 2, 1);
 }
-        
+
 int Table::getCallDouble(void)
 {
     return getCallScore();
 }
-        
+
 int Table::getCallScore(void)
 {
     int ret = 1;
@@ -1680,7 +1754,7 @@ int Table::getCallScore(void)
             ret = m_callScore[i];
         }
     }
-        
+
     return ret;
 }
 
@@ -2020,7 +2094,7 @@ void Table::addRobotMoney(Player* player)
     xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }
-        
+
 void Table::addPlayersExp(void)
 {
     int exp = 0;
@@ -2032,7 +2106,7 @@ void Table::addPlayersExp(void)
         player->addExp(exp);
     }
 }
-        
+
 void Table::winProc(void)
 {
     Player* player = NULL;
@@ -2063,12 +2137,12 @@ void Table::winProc(void)
         }
     }
 }
-        
+
 int Table::money2exp(int money)
 {
     if(money <= 0)
     {
-       return 0; 
+        return 0; 
     }
     else if(money <= 1000)
     {
@@ -2095,7 +2169,7 @@ int Table::money2exp(int money)
         return 0;
     }
 }
-        
+
 void Table::entrustOut(void)
 {
     //xt_log.debug("entrustOut. m_curSeat:%d\n", m_curSeat);
@@ -2126,22 +2200,22 @@ void Table::entrustOut(void)
     {
         m_deck.getOut(myCard, m_lastCard, curCard);
         /*
-        if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
-        {
-            xt_log.debug("my card\n");
-            show(myCard);
-            xt_log.debug("last card\n");
-            show(m_lastCard);
-            xt_log.debug("select card\n");
-            show(curCard);
-        }
-        */
+           if(!curCard.empty() && CT_ERROR == m_deck.getCardType(curCard))
+           {
+           xt_log.debug("my card\n");
+           show(myCard);
+           xt_log.debug("last card\n");
+           show(m_lastCard);
+           xt_log.debug("select card\n");
+           show(curCard);
+           }
+           */
     }
     keep = curCard.empty() ? true : false; 
 
     sendEntrustOut(player, curCard, keep); 
     //xt_log.debug("entrust out, uid:%d, keep:%s\n", player->m_uid, keep ? "true" : "false");
-        //show(curCard);
+    //show(curCard);
 
     //判断是否结束和通知下一个出牌人，本轮出牌
     logicOut(player, curCard, keep);
@@ -2176,7 +2250,7 @@ bool Table::checkCard(unsigned int seatid, const vector<XtCard>& outcard)
 
     return true;
 }
-        
+
 void Table::addBottom2Lord(void)
 {
     for(vector<XtCard>::const_iterator it = m_bottomCard.begin(); it != m_bottomCard.end(); ++it)
@@ -2184,7 +2258,7 @@ void Table::addBottom2Lord(void)
         m_seatCard[m_lordSeat].m_cards.push_back(*it);
     }
 }
-        
+
 void Table::showHoldcardNum(void)
 {
     std::map<int, Player*>::iterator it;
@@ -2193,16 +2267,16 @@ void Table::showHoldcardNum(void)
         xt_log.debug("uid:%d, seatid:%d, num:%d\n", it->second->m_uid, it->second->m_seatid, m_seatCard[it->second->m_seatid].m_cards.size()); 
     }
 }
-        
+
 void Table::refreshConfig(void)
 {
     //最低携带
     int ret = 0;
-	ret = hlddz.cache_rc->command("hget %s accessStart", hlddz.game->m_venuename.c_str());
+    ret = hlddz.cache_rc->command("hget %s accessStart", hlddz.game->m_venuename.c_str());
     long long accessStart = 0;
     if(ret < 0 || false == hlddz.cache_rc->getSingleInt(accessStart))
     {
-		xt_log.error("get accessStart fail. venuename:%s\n", hlddz.game->m_venuename.c_str());
+        xt_log.error("get accessStart fail. venuename:%s\n", hlddz.game->m_venuename.c_str());
     }
     else
     {
@@ -2210,66 +2284,66 @@ void Table::refreshConfig(void)
     }
 
     //房间底分
-	ret = hlddz.cache_rc->command("hget %s startPoint", hlddz.game->m_venuename.c_str());
+    ret = hlddz.cache_rc->command("hget %s startPoint", hlddz.game->m_venuename.c_str());
     long long startPoint = 0;
     if(ret < 0 || false == hlddz.cache_rc->getSingleInt(startPoint))
     {
-		xt_log.error("get startPoint fail. venuename:%s\n", hlddz.game->m_venuename.c_str());
+        xt_log.error("get startPoint fail. venuename:%s\n", hlddz.game->m_venuename.c_str());
     }
     else
     {
         hlddz.game->ROOMSCORE = startPoint;
     }
-    
+
     //台费
-	ret = hlddz.cache_rc->command("hget %s accessFee", hlddz.game->m_venuename.c_str());
+    ret = hlddz.cache_rc->command("hget %s accessFee", hlddz.game->m_venuename.c_str());
     long long accessFee = 0;
     if(ret < 0 || false == hlddz.cache_rc->getSingleInt(accessFee))
     {
-		xt_log.error("get accessFee fail. venuename:%s\n", hlddz.game->m_venuename.c_str());
+        xt_log.error("get accessFee fail. venuename:%s\n", hlddz.game->m_venuename.c_str());
     }
     else
     {
         hlddz.game->ROOMTAX = accessFee;
     }
-    
+
     //xt_log.debug("roomlimit:%d, roomscore:%d \n", hlddz.game->ROOMLIMIT, hlddz.game->ROOMSCORE);
 }
-        
+
 void Table::topCount(Player* player, int maxcount)
 {
     /*
-    char buffer[50];
-    sprintf(buffer, "%s在%s中力压群雄,打出了%d倍!真是厉害.", player->m_name.c_str(), hlddz.game->m_title.c_str(), maxcount);
-    std::string content = buffer;
+       char buffer[50];
+       sprintf(buffer, "%s在%s中力压群雄,打出了%d倍!真是厉害.", player->m_name.c_str(), hlddz.game->m_title.c_str(), maxcount);
+       std::string content = buffer;
 
-    Jpacket packet;
-    packet.val["content"]       = content;
-    packet.val["color"]         = "FF99FF";
-    packet.val["name"]          = "系统";
-    packet.val["vlevel"]        = 0;
-    packet.val["sex"]           = 3;
-    packet.end();
+       Jpacket packet;
+       packet.val["content"]       = content;
+       packet.val["color"]         = "FF99FF";
+       packet.val["name"]          = "系统";
+       packet.val["vlevel"]        = 0;
+       packet.val["sex"]           = 3;
+       packet.end();
 
-    xt_log.debug("topCount.%s\n", packet.tostring().c_str());
+       xt_log.debug("topCount.%s\n", packet.tostring().c_str());
 
-	int ret = hlddz.cache_rc->command("lpush broadcast1 %s", packet.tostring().c_str());
-    */
+       int ret = hlddz.cache_rc->command("lpush broadcast1 %s", packet.tostring().c_str());
+       */
 
-	int ret = hlddz.cache_rc->command("lpush broadcast {\"content\":\"%s在%s中力压群雄,打出了%d倍!真是厉害.\",\"color\":\"#FF99FF\",\"name\":\"系统\",\"vlevel\":\"0\",\"sex\":\"3\"}",
+    int ret = hlddz.cache_rc->command("lpush broadcast {\"content\":\"%s在%s中力压群雄,打出了%d倍!真是厉害.\",\"color\":\"#FF99FF\",\"name\":\"系统\",\"vlevel\":\"0\",\"sex\":\"3\"}",
             player->m_name.c_str(), hlddz.game->m_title.c_str(), maxcount);
     if(ret < 0)
     {
-		xt_log.error("topCount fail. title:%s, name:%s, maxcount:%d\n", hlddz.game->m_title.c_str(), player->m_name.c_str(), maxcount);
+        xt_log.error("topCount fail. title:%s, name:%s, maxcount:%d\n", hlddz.game->m_title.c_str(), player->m_name.c_str(), maxcount);
     }
 }
-        
+
 void Table::topCoupon(Player* player)
 {
-	int ret = hlddz.cache_rc->command("lpush broadcast {\"content\":\"天降好彩啦,%s打牌爆出%d兑换券,可以兑换奖励啦!\",\"color\":\"#FF99FF\",\"name\":\"系统\",\"vlevel\":\"0\",\"sex\":\"3\"}",
+    int ret = hlddz.cache_rc->command("lpush broadcast {\"content\":\"天降好彩啦,%s打牌爆出%d兑换券,可以兑换奖励啦!\",\"color\":\"#FF99FF\",\"name\":\"系统\",\"vlevel\":\"0\",\"sex\":\"3\"}",
             player->m_name.c_str(), m_coupon[player->m_seatid]);
     if(ret < 0)
     {
-		xt_log.error("topCoupon fail. name:%s, coupon:%d\n", player->m_name.c_str(), m_coupon[player->m_seatid]);
+        xt_log.error("topCoupon fail. name:%s, coupon:%d\n", player->m_name.c_str(), m_coupon[player->m_seatid]);
     }
 }

@@ -340,6 +340,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgIdle(player);
             } 
             break;
+        case CLIENT_RECORD:
+            {
+                all_tables[player->m_tid]->msgRecord(player);
+            } 
+            break;
         default:
             {
                xt_log.error("invalid command[%d]\n", cmd);

@@ -102,6 +102,14 @@ class XtCard
         {
             return (m_value == 0x10);
         }
+
+        bool isLittleJoker(void) const
+        {
+            return (m_value == 0x00);
+        }
+
+        //记牌器点数
+        int getCardFace(void) const;
 };
 
 #endif /* _CARD_H_ */

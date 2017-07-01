@@ -111,3 +111,16 @@ void XtCard::dumpCards(std::map<int, XtCard> &m, string str)
 
 	fprintf(stdout, "]]\n");
 }
+        
+int XtCard::getCardFace(void) const
+{
+    if(isBigJoker()) 
+    {
+        return 17;
+    }
+    if(isLittleJoker())
+    {
+        return 16;
+    }
+    return m_face;
+}
