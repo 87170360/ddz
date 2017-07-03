@@ -1318,12 +1318,13 @@ void Table::sendEnd(void)
     {
         Json::Value jval;          
         Player* pl = it->second;
-        jval["uid"]     = pl->m_uid;
-        jval["name"]    = pl->m_name;
-        jval["money"]   = m_money[pl->m_seatid];
-        jval["coupon"]  = m_coupon[pl->m_seatid];
-        jval["isLord"]  = (pl->m_seatid == m_lordSeat);
-        jval["left_num"]    = static_cast<int>(m_seatCard[pl->m_seatid].m_cards.size());
+        jval["uid"]          = pl->m_uid;
+        jval["name"]         = pl->m_name;
+        jval["money"]        = m_money[pl->m_seatid];
+        jval["holdmoney"]    = pl->m_money;
+        jval["coupon"]       = m_coupon[pl->m_seatid];
+        jval["isLord"]       = (pl->m_seatid == m_lordSeat);
+        jval["left_num"]     = static_cast<int>(m_seatCard[pl->m_seatid].m_cards.size());
         for (unsigned int i = 0; i < m_seatCard[pl->m_seatid].m_cards.size(); i++) 
         {
             jval["left_cards"].append(m_seatCard[pl->m_seatid].m_cards[i].m_value);
@@ -1993,6 +1994,7 @@ void Table::calculate(void)
     double bigmoney = static_cast<double>(big->m_money);
     double smallmoney = static_cast<double>(small->m_money);
 
+    int procType = -1;
     ///////////////////////////////////////////////////////////////////以小博大限制
     //地主赢 地主持有≥2*台面  小农＜台面&大农≥台面 
     if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
@@ -2000,83 +2002,81 @@ void Table::calculate(void)
         m_money[small->m_seatid] = -smallmoney;
         m_money[big->m_seatid] = -score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 0;
     }
-
     //地主赢 地主持有≥2*台面 两个农民＜台面
-    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
+    else if(m_win == m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
     {
         m_money[small->m_seatid] = -smallmoney;
         m_money[big->m_seatid] = -bigmoney;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 1;
     }
-
     //地主赢 地主持有＜2*台面
-    if(m_win == m_lordSeat && lordmoney < 2 * score)
+    else if(m_win == m_lordSeat && lordmoney < 2 * score)
     {
         m_money[small->m_seatid] = -min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
         m_money[big->m_seatid] = -min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 2;
     }
-
     //农民赢 地主持有≥2*台面      小农＜台面&大农≥台面
-    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
+    else if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney < score && bigmoney >= score)
     {
         m_money[small->m_seatid] = smallmoney;
         m_money[big->m_seatid] = score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
-    }
-
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 3;
+    } 
     //农民赢 地主持有≥2*台面     两个农民＜台面 
-    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
+    else if(m_win != m_lordSeat && (lordmoney >= 2 * score) && (smallmoney + bigmoney) < score)
     {
         m_money[small->m_seatid] = smallmoney;
         m_money[big->m_seatid] = score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 4;
     }
-
     //农民赢 地主持有＜2*台面
-    if(m_win != m_lordSeat && (lordmoney < 2 * score))
+    else if(m_win != m_lordSeat && (lordmoney < 2 * score))
     {
         m_money[small->m_seatid] = min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
         m_money[big->m_seatid] = min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 5;
     }
-
     ///////////////////////////////////////////////////////////////////正常情况
     //地主赢 正常结算
-    if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
+    else if(m_win == m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
     {
         m_money[small->m_seatid] = -score;
         m_money[big->m_seatid] = -score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 6;
     }
-
     //农民赢 正常结算
-    if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
+    else if(m_win != m_lordSeat && (lordmoney >= 2 * score) && smallmoney >= score)
     {
         m_money[small->m_seatid] = score;
         m_money[big->m_seatid] = score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        xt_log.debug("%s%d\n", __FILE__, __LINE__);
-        return;
+        //xt_log.debug("%s%d\n", __FILE__, __LINE__);
+        procType = 7;
     }
 
-    xt_log.error("caculate error, lordname:%s, money:%f, big:%s, money:%f, small:%s, money:%f, score:%f\n"
+
+    if(procType == -1 || (m_money[m_lordSeat] + lordmoney < 0) || (m_money[small->m_seatid] + smallmoney < 0) || (m_money[big->m_seatid] + bigmoney < 0))
+    {
+         xt_log.error("caculate error, lordname:%s, money:%f, big:%s, money:%f, small:%s, money:%f, score:%f\n"
             , lord->m_name.c_str(), lordmoney, big->m_name.c_str(), bigmoney, small->m_name.c_str(), smallmoney, score);
+         xt_log.error("result : procType:%d, lordmoney::%d, bigmoney:%d, smallmoney:%d\n", procType, m_money[m_lordSeat], m_money[big->m_seatid], m_money[small->m_seatid]);
+    }
 }
 
 void Table::setScore(void)
