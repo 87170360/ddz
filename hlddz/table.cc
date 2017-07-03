@@ -1309,6 +1309,7 @@ void Table::sendEnd(void)
     packet.val["double"]    = getResultDoulbe();
     packet.val["bomb"]      = getGameDouble(true);
     packet.val["score"]     = hlddz.game->ROOMSCORE;
+    packet.val["spring"]    = getSpringType();
 
     //xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
 
@@ -2376,4 +2377,19 @@ void Table::topCoupon(Player* player)
     {
         xt_log.error("topCoupon fail. name:%s, coupon:%d\n", player->m_name.c_str(), m_coupon[player->m_seatid]);
     }
+}
+
+int Table::getSpringType(void)
+{
+    if(isSpring())
+    {
+        return 1;
+    }
+
+    if(isAntiSpring())
+    {
+        return 2;
+    }
+
+    return 0;
 }

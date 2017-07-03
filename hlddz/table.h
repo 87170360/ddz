@@ -221,7 +221,8 @@ class Table
         void topCount(Player* player, int maxcount);
         //券广播
         void topCoupon(Player* player);
-        
+        //春天类型
+        int getSpringType(void);
 
     private:
         void reset(void);
