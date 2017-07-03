@@ -1330,7 +1330,7 @@ void Table::sendEnd(void)
         }
 
         packet.val["info"].append(jval);
-        xt_log.debug("end info: uid:%d, name:%s, money:%d, coupon:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid], m_coupon[pl->m_seatid]);
+        xt_log.debug("end info: uid:%d, name:%s, money:%d, holdmoney:%d, coupon:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid], pl->m_money, m_coupon[pl->m_seatid]);
     }
 
     packet.end();
@@ -1713,8 +1713,10 @@ int Table::getTableQuota(void)
     double tmp = pow(baseval, exponetval);
 
     int ret = static_cast<int>(score * bottomDouble * famerDouble * callScore * tmp); 
+    /*
     xt_log.debug("%s:%d, getTableQuota, score:%d, bottomDouble:%d, famerDouble:%d, callScore:%d, bombnum:%d, spring:%d, anti:%d, result:%d\n", __FILE__, __LINE__,
             score, bottomDouble, famerDouble, callScore, bombnum, spring, anti, ret); 
+            */
     return ret;
 }
 
@@ -1998,7 +2000,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = -smallmoney;
         m_money[big->m_seatid] = -score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("1\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2008,7 +2010,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = -smallmoney;
         m_money[big->m_seatid] = -bigmoney;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("2\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2018,7 +2020,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = -min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
         m_money[big->m_seatid] = -min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("3\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2028,7 +2030,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = smallmoney;
         m_money[big->m_seatid] = score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("4\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2038,7 +2040,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = smallmoney;
         m_money[big->m_seatid] = score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("5\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2048,7 +2050,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = min(smallmoney, min((lordmoney * smallmoney / (smallmoney + bigmoney)), score));
         m_money[big->m_seatid] = min(bigmoney, min((lordmoney * bigmoney / (smallmoney + bigmoney)), score));
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("6\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2059,7 +2061,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = -score;
         m_money[big->m_seatid] = -score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("7\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2069,7 +2071,7 @@ void Table::calculate(void)
         m_money[small->m_seatid] = score;
         m_money[big->m_seatid] = score;
         m_money[m_lordSeat] = (-m_money[small->m_seatid]) + (-m_money[big->m_seatid]);
-        //xt_log.debug("8\n");
+        xt_log.debug("%s%d\n", __FILE__, __LINE__);
         return;
     }
 
@@ -2131,12 +2133,12 @@ void Table::kick(void)
 
 void Table::addRobotMoney(Player* player)
 {
-    if(!player->isRobot() || player->m_money > hlddz.game->ROOMTAX)
+    if(!player->isRobot() || player->m_money > hlddz.game->ROOMLIMIT)
     {
         return;
     }
 
-    int addval = hlddz.game->ROOMTAX * (rand() % 9 + 1) + 100000;
+    int addval = hlddz.game->ROOMLIMIT * (rand() % 9 + 1) + 100000;
     xt_log.debug("%s:%d, addRobotMoney, uid:%d, money:%d \n",__FILE__, __LINE__, player->m_uid, addval); 
     player->changeMoney(addval);
 }
