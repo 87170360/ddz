@@ -1321,6 +1321,12 @@ void Table::sendEnd(void)
         jval["money"]   = m_money[pl->m_seatid];
         jval["coupon"]  = m_coupon[pl->m_seatid];
         jval["isLord"]  = (pl->m_seatid == m_lordSeat);
+        jval["left_num"]    = static_cast<int>(m_seatCard[pl->m_seatid].m_cards.size());
+        for (unsigned int i = 0; i < m_seatCard[pl->m_seatid].m_cards.size(); i++) 
+        {
+            jval["left_cards"].append(m_seatCard[pl->m_seatid].m_cards[i].m_value);
+        }
+
         packet.val["info"].append(jval);
         xt_log.debug("end info: uid:%d, name:%s, money:%d, coupon:%d\n", pl->m_uid, pl->m_name.c_str(), m_money[pl->m_seatid], m_coupon[pl->m_seatid]);
     }
