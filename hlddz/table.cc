@@ -1939,13 +1939,27 @@ void Table::payResult(void)
 
 void Table::payTax(void)
 {
+    Jpacket packet;
+    packet.val["cmd"]           = SERVER_TAX;
+    packet.val["tax"]           = hlddz.game->ROOMTAX;
+
     Player* tmpplayer = NULL;
     for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
     {
         tmpplayer = it->second;
         if(tmpplayer == NULL) continue;
+        //xt_log.debug("befor:%d\n", tmpplayer->m_money);
         tmpplayer->changeMoney(-hlddz.game->ROOMTAX);
+        //xt_log.debug("after:%d\n", tmpplayer->m_money);
+
+        Json::Value jval;          
+        jval["uid"]     = it->first;
+        jval["money"]   = tmpplayer->m_money;
+        packet.val["info"].append(jval);
     }
+
+    packet.end();
+    broadcast(NULL, packet.tostring());
 }
 
 void Table::total(void)

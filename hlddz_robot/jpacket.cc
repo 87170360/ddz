@@ -55,7 +55,7 @@ int Jpacket::parse(std::string &str)
         return -1;
     }
 	
-	//printf("recvDataStyled: [%s]\n", val.toStyledString().c_str());
+	printf("recvDataStyled: [%s]\n", val.toStyledString().c_str());
     return 0;
 }
 
