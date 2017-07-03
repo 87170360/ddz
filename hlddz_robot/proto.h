@@ -42,6 +42,7 @@ enum SERVER_COMMAND
     SERVER_LOGOUT               = 2019,         //玩家退出 玩家id uid
     SERVER_PREPARE              = 2020,         //准备 uid
     SERVER_RECORED              = 2021,         //记牌器信息, 格式从3到大王，各个牌的数量 {info:[0,0,0,...]}
+    SERVER_TAX                  = 2020,         //扣除台费  tax:台费, 各人的当前金币{uid, money} 
 };
 
 enum ERROR_CODE
@@ -66,6 +67,7 @@ enum ERROR_CODE
     CODE_OUT_ENTRUST            = 17,           //出牌阶段才可以托管
     CODE_REPEAT_ENTRUST         = 18,           //重复开启或者关闭托管
     CODE_CARD_EXIST             = 19,           //手牌不存在
+    CODE_RECORED                = 20,           //记牌器不存在
 };  
 
 //游戏阶段
