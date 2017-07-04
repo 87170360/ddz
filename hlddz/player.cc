@@ -235,9 +235,9 @@ void Player::updateTopMoney(int money)
 		return;
 	}
 
-    if(hlddz.main_rc[index]->command("hset hu:%d top_money %d", m_uid, m_top_money) < 0)
+    if(hlddz.main_rc[index]->command("hset hu:%d top_money %d", m_uid, money) < 0)
     {
-        xt_log.error("set top_money error.exp:%d\n", m_top_money);
+        xt_log.error("set top_money error.exp:%d\n", money);
     }
     else
     {
@@ -252,14 +252,15 @@ void Player::updateTopCount(int count)
 		return;
 	}
 
-    if(hlddz.main_rc[index]->command("hset hu:%d top_count %d", m_uid, m_top_count) < 0)
+    if(hlddz.main_rc[index]->command("hset hu:%d top_count %d", m_uid, count) < 0)
     {
-        xt_log.error("set top_count error.exp:%d\n", m_top_count);
+        xt_log.error("set top_count error.count:%d\n", count);
     }
     else
     {
         m_top_count = count;
     }
+    xt_log.debug("updateTopCount:%d, uid:%d\n", count, m_uid);
 }
     
 bool Player::levelUp(void)
