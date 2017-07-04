@@ -1325,6 +1325,7 @@ void Table::sendEnd(void)
         jval["coupon"]       = m_coupon[pl->m_seatid];
         jval["isLord"]       = (pl->m_seatid == m_lordSeat);
         jval["left_num"]     = static_cast<int>(m_seatCard[pl->m_seatid].m_cards.size());
+        XtCard::sortByDescending(m_seatCard[pl->m_seatid].m_cards);
         for (unsigned int i = 0; i < m_seatCard[pl->m_seatid].m_cards.size(); i++) 
         {
             jval["left_cards"].append(m_seatCard[pl->m_seatid].m_cards[i].m_value);
