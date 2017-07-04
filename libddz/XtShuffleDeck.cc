@@ -30,6 +30,7 @@ static const int dt_weight[] =
     50,          //DT_AIRCRAFT
 };
 
+static std::map<string, int> name2value;
 
 XtShuffleDeck::XtShuffleDeck()
 {
@@ -349,24 +350,24 @@ bool XtShuffleDeck::getOut(const vector<XtCard>& mine, const vector<XtCard>& oth
 
     if((findbomb && findbig && rand() % 2 > 0) || (!findbig && findbomb))
     {
-       if(!findSingle)  
-       {
-           result.clear();
-           result.assign(divide[DT_4].rbegin(), divide[DT_4].rbegin() + 4); 
-           return true;
-       }
+        if(!findSingle)  
+        {
+            result.clear();
+            result.assign(divide[DT_4].rbegin(), divide[DT_4].rbegin() + 4); 
+            return true;
+        }
     }
 
     if((findrocket && findbig && rand() % 2 > 0) || (!findbig && findrocket))
     {
-       if(!findSingle)  
-       {
-           result.clear();
-           result.assign(divide[DT_ROCKET].begin(), divide[DT_ROCKET].end()); 
-           return true;
-       }
+        if(!findSingle)  
+        {
+            result.clear();
+            result.assign(divide[DT_ROCKET].begin(), divide[DT_ROCKET].end()); 
+            return true;
+        }
     }
-            
+
     return findbig;
 }
 
@@ -1960,6 +1961,67 @@ void XtShuffleDeck::getNcontinue(const vector<XtCard>& card1, unsigned int n, st
         if(tmpds.find((*it).m_face) != tmpds.end()) 
         {
             result.insert((*it).m_face);
+        }
+    }
+}
+
+const map<string, int>& XtShuffleDeck::getName2Value(void)
+{
+    if(name2value.empty())
+    {
+        name2value["JOKERc"]     = 16; 
+        name2value["JOKERd"]     = 0; 
+        name2value["2s"]         = 50;  name2value["2h"]         = 34;  name2value["2c"]         = 18;  name2value["2d"]         = 2;
+        name2value["As"]         = 49;  name2value["Ah"]         = 33;  name2value["Ac"]         = 17;  name2value["Ad"]         = 1;
+        name2value["Ks"]         = 61;  name2value["Kh"]         = 45;  name2value["Kc"]         = 29;  name2value["Kd"]         = 13;
+        name2value["Qs"]         = 60;  name2value["Qh"]         = 44;  name2value["Qc"]         = 28;  name2value["Qd"]         = 12;
+        name2value["Js"]         = 59;  name2value["Jh"]         = 43;  name2value["Jc"]         = 27;  name2value["Jd"]         = 11;
+        name2value["10s"]        = 58;  name2value["10h"]        = 42;  name2value["10c"]        = 26;  name2value["10d"]        = 10;
+        name2value["9s"]         = 57;  name2value["9h"]         = 41;  name2value["9c"]         = 25;  name2value["9d"]         = 9;
+        name2value["8s"]         = 56;  name2value["8h"]         = 40;  name2value["8c"]         = 24;  name2value["8d"]         = 8;
+        name2value["7s"]         = 55;  name2value["7h"]         = 39;  name2value["7c"]         = 23;  name2value["7d"]         = 7;
+        name2value["6s"]         = 54;  name2value["6h"]         = 38;  name2value["6c"]         = 22;  name2value["6d"]         = 6;
+        name2value["5s"]         = 53;  name2value["5h"]         = 37;  name2value["5c"]         = 21;  name2value["5d"]         = 5;
+        name2value["4s"]         = 52;  name2value["4h"]         = 36;  name2value["4c"]         = 20;  name2value["4d"]         = 4;
+        name2value["3s"]         = 51;  name2value["3h"]         = 35;  name2value["3c"]         = 19;  name2value["3d"]         = 3;
+    }
+    return name2value;
+}
+
+void XtShuffleDeck::split(const std::string& s, const std::string& delim, std::vector<std::string>& ret)  
+{  
+    size_t last = 0;  
+    size_t index=s.find_first_of(delim,last);  
+    while (index!=std::string::npos)  
+    {  
+        ret.push_back(s.substr(last,index-last));  
+        last=index+1;  
+        index=s.find_first_of(delim,last);  
+    }  
+    if (index-last>0)  
+    {  
+        ret.push_back(s.substr(last,index-last));  
+    }  
+}  
+        
+void XtShuffleDeck::getConfigCard(vector<XtCard>& card, const string& config) 
+{
+    vector<std::string> name;    
+    split(config, "-", name);
+
+    map<string, int> _name2value = getName2Value();
+    map<string, int>::const_iterator nameit;
+
+    for(vector<std::string>::const_iterator it = name.begin(); it != name.end(); ++it)
+    {
+        nameit = _name2value.find(*it);
+        if(nameit != _name2value.end())
+        {
+            card.push_back(XtCard(nameit->second));
+        }
+        else
+        {
+            printf("not find %s\n", it->c_str()); 
         }
     }
 }

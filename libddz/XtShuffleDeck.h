@@ -104,6 +104,12 @@ class XtShuffleDeck
         //从单张的牌组中取至少连续N张的部分, n>=2, 各部分不一定连续，card降序且单牌队列, 不包括大小王和2, 比如n=3 345 789 , n=2 34 78
         void getNcontinue(const vector<XtCard>& card1, unsigned int n, std::set<int>& result);
 
+        //牌名称->value
+        const map<string, int>& getName2Value(void);
+        //配置数据->手牌 config: As-Ah-10s-10d
+        void getConfigCard(vector<XtCard>& card, const string& config); 
+        void split(const std::string& s, const std::string& delim, std::vector<std::string>& ret);
+
 	private:
 		vector<XtCard> m_cards;
 

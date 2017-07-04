@@ -1473,6 +1473,42 @@ void testKeepBigN(void)
     show(result, "result");
 }
 
+void printName2Value(void)
+{
+    XtShuffleDeck deck;
+    deck.fill();
+    deck.shuffle(timeindex++);
+
+    vector<XtCard> all;
+
+    deck.getHoleCards(all, 54);
+    XtCard::sortByDescending(all);
+    int count = 1;
+    for(vector<XtCard>::const_iterator it = all.begin(); it != all.end(); ++it)
+    {
+        if(it->isJoker())
+        {
+            printf("NAME2VALUE[\"%s\"] = %d; \n", it->getCardDescriptionString().c_str(), it->m_value);
+        }
+        else
+        {
+            printf("NAME2VALUE[\"%s\"]\t = %d;\t", it->getCardDescriptionString().c_str(), it->m_value);
+            if(count++ % 4 == 0)
+            {
+                printf("\n");
+            }
+        }
+    }
+}
+
+void testGetConfigCard(void)
+{
+    XtShuffleDeck deck;
+    vector<XtCard> holecard;
+    deck.getConfigCard(holecard, "Ah-As-JOKERc-JOKERd-3d-3c");
+    show(holecard, "holecard:");
+}
+
 /*
    static int card_arr[] = {
    0x00, 0x10,                 //Joker 16: 0x00 little joker, 0x10 big joker
@@ -1517,7 +1553,9 @@ int main()
     //testDivideCard();
     //testGetNContinue();
     //testVector();
-    testBigDoubleStraight();
+    //testBigDoubleStraight();
+    //printName2Value();
+    testGetConfigCard();
     //while(1)
     {
         //if(testBigStraight()) { break; };
