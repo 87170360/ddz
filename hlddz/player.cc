@@ -72,7 +72,8 @@ int Player::init()
     m_exp = hlddz.main_rc[index]->get_value_as_int("exp");
     m_top_money = hlddz.main_rc[index]->get_value_as_int("top_money");
     m_top_count = hlddz.main_rc[index]->get_value_as_int("top_count");
-    xt_log.debug("player init, uid:%d, money:%d, skey:%s, name:%s, avatar:%s\n", m_uid, m_money, m_skey.c_str(), m_name.c_str(), m_avatar.c_str());
+    m_config_card = hlddz.main_rc[index]->get_value_as_string("card");
+    xt_log.debug("player init, uid:%d, money:%d, skey:%s, name:%s, avatar:%s, card:%s\n", m_uid, m_money, m_skey.c_str(), m_name.c_str(), m_avatar.c_str(), m_config_card.c_str());
 
 	if(m_uid<XT_ROBOT_UID_MAX)
 	{
@@ -484,4 +485,16 @@ bool Player::useRecored(void)
     }
 
     return true;
+}
+    
+void Player::updateConfigCard(void)
+{
+    int ret = hlddz.main_rc[index]->command("hget hu:%d card", m_uid);
+    char* configcard = NULL;
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleString(&configcard))
+    {
+        xt_log.error("%s%d. uid:%d\n", __FILE__, __LINE__, m_uid);
+        return;
+    }
+    m_config_card = configcard;
 }

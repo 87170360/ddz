@@ -55,6 +55,9 @@ public:
     string getTimeYY(void);
     //使用记牌器
     bool useRecored(void);
+    //刷新配置的牌
+    void updateConfigCard(void);
+
 private:
     //兑换券上限
     int couponLimit(void);
@@ -80,10 +83,11 @@ public:
     int                 m_top_money;
     //单局赢过的最到倍数
     int                 m_top_count;
+    //指定必发的牌
+    std::string         m_config_card;
 
 	// connect to client
 	Client              *client;
-	
 	int					idle_count;
 	
 private:

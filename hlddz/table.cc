@@ -947,6 +947,62 @@ bool Table::allocateCardControl(void)
 
     return true;
 }
+        
+void Table::allocateCardConfig(void)
+{
+    //获得配置的牌
+    vector<XtCard> configCard[SEAT_NUM];
+    vector<XtCard> allConfigCard;
+    for(std::map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it) 
+    {
+        m_deck.getConfigCard(configCard[it->second->m_seatid], it->second->m_config_card);
+        m_deck.getConfigCard(allConfigCard, it->second->m_config_card);
+        //检查数量
+        if(configCard[it->second->m_seatid].size() > HAND_CARD_NUM)
+        {
+            xt_log.debug("%s %d, config card num overload, uid:%d\n", __FILE__, __LINE__, it->first);
+            allocateCard();
+            return;
+        }
+    }
+
+    //重复配置，随机发牌
+    set<int> tmpset;
+    set<int>::const_iterator tmpset_it;
+    for(vector<XtCard>::const_iterator it = allConfigCard.begin(); it != allConfigCard.end(); ++it)
+    {
+        tmpset_it = tmpset.find(it->m_value);
+        if(tmpset_it != tmpset.end())
+        {
+            xt_log.debug("%s %d, repeat config card:%s\n", __FILE__, __LINE__, it->getCardDescription());
+            allocateCard();
+            return;
+        }
+        tmpset.insert(it->m_value);
+    }
+    
+    //show(allConfigCard, "allConfig:");
+    //设置手牌, 补足17张牌
+    m_deck.delCard(allConfigCard, m_tid);
+    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+    {
+        m_seatCard[i].m_cards.assign(configCard[i].begin(), configCard[i].end());
+        if(!m_deck.getHoleCards(m_seatCard[i].m_cards, HAND_CARD_NUM - configCard[i].size()))
+        {
+            xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
+        }
+        //xt_log.debug("uid:%d\n", getSeat(i));
+        //show(m_seatCard[i].m_cards);
+        //show(m_seatCard[i].m_cards, "holecard:");
+    }
+
+    //设置底牌
+    if(!m_deck.getHoleCards(m_bottomCard, BOTTON_CARD_NUM))
+    {
+        xt_log.error("%s:%d, get bottom card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
+    }
+    //show(m_bottomCard, "bottomcard:");
+}
 
 void Table::prepareProc(void)
 {
@@ -1473,7 +1529,8 @@ void Table::gameStart(void)
 
     refreshConfig();
     callProc();
-    allocateCard();
+    allocateCardConfig();
+    //allocateCard();
     //allocateCardControl();
 
     sendCard1();
@@ -1637,8 +1694,12 @@ bool Table::selecLord(void)
 
 static string printStr;
 
-void Table::show(const vector<XtCard>& card)
+void Table::show(const vector<XtCard>& card, const char* desc)
 {
+    if(desc)
+    {
+        xt_log.debug("%s\n", desc);
+    }
     printStr.clear();
     for(vector<XtCard>::const_iterator it = card.begin(); it != card.end(); ++it)
     {
@@ -2354,6 +2415,12 @@ void Table::refreshConfig(void)
     else
     {
         hlddz.game->ROOMTAX = accessFee;
+    }
+
+    //更新玩家控制牌型
+    for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
+    {
+        it->second->updateConfigCard(); 
     }
 
     //xt_log.debug("roomlimit:%d, roomscore:%d \n", hlddz.game->ROOMLIMIT, hlddz.game->ROOMSCORE);

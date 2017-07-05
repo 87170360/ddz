@@ -80,7 +80,10 @@ class Table
         bool sitdown(Player* player);
         //分牌
         bool allocateCard(void);
+        //测试分牌
         bool allocateCardControl(void);
+        //按配置分牌
+        void allocateCardConfig(void);
         //准备处理
         void prepareProc(void);
         //叫分处理
@@ -150,7 +153,7 @@ class Table
         //评选地主
         bool selecLord(void);
         //打印牌组
-        void show(const vector<XtCard>& card);
+        void show(const vector<XtCard>& card, const char* desc = NULL);
         //打印游戏信息
         void showGame(void);
         //打印记牌器
