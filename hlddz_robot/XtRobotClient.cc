@@ -395,11 +395,12 @@ void XtRobotClient::handleCall(Json::Value& msg)
     {
         return;
     }
-    int show_time = msg["show_time"].asInt();
+    float show_time = msg["show_time"].asInt();
+    show_time += ((rand() % 200) + 100) / 100.0;
     ev_timer_stop(m_evloop, &m_showTimer);
     ev_timer_set(&m_showTimer, show_time, 0);
     ev_timer_start(m_evloop, &m_showTimer);
-    printf("handle call, showtimer active after %d second.\n", show_time);
+    printf("handle call, showtimer active after %f second.\n", show_time);
 }
 
 void XtRobotClient::handleAgainCall(Json::Value& msg) 
