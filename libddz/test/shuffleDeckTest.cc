@@ -398,12 +398,12 @@ void testBigPair(void)
     XtCard initCard2[] = { XtCard(0x03), XtCard(0x13)};
     vector<XtCard> cards2(initCard2, initCard2 + sizeof(initCard2) / sizeof(XtCard));
 
-    show(cards1);
-    show(cards2);
+    show(cards1, "cards1");
+    show(cards2, "cards2");
     vector<XtCard> result;
     if(deck.bigPair(cards1, cards2, result))
     {
-        show(result);
+        show(result, "result");
         printf("true!\n");
     }
     else
@@ -1030,36 +1030,39 @@ bool testGetOut(void)
     deck.shuffle(timeindex++);
 
     vector<XtCard> cards1;
-    //cards1.push_back(XtCard(0x03));
-    //cards1.push_back(XtCard(0x13));
-    //cards1.push_back(XtCard(0x23));
-    //cards1.push_back(XtCard(0x33));
+    cards1.push_back(XtCard(0x03));
+    cards1.push_back(XtCard(0x13));
+    cards1.push_back(XtCard(0x23));
+    cards1.push_back(XtCard(0x27));
+    cards1.push_back(XtCard(0x37));
+    cards1.push_back(XtCard(0x17));
+    cards1.push_back(XtCard(0x09));
+    cards1.push_back(XtCard(0x19));
     //deck.delCard(cards1, timeindex);
-    deck.getHoleCards(cards1, 17 - cards1.size());
+    //deck.getHoleCards(cards1, 17 - cards1.size());
 
     vector<XtCard> cards2;
-    /*
     cards2.push_back(XtCard(0x04));
     cards2.push_back(XtCard(0x14));
     cards2.push_back(XtCard(0x24));
-    cards2.push_back(XtCard(0x34));
-    deck.delCard(cards2, timeindex);
-    */
-    deck.getHoleCards(cards2, 20 - cards2.size());
+    cards2.push_back(XtCard(0x29));
+    cards2.push_back(XtCard(0x39));
+   // deck.delCard(cards2, timeindex);
+   // deck.getHoleCards(cards2, 20 - cards2.size());
 
     XtCard::sortByDescending(cards1);
     XtCard::sortByDescending(cards2);
 
-    vector<XtCard> firstcard;
-    deck.getFirst(cards2, firstcard);
-    XtCard::sortByDescending(firstcard);
+    //vector<XtCard> firstcard;
+    //deck.getFirst(cards2, firstcard);
+    //XtCard::sortByDescending(firstcard);
 
     show(cards1, "cards1");
     show(cards2, "cards2");
-    show(firstcard, "firstcard");
+    //show(firstcard, "firstcard");
 
     vector<XtCard> result;
-    if(deck.getOut(cards1, firstcard, result))
+    if(deck.getOut(cards1, cards2, result))
     {
         printf("follow!\n");
         if(result.empty())
@@ -1544,7 +1547,7 @@ int main()
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();
-    //testGetOut();
+    testGetOut();
     //testGetBottomDouble();
     //testGetFirst();
     //testDivideCard3();
@@ -1555,7 +1558,7 @@ int main()
     //testVector();
     //testBigDoubleStraight();
     //printName2Value();
-    testGetConfigCard();
+    //testGetConfigCard();
     //while(1)
     {
         //if(testBigStraight()) { break; };

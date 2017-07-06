@@ -995,7 +995,7 @@ bool Shuffledeck::bigPair(const vector<Card>& mine, const vector<Card>& other, v
         }
     }
 
-    for(int i = static_cast<int>(vecTwo.size() - 1); i > 2; i -= 2)
+    for(int i = static_cast<int>(vecTwo.size() - 1); i >= 1; i -= 2)
     {
         if(vecTwo[i].m_face > other[0].m_face) 
         {
@@ -1045,7 +1045,7 @@ bool Shuffledeck::bigThree2s(const vector<Card>& mine, const vector<Card>& other
         }
     }
 
-    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
+    for(int i = static_cast<int>(v3.size() - 1); i >= 2; i -= 3)
     {
         if(v3[i].m_face > v3o[0].m_face) 
         {
@@ -1091,7 +1091,7 @@ bool Shuffledeck::bigThree1(const vector<Card>& mine, const vector<Card>& other,
         }
     }
 
-    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
+    for(int i = static_cast<int>(v3.size() - 1); i >= 2; i -= 3)
     {
         if(v3[i].m_face > v3o[0].m_face) 
         {
@@ -1129,7 +1129,7 @@ bool Shuffledeck::bigThree0(const vector<Card>& mine, const vector<Card>& other,
         }
     }
 
-    for(int i = static_cast<int>(v3.size() - 1); i > 3; i -= 3)
+    for(int i = static_cast<int>(v3.size() - 1); i >= 2; i -= 3)
     {
         if(v3[i].m_face > other[0].m_face) 
         {
