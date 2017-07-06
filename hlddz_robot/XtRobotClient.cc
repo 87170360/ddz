@@ -258,7 +258,6 @@ int XtRobotClient::onReciveCmd(Jpacket& data)
         case SERVER_RESULT_CALL:
             handleOut(val);
             break;
-            break;
         case SERVER_AGAIN_OUT:
             handleAgainOut(val);
             break;
@@ -425,6 +424,9 @@ void XtRobotClient::handleOut(Json::Value& msg)
         return;
     }
 
+    //添加底牌
+    json_array_to_vector(m_card, msg, "card");
+
     float ot = ((rand() % 3) + 15) / 10.0;
     ev_timer_stop(m_evloop, &m_outTimer);
     ev_timer_set(&m_outTimer, ot, 0);
@@ -588,7 +590,11 @@ void XtRobotClient::sendCard(void)
     data.val["keep"]     =   outCard.empty();
     data.end();
     send(data.tostring());
-    //show()
+
+    if((m_lastCard.empty() || m_outid == m_uid) && outCard.empty()) 
+    {
+        printf("uid:%d, first round keep\n", m_uid);
+    }
 }
 
 void XtRobotClient::sendChange(void)

@@ -536,12 +536,13 @@ void Table::msgOut(Player* player)
     //不出校验
     bool keep = msg["keep"].asBool();
 
-    //xt_log.debug("msgOut, m_uid:%d, seatid:%d, keep:%s\n", player->m_uid, player->m_seatid, keep ? "true" : "false");
-    //xt_log.debug("curCard:\n");
-    //show(curCard);
-    //xt_log.debug("lastCard:\n");
-    //show(m_lastCard);
-    //
+    if(m_lastCard.empty() && keep)
+    {
+        xt_log.debug("msgOut, first round keep, name:%s, m_uid:%d, seatid:%d, keep:%s\n", player->m_name.c_str(), player->m_uid, player->m_seatid, keep ? "true" : "false");
+        show(m_seatCard[player->m_seatid].m_cards, "myCard:");
+        show(m_lastCard, "lastCard");
+    }
+
     if(keep && !curCard.empty())
     {
         xt_log.error("%s:%d, out fail! not allow keep && not empty card. m_uid:%d, seatid:%d, keep:%s\n", __FILE__, __LINE__, player->m_uid, player->m_seatid, keep ? "true" : "false"); 
@@ -992,7 +993,6 @@ void Table::allocateCardConfig(void)
             xt_log.error("%s:%d, get hand card error,  tid:%d\n",__FILE__, __LINE__, m_tid); 
         }
         //xt_log.debug("uid:%d\n", getSeat(i));
-        //show(m_seatCard[i].m_cards);
         //show(m_seatCard[i].m_cards, "holecard:");
     }
 
@@ -1189,10 +1189,12 @@ void Table::logicOut(Player* player, vector<XtCard>& curCard, bool keep)
         {
             m_bomb[player->m_seatid]++; 
         }
+
+        //出牌次数
+        m_outNum[player->m_seatid] += 1;
+        //xt_log.debug("logicOut player seatid:%d, uid:%d, outNum[0]:%d, outNum[1]:%d, outNum[2]:%d\n", player->m_seatid, player->m_uid, m_outNum[0], m_outNum[1], m_outNum[2]);
     }
 
-    //出牌次数
-    m_outNum[player->m_seatid] += 1;
 
     if(m_lastCard.empty())
     {//首轮出牌
@@ -1368,7 +1370,7 @@ void Table::sendEnd(void)
     packet.val["score"]     = hlddz.game->ROOMSCORE;
     packet.val["spring"]    = getSpringType();
 
-    //xt_log.debug("end info: double:%d, bomb:%d, score:%d\n", doubleNum, getBombNum(), hlddz.game->ROOMSCORE);
+    xt_log.debug("end info: double:%d, bomb:%d, score:%d, spring:%d\n", getResultDoulbe(), getBombNum(), hlddz.game->ROOMSCORE, getSpringType());
 
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
     {
@@ -1951,12 +1953,10 @@ bool Table::isAntiSpring(void)
     {
         return false;
     }
-    for(unsigned int i = 0; i < SEAT_NUM; ++i)
+
+    if((m_outNum[(m_lordSeat + 1) % SEAT_NUM] <= 0) && (m_outNum[(m_lordSeat + 2) % SEAT_NUM] <= 0))
     {
-        if(i != m_lordSeat && m_outNum[i] <= 0)
-        {
-            return false; 
-        }
+        return false; 
     }
     return true;
 }
