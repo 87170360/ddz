@@ -71,6 +71,8 @@ public:
     int del_player(Player *player);
     int change_table(Player *player);
 
+    void showGameInfo(void);
+
 private:
 	int     init_table();
     int     init_accept();

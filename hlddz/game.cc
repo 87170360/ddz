@@ -251,6 +251,7 @@ int Game::dispatch(Client *client)
         if (client->player == NULL) 
         {
             int ret = add_player(client);
+            showGameInfo();
             if (ret == -1) 
             {
                 return -1;
@@ -303,16 +304,19 @@ int Game::dispatch(Client *client)
         case CLIENT_OUT:
             {
                 all_tables[player->m_tid]->msgOut(player);
+                showGameInfo();
             } 
             break;
         case CLIENT_CHANGE:
             {
                 all_tables[player->m_tid]->msgChange(player);
+                showGameInfo();
             } 
             break;
         case CLIENT_LOGOUT:
             {
                del_player(player); 
+               showGameInfo();
             } 
             break;
         case CLIENT_VIEW:
@@ -678,4 +682,29 @@ int Game::change_table(Player *player)
         }
     }
     return 0;
+}
+    
+void Game::showGameInfo(void)
+{
+    return;
+    //各桌玩家id
+	std::map<int, Table*>::const_iterator it;
+    Table* table = NULL;
+    Player* player = NULL;
+	std::map<int, Player*>::const_iterator itpl;
+    for(it = all_tables.begin(); it != all_tables.end(); ++it)
+    {
+        table = it->second;
+        if(table->m_players.empty())
+        {
+            continue; 
+        }
+
+        xt_log.debug("  table id:%d\n", it->first);
+        for(itpl = table->m_players.begin(); itpl != table->m_players.end(); ++itpl) 
+        {
+            player = itpl->second;
+            xt_log.debug("      player uid:%d, tid:%d, seatid:%d\n", player->m_uid, player->m_tid, player->m_seatid);
+        }
+    }
 }
