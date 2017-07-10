@@ -451,6 +451,17 @@ bool XtShuffleDeck::getFirst(const vector<XtCard>& mine, vector<XtCard>& result)
             break;
     }
 
+    //3带1
+    if(select == DT_3 && !dvec[DT_1].empty())
+    {
+        result.push_back(dvec[DT_1].back()); 
+    }
+    else if(select == DT_3 && dvec[DT_2].size() >= 2)
+    {
+        result.push_back(*(dvec[DT_2].rbegin()));
+        result.push_back(*(dvec[DT_2].rbegin() + 1));
+    }
+
     if(result.empty())
     {
         result.push_back(mine.back());

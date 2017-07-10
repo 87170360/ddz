@@ -1262,7 +1262,16 @@ bool testGetFirst(void)
     deck.shuffle(timeindex++);
 
     vector<XtCard> cards1;
-    deck.getHoleCards(cards1, 17);
+    //deck.getHoleCards(cards1, 17);
+    cards1.push_back(XtCard(0x05));
+    cards1.push_back(XtCard(0x15));
+    cards1.push_back(XtCard(0x25));
+    cards1.push_back(XtCard(0x07));
+    cards1.push_back(XtCard(0x17));
+    cards1.push_back(XtCard(0x27));
+    cards1.push_back(XtCard(0x03));
+    cards1.push_back(XtCard(0x03));
+    cards1.push_back(XtCard(0x04));
 
     XtCard::sortByDescending(cards1);
 
@@ -1279,8 +1288,8 @@ bool testGetFirst(void)
     }
     else
     {
-        //show(cards1);
-        //show(result);
+        show(cards1);
+        show(result);
         return true;
     }
 }
@@ -1547,9 +1556,9 @@ int main()
     //testBigThree2s();
     //testBigThree1();
     //testBigThree0();
-    testGetOut();
+    //testGetOut();
     //testGetBottomDouble();
-    //testGetFirst();
+    testGetFirst();
     //testDivideCard3();
     //testDivideCard2();
     //testDivideCard1();
