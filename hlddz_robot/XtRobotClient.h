@@ -83,6 +83,12 @@ class XtRobotClient
         void sendChange(void);
         void sendIdle(void);
         void reset(void);
+        //是否队友
+        bool isAlliance(void) const;
+        //是否跟牌
+        bool isFollow(void);
+        int getAllianceFollowFace(void) const;
+        int getAlliancePassFace(void) const;
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public:
@@ -110,6 +116,7 @@ class XtRobotClient
         vector<XtCard>              m_lastCard;               //上轮牌
         int                         m_outid;                  //上轮出牌者id
         int                         m_tid;                    //牌桌id
+        int                         m_lord;                   //地主uid
         ///////////////////////////////////////
 		struct ev_loop* m_evloop;
 
@@ -117,10 +124,8 @@ class XtRobotClient
 		ev_io m_evRead;
 
 		int m_serverfd;
-		/*game info */
-		int m_uid;
+		int m_uid;                                            //自己uid
 
-		/* parse data */
 		int m_state;
 		int m_curHeaderLen;
 

@@ -36,6 +36,7 @@ XtRobotClient::XtRobotClient(struct ev_loop* evloop)
 
     m_state=XT_PARSE_HEADER;
     m_tid = -1;
+    m_lord = -1;
 }
 
 
@@ -429,7 +430,8 @@ void XtRobotClient::handleAgainCall(Json::Value& msg)
 
 void XtRobotClient::handleOut(Json::Value& msg) 
 {
-    if(msg["lord"].asInt() != m_uid)
+    m_lord = msg["lord"].asInt();
+    if(m_lord != m_uid)
     {
         return;
     }
@@ -595,10 +597,8 @@ void XtRobotClient::sendCard(void)
     //跟牌
     else
     {
-        //不顶机器人队友
-        if(m_outid >= XT_ROBOT_UID_MAX)
+        if(isFollow())
         {
-            XtCard::sortByDescending(m_lastCard);
             m_deck.getOut(m_card, m_lastCard, outCard);
         }
     }
@@ -729,5 +729,79 @@ int XtRobotClient::send(const std::string &res)
 {
     return send(res.c_str(), res.length());
     //return safe_writen(res.c_str(), res.length());
+}
+
+bool XtRobotClient::isAlliance(void) const
+{
+    if(m_uid == m_outid)
+    {
+        printf("error!!!     self is alliance.\n");    
+    }
+
+    //自己是地主, 别人都是对家
+    if(m_uid  == m_lord)
+    {
+        return false;  
+    }
+
+    //都不地主，是本家
+    if(m_uid != m_lord && m_outid != m_lord)
+    {
+        return false; 
+    }
+        
+    printf("error! get alliance failure., m_uid:%d, m_outid:%d, m_lord:%d\n", m_uid, m_outid, m_lord);    
+    return false;
+}
+        
+bool XtRobotClient::isFollow(void)
+{
+    if(m_lastCard.empty())
+    {
+        return false;
+    }
+
+    XtCard::sortByDescending(m_lastCard);
+
+    //对家一定跟
+    if(false == isAlliance())
+    {
+       return true; 
+    }
+
+    //特定牌型不跟
+    int cardtype = m_deck.getCardType(m_lastCard);
+    if(cardtype != CT_SINGLE && cardtype != CT_PAIR && cardtype != CT_STRAIGHT)
+    {
+       return false; 
+    }
+
+    int currentface = m_lastCard.begin()->m_face;
+
+    int followface = getAllianceFollowFace();
+    if(currentface <= followface)
+    {
+        return true;
+    }
+
+    int passface = getAlliancePassFace();
+    if(currentface >= passface)
+    {
+        return false;
+    }
+
+    return (rand() % 2) > 0 ? true : false;
+}
+        
+int XtRobotClient::getAllianceFollowFace(void) const
+{
+    // 6 7 8 9
+    return (rand() % 4) + 6;
+}
+
+int XtRobotClient::getAlliancePassFace(void) const
+{
+    //J 11,  Q 12, K 13
+    return (rand() % 3) + 11;
 }
 
