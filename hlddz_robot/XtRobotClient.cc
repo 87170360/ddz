@@ -744,10 +744,17 @@ bool XtRobotClient::isAlliance(void) const
         return false;  
     }
 
-    //都不地主，是本家
-    if(m_uid != m_lord && m_outid != m_lord)
+    //自己不是地主，出牌是地主
+    if(m_uid != m_lord && m_outid == m_lord)
     {
         return false; 
+    }
+
+
+    //自己不是地主，出牌不是地主
+    if(m_uid != m_lord && m_outid != m_lord)
+    {
+        return true; 
     }
         
     printf("error! get alliance failure., m_uid:%d, m_outid:%d, m_lord:%d\n", m_uid, m_outid, m_lord);    
@@ -781,15 +788,18 @@ bool XtRobotClient::isFollow(void)
     int followface = getAllianceFollowFace();
     if(currentface <= followface)
     {
+        //printf("follow !, followface:%d, currentface:%d\n", followface, currentface);
         return true;
     }
 
     int passface = getAlliancePassFace();
     if(currentface >= passface)
     {
+        //printf("unfollow !, passface:%d, currentface:%d\n", passface, currentface);
         return false;
     }
 
+    //printf("rand() \n");
     return (rand() % 2) > 0 ? true : false;
 }
         
