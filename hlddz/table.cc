@@ -1315,7 +1315,7 @@ void Table::sendCallAgain(void)
         packet.end();
         unicast(pl, packet.tostring());
     }
-    //xt_log.debug("sendCallAgain: count:%d\n", getGameDouble(false));
+    //xt_log.debug("sendCallAgain: count:%d, callcount:%d\n", getGameDouble(false), getCallDouble());
 }
 
 void Table::sendCallResult(void)
@@ -1859,6 +1859,7 @@ int Table::getCallScore(void)
 
 int Table::getBottomDouble(void)
 {
+    /*
     bool littleJoke = false;
     bool bigJoke = false;
     set<int> suitlist; 
@@ -1926,6 +1927,7 @@ int Table::getBottomDouble(void)
         //printf("三同");
         return 4; 
     }
+    */
     return 1;
 }
 
