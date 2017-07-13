@@ -1,0 +1,175 @@
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 Oct08 ?        00:00:00 /sbin/init
+root         2     0  0 Oct08 ?        00:00:00 [kthreadd]
+root         3     2  0 Oct08 ?        00:00:00 [migration/0]
+root         4     2  0 Oct08 ?        00:00:00 [ksoftirqd/0]
+root         5     2  0 Oct08 ?        00:00:00 [stopper/0]
+root         6     2  0 Oct08 ?        00:00:00 [watchdog/0]
+root         7     2  0 Oct08 ?        00:00:00 [migration/1]
+root         8     2  0 Oct08 ?        00:00:00 [stopper/1]
+root         9     2  0 Oct08 ?        00:00:00 [ksoftirqd/1]
+root        10     2  0 Oct08 ?        00:00:00 [watchdog/1]
+root        11     2  0 Oct08 ?        00:00:00 [migration/2]
+root        12     2  0 Oct08 ?        00:00:00 [stopper/2]
+root        13     2  0 Oct08 ?        00:00:00 [ksoftirqd/2]
+root        14     2  0 Oct08 ?        00:00:00 [watchdog/2]
+root        15     2  0 Oct08 ?        00:00:00 [migration/3]
+root        16     2  0 Oct08 ?        00:00:00 [stopper/3]
+root        17     2  0 Oct08 ?        00:00:00 [ksoftirqd/3]
+root        18     2  0 Oct08 ?        00:00:00 [watchdog/3]
+root        19     2  0 Oct08 ?        00:00:04 [events/0]
+root        20     2  0 Oct08 ?        00:00:04 [events/1]
+root        21     2  0 Oct08 ?        00:00:05 [events/2]
+root        22     2  0 Oct08 ?        00:00:05 [events/3]
+root        23     2  0 Oct08 ?        00:00:00 [cgroup]
+root        24     2  0 Oct08 ?        00:00:00 [khelper]
+root        25     2  0 Oct08 ?        00:00:00 [netns]
+root        26     2  0 Oct08 ?        00:00:00 [async/mgr]
+root        27     2  0 Oct08 ?        00:00:00 [pm]
+root        28     2  0 Oct08 ?        00:00:00 [sync_supers]
+root        29     2  0 Oct08 ?        00:00:00 [bdi-default]
+root        30     2  0 Oct08 ?        00:00:00 [kintegrityd/0]
+root        31     2  0 Oct08 ?        00:00:00 [kintegrityd/1]
+root        32     2  0 Oct08 ?        00:00:00 [kintegrityd/2]
+root        33     2  0 Oct08 ?        00:00:00 [kintegrityd/3]
+root        34     2  0 Oct08 ?        00:00:03 [kblockd/0]
+root        35     2  0 Oct08 ?        00:00:00 [kblockd/1]
+root        36     2  0 Oct08 ?        00:00:00 [kblockd/2]
+root        37     2  0 Oct08 ?        00:00:00 [kblockd/3]
+root        38     2  0 Oct08 ?        00:00:00 [kacpid]
+root        39     2  0 Oct08 ?        00:00:00 [kacpi_notify]
+root        40     2  0 Oct08 ?        00:00:00 [kacpi_hotplug]
+root        41     2  0 Oct08 ?        00:00:00 [ata_aux]
+root        42     2  0 Oct08 ?        00:00:00 [ata_sff/0]
+root        43     2  0 Oct08 ?        00:00:00 [ata_sff/1]
+root        44     2  0 Oct08 ?        00:00:00 [ata_sff/2]
+root        45     2  0 Oct08 ?        00:00:00 [ata_sff/3]
+root        46     2  0 Oct08 ?        00:00:00 [ksuspend_usbd]
+root        47     2  0 Oct08 ?        00:00:00 [khubd]
+root        48     2  0 Oct08 ?        00:00:00 [kseriod]
+root        49     2  0 Oct08 ?        00:00:00 [md/0]
+root        50     2  0 Oct08 ?        00:00:00 [md/1]
+root        51     2  0 Oct08 ?        00:00:00 [md/2]
+root        52     2  0 Oct08 ?        00:00:00 [md/3]
+root        53     2  0 Oct08 ?        00:00:00 [md_misc/0]
+root        54     2  0 Oct08 ?        00:00:00 [md_misc/1]
+root        55     2  0 Oct08 ?        00:00:00 [md_misc/2]
+root        56     2  0 Oct08 ?        00:00:00 [md_misc/3]
+root        57     2  0 Oct08 ?        00:00:00 [linkwatch]
+root        59     2  0 Oct08 ?        00:00:00 [khungtaskd]
+root        60     2 98 Oct08 ?        7-08:23:45 [kswapd0]
+root        61     2  0 Oct08 ?        00:00:00 [ksmd]
+root        62     2  0 Oct08 ?        00:00:00 [khugepaged]
+root        63     2  0 Oct08 ?        00:00:00 [aio/0]
+root        64     2  0 Oct08 ?        00:00:00 [aio/1]
+root        65     2  0 Oct08 ?        00:00:00 [aio/2]
+root        66     2  0 Oct08 ?        00:00:00 [aio/3]
+root        67     2  0 Oct08 ?        00:00:00 [crypto/0]
+root        68     2  0 Oct08 ?        00:00:00 [crypto/1]
+root        69     2  0 Oct08 ?        00:00:00 [crypto/2]
+root        70     2  0 Oct08 ?        00:00:00 [crypto/3]
+root        78     2  0 Oct08 ?        00:00:00 [kthrotld/0]
+root        79     2  0 Oct08 ?        00:00:00 [kthrotld/1]
+root        80     2  0 Oct08 ?        00:00:00 [kthrotld/2]
+root        81     2  0 Oct08 ?        00:00:00 [kthrotld/3]
+root        83     2  0 Oct08 ?        00:00:00 [kpsmoused]
+root        84     2  0 Oct08 ?        00:00:00 [usbhid_resumer]
+root        85     2  0 Oct08 ?        00:00:00 [deferwq]
+root       116     2  0 Oct08 ?        00:00:00 [kdmremove]
+root       117     2  0 Oct08 ?        00:00:00 [kstriped]
+root       145     2  0 Oct08 ?        00:00:00 [i915]
+root       146     2  0 Oct08 ?        00:00:00 [i915-dp]
+root       147     2  0 Oct08 ?        00:00:00 [dp-mst]
+root       331     2  0 Oct08 ?        00:00:00 [scsi_eh_0]
+root       333     2  0 Oct08 ?        00:00:00 [scsi_eh_1]
+root       334     2  0 Oct08 ?        00:00:00 [scsi_eh_2]
+root       335     2  0 Oct08 ?        00:00:00 [scsi_eh_3]
+root       336     2  0 Oct08 ?        00:00:00 [scsi_eh_4]
+root       337     2  0 Oct08 ?        00:00:00 [scsi_eh_5]
+root       383     2  0 Oct08 ?        00:00:09 [jbd2/sda6-8]
+root       384     2  0 Oct08 ?        00:00:00 [ext4-dio-unwrit]
+root       480     1  0 Oct08 ?        00:00:00 /sbin/udevd -d
+root       517     2  0 Oct08 ?        00:00:00 [hd-audio0]
+root       613     2  0 Oct08 ?        00:00:00 [flush-8:0]
+root      1317     2  0 Oct08 ?        00:00:00 [kauditd]
+root      1477     1  0 Oct08 ?        00:00:00 auditd
+root      1507     1  0 Oct08 ?        00:00:00 /sbin/rsyslogd -i /var/run/syslogd.pid -c 5
+root      1530     2  0 Oct08 ?        00:01:32 [kondemand/0]
+root      1531     2  0 Oct08 ?        00:01:19 [kondemand/1]
+root      1532     2  0 Oct08 ?        00:01:10 [kondemand/2]
+root      1533     2  0 Oct08 ?        00:01:11 [kondemand/3]
+root      1555     1  0 Oct08 ?        00:00:10 irqbalance --pid=/var/run/irqbalance.pid
+rpc       1571     1  0 Oct08 ?        00:00:00 rpcbind
+dbus      1674     1  0 Oct08 ?        00:00:00 dbus-daemon --system
+root      1685     1  0 Oct08 ?        00:00:00 NetworkManager --pid-file=/var/run/NetworkManager/NetworkManager.pid
+root      1690     1  0 Oct08 ?        00:00:00 /usr/sbin/modem-manager
+root      1703     1  0 Oct08 ?        00:00:00 cupsd -C /etc/cups/cupsd.conf
+root      1741     1  0 Oct08 ?        00:00:00 /usr/sbin/acpid
+68        1751     1  0 Oct08 ?        00:00:01 hald
+root      1752  1751  0 Oct08 ?        00:00:00 hald-runner
+root      1755     1  0 Oct08 ?        00:00:00 /usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -B -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
+root      1795  1752  0 Oct08 ?        00:00:00 /usr/libexec/hald-addon-generic-backlight
+root      1797  1752  0 Oct08 ?        00:00:00 hald-addon-input: Listening on /dev/input/event4 /dev/input/event0 /dev/input/event3 /dev/input/event1
+68        1804  1752  0 Oct08 ?        00:00:00 hald-addon-acpi: listening on acpid socket /var/run/acpid.socket
+root      1824     1  0 Oct08 ?        00:00:04 automount --pid-file /var/run/autofs.pid
+root      1876     1  0 Oct08 ?        00:00:00 /usr/sbin/sshd
+root      1890     1  0 Oct08 ?        00:00:00 /bin/sh /usr/local/mysql/bin/mysqld_safe --datadir=/usr/local/mysql/var --pid-file=/usr/local/mysql/var/nosiclin.pid
+mysql     2342  1890  0 Oct08 ?        00:00:39 /usr/local/mysql/bin/mysqld --basedir=/usr/local/mysql --datadir=/usr/local/mysql/var --plugin-dir=/usr/local/mysql/lib/plugin --user=mysql --log-error=/usr/local/mysql/var/nosiclin.err --pid-file=/usr/local/mysql/var/nosiclin.pid --socket=/tmp/mysql.sock --port=3306
+root      2352     1  0 Oct08 ?        00:00:00 /usr/libexec/postfix/master
+postfix   2359  2352  0 Oct08 ?        00:00:00 qmgr -l -t fifo -u
+root      2391     1  0 Oct08 ?        00:00:00 /usr/sbin/abrtd
+root      2417     1  0 Oct08 ?        00:00:00 crond
+root      2450     1  0 Oct08 ?        00:00:00 /usr/sbin/atd
+root      2469     1  0 Oct08 ?        00:00:00 /usr/sbin/certmonger -S -p /var/run/certmonger.pid
+root      2507     1  0 Oct08 tty1     00:00:00 /sbin/mingetty /dev/tty1
+root      2509     1  0 Oct08 tty2     00:00:00 /sbin/mingetty /dev/tty2
+root      2511     1  0 Oct08 tty3     00:00:00 /sbin/mingetty /dev/tty3
+root      2513     1  0 Oct08 tty4     00:00:00 /sbin/mingetty /dev/tty4
+root      2515     1  0 Oct08 tty5     00:00:00 /sbin/mingetty /dev/tty5
+root      2517     1  0 Oct08 tty6     00:00:00 /sbin/mingetty /dev/tty6
+root      2520   480  0 Oct08 ?        00:00:00 /sbin/udevd -d
+root      2521   480  0 Oct08 ?        00:00:00 /sbin/udevd -d
+root      2611     1  0 Oct08 ?        00:01:12 /usr/local/redis/bin/redis-server *:6000                           
+root      2615     1  0 Oct08 ?        00:01:11 /usr/local/redis/bin/redis-server *:6001                           
+root      2619     1  0 Oct08 ?        00:01:12 /usr/local/redis/bin/redis-server *:6002                           
+root      2623     1  0 Oct08 ?        00:01:11 /usr/local/redis/bin/redis-server *:6003                           
+root      2627     1  0 Oct08 ?        00:01:13 /usr/local/redis/bin/redis-server *:6004                           
+root      2631     1  0 Oct08 ?        00:01:12 /usr/local/redis/bin/redis-server *:6005                           
+root      2635     1  0 Oct08 ?        00:01:12 /usr/local/redis/bin/redis-server *:6006                           
+root      2639     1  0 Oct08 ?        00:01:12 /usr/local/redis/bin/redis-server *:6007                           
+root      2643     1  0 Oct08 ?        00:01:12 /usr/local/redis/bin/redis-server *:6008                           
+root      2647     1  0 Oct08 ?        00:01:12 /usr/local/redis/bin/redis-server *:6009                           
+root      2651     1  0 Oct08 ?        00:01:13 /usr/local/redis/bin/redis-server *:6100                              
+root      2655     1  0 Oct08 ?        00:01:13 /usr/local/redis/bin/redis-server *:6200                              
+root      2794     1  0 Oct08 ?        00:00:10 php-fpm: master process (/usr/local/php/etc/php-fpm.conf)
+www       2795  2794  0 Oct08 ?        00:00:02 php-fpm: pool www
+www       2796  2794  0 Oct08 ?        00:00:02 php-fpm: pool www
+postfix   4121  2352  0 18:20 ?        00:00:00 pickup -l -t fifo -u
+root      4176  1876  0 18:46 ?        00:00:00 sshd: linyun [priv]
+linyun    4252  4176  0 18:48 ?        00:00:00 sshd: linyun@pts/1
+linyun    4253  4252  0 18:48 pts/1    00:00:00 -bash
+root      4296  1876  0 18:48 ?        00:00:00 sshd: nosiclin [priv]
+nosiclin  4298  4296  0 18:48 ?        00:00:00 sshd: nosiclin@pts/3
+nosiclin  4299  4298  0 18:48 pts/3    00:00:00 -bash
+nosiclin  4396  4299  0 18:49 pts/3    00:00:00 /bin/bash ./run_bet_robot.sh
+nosiclin  6841  4396  0 19:56 pts/3    00:00:00 ps -Af
+root     10742     1  0 Oct10 ?        00:00:00 nginx: master process ./nginx
+www      29800 10742  0 Oct14 ?        00:00:01 nginx: worker process
+www      29801 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29802 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29803 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29804 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29805 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29806 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29807 10742  0 Oct14 ?        00:00:01 nginx: worker process
+www      29808 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29809 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29810 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29811 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29812 10742  0 Oct14 ?        00:00:01 nginx: worker process
+www      29813 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29814 10742  0 Oct14 ?        00:00:01 nginx: worker process
+www      29815 10742  0 Oct14 ?        00:00:00 nginx: worker process
+www      29816  2794  0 Oct14 ?        00:00:01 php-fpm: pool www
+www      29817  2794  0 Oct14 ?        00:00:01 php-fpm: pool www
+www      29818  2794  0 Oct14 ?        00:00:01 php-fpm: pool www
