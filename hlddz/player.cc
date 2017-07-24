@@ -393,6 +393,86 @@ int Player::coupon(int score)
     return result;
 }
     
+bool Player::communication(int& type, float& num)
+{
+    //判断赢局数量
+    
+    //个人当日赢局总数
+    int ret = 0;
+	ret = hlddz.main_rc[index]->command("hget hu:%d %s-daywin", m_uid, getTimeYY().c_str());
+    long long daywin = 0;
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(daywin))
+    {
+        xt_log.error("%s:%d, error. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    }
+
+    //是否满足赢局数量
+    int tmpdaywin = daywin + 1;
+    if(tmpdaywin != 3 && tmpdaywin != 8 && tmpdaywin != 15 && tmpdaywin != 25 && tmpdaywin != 40 && tmpdaywin != 60 && tmpdaywin != 90)
+    {
+        return false;    
+    }
+    
+    //系统奖金池金额
+	ret = hlddz.cache_rc->command("hget BonusPoll total");
+    long long bonustotal = 0;
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonustotal))
+    {
+        xt_log.error("%s:%d, error. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    }
+
+    //当日发放金额
+	ret = hlddz.cache_rc->command("hget BonusPoll %s-out", getTimeYY().c_str());
+    long long bonusout = 0;
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonusout))
+    {
+        xt_log.error("%s:%d, m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+    }
+
+    //是否满足奖池金额限制
+    if(bonusout > bonustotal * 0.8)
+    {
+        return false;
+    }
+
+    //奖励处理 //话费券处理 type = 0 金币 1 话费
+    switch(tmpdaywin)
+    {
+        case 3:
+            type = rand() % 100 < 55 ? 0 : 1;  
+            break;
+        case 8:
+            type = rand() % 100 < 50 ? 0 : 1;  
+            break;
+        case 15:
+            type = rand() % 100 < 45 ? 0 : 1;  
+            break;
+        case 25:
+            type = rand() % 100 < 40 ? 0 : 1;  
+            break;
+        case 40:
+            type = rand() % 100 < 35 ? 0 : 1;  
+            break;
+        case 60:
+            type = rand() % 100 < 30 ? 0 : 1;  
+            break;
+        case 90:
+            type = rand() % 100 < 0 ? 0 : 1;  
+            break;
+    }
+
+    if(type == 0)
+    {
+        num = (rand() % 500) + 500;
+    }
+    else
+    {
+        num  = (rand() % 100) / 100.0;
+    }
+    
+    return true;
+}
+    
 int Player::couponLimit(void)
 {
 	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", m_uid);

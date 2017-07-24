@@ -51,6 +51,8 @@ public:
     void updateTopCount(int count);
     //兑换券处理
     int coupon(int score); 
+    //话费券处理 type = 0 金币 1 话费
+    bool communication(int& type, float& num);
     //获取年月日yyyy-mm-dd
     string getTimeYY(void);
     //使用记牌器
