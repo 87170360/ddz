@@ -14,150 +14,113 @@
 #include "redis_client.h"
 #include "jpacket.h"
 #include "XtSqlClient.h"
-#include <vector>
+
 
 class AllKillClient;
 class AllKillGame;
 class AllKillPlayer;
-class BetBox;
-
-using namespace std;
 
 class AllKillServer 
 {
-public:
-	bool isCanSpeak(AllKillPlayer* player);
-public:
-	static void onClientConnect(struct ev_loop* loop,struct ev_io* w,int revents);
-	static void onClientClose(AllKillClient* client,void* data);
-	static void onReciveClientCmd(AllKillClient* client,void* data,Jpacket& package);
+	public:
+		static void onClientConnect(struct ev_loop* loop,struct ev_io* w,int revents);
+		static void onClientClose(AllKillClient* client,void* data);
+		static void onReciveClientCmd(AllKillClient* client,void* data,Jpacket& package);
 
-public:
-	AllKillServer();
-	~AllKillServer();
+	public:
+		AllKillServer();
+		~AllKillServer();
 
-public:
-	int start(struct ev_loop* loop,const std::string& conf);
+	public:
+		int start(struct ev_loop* loop,const std::string& conf);
 
-	int parseConfig(const std::string& conf_file);
-	int singleInstance();
-	int startLog();
-	int startRedis();
-	int startSql();
-	int startListen();
-	int startGame();
+		int parseConfig(const std::string& conf_file);
+		int singleInstance();
+		int startLog();
+		int startRedis();
+		int startSql();
+		int startListen();
+		int startGame();
 
 
-public:
-	int shutDown();
-	int closeClient();
-	int closeGame();
-	int closeListen();
-	int closeSql();
-	int closeRedis();
-	int closeLog();
+	public:
+		int shutDown();
+		int closeClient();
+		int closeGame();
+		int closeListen();
+		int closeSql();
+		int closeRedis();
+		int closeLog();
 
 
-public:
-	RedisClient* getDataRedis(int uid);
+	public:
+		RedisClient* getDataRedis(int uid);
 
-	// 对局流水入库
-	void sendBetFlow(int vid,int uid,int alert_value,int cur_value);
-	// 奖金流水入库
-	void sendLotteryFlow(int vid,int uid,int alert_value,int cur_value);
-	// 发布消息
-	void sendSpeaker(int cmd,int uid,const char* name,const char* content);
+		void sendBetFlow(int vid,int uid,int alert_value,int cur_value);
+		void sendRottleFlow(int vid,int uid,int alert_value,int cur_value);
+		void sendSpeaker(int cmd,int uid,const char* name,const char* content);
+        void saveBetNum(int uid, int num);
 
-	// 刷新redis库的玩家人数
-	int refreshPlayerNuToRedis();
+		int refreshPlayerNuToRedis();
 
-	XtSqlClient* getSqlClient(){return m_sqlClient;}
-	RedisClient* getCacheRedis(){return m_cacheRc;}
+		XtSqlClient* getSqlClient(){return m_sqlClient;}
+		RedisClient* getCacheRedis(){return m_cacheRc;}
 
-	// 玩家下注入库
-	void savePlayerBet(int vid,int uid,int bet_num,int win_flag);
+        //鏍￠獙娑堟伅鏍煎紡
+        bool checkMsg(const Jpacket& package);
+		
+	public: 
+		void reciveClientCmd(AllKillClient* client,Jpacket& package);
 
-	// 领取下注宝箱
-	int getBetLottery(int vid, int uid);
-
-	// 查询下注宝箱
-	vector<BetBox> queryBetLottery(int vid, int uid);
-
-
-public: 
-	//处理客户端上行协议数据
-	void reciveClientCmd(AllKillClient* client,Jpacket& package);
-
-	//接受客户端连接
-	void clientConnect();
-	//客户端断开
-	void clientClose(AllKillClient* client);
-
-	//客户端登录
-	void clientLogin(AllKillClient* client,Jpacket& package);
-	//下注
-	void clientBet(AllKillClient* client,Jpacket& package);
-	//申请上庄
-	void clientAskRole(AllKillClient* client,Jpacket& package);
-	//申请下庄
-	void clientUnRole(AllKillClient* client,Jpacket& package);
-	//玩家登出 
-	void clientLogOut(AllKillClient* client,Jpacket& package);
-
-	//聊天
-	void clientChat(AllKillClient* client,Jpacket& package);
-
-	//发表情
-	void clientFace(AllKillClient* client,Jpacket& package);
-
-	//坐下
-	void clientSitDown(AllKillClient* client,Jpacket& package);
-
-	//站起
-	void clientStandUp(AllKillClient* client,Jpacket& package);
-
-	// 更新玩家信息
-	void clientUpdatePlayer(AllKillClient* client,Jpacket& package);
-
-	// 一等获得者列表
-	void clientLotterFirstPlayers(AllKillClient* client);
-
-	// 领取下注宝箱(返水)
-	void clientGetBetLotter(AllKillClient* client);
-
-	void unicast(AllKillPlayer* player,const std::string& data);
-	void broadcast(AllKillPlayer* player,const std::string& data);
-
-public:
-	/*配置文件的JSON*/
-	Json::Value m_conf;
-
-private:
-	struct ev_loop* m_evLoop;
-	ev_io m_evAccept;
+		void clientConnect();
+		void clientClose(AllKillClient* client);
+		void clientLogin(AllKillClient* client,Jpacket& package);
+		void clientBet(AllKillClient* client,Jpacket& package);
+		void clientAskRole(AllKillClient* client,Jpacket& package);
+		void clientUnRole(AllKillClient* client,Jpacket& package);
+		void clientLogOut(AllKillClient* client,Jpacket& package);
+		void clientChat(AllKillClient* client,Jpacket& package);
 
 
-	/* socket fd */
-	int m_listenFd;
 
 
-	/* client info */
-	std::map<int,AllKillClient*> m_allClient;
-	std::map<int,AllKillClient*> m_loginClient;
-
-	/* game */
-	AllKillGame* m_game;
+		void unicast(AllKillPlayer* player,const std::string& data);
+		void broadcast(AllKillPlayer* player,const std::string& data);
 
 
-	/* redis */
-	RedisClient* m_mainRc[20];
-	int m_mainSize;
-
-	RedisClient* m_cacheRc;
-	RedisClient* m_speakerRc;
 
 
-	XtSqlClient* m_sqlClient;
+	private:
+		struct ev_loop* m_evLoop;
+		ev_io m_evAccept;
+
+
+		/* socket fd */
+		int m_listenFd;
+
+
+
+		Json::Value m_conf;
+
+
+
+		/* client info */
+		std::map<int,AllKillClient*> m_allClient;
+		std::map<int,AllKillClient*> m_loginClient;
+
+		/* game */
+		AllKillGame* m_game;
+
+
+		/* redis */
+		RedisClient* m_mainRc[20];
+		int m_mainSize;
+
+		RedisClient* m_cacheRc;
+		RedisClient* m_speakerRc;
+
+
+		XtSqlClient* m_sqlClient;
 };
 
 

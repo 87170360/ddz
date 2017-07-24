@@ -25,14 +25,7 @@ AllKillPlayer::AllKillPlayer()
 	m_server=NULL;
 	m_isUnRole=true;
 
-	m_seatId = -1;   //玩家就坐的位置(-1表示没有位置)
-	m_winCount = 0;
-
 	resetSeatBet();
-
-	last_speak_time = 0;
-	mBanned = 0;         //初始未禁言
-	mQuickSpeakTimes = 0;
 
 #ifdef AK_DEBUG
 	ms_objectNu++;
@@ -48,67 +41,6 @@ AllKillPlayer::~AllKillPlayer()
 
 }
 
-///设置禁言标记
-void AllKillPlayer::setBanned(int banned) //设置禁言
-{
-	//更新禁言标记
-	mBanned = banned;
-
-	// 更新到redis
-	if (NULL == m_datarc)
-	{
-		m_datarc=m_server->getDataRedis(m_uid);
-	}
-
-	if (m_datarc != NULL)
-	{
-		int ret = m_datarc->command("hset hu:%d banned",m_uid, banned);
-		if (ret < 0)
-		{
-			xt_log.error("Func[%s] set banned error  UID[%d]\n", __FUNCTION__, banned);
-		}
-
-		xt_log.debug("Func[%s]  UID[%d] banned[%d].\n",__FUNCTION__, m_uid, banned);
-	}
-	else
-	{
-		xt_log.error("Func[%s] m_datarc is null", __FUNCTION__);
-	}
-
-}
-
-int AllKillPlayer::getBanned()
-{
-	//已经被禁言了，就不需要再查了
-	if (mBanned > 0)
-	{
-		return mBanned;
-	}
-
-	if (NULL == m_datarc)
-	{
-		m_datarc=m_server->getDataRedis(m_uid);
-	}
-
-	if (m_datarc != NULL)
-	{
-		int ret = m_datarc->command("hget hu:%d banned",m_uid);
-		if (ret < 0)
-		{
-			xt_log.error("update banned error\n");
-		}
-
-		//保存禁言标记
-		mBanned = m_datarc->reply->integer;
-		xt_log.debug("Func[%s] UID[%d] banned[%d].\n",__FUNCTION__, m_uid, mBanned);		
-	}
-	else
-	{
-		xt_log.error("Func[%s] m_datarc is null", __FUNCTION__);
-	}
-
-	return mBanned;
-}
 
 void AllKillPlayer::setData(int uid,AllKillServer* server,AllKillGame* game)
 {
@@ -132,7 +64,7 @@ void AllKillPlayer::setData(int uid,AllKillServer* server,AllKillGame* game)
 	}
 
 	m_avatar=m_datarc->get_value_as_string("avatar");
-	m_name=m_datarc->get_value_as_string("nickName");
+	m_name=m_datarc->get_value_as_string("name");
 	m_money=m_datarc->get_value_as_int("money");
 	m_sex=m_datarc->get_value_as_int("sex");
 
@@ -246,49 +178,44 @@ int AllKillPlayer::decMoney(int value)
 
 void AllKillPlayer::resetSeatBet()
 {
-	for(int i=0;i < AK_SEAT_ID_NU; i++)
+	for(int i=0;i<AK_SEAT_ID_NU;i++)
 	{
 		m_seatBetNu[i]=0;
-		m_tmpSeatBetNu[i]=0;
 	}
 	m_betMoneyResult=0;
 }
 
 void AllKillPlayer::addSeatBet(int seat_id,int value)
 {
-	m_seatBetNu[seat_id - AK_SEAT_ID_START] += value;
-
-	// 临时下注值
-	m_tmpSeatBetNu[seat_id - AK_SEAT_ID_START] += value;
+	m_seatBetNu[seat_id-AK_SEAT_ID_START]+=value;
 }
 
-// 获取在坐位上的下注数
+int AllKillPlayer::getAllKillTotalBet(void)
+{
+    int total = 0;
+	for(int i=0; i < AK_SEAT_ID_NU; i++)
+	{
+		total += m_seatBetNu[i];
+	}
+    return total;
+}
+
 int AllKillPlayer::getSeatBet(int seat_id)
 {
-	return m_seatBetNu[seat_id - AK_SEAT_ID_START];
-}
-
-// 取完就清空
-int AllKillPlayer::getTmpSeatBet(int seat_id)
-{
-	int tmpBetNu = m_tmpSeatBetNu[seat_id - AK_SEAT_ID_START];
-	m_tmpSeatBetNu[seat_id - AK_SEAT_ID_START] = 0;
-	return tmpBetNu;
+	return m_seatBetNu[seat_id-AK_SEAT_ID_START];
 }
 
 
-//累加玩家赢的
 void AllKillPlayer::addBetMoneyResult(int value)
 {
-	assert(value >= 0);
-	m_betMoneyResult += value;
+	assert(value>=0);
+	m_betMoneyResult+=value;
 }
 
-//累减玩家输的
 void AllKillPlayer::decBetMoneyResult(int value)
 {
-	assert(value >= 0);
-	m_betMoneyResult -= value;
+	assert(value>=0);
+	m_betMoneyResult-=value;
 }
 
 void AllKillPlayer::setBetMoneyResult(int value)
@@ -300,3 +227,20 @@ int AllKillPlayer::getBetMoneyResult()
 {
 	return m_betMoneyResult;
 }
+
+bool AllKillPlayer::checkBanned(void)
+{
+	int ret = m_datarc->command("hget hu:%d banned", m_uid);
+	if(ret < 0)
+	{
+		xt_log.error("get banned error\n");
+		return false;
+	}
+
+	int banned = atoi(m_datarc->reply->str);
+	return (banned != 0);
+}
+
+
+
+

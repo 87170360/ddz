@@ -22,10 +22,8 @@
 #include "AllKillMacros.h"
 #include "log.h"
 
-
-
-
 Log xt_log;
+
 
 static int g_uid=0;
 
@@ -43,7 +41,7 @@ static void recivie_data(AllKillClient* client,void* data,Jpacket& packet)
 			if(rand()%3==0)
 			{
 				Jpacket packet;
-				packet.val["cmd"]=AK_ASK_UN_ROLE_C; //下庄
+				packet.val["cmd"]=AK_ASK_UN_ROLE_C;
 				packet.end();
 				client->send(packet.tostring());
 			}
@@ -53,7 +51,7 @@ static void recivie_data(AllKillClient* client,void* data,Jpacket& packet)
 			if(rand()%3==0)
 			{
 				Jpacket packet;
-				packet.val["cmd"]=AK_ASK_ROLE_C;   //上庄
+				packet.val["cmd"]=AK_ASK_ROLE_C;
 				packet.end();
 				client->send(packet.tostring());
 			}
@@ -66,11 +64,9 @@ static void recivie_data(AllKillClient* client,void* data,Jpacket& packet)
 }
 
 
-
-// 庄家客户端
 int main(int argc,char** argv)
 {
-	if (argc != 4)
+	if(argc != 4)
 	{
 		printf("useage %s <ip> <port> <uid>\n",argv[0]);
 		exit(0);
@@ -80,8 +76,8 @@ int main(int argc,char** argv)
 	int socket_fd;
 	struct sockaddr_in serv_addr;
 
-	socket_fd = socket(AF_INET,SOCK_STREAM,0);
-	if (socket_fd == -1)
+	socket_fd=socket(AF_INET,SOCK_STREAM,0);
+	if(socket_fd==-1)
 	{
 		printf("create Socket failed\n");
 		return -1;
@@ -90,13 +86,13 @@ int main(int argc,char** argv)
 	char* ip=argv[1];
 	int port=atoi(argv[2]);
 
-	serv_addr.sin_family      = AF_INET;
-	serv_addr.sin_port        = htons(port);
-	serv_addr.sin_addr.s_addr = inet_addr(ip);
+	serv_addr.sin_family=AF_INET;
+	serv_addr.sin_port=htons(port);
+	serv_addr.sin_addr.s_addr=inet_addr(ip);
 
-	memset(&serv_addr.sin_zero, 0, 8);
+	memset(&serv_addr.sin_zero,0,8);
 
-	if(connect(socket_fd, (struct sockaddr*)&serv_addr,sizeof(struct sockaddr)) == -1)
+	if(connect(socket_fd,(struct sockaddr*)&serv_addr,sizeof(struct sockaddr))==-1)
 	{
 		printf("connect to server failed\n");
 		return -1;
@@ -110,32 +106,34 @@ int main(int argc,char** argv)
 	client->connectStart(socket_fd);
 
 
-	int uid = atoi(argv[3]);
+	int uid=atoi(argv[3]);
 	Jpacket packet;
-	if (uid == -1)
+	if(uid==-1)
 	{
 		packet.val["cmd"]=AK_ASK_SERVER_SHUT_DOWN;
 	}
 	else 
 	{
-		packet.val["cmd"] = AK_LOGIN_C; //登录
+		packet.val["cmd"]=AK_LOGIN_C;
 	}
 	packet.val["uid"]=uid;
 	packet.end();
 	client->send(packet.tostring());
 
-
-	//上庄请求
 	g_uid=uid;
+
+
+
 	Jpacket ask_packet;
 	ask_packet.val["cmd"]=AK_ASK_ROLE_C;
 	ask_packet.end();
 	client->send(ask_packet.tostring());
 
 
+
+
 	ev_loop(loop,0);
 	ev_loop_destroy(loop);
-
 	delete client;
 
 	return 0;

@@ -4,11 +4,12 @@ CXX = g++
 CFLAGS = -O0 -Wall
 # CXXFLAGS = -O0 -frtti -fexceptions -Wall
 CXXFLAGS = -g -O0 -fno-strict-aliasing -Wno-write-strings -frtti -fexceptions -Wall -DDEBUG
-INCPATH = -I/usr/local/include -I../../normal_bull  -I../ 
+INCPATH = -I/download/jsoncpp-src-0.5.0/include -I/usr/local/include -I../../zjhsvr  -I../ 
 
 LD = gcc
 LFLAGS = #-static
-LIBS = -L. -L../libbull -L/usr/local/lib  -lstdc++ -lev -ljsoncpp -lhiredis 
+LIBS = /usr/local/lib/libjsoncpp.a /usr/local/lib/libhiredis.a -L. -L./zjhsvr/libzjh -L/usr/local/lib  -lstdc++ -lev
+#LIBS = -L. -L./zjhsvr/libzjh -L/usr/local/lib  -lstdc++ -lev -ljsoncpp -lhiredis 
 
 
 ROLE_CLIENT=role_client
@@ -17,7 +18,7 @@ BET_CLIENT=bet_client
 
 
 
-OBJECTS =  ../AllKillClient.o  ../../normal_bull/jpacket.o ../../normal_bull/log.o
+OBJECTS =  ../AllKillClient.o  ../../zjhsvr/jpacket.o ../../zjhsvr/log.o
 
 all: $(ROLE_CLIENT) $(BET_CLIENT)
 

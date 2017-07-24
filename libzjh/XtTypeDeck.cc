@@ -832,4 +832,20 @@ void XtTypeDeck::getSortHoleCardList(XtHoleCards cardlist[], unsigned int num)
     std::sort(cardlist, cardlist + num, sortCardListFunc());
 }
 
+        
+void XtTypeDeck::forbitFace(const vector<int>& facelist)
+{
+    for(vector<int>::const_iterator iter = facelist.begin(); iter != facelist.end(); ++iter)
+    {
+        for(int i=0;i<XT_CARD_SUIT_NU;i++)
+        {
+            //这个face-1 , 根据s_cards内容定
+            int face = (*iter - 1) % XT_CARD_SINGLE_SUIT_NU;
+            m_cardMask[i][face]=1;
+            //XtHoleCards holdcard;
+		    //holdcard.addCard(s_cards[i][face]);
+            //holdcard.debug();
+        }
+    }
+}
 

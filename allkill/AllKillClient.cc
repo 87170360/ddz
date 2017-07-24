@@ -1,4 +1,4 @@
-﻿#include "AllKillClient.h"
+#include "AllKillClient.h"
 
 #ifndef DEF_BUF_LEN 
 	#define  DEF_BUF_LEN (1024*4)
@@ -21,7 +21,7 @@ int AllKillClient::ms_objectNu=0;
 
 
 
-//收到数据
+
 void AllKillClient::onReciveData(struct ev_loop* loop,struct ev_io* w,int events)
 {
 	AllKillClient* c = (AllKillClient*)w->data;
@@ -30,7 +30,7 @@ void AllKillClient::onReciveData(struct ev_loop* loop,struct ev_io* w,int events
 
 void AllKillClient::onWriteData(struct ev_loop* loop,struct ev_io* w,int events)
 {
-	AllKillClient* c = (AllKillClient*)w->data;
+	AllKillClient* c=(AllKillClient*)w->data;
 	c->writeData();
 }
 
@@ -39,25 +39,25 @@ void AllKillClient::onWriteData(struct ev_loop* loop,struct ev_io* w,int events)
 
 AllKillClient::AllKillClient(struct ev_loop* loop)
 {
-	m_header = (struct Header*)(m_headerBuf);  //
-	m_curHeaderLen = 0;
-	m_state = PARSE_HEADER;	// 包头
+	m_header=(struct Header*)(m_headerBuf);
+	m_curHeaderLen=0;
+	m_state=PARSE_HEADER;
 
-	m_clientFd = -1;
-	m_isClose = 1;       // 关闭标记
-
-
-	m_uid = -1;
-	m_userData = NULL;
+	m_clientFd=-1;
+	m_isClose=1;
 
 
-	m_onReciveCmdFunc = 0;
-	m_reciveCmdFuncData = 0;
+	m_uid=-1;
+	m_userData=NULL;
 
-	m_onCloseFunc = 0;
-	m_closeFuncData = 0;
 
-	m_evLoop = loop;   //事件循环对象
+	m_onReciveCmdFunc=0;
+	m_reciveCmdFuncData=0;
+
+	m_onCloseFunc=0;
+	m_closeFuncData=0;
+
+	m_evLoop=loop;
 
 #ifdef AK_DEBUG 
 	ms_objectNu++;
@@ -100,6 +100,7 @@ void AllKillClient::writeData()
 	}
 
 
+
 	Buffer* buffer = m_writeQueue.front();
 
 	ssize_t written = write(m_clientFd, buffer->dpos(), buffer->nbytes());
@@ -130,12 +131,14 @@ void AllKillClient::writeData()
 		m_writeQueue.pop_front();
 		delete buffer;
 	}
+
+
 }
 
 
 int AllKillClient::send(const char *buf, unsigned int len)
 {
-	if (0 == m_isClose)
+	if (m_isClose==0)
 	{
 		if (m_writeQueue.empty()) 
 		{
@@ -163,13 +166,18 @@ int AllKillClient::send(const std::string& res)
 
 
 
+
+
+
+
+
 void AllKillClient::readData()
 {
 	int ret;
 	char recv_buf[DEF_BUF_LEN];
 
 	//printf("onReciveData\n");
-	// 解析包头
+
 	if (m_state == PARSE_HEADER) 
 	{
 		ret = read(m_clientFd, m_headerBuf+m_curHeaderLen, sizeof(struct Header) - m_curHeaderLen);
@@ -197,6 +205,7 @@ void AllKillClient::readData()
 		}
 
 
+
 		m_curHeaderLen+= ret;
 
 		if (m_curHeaderLen== sizeof(struct Header)) 
@@ -216,7 +225,7 @@ void AllKillClient::readData()
 
 	}
 	else if (m_state == PARSE_BODY) 
-	{	// 解析包体
+	{
 		ret = read(m_clientFd, recv_buf, m_header->length - m_body.length());
 		if (ret < 0) 
 		{
@@ -240,20 +249,21 @@ void AllKillClient::readData()
 		}
 
 
-		recv_buf[ret] = '\0';
-		m_body.append(recv_buf, ret);
 
-		if (/*m_body.length()*/ret == m_header->length) 
+		recv_buf[ret] = '\0';
+		m_body.append(recv_buf);
+
+		if (m_body.length() == m_header->length) 
 		{
 			m_state = PARSE_HEADER;
-			if (m_packet.parse(m_body, ret) < 0) 
+			if (m_packet.parse(m_body) < 0) 
 			{
 				xt_log.error("body parse error.\n");
 				closeConnect();
 				return;
 			}
 
-			// 委派回调函数处理AllKillServer::onReciveClientCmd
+
 			if(m_onReciveCmdFunc)
 			{
 				m_onReciveCmdFunc(this,m_reciveCmdFuncData,m_packet);
@@ -262,25 +272,24 @@ void AllKillClient::readData()
 	}
 }
 
-//连接启动
 int AllKillClient::connectStart(int client_fd)
 {
-	m_clientFd = client_fd;   //会话SOCKET ，并设置会话SOCKET读写事件
-	if (m_clientFd <= 0)
+	m_clientFd=client_fd;
+	if(m_clientFd<=0)
 	{
 		xt_log.error("client error(%d)\n",client_fd);
 		return -1;
 	}
 
 
-	m_isClose = 0;
+	m_isClose=0;
 
-	m_evRead.data = this;
+	m_evRead.data=this;
 
 	ev_io_init(&m_evRead,AllKillClient::onReciveData,m_clientFd,EV_READ);
 	ev_io_start(m_evLoop,&m_evRead);
 
-	m_evWrite.data = this;
+	m_evWrite.data=this;
 	ev_io_init(&m_evWrite,AllKillClient::onWriteData,m_clientFd,EV_WRITE);
 
 	return 0;
@@ -303,8 +312,7 @@ int AllKillClient::closeConnect()
 
 	m_isClose=1;
 
-	// 委派回调函数处理AllKillServer::onClientClose
-	if (m_onCloseFunc)
+	if(m_onCloseFunc)
 	{
 		m_onCloseFunc(this,m_closeFuncData);
 	}

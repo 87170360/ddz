@@ -13,7 +13,7 @@ else
 	echo `date` "Resteart Bet Client"
 	for((i=10;i<12;i++)) 
 	do 
-		./bet_client 127.0.0.1 6800 $i >/dev/null & 
+		./bet_client 127.0.0.1 10000 $i >/dev/null & 
 	done 
 fi
 

@@ -31,12 +31,11 @@ Log xt_log;
 int main(int argc,char** argv)
 {
 	int is_daemonize=0;
-	std::string conf_file;    //保存配置文件名
+	std::string conf_file;
 
 	int oc;
 	char ic;
 
-	///---读取参数
 	while((oc=getopt(argc,argv,"Df:"))!=-1)
 	{
 		switch(oc)
@@ -57,13 +56,13 @@ int main(int argc,char** argv)
 		}
 	}
 
-	if (conf_file == "")
+	if(conf_file=="")
 	{
 		printf("no config file\n");
 		return -1;
 	}
 
-	if (is_daemonize)
+	if(is_daemonize)
 	{
 		printf("begin daemonize\n");
 		daemonize();
@@ -71,13 +70,23 @@ int main(int argc,char** argv)
 
 	signal(SIGPIPE,SIG_IGN);
 
-	// 创建事件循环对象
 	struct ev_loop* loop = ev_loop_new(0);
 
-	AllKillServer* server = new AllKillServer;
-	if (server->start(loop, conf_file) < 0)
+
+
+
+	AllKillServer* server=new AllKillServer;
+
+
+
+
+
+
+
+	
+	if(server->start(loop,conf_file)<0)
 	{
-		printf("start server failed.\n");
+		printf("start server failed\n");
 		goto error;
 	}
 	else 
@@ -85,7 +94,7 @@ int main(int argc,char** argv)
 		printf("start server success\n");
 	}
 
-	// 进入事件循环
+
 	ev_loop(loop,0);
 
 	delete server;
@@ -104,6 +113,8 @@ error:
 	return -1;
 
 }
+
+
 
 
 

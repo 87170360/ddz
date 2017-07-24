@@ -32,6 +32,9 @@ class XtTypeDeck
 		virtual int changeHoleCards(int pos,XtHoleCards* hole_cards);
         void getSortHoleCardList(XtHoleCards cardlist[], unsigned int num);
 
+        //占用部分点数的牌型，使其不会出现, (allkill需要)
+        void forbitFace(const vector<int>& facelist);
+
 	public:
 		void setTypeWeight(int* weight);
 
