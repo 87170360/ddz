@@ -187,6 +187,8 @@ class Table
         void payResult(void);
         //扣除入场费
         void payTax(void);
+        //入场费进奖金池
+        void addBonusPool(void);
         //统计比赛次数和胜场次数
         void total(void);
         //计算各座位输赢

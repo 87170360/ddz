@@ -1030,6 +1030,7 @@ void Table::outProc(void)
     m_time = hlddz.game->OUTTIME;
     ev_timer_again(hlddz.loop, &m_timerOut);
     payTax();
+    addBonusPool();
     //xt_log.debug("m_timerOut first start \n");
     //xt_log.debug("state: %s\n", DESC_STATE[m_state]);
 }
@@ -2028,6 +2029,15 @@ void Table::payTax(void)
 
     packet.end();
     broadcast(NULL, packet.tostring());
+}
+        
+void Table::addBonusPool(void)
+{
+    int ret = hlddz.cache_rc->command("hincrby BonusPool total %d", hlddz.game->ROOMTAX * 3);
+	if (ret < 0) 
+    {
+        xt_log.error("%s:%d, addBonusPool error. \n", __FILE__, __LINE__); 
+	}
 }
 
 void Table::total(void)
