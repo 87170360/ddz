@@ -61,6 +61,10 @@ public:
     bool useRecored(void);
     //刷新配置的牌
     void updateConfigCard(void);
+    //获取今日赢局数
+    int getDayWin(void);
+    //获取奖池数
+    int getBonusTotal(void);
 
 private:
     //兑换券上限
@@ -96,7 +100,7 @@ public:
 
     //可领取的奖励
     int                 m_type; //0 金币 1 话费券
-    float                 m_num;  //数量
+    float               m_num;  //数量
 	
 private:
     ev_timer			_offline_timer;

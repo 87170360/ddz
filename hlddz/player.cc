@@ -75,6 +75,7 @@ int Player::init()
     m_top_money = hlddz.main_rc[index]->get_value_as_int("top_money");
     m_top_count = hlddz.main_rc[index]->get_value_as_int("top_count");
     m_config_card = hlddz.main_rc[index]->get_value_as_string("card");
+    m_top_count = hlddz.main_rc[index]->get_value_as_int("top_count");
     xt_log.debug("player init, uid:%d, money:%d, skey:%s, name:%s, avatar:%s, card:%s\n", m_uid, m_money, m_skey.c_str(), m_name.c_str(), m_avatar.c_str(), m_config_card.c_str());
 
 	if(m_uid<XT_ROBOT_UID_MAX)
@@ -407,9 +408,6 @@ bool Player::communication(void)
 		return false;
 	}
 	int daywin = hlddz.main_rc[index]->reply->integer; 
-    //是否满足赢局数量
-    //更新个人当日赢局总数
-	ret = hlddz.cache_rc->command("hset hu:%d %s-daywin %d", m_uid, getTimeYY().c_str(), daywin);
     if(daywin != 3 && daywin != 8 && daywin != 15 && daywin != 25 && daywin != 40 && daywin != 60 && daywin != 90)
     {
         return false;    
@@ -418,7 +416,7 @@ bool Player::communication(void)
     //系统奖金池金额
 	ret = hlddz.cache_rc->command("hget BonusPool total");
     long long bonustotal = 0;
-    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonustotal))
+    if(ret < 0 || false == hlddz.cache_rc->getSingleInt(bonustotal))
     {
         //xt_log.error("%s:%d, error. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
     }
@@ -426,7 +424,7 @@ bool Player::communication(void)
     //当日发放金额
 	ret = hlddz.cache_rc->command("hget BonusPool %s-out", getTimeYY().c_str());
     long long bonusout = 0;
-    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonusout))
+    if(ret < 0 || false == hlddz.cache_rc->getSingleInt(bonusout))
     {
         //xt_log.error("%s:%d, m_uid:%d\n", __FILE__, __LINE__, m_uid); 
     }
@@ -601,4 +599,27 @@ void Player::updateConfigCard(void)
         return;
     }
     m_config_card = configcard;
+}
+    
+int Player::getDayWin(void)
+{
+    int ret = hlddz.main_rc[index]->command("hget hu:%d %s-daywin", m_uid, getTimeYY().c_str());
+    long long daywin = 0;
+    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(daywin))
+    {
+        xt_log.error("%s%d. uid:%d\n", __FILE__, __LINE__, m_uid);
+        return 0;
+    }
+    return static_cast<int>(daywin);
+}
+
+int Player::getBonusTotal(void)
+{
+	int ret = hlddz.cache_rc->command("hget BonusPool total");
+    long long bonustotal = 0;
+    if(ret < 0 || false == hlddz.cache_rc->getSingleInt(bonustotal))
+    {
+        return 0;
+    }
+    return static_cast<int>(bonustotal);
 }

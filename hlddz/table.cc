@@ -775,6 +775,8 @@ void Table::loginUC(Player* player, int code, bool relogin)
     packet.val["seatid"]    = player->m_seatid;
     packet.val["relogin"]   = relogin;
     packet.val["entrust"]   = m_entrust[player->m_seatid];
+    packet.val["daywin"]    = player->getDayWin();
+    packet.val["bonustotal"]    = player->getBonusTotal();
 
     //pack other player info
     for(map<int, Player*>::iterator it = m_players.begin(); it != m_players.end(); ++it)
