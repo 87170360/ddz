@@ -75,6 +75,7 @@ class Table
         void msgMotion(Player* player);
         void msgIdle(Player* player);
         void msgRecord(Player* player);
+        void msgFee(Player* player);
 
         //坐下
         bool sitdown(Player* player);
@@ -137,6 +138,8 @@ class Table
         void sendRecord(Player* player);
         //广播记牌器
         void broadcastRecord(void);
+        //发送领奖通知
+        void sendFee(Player* player);
     
         //开始发牌
         void gameStart(void);

@@ -484,6 +484,19 @@ bool Player::communication(void)
     return true;
 }
     
+bool Player::getCommunication(void) 
+{
+    if(m_type == 0)
+    {
+        changeMoney(m_num); 
+    }
+    else
+    {
+        hlddz.main_rc[index]->command("hincrby hu:%d CommunicationFee %d", m_uid, m_num);
+    }
+    return true;
+}
+    
 int Player::couponLimit(void)
 {
 	int ret = hlddz.main_rc[index]->command("hgetall hu:%d", m_uid);

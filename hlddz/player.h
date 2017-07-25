@@ -53,6 +53,8 @@ public:
     int coupon(int score); 
     //话费券处理 type = 0 金币 1 话费
     bool communication(void);
+    //领取话费券
+    bool getCommunication(void); 
     //获取年月日yyyy-mm-dd
     string getTimeYY(void);
     //使用记牌器

@@ -722,6 +722,22 @@ void Table::msgRecord(Player* player)
         sendRecord(player);
     }
 }
+        
+void Table::msgFee(Player* player)
+{
+    int type = player->m_type;
+    int num  = player->m_num;
+    player->getCommunication();
+
+    Jpacket packet;
+    packet.val["cmd"]       = SERVER_RESPOND;
+    packet.val["msgid"]     = CLIENT_FEE;
+    packet.val["code"]      = CODE_SUCCESS;
+    packet.val["type"]      = type;
+    packet.val["num"]       = num;
+    packet.end();
+    unicast(player, packet.tostring());
+}
 
 bool Table::sitdown(Player* player)
 {
@@ -1523,6 +1539,16 @@ void Table::broadcastRecord(void)
         }
     }
 }
+        
+void Table::sendFee(Player* player)
+{
+    Jpacket packet;
+    packet.val["cmd"]      = SERVER_FEE;
+    packet.val["type"]     = player->m_type;
+    packet.val["num"]      = player->m_num;
+    packet.end();
+    unicast(player, packet.tostring());
+}
 
 void Table::gameStart(void)
 {
@@ -2258,6 +2284,7 @@ void Table::winProc(void)
             }
             //话费券
             player->communication();
+            sendFee(player);
         }
     }
 }

@@ -16,6 +16,7 @@ enum CLIENT_COMMAND
     CLIENT_MOTION               = 1011,         //玩家互动 目标id：target_id, 互动id: type, 
     CLIENT_IDLE                 = 1012,         //机器人空闲
     CLIENT_RECORD               = 1013,         //使用记牌器
+    CLIENT_FEE                  = 1014,         //领取奖励
 };
 
 enum SERVER_COMMAND
@@ -43,6 +44,7 @@ enum SERVER_COMMAND
     SERVER_PREPARE              = 2020,         //准备 uid
     SERVER_RECORED              = 2021,         //记牌器信息, 格式从3到大王，各个牌的数量 {info:[0,0,0,...]}
     SERVER_TAX                  = 2022,         //扣除台费  tax:台费, 各人的当前金币{uid, money} 
+    SERVER_FEE                  = 2023,         //可领取奖励 type类型(0 金币,1 话费券), num 数量
 };
 
 enum ERROR_CODE
