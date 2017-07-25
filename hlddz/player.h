@@ -52,7 +52,7 @@ public:
     //兑换券处理
     int coupon(int score); 
     //话费券处理 type = 0 金币 1 话费
-    bool communication(int& type, float& num);
+    bool communication(void);
     //获取年月日yyyy-mm-dd
     string getTimeYY(void);
     //使用记牌器
@@ -91,6 +91,10 @@ public:
 	// connect to client
 	Client              *client;
 	int					idle_count;
+
+    //可领取的奖励
+    int                 m_type; //0 金币 1 话费券
+    int                 m_num;  //数量
 	
 private:
     ev_timer			_offline_timer;

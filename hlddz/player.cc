@@ -29,6 +29,8 @@ Player::Player() : m_table_count(0), _offline_timeout(60 * 30)
 {
 	_offline_timer.data = this;
 	ev_timer_init(&_offline_timer, Player::offline_timeout, _offline_timeout, 0);
+    m_type = 0;
+    m_num = 0;
 }
 
 Player::~Player()
@@ -393,7 +395,7 @@ int Player::coupon(int score)
     return result;
 }
     
-bool Player::communication(int& type, float& num)
+bool Player::communication(void)
 {
     //判断赢局数量
     
@@ -414,7 +416,7 @@ bool Player::communication(int& type, float& num)
     }
     
     //系统奖金池金额
-	ret = hlddz.cache_rc->command("hget BonusPoll total");
+	ret = hlddz.cache_rc->command("hget BonusPool total");
     long long bonustotal = 0;
     if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonustotal))
     {
@@ -422,7 +424,7 @@ bool Player::communication(int& type, float& num)
     }
 
     //当日发放金额
-	ret = hlddz.cache_rc->command("hget BonusPoll %s-out", getTimeYY().c_str());
+	ret = hlddz.cache_rc->command("hget BonusPool %s-out", getTimeYY().c_str());
     long long bonusout = 0;
     if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonusout))
     {
@@ -439,36 +441,45 @@ bool Player::communication(int& type, float& num)
     switch(tmpdaywin)
     {
         case 3:
-            type = rand() % 100 < 55 ? 0 : 1;  
+            m_type = rand() % 100 < 55 ? 0 : 1;  
             break;
         case 8:
-            type = rand() % 100 < 50 ? 0 : 1;  
+            m_type = rand() % 100 < 50 ? 0 : 1;  
             break;
         case 15:
-            type = rand() % 100 < 45 ? 0 : 1;  
+            m_type = rand() % 100 < 45 ? 0 : 1;  
             break;
         case 25:
-            type = rand() % 100 < 40 ? 0 : 1;  
+            m_type = rand() % 100 < 40 ? 0 : 1;  
             break;
         case 40:
-            type = rand() % 100 < 35 ? 0 : 1;  
+            m_type = rand() % 100 < 35 ? 0 : 1;  
             break;
         case 60:
-            type = rand() % 100 < 30 ? 0 : 1;  
+            m_type = rand() % 100 < 30 ? 0 : 1;  
             break;
         case 90:
-            type = rand() % 100 < 0 ? 0 : 1;  
+            m_type = rand() % 100 < 0 ? 0 : 1;  
             break;
     }
 
-    if(type == 0)
+    int subnum = 0;
+    if(m_type == 0)
     {
-        num = (rand() % 500) + 500;
+        m_num = (rand() % 500) + 500;
+        subnum = -m_num;
     }
     else
     {
-        num  = (rand() % 100) / 100.0;
+        m_num  = (rand() % 100) / 100.0;
+        subnum = -m_num * 10000;
     }
+
+    //更新数据
+    //系统奖金池金额
+	ret = hlddz.cache_rc->command("hincrby BonusPool total %d", subnum);
+    //当日发放金额
+	ret = hlddz.cache_rc->command("hincrby BonusPool %s-out %d", getTimeYY().c_str(), -subnum);
     
     return true;
 }
