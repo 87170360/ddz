@@ -2256,6 +2256,8 @@ void Table::winProc(void)
             {
                 topCoupon(player);
             }
+            //话费券
+            player->communication();
         }
     }
 }

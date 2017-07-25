@@ -399,18 +399,18 @@ bool Player::communication(void)
 {
     //判断赢局数量
     
-    //个人当日赢局总数
-    int ret = 0;
-	ret = hlddz.main_rc[index]->command("hget hu:%d %s-daywin", m_uid, getTimeYY().c_str());
-    long long daywin = 0;
-    if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(daywin))
+    //累计个人当日赢局总数
+    int ret = hlddz.main_rc[index]->command("hincrby hu:%d %s-daywin 1", m_uid, getTimeYY().c_str());
+	if (ret < 0) 
     {
         xt_log.error("%s:%d, error. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
-    }
-
+		return false;
+	}
+	int daywin = hlddz.main_rc[index]->reply->integer; 
     //是否满足赢局数量
-    int tmpdaywin = daywin + 1;
-    if(tmpdaywin != 3 && tmpdaywin != 8 && tmpdaywin != 15 && tmpdaywin != 25 && tmpdaywin != 40 && tmpdaywin != 60 && tmpdaywin != 90)
+    //更新个人当日赢局总数
+	ret = hlddz.cache_rc->command("hset hu:%d %s-daywin %d", m_uid, getTimeYY().c_str(), daywin);
+    if(daywin != 3 && daywin != 8 && daywin != 15 && daywin != 25 && daywin != 40 && daywin != 60 && daywin != 90)
     {
         return false;    
     }
@@ -420,7 +420,7 @@ bool Player::communication(void)
     long long bonustotal = 0;
     if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonustotal))
     {
-        xt_log.error("%s:%d, error. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+        //xt_log.error("%s:%d, error. m_uid:%d\n", __FILE__, __LINE__, m_uid); 
     }
 
     //当日发放金额
@@ -428,7 +428,7 @@ bool Player::communication(void)
     long long bonusout = 0;
     if(ret < 0 || false == hlddz.main_rc[index]->getSingleInt(bonusout))
     {
-        xt_log.error("%s:%d, m_uid:%d\n", __FILE__, __LINE__, m_uid); 
+        //xt_log.error("%s:%d, m_uid:%d\n", __FILE__, __LINE__, m_uid); 
     }
 
     //是否满足奖池金额限制
@@ -438,7 +438,7 @@ bool Player::communication(void)
     }
 
     //奖励处理 //话费券处理 type = 0 金币 1 话费
-    switch(tmpdaywin)
+    switch(daywin)
     {
         case 3:
             m_type = rand() % 100 < 55 ? 0 : 1;  

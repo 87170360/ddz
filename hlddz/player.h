@@ -94,7 +94,7 @@ public:
 
     //可领取的奖励
     int                 m_type; //0 金币 1 话费券
-    int                 m_num;  //数量
+    float                 m_num;  //数量
 	
 private:
     ev_timer			_offline_timer;
