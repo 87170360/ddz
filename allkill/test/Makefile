@@ -48,3 +48,6 @@ $(BET_CLIENT): $(OBJECTS) $(BET_CLIENT).o
 
 clean:
 	rm -rf $(DESTDIR_TARGET) *.o
+
+cp:
+	cp $(BET_CLIENT) /data/game/bin

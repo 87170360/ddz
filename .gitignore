@@ -25,6 +25,7 @@ lzddz/tags
 lzddz_robot/tags
 bsddz/tags
 bsddz_robot/tags
+allkill/tags
 
 grab_bull/grab_bull
 grab_robot/grab_robot
@@ -42,6 +43,8 @@ lzddz/lzddz
 lzddz_robot/lzddz_robot
 bsddz/bsddz
 bsddz_robot/bsddz_robot
+allkill/test/roleclient
+allkill/test/betclient
 
 # Prerequisites
 *.d
