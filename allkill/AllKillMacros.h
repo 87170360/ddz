@@ -87,7 +87,8 @@ enum E_AllKillGameErr
 #define AK_BET_FLOW_ID 301 
 #define AK_ROTTLE_FLOW_ID 302
 
-
+//上桌玩家数量
+#define AK_DECKPLAYER_NU 6
 
 #endif /*_ALL_KILL_MACROS_H_*/
 

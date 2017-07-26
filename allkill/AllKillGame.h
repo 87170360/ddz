@@ -403,6 +403,7 @@ class AllKillGame
         int shutDown();
     public:
         AllKillPlayer* getPlayer(int uid);
+        AllKillPlayer* getPlayerNoAdd(int uid);
 
         void playerLogin(AllKillPlayer* player);
         void playerBet(AllKillPlayer* player,Jpacket& package);
@@ -431,6 +432,7 @@ class AllKillGame
         void formatAskRoleList(Jpacket* packet);
         void formatRole(Jpacket* packet);
         void formatRottleFirstReward(Jpacket* packet);
+        void formatDeckPlayer(Jpacket& packet);
 
     public:
         void sendLoginSuccess(AllKillPlayer* player);
@@ -477,6 +479,8 @@ class AllKillGame
         std::map<int,AllKillPlayer*> m_loginPlayers; 
         std::map<int,AllKillPlayer*> m_betPlayers;
         std::vector<AllKillPlayer*> m_askRoleList;
+        //上桌玩家列表
+        int m_deckPlayers[AK_DECKPLAYER_NU]; //value is uid, index is seatid
         AllKillPlayer* m_role;
         AllKillServer* m_server;
 

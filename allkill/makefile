@@ -36,3 +36,6 @@ $(DESTDIR_TARGET): $(OBJECTS)
 
 clean:
 	rm -rf $(DESTDIR_TARGET) *.o
+
+cp:
+	cp -f $(DESTDIR_TARGET) /data/game/bin

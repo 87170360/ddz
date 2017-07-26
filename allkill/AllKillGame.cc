@@ -1112,6 +1112,10 @@ AllKillGame::AllKillGame()
 	m_status=AK_Ready;
 	m_evLoop=NULL;
 	m_rottleTotalMoney=0;
+    for(int i = 0; i < AK_DECKPLAYER_NU; ++i)
+    {
+        m_deckPlayers[i] = 0; 
+    }
 }
 
 AllKillGame::~AllKillGame()
@@ -1146,6 +1150,23 @@ AllKillPlayer* AllKillGame::getPlayer(int uid)
 
 	return player;
 
+}
+
+AllKillPlayer* AllKillGame::getPlayerNoAdd(int uid)
+{
+	std::map<int,AllKillPlayer*>::iterator iter= m_offlinePlayers.find(uid);
+	if(iter!=m_offlinePlayers.end())
+	{
+		return iter->second;
+	}
+
+	iter=m_loginPlayers.find(uid);
+	if(iter!=m_loginPlayers.end())
+	{
+		return iter->second;
+	}
+
+	return NULL;
 }
 
 
@@ -2321,6 +2342,7 @@ void AllKillGame::sendGameInfo(AllKillPlayer* player)
 
 	formatAskRoleList(&packet);
 	formatRole(&packet);
+    formatDeckPlayer(packet);
 
 	/* send seat infor */
 	for(int i=0;i<AK_SEAT_ID_NU;i++)
@@ -2690,8 +2712,24 @@ void AllKillGame::formatAskRoleList(Jpacket* packet)
 	}
 }
 
-
-
+void AllKillGame::formatDeckPlayer(Jpacket& packet)
+{
+    AllKillPlayer* player = NULL;
+    for(int i = 0; i < AK_DECKPLAYER_NU; ++i)
+    {
+		player = getPlayerNoAdd(m_deckPlayers[i]);
+        if(NULL == player)
+        {
+            continue;
+        }
+		packet.val["deckplayer"][i]["name"]=player->getName();
+		packet.val["deckplayer"][i]["uid"]=player->getUid();
+		packet.val["deckplayer"][i]["avatar"]=player->getAvatar();
+		packet.val["deckplayer"][i]["money"]=player->getMoney();
+		packet.val["deckplayer"][i]["sex"]=player->getSex();
+		packet.val["deckplayer"][i]["seatid"]=i;
+    }
+}
 
 void AllKillGame::formatRottleFirstReward(Jpacket* packet)
 {
