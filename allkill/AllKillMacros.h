@@ -37,6 +37,9 @@ enum E_AllKillGameCmd
 
 	AK_PLAYER_BET_REWARD_SU=6014,
 
+    AK_DESK_C=6015,     //要求上桌
+    AK_DESK_RSP=6016,   //上桌回复 result = 0 成功， 1 失败
+
 	AK_CHAT_C=6021,
 	AK_CHAT_SB=6031,
 

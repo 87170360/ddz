@@ -343,9 +343,11 @@ void AllKillServer::clientChat(AllKillClient* client,Jpacket& package)
 	broadcast(NULL,packet.tostring());
 }
 
-
-
-
+void AllKillServer::clientDesk(AllKillClient* client,Jpacket& package)
+{
+	AllKillPlayer* player=(AllKillPlayer*)client->getUserData();
+	m_game->playerDesk(player,package);
+}
 
 int AllKillServer::start(struct ev_loop* loop,const std::string& conf_file)
 {

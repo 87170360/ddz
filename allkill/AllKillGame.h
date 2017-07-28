@@ -410,6 +410,7 @@ class AllKillGame
         void playerAskRole(AllKillPlayer* player,Jpacket& package);
         void playerUnRole(AllKillPlayer* player,Jpacket& package);
         void playerLogout(AllKillPlayer* player);
+        void playerDesk(AllKillPlayer* player,Jpacket& package);
 
     public:
         void readyTimer();
@@ -480,7 +481,7 @@ class AllKillGame
         std::map<int,AllKillPlayer*> m_betPlayers;
         std::vector<AllKillPlayer*> m_askRoleList;
         //上桌玩家列表
-        int m_deckPlayers[AK_DECKPLAYER_NU]; //value is uid, index is seatid
+        int m_descPlayers[AK_DECKPLAYER_NU]; //value is uid, index is seatid
         AllKillPlayer* m_role;
         AllKillServer* m_server;
 

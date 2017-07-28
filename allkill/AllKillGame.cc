@@ -1114,7 +1114,7 @@ AllKillGame::AllKillGame()
 	m_rottleTotalMoney=0;
     for(int i = 0; i < AK_DECKPLAYER_NU; ++i)
     {
-        m_deckPlayers[i] = 0; 
+        m_descPlayers[i] = 0; 
     }
 }
 
@@ -1347,6 +1347,28 @@ void AllKillGame::playerUnRole(AllKillPlayer* player,Jpacket& package)
 	sendUnRoleErr(player,AK_NOT_IN_ROLE_LIST,"");
 }
 
+void AllKillGame::playerDesk(AllKillPlayer* player,Jpacket& package)
+{
+	int seatid = package.val["seatid"].asInt();
+
+    Jpacket packet;
+    packet.val["cmd"]       = AK_DESK_RSP;
+    packet.val["name"]      = player->getName();
+    packet.val["uid"]       = player->getUid();
+    packet.val["avatar"]    = player->getAvatar();
+    packet.val["money"]     = player->getMoney();
+    packet.val["sex"]       = player->getSex();
+    packet.val["seatid"]    = seatid;
+
+    if(m_descPlayers[seat_id] == 0)
+    {
+        m_descPlayers[seat_id] = player->getUid();
+    }
+        
+    packet.val["result"] = m_descPlayers[seat_id] == player->getUid() ? 0 : 1;
+    packet.end();
+    m_server->broadcast(NULL, packet.tostring());
+}
 
 void AllKillGame::playerLogout(AllKillPlayer* player)
 {
@@ -2717,7 +2739,7 @@ void AllKillGame::formatDeckPlayer(Jpacket& packet)
     AllKillPlayer* player = NULL;
     for(int i = 0; i < AK_DECKPLAYER_NU; ++i)
     {
-		player = getPlayerNoAdd(m_deckPlayers[i]);
+		player = getPlayerNoAdd(m_descPlayers[i]);
         if(NULL == player)
         {
             continue;

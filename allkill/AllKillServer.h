@@ -80,29 +80,18 @@ class AllKillServer
 		void clientUnRole(AllKillClient* client,Jpacket& package);
 		void clientLogOut(AllKillClient* client,Jpacket& package);
 		void clientChat(AllKillClient* client,Jpacket& package);
-
-
-
+		void clientDesk(AllKillClient* client,Jpacket& package);
 
 		void unicast(AllKillPlayer* player,const std::string& data);
 		void broadcast(AllKillPlayer* player,const std::string& data);
-
-
-
 
 	private:
 		struct ev_loop* m_evLoop;
 		ev_io m_evAccept;
 
-
 		/* socket fd */
 		int m_listenFd;
-
-
-
 		Json::Value m_conf;
-
-
 
 		/* client info */
 		std::map<int,AllKillClient*> m_allClient;
@@ -110,7 +99,6 @@ class AllKillServer
 
 		/* game */
 		AllKillGame* m_game;
-
 
 		/* redis */
 		RedisClient* m_mainRc[20];
