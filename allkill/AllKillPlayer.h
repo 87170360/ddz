@@ -71,6 +71,9 @@ class AllKillPlayer
 		bool checkBanned(void);
         int getAllKillTotalBet(void);
 
+		void setDeskSeatid(int iSeatid){ m_iDeskSeatid = iSeatid; }
+		int getDeskSeatid(){ return m_iDeskSeatid; }
+
 	private:
 		/* player info */
 		int m_uid;
@@ -83,7 +86,7 @@ class AllKillPlayer
 		/* player is  role */
 		bool m_isUnRole;
 
-
+		int m_iDeskSeatid;
 
 		/* player seat bet */
 		int m_seatBetNu[AK_SEAT_ID_NU];

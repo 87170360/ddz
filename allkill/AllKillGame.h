@@ -365,6 +365,7 @@ class AllKillGameConfig
 
         int m_vid;
 
+		int m_deskMinMoney;
 };
 
 //values: m_init_value m_change_value m_proba m_win_act_lower m_win_act_upper m_lose_act_lower m_lose_act_upper
@@ -433,14 +434,14 @@ class AllKillGame
         void formatAskRoleList(Jpacket* packet);
         void formatRole(Jpacket* packet);
         void formatRottleFirstReward(Jpacket* packet);
-        void formatDeckPlayer(Jpacket& packet);
+        void formatDeskPlayer(Jpacket& packet);
 
     public:
         void sendLoginSuccess(AllKillPlayer* player);
 
         void sendGameInfo(AllKillPlayer* player);
 
-        void broadcastGameReady(AllKillPlayer* player);
+        void broadcastGameReady(AllKillPlayer* player, , bool formatDeskInfo = false);
         void broadcastGameStart(AllKillPlayer* player);
         void broadcastGameEnd(AllKillPlayer* player);
         void broadcastGameUpdate(AllKillPlayer* player);
@@ -450,6 +451,8 @@ class AllKillGame
 
         void sendBetError(AllKillPlayer* player,int code,const std::string& desc);
         void sendBetSuccess(AllKillPlayer* player,int seat_id);
+
+		void CheckBroadcastDeskBetInfo(AllKillPlayer* player, int seat_id);
 
         void sendAskRoleSuccess(AllKillPlayer* player);
         void sendAskRoleError(AllKillPlayer* player,int code ,const std::string& desc);
@@ -464,6 +467,7 @@ class AllKillGame
         void handlePlayerBetResult();
         void handleRottleResult();
         void handleMoneyResult();
+		void handleDeskChange();
 
         int getCardTypeNu(int type);
         float getCardTypeRottleRadio(int type);
@@ -484,6 +488,8 @@ class AllKillGame
         int m_descPlayers[AK_DECKPLAYER_NU]; //value is uid, index is seatid
         AllKillPlayer* m_role;
         AllKillServer* m_server;
+
+		bool m_bDeskPlayerChange;
 
         /* game status */
         int m_status;

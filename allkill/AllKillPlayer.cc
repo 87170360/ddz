@@ -24,6 +24,7 @@ AllKillPlayer::AllKillPlayer()
 	m_game=NULL;
 	m_server=NULL;
 	m_isUnRole=true;
+	m_iDeskSeatid = INVALID_SEATID;
 
 	resetSeatBet();
 

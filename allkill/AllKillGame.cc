@@ -1116,6 +1116,7 @@ AllKillGame::AllKillGame()
     {
         m_descPlayers[i] = 0; 
     }
+	m_bDeskPlayerChange = false;
 }
 
 AllKillGame::~AllKillGame()
@@ -1251,7 +1252,6 @@ void AllKillGame::playerBet(AllKillPlayer* player,Jpacket& package)
 
 	m_gameBetting.m_seatBet[seat_id-AK_SEAT_ID_START]+=bet_nu;
 
-
 	player->decMoney(m_gameConfig.m_baseMoney*bet_nu);
 
 	player->addSeatBet(seat_id,bet_nu);
@@ -1265,6 +1265,8 @@ void AllKillGame::playerBet(AllKillPlayer* player,Jpacket& package)
 
 	m_betPlayers[uid]=player;
 	sendBetSuccess(player,seat_id);
+
+	CheckBroadcastDeskBetInfo(player,seat_id);
 }
 
 void AllKillGame::playerAskRole(AllKillPlayer* player,Jpacket& package)
@@ -1349,24 +1351,69 @@ void AllKillGame::playerUnRole(AllKillPlayer* player,Jpacket& package)
 
 void AllKillGame::playerDesk(AllKillPlayer* player,Jpacket& package)
 {
-	int seatid = package.val["seatid"].asInt();
+	if (player->getMoney() < m_gameConfig.m_deskMinMoney)
+	{
+		if (player->updateMoney() < m_gameConfig.m_deskMinMoney)
+		{
+			xt_log.warn("player(%d) money not enough\n",player->getUid());
+			
+			Jpacket packet;
+			packet.val["cmd"]	  = AK_DESK_RSP;
+			packet.val["ret"]	  = (int)AK_MONEY_NOT_ENOUGH;
+			packet.val["desc"]	  = "money not enough.";
+			packet.end();
+			m_server->unicast(NULL, packet.tostring());
+			return;
+		}
+	}
+	
+	int seatid = package.val["desk_seatid"].asInt();
+	if (seatid >= AK_DECKPLAYER_NU || seatid < 0)
+	{
+		xt_log.error("player(%d) get desk fail, seatid error:%d \n",player->getUid(), seatid);
+		
+		Jpacket packet;
+		packet.val["cmd"]	  = AK_DESK_RSP;
+		packet.val["ret"]     = (int)AK_SEAT_ID_ERR;
+		packet.val["desc"]    = "seatid error.";
+		packet.end();
+		m_server->unicast(NULL, packet.tostring());
+		return;
+	}
+
+	if (m_descPlayers[seat_id] != 0)
+	{
+		xt_log.info("player(%d) get desk fail, seatid have player:%d \n",player->getUid(), seatid);
+
+		Jpacket packet;
+		packet.val["cmd"]	  = AK_DESK_RSP;
+		packet.val["ret"]     = (int)AK_SEAT_HAVE_PLAYER;
+		packet.val["desc"]    = "seat have player.";
+		packet.end();
+		m_server->unicast(NULL, packet.tostring());
+		return;
+	}
+
+    m_descPlayers[seat_id] = player->getUid();
+	player->setDeskSeatid(seat_id);
+
+	Jpacket packetResp;
+	packetResp.val["cmd"]		= AK_DESK_RSP;
+	packetResp.val["ret"]		= 0;
+	packetResp.val["desc"]	  	= "success.";
+	packetResp.end();
+	m_server->unicast(NULL, packetResp.tostring());
 
     Jpacket packet;
-    packet.val["cmd"]       = AK_DESK_RSP;
+    packet.val["cmd"]       = AK_DESK_SB;
     packet.val["name"]      = player->getName();
     packet.val["uid"]       = player->getUid();
     packet.val["avatar"]    = player->getAvatar();
     packet.val["money"]     = player->getMoney();
     packet.val["sex"]       = player->getSex();
-    packet.val["seatid"]    = seatid;
-
-    if(m_descPlayers[seat_id] == 0)
-    {
-        m_descPlayers[seat_id] = player->getUid();
-    }
-        
-    packet.val["result"] = m_descPlayers[seat_id] == player->getUid() ? 0 : 1;
+    packet.val["desk_seatid"]    = seatid;
     packet.end();
+	
     m_server->broadcast(NULL, packet.tostring());
 }
 
@@ -1484,6 +1531,7 @@ void AllKillGame::playerLogout(AllKillPlayer* player)
 int AllKillGame::configGame(Json::Value& value)
 {
 	m_gameConfig.m_baseMoney=value["venue"]["base_money"].asInt();
+	m_gameConfig.m_deskMinMoney = value["venue"]["desk_min_money"].asInt();
 	m_gameConfig.m_askRoleMinMoney=value["venue"]["ask_role_min"].asInt();
 	m_gameConfig.m_roleMinMoney=value["venue"]["un_role_limit"].asInt();
 	m_gameConfig.m_roleAnotherCard=value["venue"]["role_another_radio"].asInt();
@@ -1497,7 +1545,6 @@ int AllKillGame::configGame(Json::Value& value)
 	m_gameConfig.m_sysRoleSex=value["venue"]["sys_role"]["sex"].asInt();
 
 	m_gameConfig.m_enterRoomChat=value["venue"]["enter_chat"].asString();
-
 
 	m_gameConfig.m_chatRoleName=value["venue"]["chat_role"]["name"].asString();
 	m_gameConfig.m_chatRoleAvatar=value["venue"]["chat_role"]["avatar"].asString();
@@ -1851,9 +1898,17 @@ void AllKillGame::handleGameReady()
 
 
 	/* offline */
+	bool bDeskPlayerChange = false;
 	for(std::map<int,AllKillPlayer*>::iterator iter=m_offlinePlayers.begin();
 			iter!=m_offlinePlayers.end();++iter)
 	{
+		int iSeatid = iter->second->getDeskSeatid();
+		if (iSeatid >= 0 && iSeatid < AK_SEAT_ID_NU)
+		{
+			m_descPlayers[iSeatid] = 0;
+			bDeskPlayerChange = true;
+		}
+		
 		delete iter->second;
 	}
 
@@ -1861,7 +1916,7 @@ void AllKillGame::handleGameReady()
 
 	setNextRole();
 
-	broadcastGameReady(NULL);
+	broadcastGameReady(NULL, bDeskPlayerChange);
 }
 
 void AllKillGame::handleGameStart()
@@ -1878,9 +1933,6 @@ void AllKillGame::handleChangeRole()
 		broadcastAskRoleChange(NULL);
 	}
 }
-
-
-
 
 void AllKillGame::handlePlayerBetResult()
 {
@@ -2226,7 +2278,6 @@ void AllKillGame::handleMoneyResult()
 				m_mostRewardPlayer=player;
 			}
 		}
-
 	}
 
     //暗池计算
@@ -2242,7 +2293,23 @@ void AllKillGame::handleMoneyResult()
     m_win_control.resetValue();
 }
 
-
+void AllKillGame::handleDeskChange()
+{
+	for (int i = 0; i < AK_DECKPLAYER_NU; i++)
+	{
+		int uid = m_descPlayers[i];
+		if (uid != 0)
+		{
+			AllKillPlayer* pPlayer = getPlayerNoAdd(uid);
+			if (pPlayer->getDeskSeatid() > 0 && pPlayer->getDeskSeatid() < AK_DECKPLAYER_NU && pPlayer->getMoney() < m_gameConfig.m_deskMinMoney)
+			{
+				m_descPlayers[pPlayer->getDeskSeatid()] = 0;
+				pPlayer->setDeskSeatid(INVALID_SEATID);
+				m_bDeskPlayerChange = true;
+			}
+		}
+	}
+}
 
 void AllKillGame::handleGameEnd()
 {
@@ -2250,16 +2317,13 @@ void AllKillGame::handleGameEnd()
 	handlePlayerBetResult();
 	handleMoneyResult();
 	handleRottleResult();
+	handleDeskChange();
 	broadcastGameUpdate(NULL);
 	broadcastGameEnd(NULL);
 	sendGameInfoToSpeaker();
 	sendBetPlayerResult();
 	saveGameResultToSql();
 }
-
-
-
-
 
 void AllKillGame::handleGameUpdate()
 {
@@ -2424,7 +2488,7 @@ void AllKillGame::sendGameInfo(AllKillPlayer* player)
 }
 
 
-void AllKillGame::broadcastGameReady(AllKillPlayer* player)
+void AllKillGame::broadcastGameReady(AllKillPlayer* player, bool formatDeskInfo)
 {
 	Jpacket packet;
 
@@ -2434,7 +2498,11 @@ void AllKillGame::broadcastGameReady(AllKillPlayer* player)
 
 	formatRole(&packet);
 	formatAskRoleList(&packet);
-
+	if (formatDeskInfo)
+	{
+		formatDeskPlayer(packet);
+	}
+	
 	packet.end();
 	m_server->broadcast(player,packet.tostring());
 }
@@ -2463,12 +2531,16 @@ void AllKillGame::broadcastGameEnd(AllKillPlayer* player)
 	formatRottleFirstReward(&packet);
 	formatGameResult(&packet);
 
+	if (m_bDeskPlayerChange)
+	{
+		m_bDeskPlayerChange = false;
+		formatDeskPlayer(packet);
+	}
+
 	packet.val["rottle_money"]=m_rottleTotalMoney;
 	packet.end();
 
-
 	m_server->broadcast(player,packet.tostring());
-
 }
 
 void AllKillGame::broadcastAskRoleChange(AllKillPlayer* player)
@@ -2598,8 +2670,31 @@ void AllKillGame::sendBetSuccess(AllKillPlayer* player,int seat_id)
 	m_server->unicast(player,packet.tostring());
 }
 
+void AllKillGame::CheckBroadcastDeskBetInfo(AllKillPlayer* player, int seat_id)
+{
+	if (player->getDeskSeatid() == INVALID_SEATID)
+	{
+		return;
+	}
+	
+	xt_log.debug("player(%d) broadcast deskbetinfo seatid:%d\n",player->getUid(), player->getDeskSeatid());
 
+	Jpacket packet;
 
+	packet.val["cmd"] = AK_DESK_BET_SB;
+	packet.val["uid"] = player->getUid();
+	packet.val["desk_seat_id"] = player->getDeskSeatid();
+	
+	packet.val["bet_info"]["seat_id"] = seat_id;
+	packet.val["bet_info"]["seat_bet_nu"]=m_gameBetting.m_seatBet[seat_id-AK_SEAT_ID_START];
+	packet.val["bet_info"]["your_bet_nu"]=player->getSeatBet(seat_id);
+	
+	packet.val["money"]=player->getMoney();
+
+	packet.end();
+
+	m_server->broadcast(NULL,packet.tostring());
+}
 
 void AllKillGame::sendAskRoleSuccess(AllKillPlayer* player)
 {
@@ -2734,7 +2829,7 @@ void AllKillGame::formatAskRoleList(Jpacket* packet)
 	}
 }
 
-void AllKillGame::formatDeckPlayer(Jpacket& packet)
+void AllKillGame::formatDeskPlayer(Jpacket& packet)
 {
     AllKillPlayer* player = NULL;
     for(int i = 0; i < AK_DECKPLAYER_NU; ++i)
@@ -2744,12 +2839,12 @@ void AllKillGame::formatDeckPlayer(Jpacket& packet)
         {
             continue;
         }
-		packet.val["deckplayer"][i]["name"]=player->getName();
-		packet.val["deckplayer"][i]["uid"]=player->getUid();
-		packet.val["deckplayer"][i]["avatar"]=player->getAvatar();
-		packet.val["deckplayer"][i]["money"]=player->getMoney();
-		packet.val["deckplayer"][i]["sex"]=player->getSex();
-		packet.val["deckplayer"][i]["seatid"]=i;
+		packet.val["deskplayer"][i]["name"]=player->getName();
+		packet.val["deskplayer"][i]["uid"]=player->getUid();
+		packet.val["deskplayer"][i]["avatar"]=player->getAvatar();
+		packet.val["deskplayer"][i]["money"]=player->getMoney();
+		packet.val["deskplayer"][i]["sex"]=player->getSex();
+		packet.val["deskplayer"][i]["seatid"]=i;
     }
 }
 
