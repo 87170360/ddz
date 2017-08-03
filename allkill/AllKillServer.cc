@@ -244,7 +244,7 @@ void AllKillServer::clientLogin(AllKillClient* client,Jpacket& package)
 	}
 
 
-
+#if 0
 	int i=uid%m_mainSize;
 	int ret=m_mainRc[i]->command("hget u:%d skey",uid);
 	if(ret<0)
@@ -265,6 +265,7 @@ void AllKillServer::clientLogin(AllKillClient* client,Jpacket& package)
 			return;
 		}
 	}
+#endif
 
 	client->setUid(uid);
 

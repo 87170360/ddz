@@ -1951,7 +1951,7 @@ void AllKillGame::CheckClearDesk(AllKillPlayer* player)
 	{
 		m_descPlayers[iSeatid] = 0;
 
-		xt_log.info("play(%d) logout clear desk info :%d\n", player->getUid());
+		xt_log.info("play(%d) logout clear desk info\n", player->getUid());
 		
 		broadcastDeskPlayerLeave(player, LDR_LOGOUT);
 	}
