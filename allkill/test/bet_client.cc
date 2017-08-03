@@ -54,6 +54,15 @@ static void recivie_data(AllKillClient* client,void* data,Jpacket& packet)
 			packet.end();
 			client->send(packet.tostring());
 		}
+		else
+		if(rand()%5==1)
+		{
+			Jpacket packet;
+			packet.val["cmd"]=AK_DESK_C;
+			packet.val["desk_seatid"]=seat_id;
+			packet.end();
+			client->send(packet.tostring());
+		}
 	}
 }
 

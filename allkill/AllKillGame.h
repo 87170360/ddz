@@ -429,6 +429,8 @@ class AllKillGame
 
         void saveGameResultToSql();
 
+		void CheckClearDesk(AllKillPlayer* player);
+
     public:
         void formatGameResult(Jpacket* packet);
         void formatAskRoleList(Jpacket* packet);
@@ -441,11 +443,12 @@ class AllKillGame
 
         void sendGameInfo(AllKillPlayer* player);
 
-        void broadcastGameReady(AllKillPlayer* player, , bool formatDeskInfo = false);
+        void broadcastGameReady(AllKillPlayer* player);
         void broadcastGameStart(AllKillPlayer* player);
         void broadcastGameEnd(AllKillPlayer* player);
         void broadcastGameUpdate(AllKillPlayer* player);
         void broadcastAskRoleChange(AllKillPlayer* player);
+		void broadcastDeskPlayerLeave(AllKillPlayer* player, int reason);
 
         void sendGameInfoToSpeaker();
 
@@ -488,8 +491,6 @@ class AllKillGame
         int m_descPlayers[AK_DECKPLAYER_NU]; //value is uid, index is seatid
         AllKillPlayer* m_role;
         AllKillServer* m_server;
-
-		bool m_bDeskPlayerChange;
 
         /* game status */
         int m_status;

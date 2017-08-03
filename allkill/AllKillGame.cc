@@ -1116,7 +1116,6 @@ AllKillGame::AllKillGame()
     {
         m_descPlayers[i] = 0; 
     }
-	m_bDeskPlayerChange = false;
 }
 
 AllKillGame::~AllKillGame()
@@ -1351,6 +1350,13 @@ void AllKillGame::playerUnRole(AllKillPlayer* player,Jpacket& package)
 
 void AllKillGame::playerDesk(AllKillPlayer* player,Jpacket& package)
 {
+	if (player == NULL)
+	{
+		xt_log.error("player is null\n");
+		return;
+	}
+
+	/* 判断金币数量是否达标 */
 	if (player->getMoney() < m_gameConfig.m_deskMinMoney)
 	{
 		if (player->updateMoney() < m_gameConfig.m_deskMinMoney)
@@ -1362,11 +1368,12 @@ void AllKillGame::playerDesk(AllKillPlayer* player,Jpacket& package)
 			packet.val["ret"]	  = (int)AK_MONEY_NOT_ENOUGH;
 			packet.val["desc"]	  = "money not enough.";
 			packet.end();
-			m_server->unicast(NULL, packet.tostring());
+			m_server->unicast(player, packet.tostring());
 			return;
 		}
 	}
 	
+	/* 判断目标位置是否合法 */
 	int seatid = package.val["desk_seatid"].asInt();
 	if (seatid >= AK_DECKPLAYER_NU || seatid < 0)
 	{
@@ -1377,33 +1384,60 @@ void AllKillGame::playerDesk(AllKillPlayer* player,Jpacket& package)
 		packet.val["ret"]     = (int)AK_SEAT_ID_ERR;
 		packet.val["desc"]    = "seatid error.";
 		packet.end();
-		m_server->unicast(NULL, packet.tostring());
+		m_server->unicast(player, packet.tostring());
 		return;
 	}
-
-	if (m_descPlayers[seat_id] != 0)
+	
+	/* 判断当前位置是否有人 */
+	int iCurDeskSeatid = player->getDeskSeatid();
+	if (m_descPlayers[seatid] != 0)
 	{
-		xt_log.info("player(%d) get desk fail, seatid have player:%d \n",player->getUid(), seatid);
+		if (iCurDeskSeatid == seatid)
+		{
+			xt_log.info("player(%d) send same desk seatid:%d \n",player->getUid(), seatid);
 
-		Jpacket packet;
-		packet.val["cmd"]	  = AK_DESK_RSP;
-		packet.val["ret"]     = (int)AK_SEAT_HAVE_PLAYER;
-		packet.val["desc"]    = "seat have player.";
-		packet.end();
-		m_server->unicast(NULL, packet.tostring());
+			Jpacket packet;
+			packet.val["cmd"]		= AK_DESK_RSP;
+			packet.val["ret"]		= (int)AK_SUCCESS;
+			packet.val["desc"]		= "success.";
+			packet.end();
+			m_server->unicast(player, packet.tostring());
+		}
+		else
+		{
+			xt_log.warn("player(%d) get desk fail, req seatid %d cur seatid:%d \n",player->getUid(), seatid, iCurDeskSeatid);
+
+			Jpacket packet;
+			packet.val["cmd"]	  = AK_DESK_RSP;
+			packet.val["ret"]     = (int)AK_SEAT_HAVE_PLAYER;
+			packet.val["desc"]    = "seat have player.";
+			packet.end();
+			m_server->unicast(player, packet.tostring());
+		}
+		
 		return;
 	}
 
-    m_descPlayers[seat_id] = player->getUid();
-	player->setDeskSeatid(seat_id);
+	xt_log.info("player(%d) seat desk seatid:%d success.\n",player->getUid(), seatid);
 
+	/* 如已经在桌上则将当前位子清空 */
+	if (iCurDeskSeatid >= 0 && iCurDeskSeatid < AK_DECKPLAYER_NU)
+	{
+		m_descPlayers[iCurDeskSeatid] = 0;
+	}
+
+    m_descPlayers[seatid] = player->getUid();
+	player->setDeskSeatid(seatid);
+
+	/* 发送应答 */
 	Jpacket packetResp;
 	packetResp.val["cmd"]		= AK_DESK_RSP;
-	packetResp.val["ret"]		= 0;
+	packetResp.val["ret"]		= (int)AK_SUCCESS;
 	packetResp.val["desc"]	  	= "success.";
 	packetResp.end();
-	m_server->unicast(NULL, packetResp.tostring());
-
+	m_server->unicast(player, packetResp.tostring());
+	
+	/* 发送上桌广播 */
     Jpacket packet;
     packet.val["cmd"]       = AK_DESK_SB;
     packet.val["name"]      = player->getName();
@@ -1412,8 +1446,8 @@ void AllKillGame::playerDesk(AllKillPlayer* player,Jpacket& package)
     packet.val["money"]     = player->getMoney();
     packet.val["sex"]       = player->getSex();
     packet.val["desk_seatid"]    = seatid;
+	packet.val["prev_seatid"]	 = iCurDeskSeatid;
     packet.end();
-	
     m_server->broadcast(NULL, packet.tostring());
 }
 
@@ -1896,19 +1930,10 @@ void AllKillGame::handleGameReady()
 	}
 	m_betPlayers.clear();
 
-
 	/* offline */
-	bool bDeskPlayerChange = false;
 	for(std::map<int,AllKillPlayer*>::iterator iter=m_offlinePlayers.begin();
 			iter!=m_offlinePlayers.end();++iter)
 	{
-		int iSeatid = iter->second->getDeskSeatid();
-		if (iSeatid >= 0 && iSeatid < AK_SEAT_ID_NU)
-		{
-			m_descPlayers[iSeatid] = 0;
-			bDeskPlayerChange = true;
-		}
-		
 		delete iter->second;
 	}
 
@@ -1916,7 +1941,18 @@ void AllKillGame::handleGameReady()
 
 	setNextRole();
 
-	broadcastGameReady(NULL, bDeskPlayerChange);
+	broadcastGameReady(NULL);
+}
+
+void AllKillGame::CheckClearDesk(AllKillPlayer* player)
+{
+	int iSeatid = player->getDeskSeatid();
+	if (iSeatid >= 0 && iSeatid < AK_SEAT_ID_NU)
+	{
+		m_descPlayers[iSeatid] = 0;
+
+		broadcastDeskPlayerLeave(player, LDR_LOGOUT);
+	}
 }
 
 void AllKillGame::handleGameStart()
@@ -2301,11 +2337,18 @@ void AllKillGame::handleDeskChange()
 		if (uid != 0)
 		{
 			AllKillPlayer* pPlayer = getPlayerNoAdd(uid);
+			if (pPlayer == NULL)
+			{
+				xt_log.warn("desk player info error.");
+				m_descPlayers[i] = 0;
+				continue;
+			}
 			if (pPlayer->getDeskSeatid() > 0 && pPlayer->getDeskSeatid() < AK_DECKPLAYER_NU && pPlayer->getMoney() < m_gameConfig.m_deskMinMoney)
 			{
+				broadcastDeskPlayerLeave(pPlayer, LDR_NOT_ENOUGH_MONEY);
+				
 				m_descPlayers[pPlayer->getDeskSeatid()] = 0;
 				pPlayer->setDeskSeatid(INVALID_SEATID);
-				m_bDeskPlayerChange = true;
 			}
 		}
 	}
@@ -2428,7 +2471,7 @@ void AllKillGame::sendGameInfo(AllKillPlayer* player)
 
 	formatAskRoleList(&packet);
 	formatRole(&packet);
-    formatDeckPlayer(packet);
+    formatDeskPlayer(packet);
 
 	/* send seat infor */
 	for(int i=0;i<AK_SEAT_ID_NU;i++)
@@ -2488,7 +2531,7 @@ void AllKillGame::sendGameInfo(AllKillPlayer* player)
 }
 
 
-void AllKillGame::broadcastGameReady(AllKillPlayer* player, bool formatDeskInfo)
+void AllKillGame::broadcastGameReady(AllKillPlayer* player)
 {
 	Jpacket packet;
 
@@ -2498,18 +2541,25 @@ void AllKillGame::broadcastGameReady(AllKillPlayer* player, bool formatDeskInfo)
 
 	formatRole(&packet);
 	formatAskRoleList(&packet);
-	if (formatDeskInfo)
-	{
-		formatDeskPlayer(packet);
-	}
 	
 	packet.end();
 	m_server->broadcast(player,packet.tostring());
 }
 
 
+void AllKillGame::broadcastDeskPlayerLeave(AllKillPlayer* player, int reason)
+{
+	Jpacket packet;
 
+	packet.val["cmd"]=AK_DESK_LEAVE_SB;
 
+	packet.val["uid"] = player->getUid();
+	packet.val["desk_seatid"] = player->getDeskSeatid();
+	packet.val["reason"] = reason;
+	
+	packet.end();
+	m_server->broadcast(NULL,packet.tostring());
+}
 
 void AllKillGame::broadcastGameStart(AllKillPlayer* player)
 {
@@ -2530,12 +2580,6 @@ void AllKillGame::broadcastGameEnd(AllKillPlayer* player)
 
 	formatRottleFirstReward(&packet);
 	formatGameResult(&packet);
-
-	if (m_bDeskPlayerChange)
-	{
-		m_bDeskPlayerChange = false;
-		formatDeskPlayer(packet);
-	}
 
 	packet.val["rottle_money"]=m_rottleTotalMoney;
 	packet.end();
@@ -2830,21 +2874,26 @@ void AllKillGame::formatAskRoleList(Jpacket* packet)
 }
 
 void AllKillGame::formatDeskPlayer(Jpacket& packet)
-{
+{	
+	packet.val["deskplayer"].resize(0);
+	
     AllKillPlayer* player = NULL;
-    for(int i = 0; i < AK_DECKPLAYER_NU; ++i)
+    for(int i = 0, j = 0; i < AK_DECKPLAYER_NU; ++i)
     {
 		player = getPlayerNoAdd(m_descPlayers[i]);
         if(NULL == player)
         {
             continue;
         }
-		packet.val["deskplayer"][i]["name"]=player->getName();
-		packet.val["deskplayer"][i]["uid"]=player->getUid();
-		packet.val["deskplayer"][i]["avatar"]=player->getAvatar();
-		packet.val["deskplayer"][i]["money"]=player->getMoney();
-		packet.val["deskplayer"][i]["sex"]=player->getSex();
-		packet.val["deskplayer"][i]["seatid"]=i;
+		
+		packet.val["deskplayer"][j]["name"]=player->getName();
+		packet.val["deskplayer"][j]["uid"]=player->getUid();
+		packet.val["deskplayer"][j]["avatar"]=player->getAvatar();
+		packet.val["deskplayer"][j]["money"]=player->getMoney();
+		packet.val["deskplayer"][j]["sex"]=player->getSex();
+		packet.val["deskplayer"][j]["seatid"]=i;
+		
+		++j;
     }
 }
 

@@ -220,8 +220,9 @@ void AllKillServer::reciveClientCmd(AllKillClient* client,Jpacket& package)
 		case AK_CHAT_C:
 			clientChat(client,package);
 			break;
-
-
+		case AK_DESK_C:
+			clientDesk(client,package);
+			break;
 		default:
 			xt_log.error("client(%d) unkown cmd(%d)\n",fd,cmd);
 	}

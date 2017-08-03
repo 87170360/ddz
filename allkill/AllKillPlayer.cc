@@ -40,6 +40,10 @@ AllKillPlayer::~AllKillPlayer()
 	ms_objectNu--;
 #endif 
 
+	if (m_game != NULL)
+	{
+		m_game->CheckClearDesk(this);
+	}
 }
 
 

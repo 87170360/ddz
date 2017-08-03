@@ -38,10 +38,12 @@ enum E_AllKillGameCmd
 	AK_PLAYER_BET_REWARD_SU=6014,
 
     AK_DESK_C=6015,     //要求上桌
-    AK_DESK_RSP=6016,   //上桌回复 result = 0 成功， 1 失败
+    AK_DESK_RSP=6016,   //上桌回复 result = 0 成功， 其它失败
 	AK_DESK_SB=6017,	//上桌广播
 
 	AK_DESK_BET_SB = 6018,	//上桌用户下注广播
+
+	AK_DESK_LEAVE_SB = 6019,	//上桌用户离开牌桌广播
 
 	AK_CHAT_C=6021,
 	AK_CHAT_SB=6031,
@@ -62,6 +64,12 @@ enum E_AllKillGameErr
 	AK_SEAT_HAVE_PLAYER = -7,	//当前座位已有玩家
 };
 
+enum E_LeaveDeskReason
+{
+	LDR_LOGOUT = 1,
+	LDR_NOT_ENOUGH_MONEY = 2,
+	
+};
 
 /* ak seat info */
 #define AK_SEAT_ID_START 1
