@@ -2378,7 +2378,7 @@ void AllKillGame::handleGameUpdate()
 		m_gameBetting.m_betRemainTime=0;
 	}
 
-	//broadcastGameUpdate(NULL);
+	broadcastGameUpdate(NULL);
 }
 
 int AllKillGame::setNextRole()
