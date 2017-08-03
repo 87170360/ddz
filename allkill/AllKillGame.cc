@@ -2341,7 +2341,7 @@ void AllKillGame::handleDeskChange()
 			AllKillPlayer* pPlayer = getPlayerNoAdd(uid);
 			if (pPlayer == NULL)
 			{
-				xt_log.warn("desk player info error.");
+				xt_log.warn("desk player info error %d\n.", uid);
 				m_descPlayers[i] = 0;
 				continue;
 			}
