@@ -165,7 +165,7 @@ void AllKillServer::reciveClientCmd(AllKillClient* client,Jpacket& package)
 		return;
 	}
 
-	xt_log.info("recive from client(%d) %s",client->getClientFd(),package.tostring().c_str());
+	xt_log.info("recive from client(%d) %s\n",client->getClientFd(),package.tostring().c_str());
 
 	int cmd =package.val["cmd"].asInt();
 	AllKillPlayer* player=(AllKillPlayer*)client->getUserData();
