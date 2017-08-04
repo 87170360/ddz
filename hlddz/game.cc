@@ -245,7 +245,7 @@ int Game::dispatch(Client *client)
         return -1;
     }
 
-	xt_log.debug("recive from client(%d) %s\n", client->getClientFd(),client->packet.tostring().c_str());
+	xt_log.debug("recive from client(%d) %s\n", client->fd,client->packet.tostring().c_str());
 
     if (cmd == CLIENT_LOGIN) 
     {
