@@ -237,7 +237,6 @@ void Game::del_client(Client *client)
 
 int Game::dispatch(Client *client)
 {
-    //xt_log.debug("game, dispatch\n");
     client->cmd_type = 0;
     int cmd = client->packet.safe_check();
     if (cmd < 0) 
@@ -245,6 +244,8 @@ int Game::dispatch(Client *client)
         xt_log.error("the cmd format is error.\n");
         return -1;
     }
+
+	xt_log.debug("recive from client(%d) %s\n", client->getClientFd(),client->packet.tostring().c_str());
 
     if (cmd == CLIENT_LOGIN) 
     {
