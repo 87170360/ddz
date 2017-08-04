@@ -103,6 +103,9 @@ int Game::init_accept()
         return -1;
     }
 
+	int val = 10;
+	setsockopt(_fd, SOL_TCP, TCP_DEFER_ACCEPT, &val, sizeof(val));
+
     if (bind(_fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         xt_log.error("File[%s] Line[%d]: bind failed: %s\n", __FILE__, __LINE__, strerror(errno));
         close(_fd);

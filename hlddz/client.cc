@@ -40,9 +40,6 @@ _ev_nodata_tstamp(60 * 20)
     int set = 1;
     setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 #endif
-
-	int val = 10;
-	setsockopt(fd, SOL_TCP, TCP_DEFER_ACCEPT, &val, sizeof(val));
 	
     //xt_log.debug("client[%d] open\n", fd);
 }
