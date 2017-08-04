@@ -349,6 +349,11 @@ int Game::dispatch(Client *client)
                 all_tables[player->m_tid]->msgRecord(player);
             } 
             break;
+		case CLIENT_FEE:
+            {
+                all_tables[player->m_tid]->msgFee(player);
+            } 
+            break;
         default:
             {
                xt_log.error("invalid command[%d]\n", cmd);
