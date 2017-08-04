@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <errno.h>
+#include <netinet/tcp.h>
 
 #include "hlddz.h"
 #include "log.h"
